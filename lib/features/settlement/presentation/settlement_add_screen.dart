@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:psm_mobile/features/settlement/presentation/cubit/settlement_category_cubit.dart';
 import 'package:psm_mobile/features/settlement/presentation/cubit/settlement_tab_cubit.dart';
-import 'package:psm_mobile/features/settlement/presentation/widgets/brizzi_tab_content.dart';
-import 'package:psm_mobile/features/settlement/presentation/widgets/debit_kredit_tab_content.dart';
-import 'package:psm_mobile/features/settlement/presentation/widgets/qris_tab_content.dart';
+import 'package:psm_mobile/features/settlement/presentation/widgets/settlement_category_card.dart';
 import 'package:psm_mobile/features/settlement/presentation/widgets/settlement_method_wizard_item.dart';
-import 'package:psm_mobile/features/settlement/presentation/widgets/settlement_tab.dart';
 
 class SettlementAddScreen extends StatelessWidget {
   const SettlementAddScreen({super.key});
@@ -51,24 +49,36 @@ class SettlementAddScreen extends StatelessWidget {
                       SettlementMethodWizardItem(
                         active: state == "card",
                         wizardKey: "card",
-                        label: "Card",
+                        logoName: "card.png",
                       ),
                       SettlementMethodWizardItem(
                         active: state == "brizzi",
                         wizardKey: "brizzi",
-                        label: "BRIZZI",
+                        logoName: "brizzi.png",
                       ),
                       SettlementMethodWizardItem(
                         active: state == "qris",
                         wizardKey: "qris",
-                        label: "QRIS",
+                        logoName: "qris.png",
                       ),
                     ],
                   ),
                   SizedBox(height: 10),
                   Text(
-                    "Denominasi",
+                    "Kategori",
                     style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  BlocBuilder<SettlementCategoryCubit, String>(
+                    builder: (context, state) {
+                      return Column(
+                        spacing: 8,
+                        children: [
+                          SettlementCategoryCard(cardKey: "pelajar", label: "Pelajar", isFocused: state == "pelajar"),
+                          SettlementCategoryCard(cardKey: "umum", label: "Umum", isFocused: state == "umum"),
+                          SettlementCategoryCard(cardKey: "lansia", label: "Lansia", isFocused: state == "lansia"),
+                        ],
+                      );
+                    }
                   ),
                 ],
               );

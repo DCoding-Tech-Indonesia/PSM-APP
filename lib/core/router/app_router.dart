@@ -6,6 +6,7 @@ import 'package:psm_mobile/core/presentations/widgets/custom_camera_widget.dart'
 import 'package:psm_mobile/features/auth/presentation/auth_screen.dart';
 import 'package:psm_mobile/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_bloc.dart';
+import 'package:psm_mobile/features/settlement/presentation/cubit/settlement_category_cubit.dart';
 import 'package:psm_mobile/features/settlement/presentation/cubit/settlement_tab_cubit.dart';
 import 'package:psm_mobile/features/settlement/presentation/settlement_dashboard_screen.dart';
 import 'package:psm_mobile/features/settlement/presentation/settlement_add_screen.dart';
@@ -13,7 +14,7 @@ import 'package:psm_mobile/features/portal/presentation/portal_screen.dart';
 
 GoRouter createRouter(BuildContext context) {
   return GoRouter(
-    initialLocation: '/portal',
+    initialLocation: '/settlement/dashboard',
 
     routes: [
       // AUTH ROUTE
@@ -51,6 +52,7 @@ GoRouter createRouter(BuildContext context) {
           return MultiBlocProvider(
             providers: [
               BlocProvider(create: (_) => SettlementTabCubit()),
+              BlocProvider(create: (_) => SettlementCategoryCubit()),
               BlocProvider(create: (_) => SettlementBloc()),
             ],
             child: const SettlementAddScreen(),

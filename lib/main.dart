@@ -13,6 +13,7 @@ import 'package:psm_mobile/core/theme/app_theme.dart';
 import 'package:psm_mobile/features/auth/data/auth_data_source.dart';
 import 'package:psm_mobile/features/auth/data/auth_repository_impl.dart';
 import 'package:psm_mobile/features/auth/domain/repositories/auth_repository.dart';
+import 'package:psm_mobile/features/settlement/presentation/cubit/settlement_category_cubit.dart';
 import 'package:psm_mobile/features/settlement/presentation/cubit/settlement_tab_cubit.dart';
 
 void main() async {
@@ -43,6 +44,7 @@ void main() async {
         ),
         BlocProvider(create: (_) => CoreTabCubit()),
         BlocProvider(create: (_) => SettlementTabCubit()),
+        BlocProvider(create: (_) => SettlementCategoryCubit()),
       ],
       child: const MyApp(),
     ),
