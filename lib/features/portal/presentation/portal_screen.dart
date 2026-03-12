@@ -1,104 +1,102 @@
 import 'package:flutter/material.dart';
+import 'package:psm_mobile/features/portal/presentation/widget/portal_menu_widget.dart';
 
 class PortalScreen extends StatelessWidget {
   const PortalScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 25),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text("PSM Portal", style: TextStyle(fontSize: 30),),
+    final theme = Theme.of(context);
 
-              Padding(
-                padding: const EdgeInsetsGeometry.symmetric(horizontal: 12.0),
-                child: Column(
-                  spacing: 16,
+    return Scaffold(
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              theme.primaryColor,
+              theme.primaryColor.withOpacity(0.6),
+              theme.primaryColor,
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 60, horizontal: 12),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Column(
+                  spacing: 14,
+                  children: [
+                    Container(
+                      width: 150,
+                      height: 150,
+                      decoration: BoxDecoration(
+                        color: Colors.white70,
+                        borderRadius: BorderRadius.circular(999),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.white70,
+                            blurRadius: 10,
+                            offset: Offset(0, 5),
+                          ),
+                        ],
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(999),
+                        child: Image.network(
+                          "https://picsum.photos/id/64/300/300",
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      "Jane Doe",
+                      style: theme.textTheme.headlineMedium,
+                    ),
+                  ],
+                ),
+                Column(
                   children: [
                     Row(
-                      spacing: 16,
                       children: [
-                        Expanded(
-                          child: Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              border: Border.all(width: 1, color: Colors.white70),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: const Center(child: Text("Portal A")),
-                          ),
+                        PortalMenuWidget(
+                          title: "Settlement",
+                          route: "/settlement/dashboard",
                         ),
-                        Expanded(
-                          child: Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              border: Border.all(width: 1, color: Colors.white70),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: const Center(child: Text("Portal B")),
-                          ),
-                        ),
+                        const SizedBox(width: 16),
+                        PortalMenuWidget(title: "Absensi", route: "/absensi"),
                       ],
                     ),
+
+                    const SizedBox(height: 16),
+
                     Row(
-                      spacing: 16,
                       children: [
-                        Expanded(
-                          child: Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              border: Border.all(width: 1, color: Colors.white70),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: const Center(child: Text("Portal C")),
-                          ),
+                        PortalMenuWidget(
+                          title: "Data Kendaraan",
+                          route: "/kendaraan",
                         ),
-                        Expanded(
-                          child: Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              border: Border.all(width: 1, color: Colors.white70),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: const Center(child: Text("Portal D")),
-                          ),
-                        ),
+                        const SizedBox(width: 16),
+                        PortalMenuWidget(title: "Ceklis SPM", route: "/spm"),
                       ],
                     ),
+
+                    const SizedBox(height: 16),
+
                     Row(
-                      spacing: 16,
                       children: [
-                        Expanded(
-                          child: Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              border: Border.all(width: 1, color: Colors.white70),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: const Center(child: Text("Portal E")),
-                          ),
-                        ),
-                        Expanded(
-                          child: Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              border: Border.all(width: 1, color: Colors.white70),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: const Center(child: Text("Portal F")),
-                          ),
-                        ),
+                        PortalMenuWidget(title: "KM Kendaraan", route: "/km"),
+                        const SizedBox(width: 16),
+                        PortalMenuWidget(title: "Report", route: "/report"),
                       ],
                     ),
                   ],
                 ),
-              ),
-              Text("@Copyright D'Coding 2026"),
-            ],
+              ],
+            ),
           ),
         ),
       ),

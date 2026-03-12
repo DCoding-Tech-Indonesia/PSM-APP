@@ -41,6 +41,10 @@ dependencies:
   flutter_dotenv: ^6.0.0
   fpdart: ^1.1.1
   shared_preferences: ^2.5.3
+  advanced_salomon_bottom_bar: ^3.3.4
+  flutter_local_notifications: ^19.4.2
+  camera: ^0.12.0
+  image: ^4.8.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

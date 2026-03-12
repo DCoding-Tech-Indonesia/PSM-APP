@@ -3,7 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:psm_mobile/core/network/dio_client.dart';
+import 'package:psm_mobile/core/notification/notification_service.dart';
 import 'package:psm_mobile/core/permission/permission_cubit.dart';
+import 'package:psm_mobile/core/presentations/cubit/core_tab_cubit.dart';
 import 'package:psm_mobile/core/router/app_router.dart';
 import 'package:psm_mobile/core/storage/secure_storage.dart';
 import 'package:psm_mobile/core/storage/shared_preferences.dart';
@@ -11,6 +13,7 @@ import 'package:psm_mobile/core/theme/app_theme.dart';
 import 'package:psm_mobile/features/auth/data/auth_data_source.dart';
 import 'package:psm_mobile/features/auth/data/auth_repository_impl.dart';
 import 'package:psm_mobile/features/auth/domain/repositories/auth_repository.dart';
+import 'package:psm_mobile/features/settlement/presentation/cubit/settlement_tab_cubit.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,6 +23,8 @@ void main() async {
   await dotenv.load(fileName: ".env");
 
   await sharedPreferencesService.init();
+
+  await NotificationServices.initialize();
 
   final dioClient = DioClient();
   dioClient.init(baseUrl: dotenv.env['API_BASE_URL']);
@@ -36,6 +41,8 @@ void main() async {
                 dataSource: AuthDataSource(dio: dioClient.instance)
             ),
         ),
+        BlocProvider(create: (_) => CoreTabCubit()),
+        BlocProvider(create: (_) => SettlementTabCubit()),
       ],
       child: const MyApp(),
     ),
