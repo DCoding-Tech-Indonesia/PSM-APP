@@ -73,12 +73,45 @@ class SettlementAddScreen extends StatelessWidget {
                       return Column(
                         spacing: 8,
                         children: [
-                          SettlementCategoryCard(cardKey: "pelajar", label: "Pelajar", isFocused: state == "pelajar"),
-                          SettlementCategoryCard(cardKey: "umum", label: "Umum", isFocused: state == "umum"),
-                          SettlementCategoryCard(cardKey: "lansia", label: "Lansia", isFocused: state == "lansia"),
+                          SettlementCategoryCard(
+                            cardKey: "pelajar",
+                            label: "Pelajar",
+                            isFocused: state == "pelajar",
+                          ),
+                          SettlementCategoryCard(
+                            cardKey: "umum",
+                            label: "Umum",
+                            isFocused: state == "umum",
+                          ),
+                          SettlementCategoryCard(
+                            cardKey: "lansia",
+                            label: "Lansia",
+                            isFocused: state == "lansia",
+                          ),
                         ],
                       );
-                    }
+                    },
+                  ),
+                  Expanded(child: Text("Total")),
+                  GestureDetector(
+                    onTap: () {},
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        color: theme.primaryColor,
+                      ),
+                      child: Text(
+                        "Simpan",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 20,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               );

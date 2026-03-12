@@ -19,7 +19,9 @@ class SettlementCategoryCard extends StatelessWidget {
 
     return GestureDetector(
       onTap: () {
-        context.read<SettlementCategoryCubit>().changeSettlementCategory(cardKey);
+        context.read<SettlementCategoryCubit>().changeSettlementCategory(
+          cardKey,
+        );
       },
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 8),
@@ -27,23 +29,63 @@ class SettlementCategoryCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           border: Border.all(
-              width: 1.5,
-              color: isFocused ? theme.primaryColor : Colors.transparent
+            width: 1.5,
+            color: isFocused ? theme.primaryColor : Colors.transparent,
           ),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
-              children: [
-                Text(label),
-              ],
-            ),
-            Row(
-              children: [
-                Text("0"),
-              ],
+            Row(children: [Text(label)]),
+            Container(
+              padding: const EdgeInsets.symmetric(
+                vertical: 3,
+                horizontal: 4,
+              ),
+              decoration: BoxDecoration(
+                color: theme.primaryColor.withOpacity(.2),
+                borderRadius: BorderRadius.circular(14)
+              ),
+              child: Row(
+                spacing: 15,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  GestureDetector(
+                    onTap: () {},
+                    child: Container(
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(99),
+                          border: Border.all(
+                            width: 1.3,
+                            color: theme.disabledColor,
+                          )
+                      ),
+                      child: Icon(
+                          Icons.remove,
+                          color: theme.disabledColor,
+                      ),
+                    ),
+                  ),
+                  Text("0", style: TextStyle(color: Colors.black, fontSize: 18),),
+                  GestureDetector(
+                    onTap: () {},
+                    child: Container(
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(99),
+                          border: Border.all(
+                            width: 1.3,
+                            color: theme.primaryColor,
+                          )
+                      ),
+                      child: Icon(
+                        Icons.add,
+                        color: theme.primaryColor,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
