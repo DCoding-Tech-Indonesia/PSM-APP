@@ -14,7 +14,7 @@ import 'package:psm_mobile/features/portal/presentation/portal_screen.dart';
 
 GoRouter createRouter(BuildContext context) {
   return GoRouter(
-    initialLocation: '/settlement/dashboard',
+    initialLocation: '/settlement/add',
 
     routes: [
       // AUTH ROUTE

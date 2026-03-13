@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_bloc.dart';
+import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_event.dart';
+import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_state.dart';
 import 'package:psm_mobile/features/settlement/presentation/cubit/settlement_category_cubit.dart';
 
 class SettlementCategoryCard extends StatelessWidget {
   const SettlementCategoryCard({
     super.key,
+    required this.category,
     required this.cardKey,
     this.isFocused = false,
     required this.label,
   });
 
   final bool isFocused;
-  final String cardKey, label;
+  final String category, cardKey, label;
 
   @override
   Widget build(BuildContext context) {
@@ -44,48 +48,84 @@ class SettlementCategoryCard extends StatelessWidget {
                 horizontal: 4,
               ),
               decoration: BoxDecoration(
-                color: theme.primaryColor.withOpacity(.2),
-                borderRadius: BorderRadius.circular(14)
               ),
-              child: Row(
-                spacing: 15,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  GestureDetector(
-                    onTap: () {},
-                    child: Container(
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(99),
-                          border: Border.all(
-                            width: 1.3,
-                            color: theme.disabledColor,
-                          )
+              child: BlocBuilder<SettlementBloc, SettlementState>(
+                builder: (context, state) {
+                  final value = state.paymentData[category]?[cardKey] ?? 0;
+
+                  return Row(
+                    spacing: 15,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          context.read<SettlementCategoryCubit>().changeSettlementCategory(
+                            cardKey,
+                          );
+                          if (value > 0) {
+                            context.read<SettlementBloc>().add(
+                              PaymentCountChanged(
+                                method: category,
+                                category: cardKey,
+                                value: value - 1,
+                              ),
+                            );
+                          }
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(99),
+                            border: Border.all(
+                              width: 1.3,
+                              color: value > 0 ? theme.primaryColor : theme.disabledColor,
+                            ),
+                          ),
+                          child: Icon(
+                            Icons.remove,
+                            color: value > 0 ? theme.primaryColor : theme.disabledColor,
+                          ),
+                        ),
                       ),
-                      child: Icon(
-                          Icons.remove,
-                          color: theme.disabledColor,
+
+                      Text(
+                        value.toString(),
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontSize: 18,
+                        ),
                       ),
-                    ),
-                  ),
-                  Text("0", style: TextStyle(color: Colors.black, fontSize: 18),),
-                  GestureDetector(
-                    onTap: () {},
-                    child: Container(
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(99),
-                          border: Border.all(
-                            width: 1.3,
+
+                      GestureDetector(
+                        onTap: () {
+                          context.read<SettlementCategoryCubit>().changeSettlementCategory(
+                            cardKey,
+                          );
+                          context.read<SettlementBloc>().add(
+                            PaymentCountChanged(
+                              method: category,
+                              category: cardKey,
+                              value: value + 1,
+                            ),
+                          );
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(99),
+                            border: Border.all(
+                              width: 1.3,
+                              color: theme.primaryColor,
+                            ),
+                          ),
+                          child: Icon(
+                            Icons.add,
                             color: theme.primaryColor,
-                          )
+                          ),
+                        ),
                       ),
-                      child: Icon(
-                        Icons.add,
-                        color: theme.primaryColor,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+                    ],
+                  );
+                },
+              )
             ),
           ],
         ),

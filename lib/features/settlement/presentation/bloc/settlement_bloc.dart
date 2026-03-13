@@ -6,7 +6,6 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
   SettlementBloc() : super(const SettlementState()) {
 
     on<DebitKreditPictChanged>((event, emit) {
-      print("INI DIA BROOO ${event.value}");
       emit(state.copyWith(debitKreditPict: event.value));
     });
 
@@ -16,6 +15,16 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
 
     on<QrisPictChanged>((event, emit) {
       emit(state.copyWith(qrisPict: event.value));
+    });
+
+    on<PaymentCountChanged>((event, emit) {
+
+      final newData = Map<String, Map<String, int>>.from(state.paymentData);
+
+      newData[event.method] = Map<String, int>.from(newData[event.method]!)
+        ..[event.category] = event.value;
+
+      emit(state.copyWith(paymentData: newData));
     });
   }
 }
