@@ -82,95 +82,95 @@ class _SettlementSecondStepState extends State<SettlementSecondStep> {
     final ratio = 9 / 16;
     final theme = Theme.of(context);
 
-    return Column(
-      spacing: 20,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text("Lampiran Foto Bukti Settlement"),
-        SizedBox(
-          width: double.infinity,
-          child: Column(
-            spacing: 15,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _image == null
-                  ? Container(
+    return SingleChildScrollView(
+      child: Column(
+        spacing: 20,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text("Lampiran Foto Bukti Settlement"),
+          SizedBox(
+            width: double.infinity,
+            child: Column(
+              spacing: 15,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _image == null
+                    ? Container(
+                  height: 400,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(width: .3),
+                  ),
+                  child: const Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.camera_alt_rounded),
+                      Text("Gambar Akan Ditampilkan Disini"),
+                    ],
+                  ),
+                )
+                    : GestureDetector(
+                  onTap: _previewImage,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Image.file(
+                      _image!,
                       height: 400,
                       width: double.infinity,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(width: .3),
-                      ),
-                      child: const Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.camera_alt_rounded),
-                          Text("Gambar Akan Ditampilkan Disini"),
-                        ],
-                      ),
-                    )
-                  : GestureDetector(
-                      onTap: _previewImage,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: Stack(
-                          children: [
-                            Image.file(
-                              _image!,
-                              height: 400,
-                              width: double.infinity,
-                              fit: BoxFit.fitHeight,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-              GestureDetector(
-                onTap: () => _openCamera(ratio),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: theme.primaryColor,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Text(
-                    "Ambil Foto",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
+                      fit: BoxFit.fitHeight,
                     ),
                   ),
                 ),
-              ),
-              GestureDetector(
-                onTap: _image == null ? null : _deleteImage,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: _image == null
-                        ? theme.disabledColor
-                        : theme.colorScheme.error,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Text(
-                    "Hapus Foto",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
+
+                GestureDetector(
+                  onTap: () => _openCamera(ratio),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: theme.primaryColor,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Text(
+                      "Ambil Foto",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
+
+                GestureDetector(
+                  onTap: _image == null ? null : _deleteImage,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: _image == null
+                          ? theme.disabledColor
+                          : theme.colorScheme.error,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Text(
+                      "Hapus Foto",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
