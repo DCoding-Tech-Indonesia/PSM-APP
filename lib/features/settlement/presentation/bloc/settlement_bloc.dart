@@ -5,16 +5,8 @@ import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_stat
 class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
   SettlementBloc() : super(const SettlementState()) {
 
-    on<DebitKreditPictChanged>((event, emit) {
-      emit(state.copyWith(debitKreditPict: event.value));
-    });
-
-    on<BrizziPictChanged>((event, emit) {
-      emit(state.copyWith(brizziPict: event.value));
-    });
-
-    on<QrisPictChanged>((event, emit) {
-      emit(state.copyWith(qrisPict: event.value));
+    on<SettlementPictChanged>((event, emit) {
+      emit(state.copyWith(settlementPict: event.value));
     });
 
     on<PaymentCountChanged>((event, emit) {

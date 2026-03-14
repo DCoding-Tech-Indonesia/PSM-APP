@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:psm_mobile/features/settlement/presentation/cubit/settlement_category_cubit.dart';
-import 'package:psm_mobile/features/settlement/presentation/cubit/settlement_tab_cubit.dart';
-import 'package:psm_mobile/features/settlement/presentation/widgets/settlement_category_card.dart';
-import 'package:psm_mobile/features/settlement/presentation/widgets/settlement_method_wizard_item.dart';
+import 'package:psm_mobile/features/settlement/presentation/cubit/settlement_step_cubit.dart';
+import 'package:psm_mobile/features/settlement/presentation/widgets/settlement_first_step.dart';
+import 'package:psm_mobile/features/settlement/presentation/widgets/settlement_second_step.dart';
 
 class SettlementAddScreen extends StatelessWidget {
   const SettlementAddScreen({super.key});
@@ -31,85 +30,42 @@ class SettlementAddScreen extends StatelessWidget {
         ),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(20, 40, 20, 32),
-          child: BlocBuilder<SettlementTabCubit, String>(
-            builder: (context, state) {
-              final categoryTab = state;
-
-              return Column(
-                spacing: 15,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Detail Transaksi",
-                    style: theme.textTheme.headlineSmall,
-                    textAlign: TextAlign.start,
-                  ),
-                  Divider(color: Colors.black26),
-                  Row(
-                    spacing: 12,
-                    children: [
-                      SettlementMethodWizardItem(
-                        active: state == "card",
-                        wizardKey: "card",
-                        logoName: "card.png",
-                      ),
-                      SettlementMethodWizardItem(
-                        active: state == "brizzi",
-                        wizardKey: "brizzi",
-                        logoName: "brizzi.png",
-                      ),
-                      SettlementMethodWizardItem(
-                        active: state == "qris",
-                        wizardKey: "qris",
-                        logoName: "qris.png",
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    "Kategori",
-                    style: TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  BlocBuilder<SettlementCategoryCubit, String>(
-                    builder: (context, state) {
-
-                      return Column(
-                        spacing: 8,
-                        children: [
-                          SettlementCategoryCard(
-                            category: categoryTab,
-                            cardKey: "pelajar",
-                            label: "Pelajar",
-                            isFocused: state == "pelajar",
-                          ),
-                          SettlementCategoryCard(
-                            category: categoryTab,
-                            cardKey: "umum",
-                            label: "Umum",
-                            isFocused: state == "umum",
-                          ),
-                          SettlementCategoryCard(
-                            category: categoryTab,
-                            cardKey: "lansia",
-                            label: "Lansia",
-                            isFocused: state == "lansia",
-                          ),
-                        ],
-                      );
-                    },
-                  ),
-                  Expanded(child: Text("Total")),
-                  Row(
+          child: Column(
+            spacing: 15,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Detail Transaksi",
+                style: theme.textTheme.headlineSmall,
+                textAlign: TextAlign.start,
+              ),
+              Divider(color: Colors.black26),
+              Expanded(
+                child: BlocBuilder<SettlementStepCubit, int>(
+                  builder: (context, state) {
+                    if (state != 0) {
+                      return SettlementSecondStep();
+                    }
+                    return SettlementFirstStep();
+                  },
+                ),
+              ),
+              BlocBuilder<SettlementStepCubit, int>(
+                builder: (context, state) {
+                  return Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       GestureDetector(
-                        onTap: () {},
+                        onTap: () {
+                          if(state == 0) return;
+                          context.read<SettlementStepCubit>().changeSettlementStep(0);
+                        },
                         child: Container(
                           width: 100,
                           padding: const EdgeInsets.symmetric(vertical: 10),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(10),
-                            color: theme.disabledColor,
+                            color: state == 0 ? theme.disabledColor : theme.primaryColor,
                           ),
                           child: Text(
                             "Previous",
@@ -123,7 +79,10 @@ class SettlementAddScreen extends StatelessWidget {
                         ),
                       ),
                       GestureDetector(
-                        onTap: () {},
+                        onTap: () {
+                          if(state == 1) return;
+                          context.read<SettlementStepCubit>().changeSettlementStep(1);
+                        },
                         child: Container(
                           width: 100,
                           padding: const EdgeInsets.symmetric(vertical: 10),
@@ -143,10 +102,10 @@ class SettlementAddScreen extends StatelessWidget {
                         ),
                       ),
                     ],
-                  ),
-                ],
-              );
-            },
+                  );
+                }
+              ),
+            ],
           ),
         ),
       ),
