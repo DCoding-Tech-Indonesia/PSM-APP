@@ -88,7 +88,6 @@ class _SettlementSecondStepState extends State<SettlementSecondStep> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
             decoration: BoxDecoration(
               color: Colors.white,
               border: Border.all(
@@ -98,52 +97,93 @@ class _SettlementSecondStepState extends State<SettlementSecondStep> {
               borderRadius: BorderRadius.circular(10),
             ),
             child: Column(
-              spacing: 4,
               children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "Total Transaksi",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 7,
+                    horizontal: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Color(0XFFEFEFEF),
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(10),
+                      topRight: Radius.circular(10),
+                    ),
+                    border: Border(
+                      bottom: BorderSide(
+                        color: Colors.blueGrey.withOpacity(.7),
+                        width: .8,
                       ),
                     ),
-                    Text(
-                      "Expand",
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: theme.primaryColor,
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Total Transaksi",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Text(
+                        "Expand",
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: theme.primaryColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [Text("Card"), Text("Rp. 100.000")],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [Text("QRIS"), Text("Rp. 100.000")],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [Text("BRIZZI"), Text("Rp. 100.000")],
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 7,
+                    horizontal: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Color(0XFFEFEFEF),
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(10),
+                      bottomRight: Radius.circular(10),
+                    ),
+                    border: Border(
+                      top: BorderSide(
+                        color: Colors.blueGrey.withOpacity(.7),
+                        width: .8,
                       ),
                     ),
-                  ],
-                ),
-                Divider(color: Colors.blueGrey.withOpacity(.7)),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [Text("Card"), Text("Rp. 100.000")],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [Text("QRIS"), Text("Rp. 100.000")],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [Text("BRIZZI"), Text("Rp. 100.000")],
-                ),
-                Divider(color: Colors.blueGrey.withOpacity(.7)),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [Text("Total"), Text("Rp. 300.000")],
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [Text("Total"), Text("Rp. 300.000")],
+                  ),
                 ),
               ],
             ),
           ),
           Container(
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
             decoration: BoxDecoration(
               color: Colors.white,
               border: Border.all(
@@ -153,111 +193,131 @@ class _SettlementSecondStepState extends State<SettlementSecondStep> {
               borderRadius: BorderRadius.circular(10),
             ),
             child: Column(
-              spacing: 4,
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  "Lampiran Foto Bukti Settlement",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 7,
+                    horizontal: 8,
+                  ),
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: Color(0XFFEFEFEF),
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(10),
+                      topRight: Radius.circular(10),
+                    ),
+                    border: Border(
+                      bottom: BorderSide(
+                        color: Colors.blueGrey.withOpacity(.7),
+                        width: .8,
+                      ),
+                    ),
+                  ),
+                  child: const Text(
+                    "Lampiran Foto Bukti Settlement",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                  ),
                 ),
-                Divider(color: Colors.blueGrey.withOpacity(.7)),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      flex: 2,
-                      child: AspectRatio(
-                        aspectRatio: 1,
-                        child: _image == null
-                            ? Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(
-                                    color: Colors.blueGrey.withOpacity(.5),
-                                  ),
-                                ),
-                                child: const Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(Icons.camera_alt_rounded, size: 40),
-                                    SizedBox(height: 8),
-                                    Text(
-                                      "Gambar Akan Ditampilkan Disini",
-                                      textAlign: TextAlign.center,
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: AspectRatio(
+                          aspectRatio: 1,
+                          child: _image == null
+                              ? Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(
+                                      color: Colors.blueGrey.withOpacity(.5),
                                     ),
-                                  ],
+                                  ),
+                                  child: const Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.camera_alt_rounded, size: 40),
+                                      SizedBox(height: 8),
+                                      Text(
+                                        "Gambar Akan Ditampilkan Disini",
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              : GestureDetector(
+                                  onTap: _previewImage,
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(10),
+                                    child: Image.file(
+                                      _image!,
+                                      fit: BoxFit.cover,
+                                      width: double.infinity,
+                                      height: double.infinity,
+                                    ),
+                                  ),
                                 ),
-                              )
-                            : GestureDetector(
-                                onTap: _previewImage,
-                                child: ClipRRect(
+                        ),
+                      ),
+
+                      const SizedBox(width: 12),
+
+                      Expanded(
+                        flex: 2,
+                        child: Column(
+                          children: [
+                            GestureDetector(
+                              onTap: () => _openCamera(ratio),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  color: theme.primaryColor,
                                   borderRadius: BorderRadius.circular(10),
-                                  child: Image.file(
-                                    _image!,
-                                    fit: BoxFit.cover,
-                                    width: double.infinity,
-                                    height: double.infinity,
+                                ),
+                                child: const Text(
+                                  "Ambil Foto",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
                                   ),
                                 ),
                               ),
-                      ),
-                    ),
+                            ),
 
-                    const SizedBox(width: 12),
+                            const SizedBox(height: 10),
 
-                    Expanded(
-                      flex: 2,
-                      child: Column(
-                        children: [
-                          GestureDetector(
-                            onTap: () => _openCamera(ratio),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                              width: double.infinity,
-                              decoration: BoxDecoration(
-                                color: theme.primaryColor,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: const Text(
-                                "Ambil Foto",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
+                            GestureDetector(
+                              onTap: _image == null ? null : _deleteImage,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  color: _image == null
+                                      ? theme.disabledColor
+                                      : theme.colorScheme.error,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: const Text(
+                                  "Hapus Foto",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-
-                          const SizedBox(height: 10),
-
-                          GestureDetector(
-                            onTap: _image == null ? null : _deleteImage,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                              width: double.infinity,
-                              decoration: BoxDecoration(
-                                color: _image == null
-                                    ? theme.disabledColor
-                                    : theme.colorScheme.error,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: const Text(
-                                "Hapus Foto",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ],
             ),

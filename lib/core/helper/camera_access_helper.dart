@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:psm_mobile/core/presentations/widgets/core_dialog_pop_up.dart';
 
 class CameraAccessHelper {
 
@@ -22,49 +23,28 @@ class CameraAccessHelper {
       BuildContext context,
       VoidCallback? onGranted,
       ) {
-    final theme = Theme.of(context);
-
     showDialog(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: Colors.white,
-          title: const Text("Izin Kamera Diperlukan"),
-          content: const Text(
-            "Aplikasi memerlukan izin untuk mengakses kamera. Silakan beri izin untuk melanjutkan.",
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () async {
-                Navigator.of(context).pop();
+      builder: (context) {
+        return CoreDialogPopUp(
+          title: "Izin Kamera Diperlukan",
+          description:
+          "Aplikasi memerlukan izin untuk mengakses kamera. Silakan beri izin untuk melanjutkan.",
+          confirmText: "Izinkan",
+          cancelText: "Tutup",
+          onConfirm: () async {
+            PermissionStatus status = await Permission.camera.request();
 
-                PermissionStatus status = await Permission.camera.request();
-
-                if (status.isGranted) {
-                  onGranted?.call();
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("Izin kamera ditolak."),
-                    ),
-                  );
-                }
-              },
-              child: Text(
-                "Izinkan",
-                style: TextStyle(color: theme.primaryColor),
-              ),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text(
-                "Tutup",
-                style: TextStyle(color: theme.disabledColor),
-              ),
-            ),
-          ],
+            if (status.isGranted) {
+              onGranted?.call();
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text("Izin kamera ditolak."),
+                ),
+              );
+            }
+          },
         );
       },
     );

@@ -1,12 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:psm_mobile/core/presentations/widgets/core_dialog_pop_up.dart';
 import 'package:psm_mobile/core/theme/core_styling.dart';
+import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_bloc.dart';
+import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_state.dart';
 import 'package:psm_mobile/features/settlement/presentation/cubit/settlement_step_cubit.dart';
 import 'package:psm_mobile/features/settlement/presentation/widgets/settlement_first_step.dart';
 import 'package:psm_mobile/features/settlement/presentation/widgets/settlement_second_step.dart';
 
 class SettlementAddScreen extends StatelessWidget {
   const SettlementAddScreen({super.key});
+
+  static void _submitSettlementVerification(
+      BuildContext context,
+      VoidCallback? onGranted,
+      ) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return CoreDialogPopUp(
+          title: "Submit Settlement",
+          description:
+          "Pastikan data yang di input telah benar.",
+          confirmText: "Submit",
+          cancelText: "Kembali",
+          onConfirm: () async {
+            print("CONFIRMED");
+            context.pop();
+          },
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,28 +107,40 @@ class SettlementAddScreen extends StatelessWidget {
                           ),
                         ),
                       ),
-                      GestureDetector(
-                        onTap: () {
-                          if(state == 1) return;
-                          context.read<SettlementStepCubit>().changeSettlementStep(1);
-                        },
-                        child: Container(
-                          width: 100,
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                          decoration: BoxDecoration(
-                            gradient: CoreStyling.coreActiveButtonGradient,
-                            borderRadius: CoreStyling.coreButtonRadius,
-                          ),
-                          child: Text(
-                            "Next",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
+                      BlocBuilder<SettlementBloc, SettlementState>(
+                        builder: (context, stateChild) {
+                          return GestureDetector(
+                            onTap: () {
+                              if (state == 1 && stateChild.settlementPict == null) return;
+
+                              if (state == 1 && stateChild.settlementPict != null) {
+                                _submitSettlementVerification(context, () {
+                                  print("LANJUT SUBMIT");
+                                });
+                                return;
+                              }
+
+                              context.read<SettlementStepCubit>().changeSettlementStep(1);
+                            },
+                            child: Container(
+                              width: 100,
+                              padding: const EdgeInsets.symmetric(vertical: 10),
+                              decoration: BoxDecoration(
+                                gradient: state == 1 && stateChild.settlementPict == null ? CoreStyling.coreDisableButtonGradient : CoreStyling.coreActiveButtonGradient,
+                                borderRadius: CoreStyling.coreButtonRadius,
+                              ),
+                              child: Text(
+                                "Next",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
+                          );
+                        }
                       ),
                     ],
                   );
