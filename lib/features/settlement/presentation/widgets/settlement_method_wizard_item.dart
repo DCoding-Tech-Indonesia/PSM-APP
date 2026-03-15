@@ -30,6 +30,7 @@ class SettlementMethodWizardItem extends StatelessWidget {
             horizontal: 20,
           ),
           decoration: BoxDecoration(
+            color: Colors.white,
             border: Border.all(
               color: active ? theme.primaryColor : Colors.black12,
               width: active ? 3 : 1,

@@ -69,7 +69,13 @@ class SettlementFirstStep extends StatelessWidget {
               },
             ),
             const Divider(),
-            Text("Total", style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18)),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text("Total", style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18)),
+                Text("Rp -", style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18)),
+              ],
+            ),
           ],
         );
       },
