@@ -23,7 +23,7 @@ class CoreStyling {
     ],
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
-  );
+  );-
 
   static const BorderRadius coreButtonRadius = BorderRadius.all(
     Radius.circular(10),
