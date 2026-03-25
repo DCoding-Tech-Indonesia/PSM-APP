@@ -41,8 +41,6 @@ void main() async {
             ),
         ),
         BlocProvider(create: (_) => CoreTabCubit()),
-        // BlocProvider(create: (_) => SettlementTabCubit()),
-        // BlocProvider(create: (_) => SettlementCategoryCubit()),
       ],
       child: const MyApp(),
     ),

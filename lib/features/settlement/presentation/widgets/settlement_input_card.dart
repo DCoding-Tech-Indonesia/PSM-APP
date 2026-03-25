@@ -7,10 +7,11 @@ import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_even
 class SettlementInputCard extends StatelessWidget {
   const SettlementInputCard({
     super.key,
-    required this.title
+    required this.title,
+    required this.method,
   });
 
-  final String title;
+  final String title, method;
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +47,7 @@ class SettlementInputCard extends StatelessWidget {
 
                   context.read<SettlementBloc>().add(
                     PaymentCountChanged(
-                      method: "card",
+                      method: method,
                       category: "pelajar",
                       value: intValue,
                     ),
@@ -54,9 +55,9 @@ class SettlementInputCard extends StatelessWidget {
                 },
               ),
               CoreInputField(
-                label: "Pelajar",
-                keyInput: "pelajar",
-                hintText: "Masukkan total pelajar",
+                label: "Umum",
+                keyInput: "umum",
+                hintText: "Masukkan total umum",
                 isRequired: true,
                 rule: InputRule.positiveNumber,
                 onChanged: (value) {
@@ -64,26 +65,25 @@ class SettlementInputCard extends StatelessWidget {
 
                   context.read<SettlementBloc>().add(
                     PaymentCountChanged(
-                      method: "card",
-                      category: "pelajar",
+                      method: method,
+                      category: "umum",
                       value: intValue,
                     ),
                   );
                 },
               ),
               CoreInputField(
-                label: "Pelajar",
-                keyInput: "pelajar",
-                hintText: "Masukkan total pelajar",
-                isRequired: true,
+                label: "Lansia",
+                keyInput: "lansia",
+                hintText: "Masukkan total lansia",
                 rule: InputRule.positiveNumber,
                 onChanged: (value) {
                   final intValue = int.tryParse(value) ?? 0;
 
                   context.read<SettlementBloc>().add(
                     PaymentCountChanged(
-                      method: "card",
-                      category: "pelajar",
+                      method: method,
+                      category: "lansia",
                       value: intValue,
                     ),
                   );
