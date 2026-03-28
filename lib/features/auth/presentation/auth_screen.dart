@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_input_field.dart';
+import 'package:psm_mobile/core/theme/core_styling.dart';
 
 class AuthScreen extends StatelessWidget {
   const AuthScreen({super.key});
@@ -8,7 +9,7 @@ class AuthScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [Color(0xFF2275d9), Color(0xff508cd3), Color(0xFFFFFFFF)],
             begin: Alignment.topCenter,
@@ -18,8 +19,8 @@ class AuthScreen extends StatelessWidget {
         child: SafeArea(
           child: Column(
             children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
+              const Padding(
+                padding: EdgeInsets.all(8.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -78,28 +79,131 @@ class AuthScreen extends StatelessWidget {
                     ],
                     color: Colors.white,
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Column(
-                        children: [
-                          Text("Masuek la sanak."),
-                          Text("Pitih dapek dicari,"),
-                        ],
-                      ),
-                      Column(
-                        children: [
-                          CoreInputField(
-                            label: "example@email.com",
-                            keyInput: "email",
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      return SingleChildScrollView(
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            minHeight: constraints.maxHeight,
                           ),
-                          CoreInputField(
-                            label: "example@email.com",
-                            keyInput: "email",
+                          child: IntrinsicHeight(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Center(
+                                  child: Column(
+                                    children: [
+                                      Text("Masuek la sanak."),
+                                      Text("Pitih dapek dicari,"),
+                                    ],
+                                  ),
+                                ),
+
+                                const SizedBox(height: 20),
+
+                                Column(
+                                  children: [
+                                    CoreInputField(
+                                      label: "Email",
+                                      keyInput: "email",
+                                      hintText: "email@example.com",
+                                      isRequired: true,
+                                      rule: InputRule.text,
+                                      onChanged: (value) {},
+                                    ),
+                                    const SizedBox(height: 12),
+                                    CoreInputField(
+                                      label: "Password",
+                                      keyInput: "password",
+                                      hintText: "********",
+                                      isRequired: true,
+                                      isSecured: true,
+                                      rule: InputRule.text,
+                                      onChanged: (value) {},
+                                    ),
+                                  ],
+                                ),
+
+                                const SizedBox(height: 10),
+
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Checkbox(
+                                          value: false,
+                                          onChanged: (value) {},
+                                        ),
+                                        const Text("Ingek Aden"),
+                                      ],
+                                    ),
+                                    Text(
+                                      "Lupo password sanak?",
+                                      style: TextStyle(
+                                        color: CoreStyling.primaryColor,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+
+                                const Spacer(),
+
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: GestureDetector(
+                                        onTap: () {},
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 16,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: Color(0xFF3D3D3D),
+                                            borderRadius: BorderRadius.circular(
+                                              999,
+                                            ),
+                                          ),
+                                          child: const Center(
+                                            child: Text(
+                                              "Masuek",
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+
+                                    const SizedBox(width: 10),
+
+                                    GestureDetector(
+                                      onTap: () {},
+                                      child: Container(
+                                        padding: const EdgeInsets.all(14),
+                                        decoration: BoxDecoration(
+                                          color: Color(0xFF3D3D3D),
+                                          borderRadius: BorderRadius.circular(
+                                            999,
+                                          ),
+                                        ),
+                                        child: const Icon(
+                                          Icons.fingerprint,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
-                        ],
-                      ),
-                    ],
+                        ),
+                      );
+                    },
                   ),
                 ),
               ),

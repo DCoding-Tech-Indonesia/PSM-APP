@@ -12,6 +12,7 @@ class CoreInputField extends StatelessWidget {
     this.hintText = '',
     this.onChanged,
     this.rule = InputRule.text,
+    this.isSecured = false,
   });
 
   final String label;
@@ -20,6 +21,7 @@ class CoreInputField extends StatelessWidget {
   final String hintText;
   final ValueChanged<String>? onChanged;
   final InputRule rule;
+  final bool isSecured;
 
   @override
   Widget build(BuildContext context) {
@@ -48,6 +50,7 @@ class CoreInputField extends StatelessWidget {
               final processedValue = _processValue(value);
               onChanged?.call(processedValue);
             },
+            obscureText: isSecured,
             decoration: InputDecoration(
               hintText: hintText,
               contentPadding: const EdgeInsets.symmetric(
