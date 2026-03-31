@@ -1,8 +1,12 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:local_auth/local_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SharedPreferencesService {
   late SharedPreferences _prefs;
+  final LocalAuthentication auth = LocalAuthentication();
 
   static const _apiBaseUrlKey = 'API_BASE_URL';
 
@@ -14,11 +18,26 @@ class SharedPreferencesService {
     if (!_prefs.containsKey(_apiBaseUrlKey)) {
       await _prefs.setString(_apiBaseUrlKey, envApiUrl);
     }
+
+    await handleFingerprint();
   }
 
-  Future<void> saveEmail(String email) async => await _prefs.setString('email', email);
-  String getEmail() => _prefs.getString('email') ?? '';
+  Future<void> handleFingerprint() async {
+    try {
+      final bool isSupported = await auth.isDeviceSupported();
+      final bool canCheckBiometrics = await auth.canCheckBiometrics;
 
-  Future<void> savePassword(String password) async => await _prefs.setString('password', password);
-  String getPassword() => _prefs.getString('password') ?? '';
+      final List<BiometricType> biometrics = await auth.getAvailableBiometrics();
+
+      if(isSupported && canCheckBiometrics && biometrics.isNotEmpty) {
+        _prefs.setBool('biometric', true);
+      }
+
+    } on PlatformException catch (e) {
+      debugPrint('[ERROR] [SHARED_PREFERENCES] [HANDLE_FINGERPRINT] : ${e.message}');
+    }
+  }
+
+  Future<void> toggleBiometric(bool value) async => await _prefs.setBool('biometric', value);
+  bool getBiometric() => _prefs.getBool('biometric') ?? false;
 }

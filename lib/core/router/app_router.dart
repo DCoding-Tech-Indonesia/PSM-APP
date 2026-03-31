@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:psm_mobile/core/presentations/cubit/core_tab_cubit.dart';
 import 'package:psm_mobile/core/presentations/widgets/custom_camera_widget.dart';
+import 'package:psm_mobile/core/storage/secure_storage.dart';
+import 'package:psm_mobile/core/storage/shared_preferences.dart';
 import 'package:psm_mobile/features/auth/presentation/auth_screen.dart';
 import 'package:psm_mobile/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_bloc.dart';
@@ -22,8 +24,11 @@ GoRouter createRouter(BuildContext context) {
       GoRoute(
         path: '/login',
         builder: (context, state) {
+          final secureStorageService = context.read<SecureStorageService>();
+          final sharedPreferencesService = context.read<SharedPreferencesService>();
+
           return BlocProvider(
-            create: (_) => AuthBloc(),
+            create: (_) => AuthBloc(secureStorageService, sharedPreferencesService),
             child: const AuthScreen(),
           );
         },
@@ -41,9 +46,13 @@ GoRouter createRouter(BuildContext context) {
       GoRoute(
         path: '/settlement/dashboard',
         builder: (context, state) {
+          final sharedPreferencesService = context.read<SharedPreferencesService>();
+
           return MultiBlocProvider(
-            providers: [BlocProvider(create: (_) => CoreTabCubit())],
-            child: const SettlementDashboardScreen(),
+            providers: [
+              BlocProvider(create: (_) => CoreTabCubit()),
+            ],
+            child: SettlementDashboardScreen(sharedPreferencesService: sharedPreferencesService),
           );
         },
       ),

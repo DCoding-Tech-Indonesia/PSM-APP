@@ -5,10 +5,16 @@ import 'package:go_router/go_router.dart';
 import 'package:psm_mobile/core/presentations/cubit/core_tab_cubit.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_bottom_nav_widget.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_profile_screen_menu.dart';
+import 'package:psm_mobile/core/storage/shared_preferences.dart';
 import 'package:psm_mobile/features/dashboard/presentation/screens/home_screen_menu.dart';
 
 class SettlementDashboardScreen extends StatelessWidget {
-  const SettlementDashboardScreen({super.key});
+  final SharedPreferencesService sharedPreferencesService;
+
+  const SettlementDashboardScreen({
+    super.key,
+    required this.sharedPreferencesService
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +52,7 @@ class SettlementDashboardScreen extends StatelessWidget {
             case 0:
               return const HomeScreenMenu();
             case 1:
-              return const CoreProfileScreenMenu( );
+              return CoreProfileScreenMenu(sharedPreferencesService: sharedPreferencesService);
             default:
               return const Center(child: Text("Unknown Tab"));
           }
@@ -55,14 +61,18 @@ class SettlementDashboardScreen extends StatelessWidget {
 
       floatingActionButton: BlocBuilder<CoreTabCubit, int>(
         builder: (context, state) {
-          return FloatingActionButton(
-            backgroundColor: theme.primaryColor,
-            foregroundColor: Colors.white,
-            child: const Icon(Icons.add),
-            onPressed: () {
-              context.push('/settlement/add');
-            },
-          );
+          if(state == 0) {
+            return FloatingActionButton(
+              backgroundColor: theme.primaryColor,
+              foregroundColor: Colors.white,
+              child: const Icon(Icons.add),
+              onPressed: () {
+                context.push('/settlement/add');
+              },
+            );
+          } else {
+            return SizedBox();
+          }
         },
       ),
     );

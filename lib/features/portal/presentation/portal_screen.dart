@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:psm_mobile/core/theme/core_styling.dart';
 import 'package:psm_mobile/features/portal/presentation/widget/portal_menu_widget.dart';
 
 class PortalScreen extends StatelessWidget {
@@ -10,90 +12,118 @@ class PortalScreen extends StatelessWidget {
 
     return Scaffold(
       body: Container(
+        width: double.infinity,
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              theme.primaryColor,
-              theme.primaryColor.withOpacity(0.6),
-              theme.primaryColor,
-            ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
+          // gradient: LinearGradient(
+          //   colors: [
+          //     theme.primaryColor,
+          //     theme.primaryColor.withOpacity(0.6),
+          //     theme.primaryColor,
+          //   ],
+          //   begin: Alignment.topCenter,
+          //   end: Alignment.bottomCenter,
+          // ),
         ),
         child: SafeArea(
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 60, horizontal: 12),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                Column(
-                  spacing: 14,
+                const Column(
                   children: [
-                    Container(
-                      width: 150,
-                      height: 150,
-                      decoration: BoxDecoration(
-                        color: Colors.white70,
-                        borderRadius: BorderRadius.circular(999),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Colors.white70,
-                            blurRadius: 10,
-                            offset: Offset(0, 5),
+                    Text("Bakureh"),
+                    Text("Cari Pitih Untuak Anak Bini Sanak", style: TextStyle(color: CoreStyling.primaryColor, fontSize: 20, fontWeight: FontWeight.w700),),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                Expanded(
+                  child: Column(
+                    children: [
+                      Row(
+                        spacing: 15,
+                        children: [
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: (){
+                                context.push('/settlement/dashboard');
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey,
+                                      offset: Offset(1.2, 1.2),
+                                      blurRadius: 2,
+                                    ),
+                                    BoxShadow(
+                                      color: Colors.grey,
+                                      offset: Offset(-1.2, 1.2),
+                                      blurRadius: 2,
+                                    ),
+                                  ],
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Column(
+                                  children: [
+                                    Image.asset("assets/icon/settlement.png", width: 80),
+                                    const SizedBox(height: 15),
+                                    const Text(
+                                      "Settlement",
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w800,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: (){
+                                context.push('/login');
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey,
+                                      offset: Offset(1.2, 1.2),
+                                      blurRadius: 2,
+                                    ),
+                                    BoxShadow(
+                                      color: Colors.grey,
+                                      offset: Offset(-1.2, 1.2),
+                                      blurRadius: 2,
+                                    ),
+                                  ],
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Column(
+                                  children: [
+                                    Image.asset("assets/icon/logout.png", width: 80),
+                                    const SizedBox(height: 15),
+                                    const Text(
+                                      "Logout",
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w800,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
                           ),
                         ],
                       ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(999),
-                        child: Image.network(
-                          "https://picsum.photos/id/64/300/300",
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                    Text(
-                      "Jane Doe",
-                      style: theme.textTheme.headlineMedium,
-                    ),
-                  ],
-                ),
-                Column(
-                  children: [
-                    Row(
-                      children: [
-                        PortalMenuWidget(
-                          title: "Settlement",
-                          route: "/settlement/dashboard",
-                        ),
-                        const SizedBox(width: 16),
-                        PortalMenuWidget(title: "Absensi", route: "/absensi"),
-                      ],
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    Row(
-                      children: [
-                        PortalMenuWidget(
-                          title: "Data Kendaraan",
-                          route: "/kendaraan",
-                        ),
-                        const SizedBox(width: 16),
-                        PortalMenuWidget(title: "Ceklis SPM", route: "/spm"),
-                      ],
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    Row(
-                      children: [
-                        PortalMenuWidget(title: "KM Kendaraan", route: "/km"),
-                        const SizedBox(width: 16),
-                        PortalMenuWidget(title: "Report", route: "/report"),
-                      ],
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ],
             ),

@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 
 enum InputRule { text, number, positiveNumber }
 
-class CoreInputField extends StatelessWidget {
+class CoreInputField extends StatefulWidget {
   const CoreInputField({
     super.key,
     required this.label,
@@ -13,6 +13,7 @@ class CoreInputField extends StatelessWidget {
     this.onChanged,
     this.rule = InputRule.text,
     this.isSecured = false,
+    this.initValue,
   });
 
   final String label;
@@ -22,6 +23,37 @@ class CoreInputField extends StatelessWidget {
   final ValueChanged<String>? onChanged;
   final InputRule rule;
   final bool isSecured;
+  final String? initValue;
+
+  @override
+  State<CoreInputField> createState() => _CoreInputFieldState();
+}
+
+class _CoreInputFieldState extends State<CoreInputField> {
+  late bool _isHidden;
+  late TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _isHidden = widget.isSecured;
+    _controller = TextEditingController(text: widget.initValue ?? '');
+  }
+
+  @override
+  void didUpdateWidget(covariant CoreInputField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.initValue != oldWidget.initValue &&
+        widget.initValue != _controller.text) {
+      _controller.text = widget.initValue ?? '';
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,8 +64,8 @@ class CoreInputField extends StatelessWidget {
         children: [
           Row(
             children: [
-              Text(label, style: const TextStyle(fontSize: 18)),
-              if (isRequired)
+              Text(widget.label, style: const TextStyle(fontSize: 18)),
+              if (widget.isRequired)
                 const Text(
                   " *",
                   style: TextStyle(color: Colors.redAccent, fontSize: 18),
@@ -46,13 +78,26 @@ class CoreInputField extends StatelessWidget {
           TextFormField(
             keyboardType: _getKeyboardType(),
             inputFormatters: _getInputFormatters(),
+            controller: _controller,
             onChanged: (value) {
               final processedValue = _processValue(value);
-              onChanged?.call(processedValue);
+              widget.onChanged?.call(processedValue);
             },
-            obscureText: isSecured,
+            obscureText: _isHidden,
             decoration: InputDecoration(
-              hintText: hintText,
+              suffixIcon: widget.isSecured
+                  ? IconButton(
+                      icon: Icon(
+                        _isHidden ? Icons.visibility_off : Icons.visibility,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _isHidden = !_isHidden;
+                        });
+                      },
+                    )
+                  : null,
+              hintText: widget.hintText,
               contentPadding: const EdgeInsets.symmetric(
                 vertical: 10,
                 horizontal: 12,
@@ -72,7 +117,7 @@ class CoreInputField extends StatelessWidget {
   }
 
   TextInputType _getKeyboardType() {
-    switch (rule) {
+    switch (widget.rule) {
       case InputRule.number:
       case InputRule.positiveNumber:
         return TextInputType.number;
@@ -82,7 +127,7 @@ class CoreInputField extends StatelessWidget {
   }
 
   List<TextInputFormatter>? _getInputFormatters() {
-    switch (rule) {
+    switch (widget.rule) {
       case InputRule.number:
         return [FilteringTextInputFormatter.allow(RegExp(r'^-?\d*'))];
       case InputRule.positiveNumber:
@@ -93,7 +138,7 @@ class CoreInputField extends StatelessWidget {
   }
 
   String _processValue(String value) {
-    switch (rule) {
+    switch (widget.rule) {
       case InputRule.positiveNumber:
         final num = int.tryParse(value) ?? 0;
         return num < 0 ? '0' : value;

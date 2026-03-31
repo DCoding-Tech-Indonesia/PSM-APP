@@ -5,16 +5,32 @@ class SecureStorageService {
 
   static const _keyAccessToken = 'access_token';
   static const _keyRefreshToken = 'refresh_token';
-  static const _keyUserJson = 'user_json';
+  static const _keyEmailCred = 'email';
+  static const _keyPassCred = 'password';
+
+  Future<void> saveEmailCred(String email) => _storage.write(key: _keyEmailCred, value: email);
+  Future<String?> readEmailCred() async {
+    String? value = await _storage.read(key: _keyEmailCred);
+    return value;
+  }
+
+  Future<void> savePassCred(String password) => _storage.write(key: _keyPassCred, value: password);
+  Future<String?> readPassCred() async {
+    String? value = await _storage.read(key: _keyPassCred);
+    return value;
+  }
 
   Future<void> saveAccessToken(String token) => _storage.write(key: _keyAccessToken, value: token);
-  Future<String?> readAccessToken() => _storage.read(key: _keyAccessToken);
+  Future<String?> readAccessToken() async {
+    String? value = await _storage.read(key: _keyAccessToken);
+    return value;
+  }
 
   Future<void> saveRefreshToken(String token) => _storage.write(key: _keyRefreshToken, value: token);
-  Future<String?> readRefreshToken() => _storage.read(key: _keyRefreshToken);
-
-  Future<void> saveUserJson(String json) => _storage.write(key: _keyUserJson, value: json);
-  Future<String?> readUserJson() => _storage.read(key: _keyUserJson);
+  Future<String?> readRefreshToken() async {
+    String? value = await _storage.read(key: _keyRefreshToken);
+    return value;
+  }
 
   Future<void> clearAll() => _storage.deleteAll();
 }

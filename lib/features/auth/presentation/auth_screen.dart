@@ -1,9 +1,62 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:local_auth/local_auth.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_input_field.dart';
 import 'package:psm_mobile/core/theme/core_styling.dart';
+import 'package:psm_mobile/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:psm_mobile/features/auth/presentation/bloc/auth_event.dart';
+import 'package:psm_mobile/features/auth/presentation/bloc/auth_state.dart';
 
-class AuthScreen extends StatelessWidget {
+class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
+
+  @override
+  State<AuthScreen> createState() => _AuthScreenState();
+}
+
+class _AuthScreenState extends State<AuthScreen> {
+  final LocalAuthentication auth = LocalAuthentication();
+  
+  void _loginPressed(BuildContext context) {
+    context.read<AuthBloc>().add(AuthSubmitted());
+    context.go('/portal');
+  }
+
+  Future<void> handleFingerprint() async {
+    try {
+      final bool authenticated = await auth.authenticate(
+        localizedReason: 'Scan sidik jari untuk masuk',
+        biometricOnly: true,
+      );
+
+      if (authenticated) {
+        _showMessage('✅ Fingerprint VALID');
+
+        if (mounted) {
+          context.go('/portal');
+        }
+      } else {
+        _showMessage('❌ Fingerprint TIDAK VALID / dibatalkan');
+      }
+    } on PlatformException catch (e) {
+      _showMessage('Error: ${e.message}');
+    }
+  }
+
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    context.read<AuthBloc>().add(LoadSavedCredentials());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -64,13 +117,13 @@ class AuthScreen extends StatelessWidget {
               Expanded(
                 child: Container(
                   margin: const EdgeInsets.only(top: 52),
-                  padding: const EdgeInsets.only(top: 40, left: 20, right: 20),
+                  padding: const EdgeInsets.only(top: 40, left: 20, right: 20, bottom: 20),
                   width: double.infinity,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     borderRadius: BorderRadius.vertical(
                       top: Radius.circular(40),
                     ),
-                    boxShadow: const [
+                    boxShadow: [
                       BoxShadow(
                         color: Colors.black38,
                         blurRadius: 10,
@@ -90,54 +143,76 @@ class AuthScreen extends StatelessWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Center(
-                                  child: Column(
-                                    children: [
-                                      Text("Masuek la sanak."),
-                                      Text("Pitih dapek dicari,"),
-                                    ],
-                                  ),
+                                const Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "Masuek la sanak.",
+                                      style: TextStyle(fontSize: 24),
+                                    ),
+                                    SizedBox(height: 12),
+                                    Text("Pitih dapek dicari,"),
+                                    Text("hiduik cuma sekali, stay hepi sanak"),
+                                  ],
                                 ),
-
                                 const SizedBox(height: 20),
-
                                 Column(
                                   children: [
-                                    CoreInputField(
-                                      label: "Email",
-                                      keyInput: "email",
-                                      hintText: "email@example.com",
-                                      isRequired: true,
-                                      rule: InputRule.text,
-                                      onChanged: (value) {},
+                                    BlocBuilder<AuthBloc, AuthState>(
+                                      buildWhen: (prev, curr) => prev.email != curr.email,
+                                      builder: (context, state) {
+                                        return CoreInputField(
+                                          label: "Email",
+                                          keyInput: "email",
+                                          hintText: "email@example.com",
+                                          isRequired: true,
+                                          rule: InputRule.text,
+                                          initValue: state.email.value,
+                                          onChanged: (value) {
+                                            context.read<AuthBloc>().add(EmailChanged(value));
+                                          },
+                                        );
+                                      }
                                     ),
                                     const SizedBox(height: 12),
-                                    CoreInputField(
-                                      label: "Password",
-                                      keyInput: "password",
-                                      hintText: "********",
-                                      isRequired: true,
-                                      isSecured: true,
-                                      rule: InputRule.text,
-                                      onChanged: (value) {},
+                                    BlocBuilder<AuthBloc, AuthState>(
+                                      buildWhen: (prev, curr) => prev.password != curr.password,
+                                      builder: (context, state) {
+                                        return CoreInputField(
+                                          label: "Password",
+                                          keyInput: "password",
+                                          hintText: "********",
+                                          isRequired: true,
+                                          isSecured: true,
+                                          rule: InputRule.text,
+                                          initValue: state.password.value,
+                                          onChanged: (value) {
+                                            context.read<AuthBloc>().add(PasswordChanged(value));
+                                          },
+                                        );
+                                      }
                                     ),
                                   ],
                                 ),
-
                                 const SizedBox(height: 10),
-
                                 Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Row(
-                                      children: [
-                                        Checkbox(
-                                          value: false,
-                                          onChanged: (value) {},
-                                        ),
-                                        const Text("Ingek Aden"),
-                                      ],
+                                    BlocBuilder<AuthBloc, AuthState>(
+                                      builder: (context, state) {
+                                        return Row(
+                                          children: [
+                                            Checkbox(
+                                              value: state.rememberMe,
+                                              onChanged: (value) {
+                                                context.read<AuthBloc>().add(RememberMeToggled(value ?? false));
+                                              },
+                                            ),
+                                            const Text("Ingek Aden"),
+                                          ],
+                                        );
+                                      }
                                     ),
                                     Text(
                                       "Lupo password sanak?",
@@ -147,54 +222,58 @@ class AuthScreen extends StatelessWidget {
                                     ),
                                   ],
                                 ),
-
                                 const Spacer(),
-
                                 Row(
                                   children: [
                                     Expanded(
-                                      child: GestureDetector(
-                                        onTap: () {},
-                                        child: Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            vertical: 16,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: Color(0xFF3D3D3D),
-                                            borderRadius: BorderRadius.circular(
-                                              999,
-                                            ),
-                                          ),
-                                          child: const Center(
-                                            child: Text(
-                                              "Masuek",
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.bold,
+                                      child: BlocBuilder<AuthBloc, AuthState>(
+                                        builder: (context, state) {
+                                          return GestureDetector(
+                                            onTap: () => _loginPressed(context),
+                                            child: Container(
+                                              padding: const EdgeInsets.symmetric(
+                                                vertical: 16,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                color: const Color(0xFF3D3D3D),
+                                                borderRadius: BorderRadius.circular(
+                                                  999,
+                                                ),
+                                              ),
+                                              child: const Center(
+                                                child: Text(
+                                                  "Masuek",
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                        ),
+                                          );
+                                        }
                                       ),
                                     ),
-
                                     const SizedBox(width: 10),
-
-                                    GestureDetector(
-                                      onTap: () {},
-                                      child: Container(
-                                        padding: const EdgeInsets.all(14),
-                                        decoration: BoxDecoration(
-                                          color: Color(0xFF3D3D3D),
-                                          borderRadius: BorderRadius.circular(
-                                            999,
+                                    BlocBuilder<AuthBloc, AuthState>(
+                                      builder: (context, state) {
+                                        return GestureDetector(
+                                          onTap: state.allowBiometric ? handleFingerprint : () => {},
+                                          child: Container(
+                                            padding: const EdgeInsets.all(14),
+                                            decoration: BoxDecoration(
+                                              color: state.allowBiometric ? CoreStyling.primaryColor : Color(0xFF3D3D3D),
+                                              borderRadius: BorderRadius.circular(
+                                                999,
+                                              ),
+                                            ),
+                                            child: const Icon(
+                                              Icons.fingerprint,
+                                              color: Colors.white,
+                                            ),
                                           ),
-                                        ),
-                                        child: const Icon(
-                                          Icons.fingerprint,
-                                          color: Colors.white,
-                                        ),
-                                      ),
+                                        );
+                                      }
                                     ),
                                   ],
                                 ),
