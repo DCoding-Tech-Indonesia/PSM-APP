@@ -13,11 +13,11 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, String>> login(
-      String email,
+      String username,
       String password,
       ) async {
     try {
-      final token = await dataSource.login(email, password);
+      final token = await dataSource.login(username, password);
 
       return right(token);
     } on DioException catch (e) {

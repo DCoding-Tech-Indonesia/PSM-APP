@@ -72,47 +72,44 @@ class _AuthScreenState extends State<AuthScreen> {
         child: SafeArea(
           child: Column(
             children: [
-              const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      "PSM",
-                      style: TextStyle(
-                        fontSize: 68,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.white,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "PSM",
+                    style: TextStyle(
+                      fontSize: 68,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white,
+                    ),
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Padang",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Padang",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                          ),
+                      Text(
+                        "Sejahtera",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
                         ),
-                        Text(
-                          "Sejahtera",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                          ),
+                      ),
+                      Text(
+                        "Mandiri.",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
                         ),
-                        Text(
-                          "Mandiri.",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
               Expanded(
                 child: Container(
@@ -127,7 +124,7 @@ class _AuthScreenState extends State<AuthScreen> {
                       BoxShadow(
                         color: Colors.black38,
                         blurRadius: 10,
-                        offset: Offset(0, -15),
+                        offset: Offset(0, -5),
                       ),
                     ],
                     color: Colors.white,
@@ -159,17 +156,17 @@ class _AuthScreenState extends State<AuthScreen> {
                                 Column(
                                   children: [
                                     BlocBuilder<AuthBloc, AuthState>(
-                                      buildWhen: (prev, curr) => prev.email != curr.email,
+                                      buildWhen: (prev, curr) => prev.username != curr.username,
                                       builder: (context, state) {
                                         return CoreInputField(
                                           label: "Email",
-                                          keyInput: "email",
-                                          hintText: "email@example.com",
+                                          keyInput: "username",
+                                          hintText: "username",
                                           isRequired: true,
                                           rule: InputRule.text,
-                                          initValue: state.email.value,
+                                          initValue: state.username,
                                           onChanged: (value) {
-                                            context.read<AuthBloc>().add(EmailChanged(value));
+                                            context.read<AuthBloc>().add(UsernameChanged(value));
                                           },
                                         );
                                       }

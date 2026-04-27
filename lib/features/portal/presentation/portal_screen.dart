@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:psm_mobile/core/theme/core_styling.dart';
-import 'package:psm_mobile/features/portal/presentation/widget/portal_menu_widget.dart';
 
 class PortalScreen extends StatelessWidget {
   const PortalScreen({super.key});

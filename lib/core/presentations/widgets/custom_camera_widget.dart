@@ -6,7 +6,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:image/image.dart' as img;
 
 class CustomCameraWidget extends StatefulWidget {
-
   final double ratio;
 
   const CustomCameraWidget({
@@ -19,7 +18,6 @@ class CustomCameraWidget extends StatefulWidget {
 }
 
 class _CustomCameraWidgetState extends State<CustomCameraWidget> {
-
   CameraController? _controller;
   List<CameraDescription>? cameras;
 
@@ -40,58 +38,56 @@ class _CustomCameraWidgetState extends State<CustomCameraWidget> {
 
     await _controller!.initialize();
 
-    if (mounted) {
-      setState(() {});
-    }
+    if (mounted) setState(() {});
   }
 
   Future<File> _cropToRatio(File file) async {
-
     final bytes = await file.readAsBytes();
     final original = img.decodeImage(bytes)!;
 
-    int width = original.width;
-    int height = original.height;
+    final w = original.width;
+    final h = original.height;
 
-    double targetRatio = widget.ratio;
+    final targetRatio = widget.ratio;
 
-    int newWidth = width;
-    int newHeight = (width / targetRatio).round();
+    int cropW = w;
+    int cropH = (cropW / targetRatio).round();
 
-    if (newHeight > height) {
-      newHeight = height;
-      newWidth = (height * targetRatio).round();
+    if (cropH > h) {
+      cropH = h;
+      cropW = (cropH * targetRatio).round();
     }
 
-    int offsetX = ((width - newWidth) / 2).round();
-    int offsetY = ((height - newHeight) / 2).round();
+    final offsetX = ((w - cropW) / 2).round();
+    final offsetY = ((h - cropH) / 2).round();
 
     final cropped = img.copyCrop(
       original,
       x: offsetX,
       y: offsetY,
-      width: newWidth,
-      height: newHeight,
+      width: cropW,
+      height: cropH,
     );
 
     final dir = await getTemporaryDirectory();
-    final croppedFile = File('${dir.path}/${DateTime.now().millisecondsSinceEpoch}.jpg');
+    final path =
+        '${dir.path}/${DateTime.now().millisecondsSinceEpoch}.jpg';
 
-    await croppedFile.writeAsBytes(img.encodeJpg(cropped, quality: 90));
+    final newFile = File(path);
+    await newFile.writeAsBytes(img.encodeJpg(cropped, quality: 90));
 
-    return croppedFile;
+    return newFile;
   }
 
   Future<void> takePicture() async {
-
     if (!_controller!.value.isInitialized) return;
 
     final image = await _controller!.takePicture();
     final file = File(image.path);
 
-    final croppedFile = await _cropToRatio(file);
+    final cropped = await _cropToRatio(file);
 
-    context.pop(croppedFile);
+    context.pop(cropped);
   }
 
   @override
@@ -102,7 +98,6 @@ class _CustomCameraWidgetState extends State<CustomCameraWidget> {
 
   @override
   Widget build(BuildContext context) {
-
     if (_controller == null || !_controller!.value.isInitialized) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
@@ -116,11 +111,31 @@ class _CustomCameraWidgetState extends State<CustomCameraWidget> {
       ),
       body: Stack(
         children: [
+          Positioned.fill(
+            child: CameraPreview(_controller!),
+          ),
 
-          Center(
-            child: AspectRatio(
-              aspectRatio: widget.ratio,
-              child: CameraPreview(_controller!),
+          Positioned.fill(
+            child: IgnorePointer(
+              child: Container(
+                color: Colors.black.withOpacity(0.5),
+              ),
+            ),
+          ),
+
+          Positioned.fill(
+            child: IgnorePointer(
+              child: Center(
+                child: AspectRatio(
+                  aspectRatio: widget.ratio,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.transparent,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ),
             ),
           ),
 

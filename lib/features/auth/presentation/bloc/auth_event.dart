@@ -7,6 +7,11 @@ class EmailChanged extends AuthEvent {
   EmailChanged(this.value);
 }
 
+class UsernameChanged extends AuthEvent {
+  final String value;
+  UsernameChanged(this.value);
+}
+
 class PasswordChanged extends AuthEvent {
   final String value;
   PasswordChanged(this.value);

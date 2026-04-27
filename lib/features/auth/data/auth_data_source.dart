@@ -5,11 +5,12 @@ class AuthDataSource {
   final Dio dio;
   AuthDataSource({required this.dio});
 
-  Future<String> login(String email, String password) async {
-    final response = await dio.post('/login', data: {'email': email, 'password': password});
-    final token = response.data['token'];
-    DioClient().setAuthToken(token);
-    return token;
+  Future<String> login(String username, String password) async {
+    final response = await dio.post('/auth/login', data: {'username': username, 'password': password});
+    print(response);
+    // final token = response.data['token'];
+    // DioClient().setAuthToken(token);
+    return 'token';
   }
 
   Future<void> logout() async {

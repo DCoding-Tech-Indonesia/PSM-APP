@@ -7,7 +7,7 @@ class LoginUseCase {
 
   const LoginUseCase(this.authRepository);
 
-  Future<Either<Failure, String>> call(String email, String password) {
-    return authRepository.login(email, password);
+  Future<Either<Failure, String>> call(String username, String password) {
+    return authRepository.login(username, password);
   }
 }

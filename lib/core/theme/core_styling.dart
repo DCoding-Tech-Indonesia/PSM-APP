@@ -16,6 +16,15 @@ class CoreStyling {
     end: Alignment.bottomCenter,
   );
 
+  static const LinearGradient coreDeleteButtonGradient = LinearGradient(
+    colors: [
+      Color(0xFFD92323),
+      Color(0xFF9C0909),
+    ],
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+  );
+
   static const LinearGradient coreDisableButtonGradient = LinearGradient(
     colors: [
       Color(0xFF686868),
