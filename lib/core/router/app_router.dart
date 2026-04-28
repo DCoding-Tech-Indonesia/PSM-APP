@@ -5,6 +5,7 @@ import 'package:psm_mobile/core/presentations/cubit/core_tab_cubit.dart';
 import 'package:psm_mobile/core/presentations/widgets/custom_camera_widget.dart';
 import 'package:psm_mobile/core/storage/secure_storage.dart';
 import 'package:psm_mobile/core/storage/shared_preferences.dart';
+import 'package:psm_mobile/features/auth/domain/repositories/auth_repository.dart';
 import 'package:psm_mobile/features/auth/presentation/auth_screen.dart';
 import 'package:psm_mobile/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_bloc.dart';
@@ -26,9 +27,10 @@ GoRouter createRouter(BuildContext context) {
         builder: (context, state) {
           final secureStorageService = context.read<SecureStorageService>();
           final sharedPreferencesService = context.read<SharedPreferencesService>();
+          final authRepository = context.read<AuthRepository>();
 
           return BlocProvider(
-            create: (_) => AuthBloc(secureStorageService, sharedPreferencesService),
+            create: (_) => AuthBloc(secureStorageService, sharedPreferencesService, authRepository),
             child: const AuthScreen(),
           );
         },

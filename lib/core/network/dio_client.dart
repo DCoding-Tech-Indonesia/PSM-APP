@@ -27,8 +27,24 @@ class DioClient {
   void _addInterceptors() {
     _dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) {
-        if (kDebugMode) debugPrint('[REQ] ${options.method} ${options.uri}');
-        handler.next(options);
+        if (kDebugMode) {
+          debugPrint('[REQ] ${options.method} ${options.uri}');
+
+          debugPrint('[HEADERS]');
+          options.headers.forEach((k, v) => debugPrint('$k: $v'));
+
+          if (options.queryParameters.isNotEmpty) {
+            debugPrint('[QUERY]');
+            debugPrint(options.queryParameters.toString());
+          }
+
+          if (options.data != null) {
+            debugPrint('[BODY]');
+            debugPrint(options.data.toString());
+          }
+
+          handler.next(options);
+        }
       },
       onResponse: (response, handler) {
         if (kDebugMode) debugPrint('[RES] ${response.statusCode} ${response.requestOptions.path}');

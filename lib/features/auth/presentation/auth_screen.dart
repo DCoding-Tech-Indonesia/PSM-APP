@@ -21,7 +21,6 @@ class _AuthScreenState extends State<AuthScreen> {
   
   void _loginPressed(BuildContext context) {
     context.read<AuthBloc>().add(AuthSubmitted());
-    context.go('/portal');
   }
 
   Future<void> handleFingerprint() async {
@@ -60,230 +59,240 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF2275d9), Color(0xff508cd3), Color(0xFFFFFFFF)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+    return BlocListener<AuthBloc, AuthState>(
+      listenWhen: (previous, current) => (previous.loginMessage != current.loginMessage || previous.loginSuccess != current.loginSuccess),
+      listener: (context, state) {
+        if(state.loginSuccess) {
+          context.go('/portal');
+        } else {
+          _showMessage('❌ Login gagal');
+        }
+      },
+      child: Scaffold(
+        body: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF2275d9), Color(0xff508cd3), Color(0xFFFFFFFF)],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
           ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "PSM",
-                    style: TextStyle(
-                      fontSize: 68,
-                      fontWeight: FontWeight.w800,
+          child: SafeArea(
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "PSM",
+                      style: TextStyle(
+                        fontSize: 68,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                      ),
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Padang",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        Text(
+                          "Sejahtera",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        Text(
+                          "Mandiri.",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                Expanded(
+                  child: Container(
+                    margin: const EdgeInsets.only(top: 52),
+                    padding: const EdgeInsets.only(top: 40, left: 20, right: 20, bottom: 20),
+                    width: double.infinity,
+                    decoration: const BoxDecoration(
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(40),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black38,
+                          blurRadius: 10,
+                          offset: Offset(0, -5),
+                        ),
+                      ],
                       color: Colors.white,
                     ),
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Padang",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      Text(
-                        "Sejahtera",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      Text(
-                        "Mandiri.",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              Expanded(
-                child: Container(
-                  margin: const EdgeInsets.only(top: 52),
-                  padding: const EdgeInsets.only(top: 40, left: 20, right: 20, bottom: 20),
-                  width: double.infinity,
-                  decoration: const BoxDecoration(
-                    borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(40),
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black38,
-                        blurRadius: 10,
-                        offset: Offset(0, -5),
-                      ),
-                    ],
-                    color: Colors.white,
-                  ),
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      return SingleChildScrollView(
-                        child: ConstrainedBox(
-                          constraints: BoxConstraints(
-                            minHeight: constraints.maxHeight,
-                          ),
-                          child: IntrinsicHeight(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      "Masuek la sanak.",
-                                      style: TextStyle(fontSize: 24),
-                                    ),
-                                    SizedBox(height: 12),
-                                    Text("Pitih dapek dicari,"),
-                                    Text("hiduik cuma sekali, stay hepi sanak"),
-                                  ],
-                                ),
-                                const SizedBox(height: 20),
-                                Column(
-                                  children: [
-                                    BlocBuilder<AuthBloc, AuthState>(
-                                      buildWhen: (prev, curr) => prev.username != curr.username,
-                                      builder: (context, state) {
-                                        return CoreInputField(
-                                          label: "Email",
-                                          keyInput: "username",
-                                          hintText: "username",
-                                          isRequired: true,
-                                          rule: InputRule.text,
-                                          initValue: state.username,
-                                          onChanged: (value) {
-                                            context.read<AuthBloc>().add(UsernameChanged(value));
-                                          },
-                                        );
-                                      }
-                                    ),
-                                    const SizedBox(height: 12),
-                                    BlocBuilder<AuthBloc, AuthState>(
-                                      buildWhen: (prev, curr) => prev.password != curr.password,
-                                      builder: (context, state) {
-                                        return CoreInputField(
-                                          label: "Password",
-                                          keyInput: "password",
-                                          hintText: "********",
-                                          isRequired: true,
-                                          isSecured: true,
-                                          rule: InputRule.text,
-                                          initValue: state.password.value,
-                                          onChanged: (value) {
-                                            context.read<AuthBloc>().add(PasswordChanged(value));
-                                          },
-                                        );
-                                      }
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 10),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    BlocBuilder<AuthBloc, AuthState>(
-                                      builder: (context, state) {
-                                        return Row(
-                                          children: [
-                                            Checkbox(
-                                              value: state.rememberMe,
-                                              onChanged: (value) {
-                                                context.read<AuthBloc>().add(RememberMeToggled(value ?? false));
-                                              },
-                                            ),
-                                            const Text("Ingek Aden"),
-                                          ],
-                                        );
-                                      }
-                                    ),
-                                    Text(
-                                      "Lupo password sanak?",
-                                      style: TextStyle(
-                                        color: CoreStyling.primaryColor,
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        return SingleChildScrollView(
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                              minHeight: constraints.maxHeight,
+                            ),
+                            child: IntrinsicHeight(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "Masuek la sanak.",
+                                        style: TextStyle(fontSize: 24),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                                const Spacer(),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: BlocBuilder<AuthBloc, AuthState>(
+                                      SizedBox(height: 12),
+                                      Text("Pitih dapek dicari,"),
+                                      Text("hiduik cuma sekali, stay hepi sanak"),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 20),
+                                  Column(
+                                    children: [
+                                      BlocBuilder<AuthBloc, AuthState>(
+                                        buildWhen: (prev, curr) => prev.username != curr.username,
+                                        builder: (context, state) {
+                                          return CoreInputField(
+                                            label: "Email",
+                                            keyInput: "username",
+                                            hintText: "username",
+                                            isRequired: true,
+                                            rule: InputRule.text,
+                                            initValue: state.username,
+                                            onChanged: (value) {
+                                              context.read<AuthBloc>().add(UsernameChanged(value));
+                                            },
+                                          );
+                                        }
+                                      ),
+                                      const SizedBox(height: 12),
+                                      BlocBuilder<AuthBloc, AuthState>(
+                                        buildWhen: (prev, curr) => prev.password != curr.password,
+                                        builder: (context, state) {
+                                          return CoreInputField(
+                                            label: "Password",
+                                            keyInput: "password",
+                                            hintText: "********",
+                                            isRequired: true,
+                                            isSecured: true,
+                                            rule: InputRule.text,
+                                            initValue: state.password.value,
+                                            onChanged: (value) {
+                                              context.read<AuthBloc>().add(PasswordChanged(value));
+                                            },
+                                          );
+                                        }
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 10),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      BlocBuilder<AuthBloc, AuthState>(
+                                        builder: (context, state) {
+                                          return Row(
+                                            children: [
+                                              Checkbox(
+                                                value: state.rememberMe,
+                                                onChanged: (value) {
+                                                  context.read<AuthBloc>().add(RememberMeToggled(value ?? false));
+                                                },
+                                              ),
+                                              const Text("Ingek Aden"),
+                                            ],
+                                          );
+                                        }
+                                      ),
+                                      Text(
+                                        "Lupo password sanak?",
+                                        style: TextStyle(
+                                          color: CoreStyling.primaryColor,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const Spacer(),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: BlocBuilder<AuthBloc, AuthState>(
+                                          builder: (context, state) {
+                                            return GestureDetector(
+                                              onTap: () => _loginPressed(context),
+                                              child: Container(
+                                                padding: const EdgeInsets.symmetric(
+                                                  vertical: 16,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  color: const Color(0xFF3D3D3D),
+                                                  borderRadius: BorderRadius.circular(
+                                                    999,
+                                                  ),
+                                                ),
+                                                child: const Center(
+                                                  child: Text(
+                                                    "Masuek",
+                                                    style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontWeight: FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            );
+                                          }
+                                        ),
+                                      ),
+                                      const SizedBox(width: 10),
+                                      BlocBuilder<AuthBloc, AuthState>(
                                         builder: (context, state) {
                                           return GestureDetector(
-                                            onTap: () => _loginPressed(context),
+                                            onTap: state.allowBiometric ? handleFingerprint : () => {},
                                             child: Container(
-                                              padding: const EdgeInsets.symmetric(
-                                                vertical: 16,
-                                              ),
+                                              padding: const EdgeInsets.all(14),
                                               decoration: BoxDecoration(
-                                                color: const Color(0xFF3D3D3D),
+                                                color: state.allowBiometric ? CoreStyling.primaryColor : Color(0xFF3D3D3D),
                                                 borderRadius: BorderRadius.circular(
                                                   999,
                                                 ),
                                               ),
-                                              child: const Center(
-                                                child: Text(
-                                                  "Masuek",
-                                                  style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
+                                              child: const Icon(
+                                                Icons.fingerprint,
+                                                color: Colors.white,
                                               ),
                                             ),
                                           );
                                         }
                                       ),
-                                    ),
-                                    const SizedBox(width: 10),
-                                    BlocBuilder<AuthBloc, AuthState>(
-                                      builder: (context, state) {
-                                        return GestureDetector(
-                                          onTap: state.allowBiometric ? handleFingerprint : () => {},
-                                          child: Container(
-                                            padding: const EdgeInsets.all(14),
-                                            decoration: BoxDecoration(
-                                              color: state.allowBiometric ? CoreStyling.primaryColor : Color(0xFF3D3D3D),
-                                              borderRadius: BorderRadius.circular(
-                                                999,
-                                              ),
-                                            ),
-                                            child: const Icon(
-                                              Icons.fingerprint,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                        );
-                                      }
-                                    ),
-                                  ],
-                                ),
-                              ],
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                      );
-                    },
+                        );
+                      },
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

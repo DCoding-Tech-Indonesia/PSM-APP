@@ -1,17 +1,23 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:psm_mobile/core/storage/secure_storage.dart';
 import 'package:psm_mobile/core/storage/shared_preferences.dart';
 import 'package:psm_mobile/features/auth/domain/entities/email.dart';
 import 'package:psm_mobile/features/auth/domain/entities/password.dart';
+import 'package:psm_mobile/features/auth/domain/repositories/auth_repository.dart';
 import 'package:psm_mobile/features/auth/presentation/bloc/auth_event.dart';
 import 'package:psm_mobile/features/auth/presentation/bloc/auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final SecureStorageService secureStorageService;
   final SharedPreferencesService sharedPreferencesService;
+  final AuthRepository authRepository;
 
-  AuthBloc(this.secureStorageService, this.sharedPreferencesService) : super(const AuthState()) {
-
+  AuthBloc(
+    this.secureStorageService,
+    this.sharedPreferencesService,
+    this.authRepository,
+  ) : super(const AuthState()) {
     on<LoadSavedCredentials>((event, emit) async {
       final savedUsername = await secureStorageService.readUsernameCred();
       final savedPassword = await secureStorageService.readPassCred();
@@ -20,19 +26,28 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
       final hasSaved =
           (savedUsername?.isNotEmpty ?? false) ||
-              (savedPassword?.isNotEmpty ?? false);
+          (savedPassword?.isNotEmpty ?? false);
 
       if (hasSaved) {
         emit(
           state.copyWith(
             username: savedUsername,
-            password: savedPassword != null ? Password.dirty(savedPassword) : null,
+            password: savedPassword != null
+                ? Password.dirty(savedPassword)
+                : null,
             rememberMe: true,
           ),
         );
       }
 
-      if (refreshToken!.isNotEmpty && allowBiometric) emit (state.copyWith(allowBiometric: true));
+      if (refreshToken!.isNotEmpty && allowBiometric) {
+        emit(
+            state.copyWith(
+                allowBiometric: true,
+              loginSuccess: true,
+            )
+        );
+      }
     });
 
     on<EmailChanged>((event, emit) {
@@ -58,23 +73,45 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final username = state.username;
       final password = Password.dirty(state.password.value);
 
-      final passwordValidation = password.validator(state.password.value);
-
-      final isValid = passwordValidation == null;
+      final isValid = username.isNotEmpty && password.isValid;
 
       if (!isValid) {
-        emit(state.copyWith(username: username, password: password, isValid: false));
+        emit(
+          state.copyWith(
+            username: username,
+            password: password,
+            isValid: false,
+          ),
+        );
         return;
       }
 
-      // Auth logic below
-      if(state.rememberMe) {
+      if (state.rememberMe) {
         secureStorageService.saveUsernameCred(state.username);
         secureStorageService.savePassCred(state.password.value);
       }
 
+      final result = await authRepository.login(
+        state.username,
+        state.password.value,
+      );
 
+      result.match(
+        (failure) {
+          state.copyWith(
+            loginSuccess: false,
+            loginMessage: "Login failed, try again later.",
+          );
+        },
+        (response) async {
+          emit(
+            state.copyWith(
+              loginSuccess: response.isSuccess,
+              loginMessage: response.message,
+            ),
+          );
+        },
+      );
     });
-
   }
 }

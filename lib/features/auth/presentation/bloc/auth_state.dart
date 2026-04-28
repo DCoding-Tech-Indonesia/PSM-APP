@@ -12,6 +12,8 @@ class AuthState extends Equatable{
   final String? token;
   final bool rememberMe;
   final bool allowBiometric;
+  final bool loginSuccess;
+  final String loginMessage;
 
   const AuthState({
     this.email = const Email.pure(),
@@ -22,6 +24,8 @@ class AuthState extends Equatable{
     this.token,
     this.rememberMe = false,
     this.allowBiometric = false,
+    this.loginSuccess = false,
+    this.loginMessage = '',
   });
 
   bool get isValid => Formz.validate([email, password]);
@@ -35,7 +39,9 @@ class AuthState extends Equatable{
     String? errorMessage,
     String? token,
     bool? rememberMe,
-    bool? allowBiometric
+    bool? allowBiometric,
+    bool? loginSuccess,
+    String? loginMessage
   }) {
     return AuthState(
       email: email ?? this.email,
@@ -45,10 +51,12 @@ class AuthState extends Equatable{
       errorMessage: errorMessage ?? this.errorMessage,
       token: token ?? this.token,
       rememberMe: rememberMe ?? this.rememberMe,
-        allowBiometric: allowBiometric  ?? this.allowBiometric
+        allowBiometric: allowBiometric  ?? this.allowBiometric,
+      loginSuccess: loginSuccess ?? this.loginSuccess,
+      loginMessage: loginMessage ?? this.loginMessage
     );
   }
 
   @override
-  List<Object?> get props => [email, username, password, submissionStatus, errorMessage, token, rememberMe, allowBiometric];
+  List<Object?> get props => [email, username, password, submissionStatus, errorMessage, token, rememberMe, allowBiometric, loginSuccess, loginMessage];
 }

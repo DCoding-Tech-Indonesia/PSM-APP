@@ -1,5 +1,6 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:psm_mobile/core/error/failure.dart';
+import 'package:psm_mobile/features/auth/domain/entities/login_response.dart';
 import 'package:psm_mobile/features/auth/domain/repositories/auth_repository.dart';
 
 class LoginUseCase {
@@ -7,7 +8,7 @@ class LoginUseCase {
 
   const LoginUseCase(this.authRepository);
 
-  Future<Either<Failure, String>> call(String username, String password) {
+  Future<Either<Failure, LoginResponse>> call(String username, String password) {
     return authRepository.login(username, password);
   }
 }
