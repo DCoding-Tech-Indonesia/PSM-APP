@@ -44,4 +44,18 @@ class AuthRepositoryImpl implements AuthRepository {
       );
     }
   }
+
+  @override
+  Future<Either<Failure, String>> checkToken() async {
+    try {
+      await dataSource.checkToken();
+      return right("CHECK");
+    } on DioException catch (e) {
+      return left(ServerFailure("GAGAL"));
+    } catch (_) {
+      return Left(
+        const ServerFailure('Unexpected error'),
+      );
+    }
+  }
 }

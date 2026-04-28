@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:psm_mobile/core/network/dio_client.dart';
 import 'package:psm_mobile/core/storage/secure_storage.dart';
 import 'package:psm_mobile/features/auth/domain/entities/login_response.dart';
@@ -21,9 +22,6 @@ class AuthDataSource {
           'password': password,
         },
       );
-
-      print('[RESPONSE]');
-      print(response);
 
       final success = response.data["status"];
 
@@ -67,6 +65,21 @@ class AuthDataSource {
       secureStorageService.clearLogin();
       DioClient().clearAuthToken();
     } catch (e) {
+      if (kDebugMode) print(e);
+    }
+  }
+
+  Future<void> checkToken() async {
+    try {
+      final response = await dio.post(
+          '/auth/check-token'
+      );
+
+      final token = response.data["data"][0]["token"];
+      DioClient().setAuthToken(token);
+      secureStorageService.saveAccessToken(token);
+    } catch (e) {
+      if (kDebugMode) print(e);
     }
   }
 }

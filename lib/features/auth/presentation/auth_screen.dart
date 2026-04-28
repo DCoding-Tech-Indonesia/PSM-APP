@@ -25,6 +25,10 @@ class _AuthScreenState extends State<AuthScreen> {
     context.read<AuthBloc>().add(AuthSubmitted());
   }
 
+  void _fingerprintLogin(BuildContext context) {
+    context.read<AuthBloc>().add(BiometricSubmitted());
+  }
+
   Future<void> handleFingerprint(BuildContext context) async {
     try {
       final bool authenticated = await auth.authenticate(
@@ -33,7 +37,7 @@ class _AuthScreenState extends State<AuthScreen> {
       );
 
       if (authenticated) {
-        _loginPressed(context);
+        _fingerprintLogin(context);
       } else {
         showModalBottomSheet(
           context: context,
@@ -60,7 +64,13 @@ class _AuthScreenState extends State<AuthScreen> {
   void initState() {
     super.initState();
 
-    context.read<AuthBloc>().add(LoadSavedCredentials());
+    final authBloc = context.read<AuthBloc>();
+    authBloc.add(LoadSavedCredentials());
+
+    final currentState = authBloc.state;
+    if (currentState.allowBiometric == true) {
+      handleFingerprint(context);
+    }
   }
 
   @override
@@ -71,15 +81,6 @@ class _AuthScreenState extends State<AuthScreen> {
           previous.popup != current.popup ||
           previous.allowBiometric != current.allowBiometric),
       listener: (context, state) {
-        if (state.allowBiometric) {
-          handleFingerprint(context);
-        }
-
-        print(state.popup);
-        if (state.loginSuccess && !state.popup) {
-          context.go('/portal');
-        }
-
         if (!state.popup) return;
 
         final isSuccess = state.loginSuccess;

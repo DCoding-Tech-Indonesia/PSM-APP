@@ -26,11 +26,16 @@ class SharedPreferencesService {
     try {
       final bool isSupported = await auth.isDeviceSupported();
       final bool canCheckBiometrics = await auth.canCheckBiometrics;
-
       final List<BiometricType> biometrics = await auth.getAvailableBiometrics();
 
-      if(isSupported && canCheckBiometrics && biometrics.isNotEmpty) {
-        _prefs.setBool('biometric', true);
+      final bool hasValue = _prefs.containsKey('biometric');
+
+      if (!hasValue) {
+        if (isSupported && canCheckBiometrics && biometrics.isNotEmpty) {
+          await _prefs.setBool('biometric', true);
+        } else {
+          await _prefs.setBool('biometric', false);
+        }
       }
 
     } on PlatformException catch (e) {

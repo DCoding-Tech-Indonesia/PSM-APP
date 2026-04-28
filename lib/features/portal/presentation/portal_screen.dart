@@ -134,6 +134,11 @@ class _PortalScreenState extends State<PortalScreen> {
                       IconButton(
                         icon: const Icon(Icons.notifications),
                         onPressed: () {
+                          context.push('/settlement/dashboard');
+                        },
+                      ),IconButton(
+                        icon: const Icon(Icons.notifications),
+                        onPressed: () {
                           _showNotificationDialog(context);
                         },
                       ),

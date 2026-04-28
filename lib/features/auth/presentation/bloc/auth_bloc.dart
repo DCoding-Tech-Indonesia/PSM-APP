@@ -27,15 +27,21 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
       final hasSaved =
           (savedUsername?.isNotEmpty ?? false) &&
-              (savedPassword?.isNotEmpty ?? false);
+          (savedPassword?.isNotEmpty ?? false);
 
       final hasToken =
           (refreshToken?.isNotEmpty ?? false) ||
-              (accessToken?.isNotEmpty ?? false);
+          (accessToken?.isNotEmpty ?? false);
 
       if (hasToken) {
-        emit(state.copyWith(loginSuccess: true));
         DioClient().setAuthToken(accessToken.toString());
+        emit(
+          state.copyWith(
+            allowBiometric: allowBiometric,
+          )
+        );
+      } else {
+        emit(state.copyWith(allowBiometric: false));
       }
 
       if (hasSaved) {
@@ -44,7 +50,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             username: savedUsername ?? '',
             password: Password.dirty(savedPassword!),
             rememberMe: true,
-            allowBiometric: allowBiometric,
           ),
         );
       }
@@ -53,11 +58,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     });
 
     on<ResetState>((event, emit) {
-      emit(
-        state.copyWith(
-          popup: false,
-        )
-      );
+      emit(state.copyWith(popup: false));
     });
 
     on<EmailChanged>((event, emit) {
@@ -128,12 +129,29 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       );
     });
 
-    // on<AuthLogout>((event, emit) async {
-    //   await authRepository.logout();
-    //   emit(state.copyWith(
-    //     loginSuccess: false,
-    //     token: null,
-    //   ));
-    // });
+    on<BiometricSubmitted>((event, emit) async {
+      final result = await authRepository.checkToken();
+
+      result.match(
+        (failure) {
+          emit(
+            state.copyWith(
+              loginSuccess: false,
+              loginMessage: "Login failed, try again later.",
+              popup: true,
+            ),
+          );
+        },
+        (response) async {
+          emit(
+            state.copyWith(
+              loginSuccess: true,
+              loginMessage: "Welcome back!",
+              popup: true,
+            ),
+          );
+        },
+      );
+    });
   }
 }
