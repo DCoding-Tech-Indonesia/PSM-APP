@@ -918,21 +918,25 @@ class PortalScreen extends StatelessWidget {
       builder: (context) => Dialog(
         backgroundColor: Colors.transparent,
         child: BackdropFilter(
-          filter: ui.ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0),
+          filter: ui.ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
           child: Container(
             margin: const EdgeInsets.symmetric(horizontal: 20),
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: theme.cardTheme.color,
+              color: theme.cardTheme.color?.withValues(alpha: 0.75) ?? Colors.white.withValues(alpha: 0.75),
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.2),
+                  color: Colors.black.withValues(alpha: 0.1),
                   spreadRadius: 0,
                   blurRadius: 20,
                   offset: const Offset(0, 10),
                 ),
               ],
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.2),
+                width: 1.5,
+              ),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -1104,16 +1108,20 @@ class PortalScreen extends StatelessWidget {
             margin: const EdgeInsets.symmetric(horizontal: 20),
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: theme.cardTheme.color,
+              color: theme.cardTheme.color?.withValues(alpha: 0.75) ?? Colors.white.withValues(alpha: 0.75),
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.2),
+                  color: Colors.black.withValues(alpha: 0.1),
                   spreadRadius: 0,
                   blurRadius: 20,
                   offset: const Offset(0, 10),
                 ),
               ],
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.2),
+                width: 1.5,
+              ),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
