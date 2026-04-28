@@ -1,10 +1,16 @@
 import 'package:dio/dio.dart';
 import 'package:psm_mobile/core/network/dio_client.dart';
+import 'package:psm_mobile/core/storage/secure_storage.dart';
 import 'package:psm_mobile/features/auth/domain/entities/login_response.dart';
 
 class AuthDataSource {
   final Dio dio;
-  AuthDataSource({required this.dio});
+  final SecureStorageService secureStorageService;
+
+  AuthDataSource({
+    required this.dio,
+    required this.secureStorageService
+  });
 
   Future<LoginResponse> login(String username, String password) async {
     try {
@@ -23,6 +29,10 @@ class AuthDataSource {
 
       if (success == true) {
         final token = response.data["data"][0]["token"];
+        final userId = response.data["data"][0]["userId"];
+        secureStorageService.saveAccessToken(token);
+        secureStorageService.saveUserId(userId.toString());
+        secureStorageService.saveUsername(username);
         DioClient().setAuthToken(token);
 
         return const LoginResponse(
@@ -43,10 +53,20 @@ class AuthDataSource {
     }
   }
 
-  Future<void> logout() async {
-    final response = await dio.post('/auth/logout');
-    print("RESPONSE LOGOUT");
-    print(response);
-    DioClient().clearAuthToken();
+  Future<void> logout(String id, String username) async {
+    try {
+      final response = await dio.post(
+        '/auth/logout',
+        data: {
+          'id': id,
+          'username': username,
+        },
+      );
+      print("RESPONSE LOGOUT");
+      print(response);
+      secureStorageService.clearLogin();
+      DioClient().clearAuthToken();
+    } catch (e) {
+    }
   }
 }

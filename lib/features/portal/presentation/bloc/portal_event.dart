@@ -8,3 +8,9 @@ abstract class PortalEvent extends Equatable {
 }
 
 class FetchProfile extends PortalEvent {}
+
+class PageLoad extends PortalEvent {}
+
+class Logout extends PortalEvent {}
+
+

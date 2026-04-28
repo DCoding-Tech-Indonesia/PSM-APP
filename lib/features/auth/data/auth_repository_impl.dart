@@ -32,9 +32,9 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, String>> logout() async {
+  Future<Either<Failure, String>> logout(String id, String username) async {
     try {
-      await dataSource.logout();
+      await dataSource.logout(id, username);
       return right("KALUA");
     } on DioException catch (e) {
       return left(ServerFailure("GAGAL"));

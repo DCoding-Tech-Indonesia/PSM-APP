@@ -29,6 +29,7 @@ void main() async {
   await NotificationServices.initialize();
 
   final dioClient = DioClient();
+  final secureStorage = SecureStorageService();
   dioClient.init(baseUrl: dotenv.env['API_BASE_URL']);
 
   runApp(
@@ -39,9 +40,12 @@ void main() async {
         ),
         Provider<SecureStorageService>(create: (_) => SecureStorageService()),
         RepositoryProvider<AuthRepository>(
-            create: (_) => AuthRepositoryImpl(
-                dataSource: AuthDataSource(dio: dioClient.instance)
+          create: (_) => AuthRepositoryImpl(
+            dataSource: AuthDataSource(
+              dio: dioClient.instance,
+              secureStorageService: secureStorage,
             ),
+          ),
         ),
         RepositoryProvider<PortalRepository>(
             create: (_) => PortalRepositoryImpl(

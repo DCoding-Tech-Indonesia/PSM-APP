@@ -5,11 +5,24 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:psm_mobile/features/portal/presentation/bloc/portal_bloc.dart';
 import 'package:psm_mobile/features/portal/presentation/bloc/portal_state.dart';
-import 'package:psm_mobile/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:psm_mobile/features/auth/presentation/bloc/auth_event.dart';
 
-class PortalScreen extends StatelessWidget {
+import 'bloc/portal_event.dart';
+
+class PortalScreen extends StatefulWidget {
   const PortalScreen({super.key});
+
+  @override
+  State<PortalScreen> createState() => _PortalScreenState();
+}
+
+class _PortalScreenState extends State<PortalScreen> {
+
+  @override
+  void initState() {
+    super.initState();
+
+    context.read<PortalBloc>().add(PageLoad());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -454,7 +467,7 @@ class PortalScreen extends StatelessWidget {
                       },
                     );
                   }
-                  
+
                   return const SizedBox.shrink();
               }
             )
@@ -1095,6 +1108,7 @@ class PortalScreen extends StatelessWidget {
 
   void _showLogoutDialog(BuildContext context) {
     final theme = Theme.of(context);
+    final portalBloc = context.read<PortalBloc>();
 
     showDialog(
       context: context,
@@ -1233,7 +1247,7 @@ class PortalScreen extends StatelessWidget {
                           child: InkWell(
                             borderRadius: BorderRadius.circular(12),
                             onTap: () {
-                              context.read<AuthBloc>().add(AuthLogout());
+                              portalBloc.add(Logout());
                               context.go('/login');
                             },
                             child: Center(

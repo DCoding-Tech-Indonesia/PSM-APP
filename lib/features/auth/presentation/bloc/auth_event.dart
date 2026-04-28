@@ -2,6 +2,8 @@ abstract class AuthEvent {}
 
 class LoadSavedCredentials extends AuthEvent {}
 
+class ResetState extends AuthEvent {}
+
 class EmailChanged extends AuthEvent {
   final String value;
   EmailChanged(this.value);

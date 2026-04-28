@@ -1,8 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:local_auth/local_auth.dart';
+import 'package:psm_mobile/core/presentations/widgets/core_bottom_modal_alert.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_input_field.dart';
 import 'package:psm_mobile/core/theme/core_styling.dart';
 import 'package:psm_mobile/features/auth/presentation/bloc/auth_bloc.dart';
@@ -18,12 +20,12 @@ class AuthScreen extends StatefulWidget {
 
 class _AuthScreenState extends State<AuthScreen> {
   final LocalAuthentication auth = LocalAuthentication();
-  
+
   void _loginPressed(BuildContext context) {
     context.read<AuthBloc>().add(AuthSubmitted());
   }
 
-  Future<void> handleFingerprint() async {
+  Future<void> handleFingerprint(BuildContext context) async {
     try {
       final bool authenticated = await auth.authenticate(
         localizedReason: 'Scan sidik jari untuk masuk',
@@ -31,23 +33,27 @@ class _AuthScreenState extends State<AuthScreen> {
       );
 
       if (authenticated) {
-        _showMessage('✅ Fingerprint VALID');
-
-        if (mounted) {
-          context.go('/portal');
-        }
+        _loginPressed(context);
       } else {
-        _showMessage('❌ Fingerprint TIDAK VALID / dibatalkan');
+        showModalBottomSheet(
+          context: context,
+          builder: (_) => const CoreBottomModalAlert(
+            success: false,
+            message: "Biometrik tidak dikenali",
+          ),
+        );
       }
     } on PlatformException catch (e) {
-      _showMessage('Error: ${e.message}');
-    }
-  }
+      if (kDebugMode) print(e);
 
-  void _showMessage(String message) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message)));
+      showModalBottomSheet(
+        context: context,
+        builder: (_) => const CoreBottomModalAlert(
+          success: false,
+          message: "Terjadi kesalahan biometrik",
+        ),
+      );
+    }
   }
 
   @override
@@ -60,12 +66,40 @@ class _AuthScreenState extends State<AuthScreen> {
   @override
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
-      listenWhen: (previous, current) => (previous.loginMessage != current.loginMessage || previous.loginSuccess != current.loginSuccess),
+      listenWhen: (previous, current) =>
+          (previous.pageLoaded != current.pageLoaded ||
+          previous.popup != current.popup ||
+          previous.allowBiometric != current.allowBiometric),
       listener: (context, state) {
-        if(state.loginSuccess) {
+        if (state.allowBiometric) {
+          handleFingerprint(context);
+        }
+
+        print(state.popup);
+        if (state.loginSuccess && !state.popup) {
           context.go('/portal');
-        } else {
-          _showMessage('❌ Login gagal');
+        }
+
+        if (!state.popup) return;
+
+        final isSuccess = state.loginSuccess;
+
+        showModalBottomSheet(
+          context: context,
+          builder: (_) => CoreBottomModalAlert(
+            success: isSuccess,
+            message: state.loginMessage,
+          ),
+        ).then((_) {
+          context.read<AuthBloc>().add(ResetState());
+        });
+
+        if (isSuccess) {
+          Future.delayed(const Duration(seconds: 3), () {
+            if (context.mounted) {
+              context.go('/portal');
+            }
+          });
         }
       },
       child: Scaffold(
@@ -122,7 +156,12 @@ class _AuthScreenState extends State<AuthScreen> {
                 Expanded(
                   child: Container(
                     margin: const EdgeInsets.only(top: 52),
-                    padding: const EdgeInsets.only(top: 40, left: 20, right: 20, bottom: 20),
+                    padding: const EdgeInsets.only(
+                      top: 40,
+                      left: 20,
+                      right: 20,
+                      bottom: 20,
+                    ),
                     width: double.infinity,
                     decoration: const BoxDecoration(
                       borderRadius: BorderRadius.vertical(
@@ -149,7 +188,8 @@ class _AuthScreenState extends State<AuthScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   const Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         "Masuek la sanak.",
@@ -157,31 +197,37 @@ class _AuthScreenState extends State<AuthScreen> {
                                       ),
                                       SizedBox(height: 12),
                                       Text("Pitih dapek dicari,"),
-                                      Text("hiduik cuma sekali, stay hepi sanak"),
+                                      Text(
+                                        "hiduik cuma sekali, stay hepi sanak",
+                                      ),
                                     ],
                                   ),
                                   const SizedBox(height: 20),
                                   Column(
                                     children: [
                                       BlocBuilder<AuthBloc, AuthState>(
-                                        buildWhen: (prev, curr) => prev.username != curr.username,
+                                        buildWhen: (prev, curr) =>
+                                            prev.username != curr.username,
                                         builder: (context, state) {
                                           return CoreInputField(
-                                            label: "Email",
+                                            label: "Username",
                                             keyInput: "username",
                                             hintText: "username",
                                             isRequired: true,
                                             rule: InputRule.text,
                                             initValue: state.username,
                                             onChanged: (value) {
-                                              context.read<AuthBloc>().add(UsernameChanged(value));
+                                              context.read<AuthBloc>().add(
+                                                UsernameChanged(value),
+                                              );
                                             },
                                           );
-                                        }
+                                        },
                                       ),
                                       const SizedBox(height: 12),
                                       BlocBuilder<AuthBloc, AuthState>(
-                                        buildWhen: (prev, curr) => prev.password != curr.password,
+                                        buildWhen: (prev, curr) =>
+                                            prev.password != curr.password,
                                         builder: (context, state) {
                                           return CoreInputField(
                                             label: "Password",
@@ -192,10 +238,12 @@ class _AuthScreenState extends State<AuthScreen> {
                                             rule: InputRule.text,
                                             initValue: state.password.value,
                                             onChanged: (value) {
-                                              context.read<AuthBloc>().add(PasswordChanged(value));
+                                              context.read<AuthBloc>().add(
+                                                PasswordChanged(value),
+                                              );
                                             },
                                           );
-                                        }
+                                        },
                                       ),
                                     ],
                                   ),
@@ -211,13 +259,17 @@ class _AuthScreenState extends State<AuthScreen> {
                                               Checkbox(
                                                 value: state.rememberMe,
                                                 onChanged: (value) {
-                                                  context.read<AuthBloc>().add(RememberMeToggled(value ?? false));
+                                                  context.read<AuthBloc>().add(
+                                                    RememberMeToggled(
+                                                      value ?? false,
+                                                    ),
+                                                  );
                                                 },
                                               ),
                                               const Text("Ingek Aden"),
                                             ],
                                           );
-                                        }
+                                        },
                                       ),
                                       Text(
                                         "Lupo password sanak?",
@@ -234,43 +286,52 @@ class _AuthScreenState extends State<AuthScreen> {
                                         child: BlocBuilder<AuthBloc, AuthState>(
                                           builder: (context, state) {
                                             return GestureDetector(
-                                              onTap: () => _loginPressed(context),
+                                              onTap: () =>
+                                                  _loginPressed(context),
                                               child: Container(
-                                                padding: const EdgeInsets.symmetric(
-                                                  vertical: 16,
-                                                ),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      vertical: 16,
+                                                    ),
                                                 decoration: BoxDecoration(
-                                                  color: const Color(0xFF3D3D3D),
-                                                  borderRadius: BorderRadius.circular(
-                                                    999,
-                                                  ),
+                                                  gradient: CoreStyling
+                                                      .coreActiveButtonGradient,
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                        999,
+                                                      ),
                                                 ),
                                                 child: const Center(
                                                   child: Text(
                                                     "Masuek",
                                                     style: TextStyle(
                                                       color: Colors.white,
-                                                      fontWeight: FontWeight.bold,
+                                                      fontWeight:
+                                                          FontWeight.bold,
                                                     ),
                                                   ),
                                                 ),
                                               ),
                                             );
-                                          }
+                                          },
                                         ),
                                       ),
                                       const SizedBox(width: 10),
                                       BlocBuilder<AuthBloc, AuthState>(
                                         builder: (context, state) {
                                           return GestureDetector(
-                                            onTap: state.allowBiometric ? handleFingerprint : () => {},
+                                            onTap: state.allowBiometric
+                                                ? () =>
+                                                      handleFingerprint(context)
+                                                : null,
                                             child: Container(
                                               padding: const EdgeInsets.all(14),
                                               decoration: BoxDecoration(
-                                                color: state.allowBiometric ? CoreStyling.primaryColor : Color(0xFF3D3D3D),
-                                                borderRadius: BorderRadius.circular(
-                                                  999,
-                                                ),
+                                                color: state.allowBiometric
+                                                    ? CoreStyling.primaryColor
+                                                    : Color(0xFF3D3D3D),
+                                                borderRadius:
+                                                    BorderRadius.circular(999),
                                               ),
                                               child: const Icon(
                                                 Icons.fingerprint,
@@ -278,7 +339,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                               ),
                                             ),
                                           );
-                                        }
+                                        },
                                       ),
                                     ],
                                   ),

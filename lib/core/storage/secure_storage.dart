@@ -5,9 +5,11 @@ class SecureStorageService {
 
   static const _keyAccessToken = 'access_token';
   static const _keyRefreshToken = 'refresh_token';
+  static const _keyUserId = 'userId';
+  static const _keyUsername = 'username';
   static const _keyEmailCred = 'email';
-  static const _keyUsernameCred = 'username';
-  static const _keyPassCred = 'password';
+  static const _keyUsernameCred = 'usernameCred';
+  static const _keyPassCred = 'passwordCred';
 
   Future<void> saveEmailCred(String email) => _storage.write(key: _keyEmailCred, value: email);
   Future<String?> readEmailCred() async {
@@ -37,6 +39,27 @@ class SecureStorageService {
   Future<String?> readRefreshToken() async {
     String? value = await _storage.read(key: _keyRefreshToken);
     return value;
+  }
+
+  Future<void> saveUserId(String id) => _storage.write(key: _keyUserId, value: id);
+  Future<String?> readUserId() async {
+    String? value = await _storage.read(key: _keyUserId);
+    return value;
+  }
+
+  Future<void> saveUsername(String username) => _storage.write(key: _keyUsername, value: username);
+  Future<String?> readUsername() async {
+    String? value = await _storage.read(key: _keyUsername);
+    return value;
+  }
+
+  Future<void> clearLogin() async {
+    await Future.wait([
+      _storage.delete(key: _keyAccessToken),
+      _storage.delete(key: _keyRefreshToken),
+      _storage.delete(key: _keyUserId),
+      _storage.delete(key: _keyUsername),
+    ]);
   }
 
   Future<void> clearAll() => _storage.deleteAll();

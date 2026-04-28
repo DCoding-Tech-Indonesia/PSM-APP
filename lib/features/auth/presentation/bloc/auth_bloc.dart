@@ -1,5 +1,5 @@
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:psm_mobile/core/network/dio_client.dart';
 import 'package:psm_mobile/core/storage/secure_storage.dart';
 import 'package:psm_mobile/core/storage/shared_preferences.dart';
 import 'package:psm_mobile/features/auth/domain/entities/email.dart';
@@ -21,33 +21,43 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<LoadSavedCredentials>((event, emit) async {
       final savedUsername = await secureStorageService.readUsernameCred();
       final savedPassword = await secureStorageService.readPassCred();
+      final accessToken = await secureStorageService.readAccessToken();
       final refreshToken = await secureStorageService.readRefreshToken();
       final allowBiometric = sharedPreferencesService.getBiometric();
 
       final hasSaved =
-          (savedUsername?.isNotEmpty ?? false) ||
-          (savedPassword?.isNotEmpty ?? false);
+          (savedUsername?.isNotEmpty ?? false) &&
+              (savedPassword?.isNotEmpty ?? false);
+
+      final hasToken =
+          (refreshToken?.isNotEmpty ?? false) ||
+              (accessToken?.isNotEmpty ?? false);
+
+      if (hasToken) {
+        emit(state.copyWith(loginSuccess: true));
+        DioClient().setAuthToken(accessToken.toString());
+      }
 
       if (hasSaved) {
         emit(
           state.copyWith(
-            username: savedUsername,
-            password: savedPassword != null
-                ? Password.dirty(savedPassword)
-                : null,
+            username: savedUsername ?? '',
+            password: Password.dirty(savedPassword!),
             rememberMe: true,
+            allowBiometric: allowBiometric,
           ),
         );
       }
 
-      if (refreshToken!.isNotEmpty && allowBiometric) {
-        emit(
-            state.copyWith(
-                allowBiometric: true,
-              loginSuccess: true,
-            )
-        );
-      }
+      emit(state.copyWith(pageLoaded: true));
+    });
+
+    on<ResetState>((event, emit) {
+      emit(
+        state.copyWith(
+          popup: false,
+        )
+      );
     });
 
     on<EmailChanged>((event, emit) {
@@ -98,9 +108,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
       result.match(
         (failure) {
-          state.copyWith(
-            loginSuccess: false,
-            loginMessage: "Login failed, try again later.",
+          emit(
+            state.copyWith(
+              loginSuccess: false,
+              loginMessage: "Login failed, try again later.",
+              popup: true,
+            ),
           );
         },
         (response) async {
@@ -108,18 +121,19 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             state.copyWith(
               loginSuccess: response.isSuccess,
               loginMessage: response.message,
+              popup: true,
             ),
           );
         },
       );
     });
 
-    on<AuthLogout>((event, emit) async {
-      await authRepository.logout();
-      emit(state.copyWith(
-        loginSuccess: false,
-        token: null,
-      ));
-    });
+    // on<AuthLogout>((event, emit) async {
+    //   await authRepository.logout();
+    //   emit(state.copyWith(
+    //     loginSuccess: false,
+    //     token: null,
+    //   ));
+    // });
   }
 }
