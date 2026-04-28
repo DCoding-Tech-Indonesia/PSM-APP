@@ -13,6 +13,15 @@ class PortalBloc extends Bloc<PortalEvent, PortalState> {
 
   PortalBloc(this.authRepository, this.secureStorageService, this.portalRepository)
       : super(const PortalState()) {
+    on<FetchProfile>((event, emit) async {
+      emit(PortalLoading());
+      final result = await portalRepository.getProfile();
+      result.fold(
+            (failure) => emit(PortalError(message: failure.message)),
+            (profile) => emit(PortalLoaded(profile: profile)),
+      );
+    });
+
     on<PageLoad>((event, emit) async {
       emit(PortalLoading());
 
