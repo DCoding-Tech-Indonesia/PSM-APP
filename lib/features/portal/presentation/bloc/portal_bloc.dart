@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:psm_mobile/core/storage/secure_storage.dart';
+import 'package:psm_mobile/core/network/dio_client.dart';
 import 'package:psm_mobile/features/auth/domain/repositories/auth_repository.dart';
 import 'package:psm_mobile/features/portal/domain/repositories/portal_repository.dart';
 import 'package:psm_mobile/features/portal/presentation/bloc/portal_event.dart';
@@ -13,21 +14,35 @@ class PortalBloc extends Bloc<PortalEvent, PortalState> {
   PortalBloc(this.authRepository, this.secureStorageService, this.portalRepository)
       : super(const PortalState()) {
     on<PageLoad>((event, emit) async {
+      emit(PortalLoading());
+
       final userId = await secureStorageService.readUserId();
       final username = await secureStorageService.readUsername();
+      final token = await secureStorageService.readAccessToken();
 
-      print('userId');
-      print(userId);
-      print('username');
-      print(username);
-      if (userId!.isNotEmpty && username!.isNotEmpty) {
-        emit(state.copyWith(userId: userId, username: username));
+      if (token != null) {
+        DioClient().setAuthToken(token.toString());
       }
+
+      final result = await portalRepository.getProfile();
+
+      result.match(
+        (failure) {
+          emit(PortalError(message: failure.message));
+        },
+        (profile) {
+          emit(PortalLoaded(profile: profile));
+        },
+      );
     });
 
     on<Logout>((event, emit) async {
       print("INI");
-      final result = await authRepository.logout(state.userId, state.username);
+      
+      final userId = await secureStorageService.readUserId() ?? state.userId;
+      final username = await secureStorageService.readUsername() ?? state.username;
+      
+      final result = await authRepository.logout(userId, username);
 
       result.match(
             (failure) {

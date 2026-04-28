@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:psm_mobile/core/storage/secure_storage.dart';
 
 class DioClient {
   DioClient._internal();
@@ -23,6 +24,8 @@ class DioClient {
 
     _addInterceptors();
   }
+
+  bool _isRefreshing = false;
 
   void _addInterceptors() {
     _dio.interceptors.add(InterceptorsWrapper(
@@ -50,8 +53,73 @@ class DioClient {
         if (kDebugMode) debugPrint('[RES] ${response.statusCode} ${response.requestOptions.path}');
         handler.next(response);
       },
-      onError: (e, handler) {
+      onError: (e, handler) async {
         if (kDebugMode) debugPrint('[ERR] ${e.response?.statusCode} ${e.message}');
+
+        if (e.response?.statusCode == 401) {
+          if (!_isRefreshing) {
+            _isRefreshing = true;
+            try {
+              // Create a temp dio to avoid running through the same interceptor
+              final tokenDio = Dio(BaseOptions(baseUrl: dotenv.env['API_BASE_URL'] ?? ''));
+              
+              // Depending on the backend API, some require the old token in header, others require refresh_token in body.
+              // Here we try to pass the expired token in the header just in case.
+              final authHeader = _dio.options.headers['Authorization'];
+              if (authHeader != null) {
+                tokenDio.options.headers['Authorization'] = authHeader;
+              }
+
+              final secureStorage = SecureStorageService();
+              final currentRefreshToken = await secureStorage.readRefreshToken();
+
+              if (currentRefreshToken == null || currentRefreshToken.isEmpty) {
+                print("No refresh token available");
+                return handler.next(e);
+              }
+
+              final response = await tokenDio.post('/auth/refresh', queryParameters: {
+                'refreshToken': currentRefreshToken,
+              });
+              
+              if (response.statusCode == 200 && response.data['status'] == true) {
+                // Parse the new token based on backend structure
+                // Assuming it's the exact same structure as login: response.data["data"][0]["token"]
+                // Adjust if the refresh response is different.
+                final dynamic newData = response.data['data'];
+                String? newToken;
+                
+                if (newData is List && newData.isNotEmpty && newData[0]['token'] != null) {
+                   newToken = newData[0]['token'];
+                } else if (newData is Map && newData['token'] != null) {
+                   newToken = newData['token'];
+                }
+                
+                if (newToken != null) {
+                  // Save the new token
+                  final secureStorage = SecureStorageService();
+                  await secureStorage.saveAccessToken(newToken);
+                  setAuthToken(newToken);
+                  
+                  _isRefreshing = false;
+                  
+                  // Retry the original request with the new token
+                  final opts = e.requestOptions;
+                  opts.headers['Authorization'] = 'Bearer $newToken';
+                  
+                  final cloneReq = await _dio.fetch(opts);
+                  return handler.resolve(cloneReq);
+                }
+              }
+            } catch (refreshError) {
+              if (kDebugMode) debugPrint('[REFRESH ERR] ${refreshError.toString()}');
+              // If refresh fails, let the caller know it's a 401
+            } finally {
+              _isRefreshing = false;
+            }
+          }
+        }
+
         handler.next(e);
       },
     ));

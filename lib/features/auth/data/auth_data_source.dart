@@ -29,8 +29,13 @@ class AuthDataSource {
 
       if (success == true) {
         final token = response.data["data"][0]["token"];
+        final refreshToken = response.data["data"][0]["refreshToken"] ?? ''; // Fallback string if it might be missing
         final userId = response.data["data"][0]["userId"];
+        
         secureStorageService.saveAccessToken(token);
+        if (refreshToken.isNotEmpty) {
+          secureStorageService.saveRefreshToken(refreshToken);
+        }
         secureStorageService.saveUserId(userId.toString());
         secureStorageService.saveUsername(username);
         DioClient().setAuthToken(token);
