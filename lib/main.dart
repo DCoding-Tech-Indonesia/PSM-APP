@@ -13,6 +13,9 @@ import 'package:psm_mobile/core/theme/app_theme.dart';
 import 'package:psm_mobile/features/auth/data/auth_data_source.dart';
 import 'package:psm_mobile/features/auth/data/auth_repository_impl.dart';
 import 'package:psm_mobile/features/auth/domain/repositories/auth_repository.dart';
+import 'package:psm_mobile/features/portal/data/datasources/portal_data_source.dart';
+import 'package:psm_mobile/features/portal/data/repositories/portal_repository_impl.dart';
+import 'package:psm_mobile/features/portal/domain/repositories/portal_repository.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -38,6 +41,11 @@ void main() async {
         RepositoryProvider<AuthRepository>(
             create: (_) => AuthRepositoryImpl(
                 dataSource: AuthDataSource(dio: dioClient.instance)
+            ),
+        ),
+        RepositoryProvider<PortalRepository>(
+            create: (_) => PortalRepositoryImpl(
+                dataSource: PortalDataSource(dio: dioClient.instance)
             ),
         ),
         BlocProvider(create: (_) => CoreTabCubit()),

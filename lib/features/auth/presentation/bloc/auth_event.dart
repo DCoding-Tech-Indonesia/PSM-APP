@@ -23,3 +23,5 @@ class RememberMeToggled extends AuthEvent {
 }
 
 class AuthSubmitted extends AuthEvent {}
+
+class AuthLogout extends AuthEvent {}

@@ -113,5 +113,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         },
       );
     });
+
+    on<AuthLogout>((event, emit) async {
+      await authRepository.logout();
+      emit(state.copyWith(
+        loginSuccess: false,
+        token: null,
+      ));
+    });
   }
 }

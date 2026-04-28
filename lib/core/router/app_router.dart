@@ -14,6 +14,9 @@ import 'package:psm_mobile/features/settlement/presentation/cubit/settlement_ste
 import 'package:psm_mobile/features/settlement/presentation/cubit/settlement_tab_cubit.dart';
 import 'package:psm_mobile/features/settlement/presentation/settlement_dashboard_screen.dart';
 import 'package:psm_mobile/features/settlement/presentation/settlement_add_screen.dart';
+import 'package:psm_mobile/features/portal/domain/repositories/portal_repository.dart';
+import 'package:psm_mobile/features/portal/presentation/bloc/portal_bloc.dart';
+import 'package:psm_mobile/features/portal/presentation/bloc/portal_event.dart';
 import 'package:psm_mobile/features/portal/presentation/portal_screen.dart';
 
 GoRouter createRouter(BuildContext context) {
@@ -40,7 +43,11 @@ GoRouter createRouter(BuildContext context) {
       GoRoute(
         path: '/portal',
         builder: (context, state) {
-          return const PortalScreen();
+          final portalRepository = context.read<PortalRepository>();
+          return BlocProvider(
+            create: (_) => PortalBloc(repository: portalRepository)..add(FetchProfile()),
+            child: const PortalScreen(),
+          );
         },
       ),
 
