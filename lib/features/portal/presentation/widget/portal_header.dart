@@ -45,7 +45,7 @@ class PortalHeader extends StatelessWidget {
                       ),
                       child: Icon(
                         Icons.person,
-                        color: theme.cardTheme.color,
+                        color: theme.colorScheme.onPrimary,
                         size: 24,
                       ),
                     ),

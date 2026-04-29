@@ -18,9 +18,11 @@ import 'package:psm_mobile/features/settlement/presentation/settlement_dashboard
 import 'package:psm_mobile/features/settlement/presentation/settlement_add_screen.dart';
 import 'package:psm_mobile/features/portal/presentation/portal_screen.dart';
 
-GoRouter createRouter(BuildContext context) {
-  return GoRouter(
-    initialLocation: '/login',
+late final GoRouter appRouter;
+
+void setupRouter(String initialLocation) {
+  appRouter = GoRouter(
+    initialLocation: initialLocation,
 
     routes: [
       // AUTH ROUTE

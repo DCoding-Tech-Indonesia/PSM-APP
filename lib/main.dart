@@ -30,7 +30,49 @@ void main() async {
 
   final dioClient = DioClient();
   final secureStorage = SecureStorageService();
-  dioClient.init(baseUrl: dotenv.env['API_BASE_URL']);
+  dioClient.init(
+    baseUrl: dotenv.env['API_BASE_URL'],
+    onUnauthorized: () {
+      secureStorage.clearLogin();
+      try {
+        appRouter.go('/login');
+      } catch (e) {
+        // Router mungkin belum diinisialisasi saat startup
+      }
+    },
+  );
+
+  // Tentukan rute awal dengan validasi token ke server
+  String initialRoute = '/login';
+  final token = await secureStorage.readAccessToken();
+
+  if (token != null && token.isNotEmpty) {
+    dioClient.setAuthToken(token);
+    try {
+      // Hit API check-token untuk memastikan sesi masih valid di server
+      // Jika token expired, interceptor akan otomatis mencoba refresh terlebih dahulu
+      final response = await dioClient.instance.post('/auth/check-token');
+      
+      if (response.statusCode == 200 && response.data['status'] == true) {
+        // Jika valid, simpan token baru (jika ada pembaruan) dan masuk ke portal
+        final newData = response.data['data'];
+        if (newData is List && newData.isNotEmpty && newData[0]['token'] != null) {
+          final newToken = newData[0]['token'];
+          await secureStorage.saveAccessToken(newToken);
+          dioClient.setAuthToken(newToken);
+        }
+        initialRoute = '/portal';
+      } else {
+        await secureStorage.clearLogin();
+        initialRoute = '/login';
+      }
+    } catch (e) {
+      // Jika gagal (misal: 401 dan refresh gagal), arahkan ke login
+      initialRoute = '/login';
+    }
+  }
+
+  setupRouter(initialRoute);
 
   runApp(
     MultiRepositoryProvider(
@@ -70,17 +112,11 @@ class MyApp extends StatelessWidget {
           create: (_) => PermissionCubit()..checkAndRequestPermissions(),
         ),
       ],
-      child: Builder(
-        builder: (context) {
-          final router = createRouter(context);
-
-          return MaterialApp.router(
-            debugShowCheckedModeBanner: false,
-            title: 'PSM Mobile',
-            theme: AppTheme.lightTheme,
-            routerConfig: router,
-          );
-        },
+      child: MaterialApp.router(
+        debugShowCheckedModeBanner: false,
+        title: 'PSM Mobile',
+        theme: AppTheme.lightTheme,
+        routerConfig: appRouter,
       ),
     );
   }

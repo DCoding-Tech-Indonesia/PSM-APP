@@ -42,43 +42,57 @@ class _PortalScreenState extends State<PortalScreen> {
             }
           },
           builder: (context, state) {
-            String userName = "Pengguna";
+            String userName = "";
             String userEmail = "Loading...";
 
             if (state is PortalLoaded) {
-              userName = state.profile.name ?? state.profile.username ?? "Pengguna";
+              userName = state.profile.name ?? state.profile.username ?? "";
               userEmail = state.profile.username ?? "";
             }
 
-            return Column(
-              children: [
-                // Custom Header Section
-                PortalHeader(userName: userName, userEmail: userEmail),
-
-                // Date Section at Bottom
-                const PortalDateTimeCard(),
-
-                // Welcome Banner
-                const PortalWelcomeBanner(),
-
-                // Quick Stats Bar
-                const PortalQuickStatsBar(),
-
-                // Main Content
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+            return RefreshIndicator(
+              onRefresh: () async {
+                context.read<PortalBloc>().add(PageLoad());
+                await Future.delayed(const Duration(seconds: 1));
+              },
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: state is PortalLoaded 
+                  ? Column(
                       children: [
-                        // Dynamic Menu Grid
-                        PortalQuickActionsGrid(state: state),
-                        const SizedBox(height: 32),
+                        // Custom Header Section
+                        PortalHeader(userName: userName, userEmail: userEmail),
+
+                        // Date Section at Bottom
+                        const PortalDateTimeCard(),
+
+                        // Welcome Banner
+                        const PortalWelcomeBanner(),
+
+                        // Quick Stats Bar
+                        const PortalQuickStatsBar(),
+
+                        // Main Content
+                        Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Dynamic Menu Grid
+                              PortalQuickActionsGrid(state: state),
+                              const SizedBox(height: 32),
+                            ],
+                          ),
+                        ),
                       ],
+                    )
+                  : SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.8,
+                      child: const Center(
+                        child: CircularProgressIndicator(),
+                      ),
                     ),
-                  ),
-                ),
-              ],
+              ),
             );
           },
         ),

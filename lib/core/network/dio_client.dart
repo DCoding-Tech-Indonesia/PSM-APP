@@ -10,8 +10,10 @@ class DioClient {
 
   late final Dio _dio;
   Dio get instance => _dio;
+  VoidCallback? onUnauthorized;
 
-  void init({String? baseUrl, String? token}) {
+  void init({String? baseUrl, String? token, VoidCallback? onUnauthorized}) {
+    this.onUnauthorized = onUnauthorized;
     final resolvedBaseUrl = baseUrl ?? dotenv.env['API_BASE_URL'] ?? '';
 
     _dio = Dio(BaseOptions(
@@ -58,9 +60,9 @@ class DioClient {
 
         if (e.response?.statusCode == 401) {
           if (!_isRefreshing) {
+            if (kDebugMode) debugPrint('[REFRESH] Memulai proses refresh token...');
             _isRefreshing = true;
             try {
-              // Create a temp dio to avoid running through the same interceptor
               final tokenDio = Dio(BaseOptions(baseUrl: dotenv.env['API_BASE_URL'] ?? ''));
               
               // Depending on the backend API, some require the old token in header, others require refresh_token in body.
@@ -70,17 +72,10 @@ class DioClient {
                 tokenDio.options.headers['Authorization'] = authHeader;
               }
 
-              final secureStorage = SecureStorageService();
-              final currentRefreshToken = await secureStorage.readRefreshToken();
-
-              if (currentRefreshToken == null || currentRefreshToken.isEmpty) {
-                print("No refresh token available");
-                return handler.next(e);
-              }
-
-              final response = await tokenDio.post('/auth/refresh', queryParameters: {
-                'refreshToken': currentRefreshToken,
-              });
+              // Panggil endpoint refresh tanpa query parameter refreshToken
+              if (kDebugMode) debugPrint('[REFRESH] Hit POST /auth/refresh');
+              final response = await tokenDio.post('/auth/refresh');
+              if (kDebugMode) debugPrint('[REFRESH] Response: ${response.statusCode} ${response.data}');
               
               if (response.statusCode == 200 && response.data['status'] == true) {
                 // Parse the new token based on backend structure
@@ -109,11 +104,17 @@ class DioClient {
                   
                   final cloneReq = await _dio.fetch(opts);
                   return handler.resolve(cloneReq);
+                } else {
+                  if (kDebugMode) debugPrint('[REFRESH] Gagal memparsing token baru dari response');
                 }
+              } else {
+                if (kDebugMode) debugPrint('[REFRESH] Response refresh tidak sukses (status != true atau statusCode != 200)');
+                onUnauthorized?.call();
               }
             } catch (refreshError) {
               if (kDebugMode) debugPrint('[REFRESH ERR] ${refreshError.toString()}');
-              // If refresh fails, let the caller know it's a 401
+              // If refresh fails, redirect to login
+              onUnauthorized?.call();
             } finally {
               _isRefreshing = false;
             }
