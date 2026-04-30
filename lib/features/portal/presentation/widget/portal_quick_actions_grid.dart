@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:psm_mobile/features/portal/presentation/bloc/portal_state.dart';
@@ -31,8 +32,8 @@ class PortalQuickActionsGrid extends StatelessWidget {
               color: isDark
                   ? theme.cardTheme.color
                   : isAvailable
-                  ? color.withValues(alpha: 0.05)
-                  : Colors.grey.withValues(alpha: 0.05),
+                    ? color.withValues(alpha: 0.05)
+                    : Colors.grey.withValues(alpha: 0.05),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: isAvailable
@@ -77,9 +78,7 @@ class PortalQuickActionsGrid extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                         color: isAvailable
                             ? theme.textTheme.titleMedium?.color
-                            : theme.textTheme.titleMedium?.color?.withValues(
-                                alpha: 0.5,
-                              ),
+                            : theme.textTheme.titleMedium?.color?.withValues(alpha: 0.5),
                       ),
                       textAlign: TextAlign.center,
                       maxLines: 2,
@@ -90,12 +89,8 @@ class PortalQuickActionsGrid extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 12,
                         color: isAvailable
-                            ? theme.textTheme.bodySmall?.color?.withValues(
-                                alpha: 0.7,
-                              )
-                            : theme.textTheme.bodySmall?.color?.withValues(
-                                alpha: 0.4,
-                              ),
+                            ? theme.textTheme.bodySmall?.color?.withValues(alpha: 0.7)
+                            : theme.textTheme.bodySmall?.color?.withValues(alpha: 0.4),
                       ),
                       textAlign: TextAlign.center,
                       maxLines: 1,
@@ -104,21 +99,14 @@ class PortalQuickActionsGrid extends StatelessWidget {
                     if (!isAvailable) ...[
                       const SizedBox(height: 4),
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
                           color: Colors.orange.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: const Text(
                           'Coming Soon',
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: Colors.orange,
-                            fontWeight: FontWeight.w600,
-                          ),
+                          style: TextStyle(fontSize: 10, color: Colors.orange, fontWeight: FontWeight.w600),
                         ),
                       ),
                     ],
@@ -202,6 +190,26 @@ class PortalQuickActionsGrid extends StatelessWidget {
               ));
             } else if (state is PortalLoaded) {
               final loadedState = state as PortalLoaded;
+
+              if (kDebugMode) {
+                print("DEBUG: Total menu mentah dari API: ${loadedState.profile.menu.length}");
+                for (var m in loadedState.profile.menu) {
+                  print("DEBUG: Raw Menu -> Title: ${m.title}, Type: '${m.typeMenu}'");
+                }
+              }
+
+              // Filter menu yang typeMenu-nya null (di model defaultnya string kosong)
+              // dan urutkan berdasarkan orderIndex sesuai response API
+              final filteredMenus = loadedState.profile.menu
+                  .where((menu) => menu.typeMenu.isEmpty)
+                  .toList();
+              
+              if (kDebugMode) {
+                print("DEBUG: Total menu setelah difilter (typeMenu == ''): ${filteredMenus.length}");
+              }
+
+              filteredMenus.sort((a, b) => a.orderIndex.compareTo(b.orderIndex));
+
               return GridView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
@@ -211,9 +219,13 @@ class PortalQuickActionsGrid extends StatelessWidget {
                   mainAxisSpacing: 16,
                   childAspectRatio: 1.2,
                 ),
-                itemCount: loadedState.profile.menu.length,
+                itemCount: filteredMenus.length,
                 itemBuilder: (context, index) {
-                  final menu = loadedState.profile.menu[index];
+                  final menu = filteredMenus[index];
+
+                  if (kDebugMode) {
+                    print("[MENU FILTERED][$index] ${filteredMenus[index].title}");
+                  }
 
                   // Dynamic icon mapping based on menu string
                   IconData mappedIcon = Icons.dashboard;
@@ -240,7 +252,8 @@ class PortalQuickActionsGrid extends StatelessWidget {
                     mappedIcon = Icons.menu;
                   }
 
-                  final isAvailable = menu.route != null && menu.route!.isNotEmpty;
+                  // final isAvailable = menu.route != null && menu.route!.isNotEmpty;
+                  final isAvailable = menu.title.toString().isNotEmpty;
 
                   return _buildEnhancedActionCard(
                     menu.title,

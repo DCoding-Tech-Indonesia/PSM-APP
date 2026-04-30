@@ -3,6 +3,7 @@ class PortalMenu {
   final String title;
   final String? icon;
   final String? route;
+  final int orderIndex;
   final String typeMenu;
 
   PortalMenu({
@@ -10,6 +11,7 @@ class PortalMenu {
     required this.title,
     this.icon,
     this.route,
+    required this.orderIndex,
     required this.typeMenu,
   });
 
@@ -19,6 +21,7 @@ class PortalMenu {
       title: json['title'] ?? '',
       icon: json['icon'],
       route: json['route'],
+      orderIndex: json['orderIndex'] ?? 0,
       typeMenu: json['typeMenu'] ?? '',
     );
   }
