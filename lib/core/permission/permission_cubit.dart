@@ -17,6 +17,7 @@ class PermissionCubit extends Cubit<PermissionStatusState> {
     if (notificationStatus.isDenied) {
       final results = await [
         Permission.notification,
+        Permission.location,
       ].request();
 
       final hasDenied = results.values.any((status) => status.isDenied);

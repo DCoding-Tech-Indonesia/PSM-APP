@@ -17,6 +17,7 @@ import 'package:psm_mobile/features/settlement/presentation/cubit/settlement_tab
 import 'package:psm_mobile/features/settlement/presentation/settlement_dashboard_screen.dart';
 import 'package:psm_mobile/features/settlement/presentation/settlement_add_screen.dart';
 import 'package:psm_mobile/features/portal/presentation/portal_screen.dart';
+import 'package:psm_mobile/features/attendance/presentation/screens/attendance_screen.dart';
 
 late final GoRouter appRouter;
 
@@ -95,6 +96,10 @@ void setupRouter(String initialLocation) {
             ratio: ratio,
           );
         },
+      ),
+      GoRoute(
+        path: '/attendance',
+        builder: (context, state) => const AttendanceScreen(),
       ),
     ],
   );
