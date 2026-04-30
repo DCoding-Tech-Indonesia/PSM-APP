@@ -35,13 +35,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
       if (hasToken) {
         DioClient().setAuthToken(accessToken.toString());
-        emit(
-          state.copyWith(
-            allowBiometric: allowBiometric,
-          )
-        );
-      } else {
-        emit(state.copyWith(allowBiometric: false));
+        emit(state.copyWith(allowBiometric: allowBiometric));
       }
 
       if (hasSaved) {
@@ -50,6 +44,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             username: savedUsername ?? '',
             password: Password.dirty(savedPassword!),
             rememberMe: true,
+            allowBiometric: allowBiometric,
           ),
         );
       }
@@ -130,7 +125,31 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     });
 
     on<BiometricSubmitted>((event, emit) async {
-      final result = await authRepository.checkToken();
+      final username = state.username;
+      final password = Password.dirty(state.password.value);
+
+      final isValid = username.isNotEmpty && password.isValid;
+
+      if (!isValid) {
+        emit(
+          state.copyWith(
+            username: username,
+            password: password,
+            isValid: false,
+          ),
+        );
+        return;
+      }
+
+      if (state.rememberMe) {
+        secureStorageService.saveUsernameCred(state.username);
+        secureStorageService.savePassCred(state.password.value);
+      }
+
+      final result = await authRepository.login(
+        state.username,
+        state.password.value,
+      );
 
       result.match(
         (failure) {
@@ -145,7 +164,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         (response) async {
           emit(
             state.copyWith(
-              loginSuccess: true,
+              loginSuccess: response.isSuccess,
               loginMessage: "Welcome back!",
               popup: true,
             ),

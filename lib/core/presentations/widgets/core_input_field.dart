@@ -57,62 +57,59 @@ class _CoreInputFieldState extends State<CoreInputField> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Text(widget.label, style: const TextStyle(fontSize: 18)),
-              if (widget.isRequired)
-                const Text(
-                  " *",
-                  style: TextStyle(color: Colors.redAccent, fontSize: 18),
-                ),
-            ],
-          ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(widget.label, style: const TextStyle(fontSize: 18)),
+            if (widget.isRequired)
+              const Text(
+                " *",
+                style: TextStyle(color: Colors.redAccent, fontSize: 18),
+              ),
+          ],
+        ),
 
-          const SizedBox(height: 8),
+        const SizedBox(height: 8),
 
-          TextFormField(
-            keyboardType: _getKeyboardType(),
-            inputFormatters: _getInputFormatters(),
-            controller: _controller,
-            onChanged: (value) {
-              final processedValue = _processValue(value);
-              widget.onChanged?.call(processedValue);
-            },
-            obscureText: _isHidden,
-            decoration: InputDecoration(
-              suffixIcon: widget.isSecured
-                  ? IconButton(
-                      icon: Icon(
-                        _isHidden ? Icons.visibility_off : Icons.visibility,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _isHidden = !_isHidden;
-                        });
-                      },
-                    )
-                  : null,
-              hintText: widget.hintText,
-              contentPadding: const EdgeInsets.symmetric(
-                vertical: 10,
-                horizontal: 12,
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.grey, width: .5),
-                borderRadius: BorderRadius.circular(4),
-              ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(4),
-              ),
+        TextFormField(
+          keyboardType: _getKeyboardType(),
+          inputFormatters: _getInputFormatters(),
+          controller: _controller,
+          onChanged: (value) {
+            final processedValue = _processValue(value);
+            widget.onChanged?.call(processedValue);
+          },
+          obscureText: _isHidden,
+          decoration: InputDecoration(
+            suffixIcon: widget.isSecured
+                ? IconButton(
+                    icon: Icon(
+                      _isHidden ? Icons.visibility_off : Icons.visibility,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _isHidden = !_isHidden;
+                      });
+                    },
+                  )
+                : null,
+            hintText: widget.hintText,
+            contentPadding: const EdgeInsets.symmetric(
+              vertical: 10,
+              horizontal: 12,
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.grey, width: .5),
+              borderRadius: BorderRadius.circular(4),
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(4),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

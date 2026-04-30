@@ -6,7 +6,6 @@ import 'package:go_router/go_router.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_bottom_modal_alert.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_input_field.dart';
-import 'package:psm_mobile/core/theme/core_styling.dart';
 import 'package:psm_mobile/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:psm_mobile/features/auth/presentation/bloc/auth_event.dart';
 import 'package:psm_mobile/features/auth/presentation/bloc/auth_state.dart';
@@ -20,6 +19,7 @@ class AuthScreen extends StatefulWidget {
 
 class _AuthScreenState extends State<AuthScreen> {
   final LocalAuthentication auth = LocalAuthentication();
+  bool _biometricTriggered = false;
 
   void _loginPressed(BuildContext context) {
     context.read<AuthBloc>().add(AuthSubmitted());
@@ -64,13 +64,7 @@ class _AuthScreenState extends State<AuthScreen> {
   void initState() {
     super.initState();
 
-    final authBloc = context.read<AuthBloc>();
-    authBloc.add(LoadSavedCredentials());
-
-    final currentState = authBloc.state;
-    if (currentState.allowBiometric == true) {
-      handleFingerprint(context);
-    }
+    context.read<AuthBloc>().add(LoadSavedCredentials());
   }
 
   @override
@@ -81,6 +75,11 @@ class _AuthScreenState extends State<AuthScreen> {
           previous.popup != current.popup ||
           previous.allowBiometric != current.allowBiometric),
       listener: (context, state) {
+        if (!_biometricTriggered && state.pageLoaded && state.allowBiometric) {
+          _biometricTriggered = true;
+          handleFingerprint(context);
+        }
+
         if (!state.popup) return;
 
         final isSuccess = state.loginSuccess;
@@ -114,7 +113,6 @@ class _AuthScreenState extends State<AuthScreen> {
           ),
           child: Stack(
             children: [
-              // Elemen dekoratif latar belakang
               Positioned(
                 top: -100,
                 right: -50,
@@ -127,11 +125,11 @@ class _AuthScreenState extends State<AuthScreen> {
                   ),
                 ),
               ),
-              
+
               SafeArea(
                 child: Column(
                   children: [
-                    const SizedBox(height: 120),
+                    const SizedBox(height: 50),
                     // Header Logo Area
                     TweenAnimationBuilder(
                       duration: const Duration(milliseconds: 800),
@@ -197,9 +195,9 @@ class _AuthScreenState extends State<AuthScreen> {
                         ],
                       ),
                     ),
-                    
-                    const SizedBox(height: 120),
-                    
+
+                    const SizedBox(height: 50),
+
                     // Login Card
                     Expanded(
                       child: Container(
@@ -227,29 +225,36 @@ class _AuthScreenState extends State<AuthScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  "Masuek la sanak,",
-                                  style: TextStyle(
-                                    fontSize: 28,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.grey[800],
-                                    letterSpacing: -0.5,
-                                  ),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "Masuek la sanak,",
+                                      style: TextStyle(
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.grey[800],
+                                        letterSpacing: -0.5,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      "Pitih dapek dicari, hiduik cuma sekali.",
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: Colors.grey[600],
+                                        height: 1.5,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  "Pitih dapek dicari, hiduik cuma sekali.",
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    color: Colors.grey[600],
-                                    height: 1.5,
-                                  ),
-                                ),
+
                                 const SizedBox(height: 35),
-                                
+
                                 // Input Fields
                                 BlocBuilder<AuthBloc, AuthState>(
-                                  buildWhen: (prev, curr) => prev.username != curr.username,
+                                  buildWhen: (prev, curr) =>
+                                  prev.username != curr.username,
                                   builder: (context, state) {
                                     return CoreInputField(
                                       label: "Username",
@@ -258,13 +263,18 @@ class _AuthScreenState extends State<AuthScreen> {
                                       isRequired: true,
                                       rule: InputRule.text,
                                       initValue: state.username,
-                                      onChanged: (value) => context.read<AuthBloc>().add(UsernameChanged(value)),
+                                      onChanged: (value) => context
+                                          .read<AuthBloc>()
+                                          .add(UsernameChanged(value)),
                                     );
                                   },
                                 ),
+
                                 const SizedBox(height: 20),
+
                                 BlocBuilder<AuthBloc, AuthState>(
-                                  buildWhen: (prev, curr) => prev.password != curr.password,
+                                  buildWhen: (prev, curr) =>
+                                  prev.password != curr.password,
                                   builder: (context, state) {
                                     return CoreInputField(
                                       label: "Password",
@@ -274,22 +284,29 @@ class _AuthScreenState extends State<AuthScreen> {
                                       isSecured: true,
                                       rule: InputRule.text,
                                       initValue: state.password.value,
-                                      onChanged: (value) => context.read<AuthBloc>().add(PasswordChanged(value)),
+                                      onChanged: (value) => context
+                                          .read<AuthBloc>()
+                                          .add(PasswordChanged(value)),
                                     );
                                   },
                                 ),
-                                
+
                                 const SizedBox(height: 15),
-                                
+
                                 // Action Row (Remember Me & Forgot Password)
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     BlocBuilder<AuthBloc, AuthState>(
                                       builder: (context, state) {
                                         return InkWell(
                                           onTap: () {
-                                            context.read<AuthBloc>().add(RememberMeToggled(!state.rememberMe));
+                                            context.read<AuthBloc>().add(
+                                              RememberMeToggled(
+                                                !state.rememberMe,
+                                              ),
+                                            );
                                           },
                                           child: Row(
                                             children: [
@@ -297,18 +314,35 @@ class _AuthScreenState extends State<AuthScreen> {
                                                 height: 24,
                                                 width: 24,
                                                 child: Checkbox(
+                                                  checkColor: Colors.white,
                                                   value: state.rememberMe,
-                                                  activeColor: const Color(0xFF1E3C72),
-                                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                                                  activeColor: const Color(
+                                                    0xFF1E3C72,
+                                                  ),
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          4,
+                                                        ),
+                                                  ),
                                                   onChanged: (value) {
-                                                    context.read<AuthBloc>().add(RememberMeToggled(value ?? false));
+                                                    context
+                                                        .read<AuthBloc>()
+                                                        .add(
+                                                          RememberMeToggled(
+                                                            value ?? false,
+                                                          ),
+                                                        );
                                                   },
                                                 ),
                                               ),
                                               const SizedBox(width: 8),
                                               Text(
                                                 "Ingek Aden",
-                                                style: TextStyle(color: Colors.grey[700], fontSize: 14),
+                                                style: TextStyle(
+                                                  color: Colors.grey[700],
+                                                  fontSize: 14,
+                                                ),
                                               ),
                                             ],
                                           ),
@@ -327,9 +361,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                     ),
                                   ],
                                 ),
-                                
-                                const SizedBox(height: 40),
-                                
+
                                 // Buttons
                                 Row(
                                   children: [
@@ -337,16 +369,25 @@ class _AuthScreenState extends State<AuthScreen> {
                                       child: BlocBuilder<AuthBloc, AuthState>(
                                         builder: (context, state) {
                                           return ElevatedButton(
-                                            onPressed: () => _loginPressed(context),
+                                            onPressed: () =>
+                                                _loginPressed(context),
                                             style: ElevatedButton.styleFrom(
-                                              backgroundColor: const Color(0xFF1E3C72),
+                                              backgroundColor: const Color(
+                                                0xFF1E3C72,
+                                              ),
                                               foregroundColor: Colors.white,
-                                              padding: const EdgeInsets.symmetric(vertical: 18),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    vertical: 18,
+                                                  ),
                                               shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(15),
+                                                borderRadius:
+                                                    BorderRadius.circular(15),
                                               ),
                                               elevation: 5,
-                                              shadowColor: const Color(0xFF1E3C72).withValues(alpha: 0.4),
+                                              shadowColor: const Color(
+                                                0xFF1E3C72,
+                                              ).withValues(alpha: 0.4),
                                             ),
                                             child: const Text(
                                               "Masuek",
@@ -366,12 +407,17 @@ class _AuthScreenState extends State<AuthScreen> {
                                           color: state.allowBiometric
                                               ? const Color(0xFFF1F4F9)
                                               : Colors.grey[200],
-                                          borderRadius: BorderRadius.circular(15),
+                                          borderRadius: BorderRadius.circular(
+                                            15,
+                                          ),
                                           child: InkWell(
                                             onTap: state.allowBiometric
-                                                ? () => handleFingerprint(context)
+                                                ? () =>
+                                                      handleFingerprint(context)
                                                 : null,
-                                            borderRadius: BorderRadius.circular(15),
+                                            borderRadius: BorderRadius.circular(
+                                              15,
+                                            ),
                                             child: Container(
                                               padding: const EdgeInsets.all(16),
                                               child: Icon(
