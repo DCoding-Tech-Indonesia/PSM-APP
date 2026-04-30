@@ -81,15 +81,22 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
           emit(s.copyWith(
             isLoading: false,
             distanceFromOffice: '${distance.toInt()}m',
-            canCheckIn: inRadius,
-            locationStatus: inRadius ? 'Berada di area kantor' : 'Di luar area kantor',
+            canCheckIn: inRadius && !position.isMocked,
+            isMocked: position.isMocked,
+            locationStatus: position.isMocked 
+                ? 'Fake GPS Terdeteksi!' 
+                : (inRadius ? 'Berada di area kantor' : 'Di luar area kantor'),
           ));
         }
       } catch (e) {
+        final errorMsg = e.toString();
+        bool isFakeGps = errorMsg.contains('Fake GPS');
+        
         emit(s.copyWith(
           isLoading: false, 
-          locationStatus: e.toString(), 
-          canCheckIn: false
+          locationStatus: errorMsg, 
+          canCheckIn: false,
+          isMocked: isFakeGps,
         ));
       }
     }

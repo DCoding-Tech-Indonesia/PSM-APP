@@ -28,6 +28,7 @@ class AttendanceLoaded extends AttendanceState {
   final String checkOutTime;
   final bool isLoading;
   final bool canCheckIn;
+  final bool isMocked;
   final String locationStatus;
   final String distanceFromOffice;
   final AttendanceStats stats;
@@ -41,6 +42,7 @@ class AttendanceLoaded extends AttendanceState {
     required this.checkOutTime,
     required this.isLoading,
     required this.canCheckIn,
+    this.isMocked = false,
     required this.locationStatus,
     required this.distanceFromOffice,
     required this.stats,
@@ -56,6 +58,7 @@ class AttendanceLoaded extends AttendanceState {
     checkOutTime,
     isLoading,
     canCheckIn,
+    isMocked,
     locationStatus,
     distanceFromOffice,
     stats,
@@ -70,6 +73,7 @@ class AttendanceLoaded extends AttendanceState {
     String? checkOutTime,
     bool? isLoading,
     bool? canCheckIn,
+    bool? isMocked,
     String? locationStatus,
     String? distanceFromOffice,
     AttendanceStats? stats,
@@ -83,6 +87,7 @@ class AttendanceLoaded extends AttendanceState {
       checkOutTime: checkOutTime ?? this.checkOutTime,
       isLoading: isLoading ?? this.isLoading,
       canCheckIn: canCheckIn ?? this.canCheckIn,
+      isMocked: isMocked ?? this.isMocked,
       locationStatus: locationStatus ?? this.locationStatus,
       distanceFromOffice: distanceFromOffice ?? this.distanceFromOffice,
       stats: stats ?? this.stats,

@@ -41,25 +41,34 @@ class AttendanceViewContent extends StatelessWidget {
               children: [
                 _buildCustomHeader(context, theme),
                 Expanded(
-                  child: SingleChildScrollView(
-                    physics: const BouncingScrollPhysics(),
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        _buildLocationStatusCard(context, s),
-                        const SizedBox(height: 16),
-                        _buildDateTimeCard(s),
-                        const SizedBox(height: 20),
-                        _buildAttendanceStatusCard(s),
-                        const SizedBox(height: 20),
-                        _buildActionButtons(context, s),
-                        const SizedBox(height: 20),
-                        _buildMonthlyStatsCard(s),
-                        const SizedBox(height: 20),
-                        _buildRecentHistoryCard(s),
-                        const SizedBox(height: 40),
-                      ],
+                  child: RefreshIndicator(
+                    onRefresh: () async {
+                      context.read<AttendanceBloc>().add(RefreshLocation());
+                      // Beri jeda sedikit agar animasi refresh terlihat natural
+                      await Future.delayed(const Duration(seconds: 1));
+                    },
+                    child: SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(
+                        parent: BouncingScrollPhysics(),
+                      ),
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          _buildLocationStatusCard(context, s),
+                          const SizedBox(height: 16),
+                          _buildDateTimeCard(s),
+                          const SizedBox(height: 20),
+                          _buildAttendanceStatusCard(s),
+                          const SizedBox(height: 20),
+                          _buildActionButtons(context, s),
+                          const SizedBox(height: 20),
+                          _buildMonthlyStatsCard(s),
+                          const SizedBox(height: 20),
+                          _buildRecentHistoryCard(s),
+                          const SizedBox(height: 40),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -101,32 +110,32 @@ class AttendanceViewContent extends StatelessWidget {
               ],
             ),
           ),
-          Row(
-            children: [
-              if (kDebugMode)
-                IconButton(
-                  icon: const Icon(Icons.bug_report),
-                  onPressed: () {
-                    _showInfoDialog(
-                      context,
-                      'Debug Mode',
-                      'Menampilkan data debug di console',
-                    );
-                  },
-                ),
-              IconButton(
-                icon: const Icon(Icons.refresh),
-                onPressed: () {
-                  context.read<AttendanceBloc>().add(RefreshLocation());
-                  _showSuccessDialog(
-                    context,
-                    'Data Diperbarui',
-                    'Data absensi berhasil diperbarui.',
-                  );
-                },
-              ),
-            ],
-          ),
+          // Row(
+          //   children: [
+          //     if (kDebugMode)
+          //       IconButton(
+          //         icon: const Icon(Icons.bug_report),
+          //         onPressed: () {
+          //           _showInfoDialog(
+          //             context,
+          //             'Debug Mode',
+          //             'Menampilkan data debug di console',
+          //           );
+          //         },
+          //       ),
+          //     IconButton(
+          //       icon: const Icon(Icons.refresh),
+          //       onPressed: () {
+          //         context.read<AttendanceBloc>().add(RefreshLocation());
+          //         _showSuccessDialog(
+          //           context,
+          //           'Data Diperbarui',
+          //           'Data absensi berhasil diperbarui.',
+          //         );
+          //       },
+          //     ),
+          //   ],
+          // ),
         ],
       ),
     );
@@ -171,6 +180,28 @@ class AttendanceViewContent extends StatelessWidget {
         badgeText: 'SUCCESS',
         badgeIcon: Icons.check_circle,
         buttonColor: Colors.green[600]!,
+      ),
+    );
+  }
+
+  void _showConfirmDialog({
+    required BuildContext context,
+    required String title,
+    required String message,
+    required VoidCallback onConfirm,
+    Color color = Colors.blue,
+  }) {
+    showDialog(
+      context: context,
+      builder: (context) => _BaseBlurDialog(
+        title: title,
+        message: message,
+        badgeColor: color,
+        badgeText: 'KONFIRMASI',
+        badgeIcon: Icons.help_outline,
+        buttonColor: color,
+        confirmText: 'Ya, Lanjutkan',
+        onConfirm: onConfirm,
       ),
     );
   }
@@ -433,10 +464,18 @@ class AttendanceViewContent extends StatelessWidget {
                         : state.isCheckedIn
                           ? null
                           : () {
-                              if (!state.canCheckIn) {
+                              if (state.isMocked) {
+                                _showErrorDialog(context, 'Fake GPS Terdeteksi', 'Sistem mendeteksi penggunaan aplikasi manipulasi lokasi. Harap gunakan lokasi asli perangkat Anda.');
+                              } else if (!state.canCheckIn) {
                                 _showErrorDialog(context, 'Di Luar Lokasi', 'Anda berada di luar radius kantor (${state.distanceFromOffice}). Silakan mendekat ke area kantor untuk melakukan absensi.');
                               } else {
-                                context.read<AttendanceBloc>().add(CheckInRequested());
+                                _showConfirmDialog(
+                                  context: context,
+                                  title: 'Konfirmasi Check-in',
+                                  message: 'Apakah Anda yakin ingin melakukan Check-in sekarang?',
+                                  color: Colors.green,
+                                  onConfirm: () => context.read<AttendanceBloc>().add(CheckInRequested()),
+                                );
                               }
                             },
                       borderRadius: BorderRadius.circular(12),
@@ -456,10 +495,18 @@ class AttendanceViewContent extends StatelessWidget {
                         : (state.checkOutTime.isNotEmpty || !state.isCheckedIn)
                           ? null
                           : () {
-                              if (!state.canCheckIn) {
+                              if (state.isMocked) {
+                                _showErrorDialog(context, 'Fake GPS Terdeteksi', 'Sistem mendeteksi penggunaan aplikasi manipulasi lokasi. Harap gunakan lokasi asli perangkat Anda.');
+                              } else if (!state.canCheckIn) {
                                 _showErrorDialog(context, 'Di Luar Lokasi', 'Anda berada di luar radius kantor (${state.distanceFromOffice}). Silakan mendekat ke area kantor untuk melakukan absensi.');
                               } else {
-                                context.read<AttendanceBloc>().add(CheckOutRequested());
+                                _showConfirmDialog(
+                                  context: context,
+                                  title: 'Konfirmasi Check-out',
+                                  message: 'Apakah Anda yakin ingin melakukan Check-out sekarang?',
+                                  color: Colors.red,
+                                  onConfirm: () => context.read<AttendanceBloc>().add(CheckOutRequested()),
+                                );
                               }
                             },
                       borderRadius: BorderRadius.circular(12),
@@ -515,10 +562,18 @@ class AttendanceViewContent extends StatelessWidget {
                 : state.isCheckedIn
                   ? null
                   : () {
-                      if (!state.canCheckIn) {
+                      if (state.isMocked) {
+                        _showErrorDialog(context, 'Fake GPS Terdeteksi', 'Sistem mendeteksi penggunaan aplikasi manipulasi lokasi. Harap gunakan lokasi asli perangkat Anda.');
+                      } else if (!state.canCheckIn) {
                         _showErrorDialog(context, 'Di Luar Lokasi', 'Anda berada di luar radius kantor (${state.distanceFromOffice}). Silakan mendekat ke area kantor untuk melakukan absensi.');
                       } else {
-                        context.read<AttendanceBloc>().add(CheckInRequested());
+                        _showConfirmDialog(
+                          context: context,
+                          title: 'Konfirmasi Check-in',
+                          message: 'Apakah Anda yakin ingin melakukan Check-in sekarang?',
+                          color: Colors.green,
+                          onConfirm: () => context.read<AttendanceBloc>().add(CheckInRequested()),
+                        );
                       }
                     },
             style: ElevatedButton.styleFrom(
@@ -546,10 +601,18 @@ class AttendanceViewContent extends StatelessWidget {
                 : (state.checkOutTime.isNotEmpty || !state.isCheckedIn)
                   ? null
                   : () {
-                      if (!state.canCheckIn) {
+                      if (state.isMocked) {
+                        _showErrorDialog(context, 'Fake GPS Terdeteksi', 'Sistem mendeteksi penggunaan aplikasi manipulasi lokasi. Harap gunakan lokasi asli perangkat Anda.');
+                      } else if (!state.canCheckIn) {
                         _showErrorDialog(context, 'Di Luar Lokasi', 'Anda berada di luar radius kantor (${state.distanceFromOffice}). Silakan mendekat ke area kantor untuk melakukan absensi.');
                       } else {
-                        context.read<AttendanceBloc>().add(CheckOutRequested());
+                        _showConfirmDialog(
+                          context: context,
+                          title: 'Konfirmasi Check-out',
+                          message: 'Apakah Anda yakin ingin melakukan Check-out sekarang?',
+                          color: Colors.red,
+                          onConfirm: () => context.read<AttendanceBloc>().add(CheckOutRequested()),
+                        );
                       }
                     },
             style: ElevatedButton.styleFrom(
@@ -695,6 +758,8 @@ class _BaseBlurDialog extends StatelessWidget {
   final String badgeText;
   final IconData badgeIcon;
   final Color buttonColor;
+  final String? confirmText;
+  final VoidCallback? onConfirm;
 
   const _BaseBlurDialog({
     required this.title,
@@ -703,6 +768,8 @@ class _BaseBlurDialog extends StatelessWidget {
     required this.badgeText,
     required this.badgeIcon,
     required this.buttonColor,
+    this.confirmText,
+    this.onConfirm,
   });
 
   @override
@@ -795,43 +862,99 @@ class _BaseBlurDialog extends StatelessWidget {
               ),
               const SizedBox(height: 20),
 
-              // Action Button (Gradient Style)
-              Container(
-                width: double.infinity,
-                height: 48,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Colors.blue[600]!, Colors.blue[400]!],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.blue.withValues(alpha: 0.3),
-                      blurRadius: 8,
-                      offset: const Offset(0, 4),
+              // Action Buttons
+              if (onConfirm != null) ...[
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.pop(context),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          side: BorderSide(color: theme.dividerColor.withValues(alpha: 0.2)),
+                        ),
+                        child: Text('Batal', style: TextStyle(color: theme.textTheme.bodyMedium?.color)),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Container(
+                        height: 48,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [buttonColor, buttonColor.withValues(alpha: 0.7)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: buttonColor.withValues(alpha: 0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(12),
+                            onTap: () {
+                              Navigator.pop(context);
+                              onConfirm!();
+                            },
+                            child: Center(
+                              child: Text(
+                                confirmText ?? 'Ya',
+                                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   ],
                 ),
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
+              ] else ...[
+                // Single Button (Info/Error/Success)
+                Container(
+                  width: double.infinity,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Colors.blue[600]!, Colors.blue[400]!],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
                     borderRadius: BorderRadius.circular(12),
-                    onTap: () => Navigator.pop(context),
-                    child: const Center(
-                      child: Text(
-                        'Mengerti',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.blue.withValues(alpha: 0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(12),
+                      onTap: () => Navigator.pop(context),
+                      child: const Center(
+                        child: Text(
+                          'Mengerti',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                     ),
                   ),
                 ),
-              ),
+              ],
             ],
           ),
         ),

@@ -12,26 +12,25 @@ class PermissionCubit extends Cubit<PermissionStatusState> {
   PermissionCubit() : super(PermissionStatusState.unknown);
 
   Future<void> checkAndRequestPermissions() async {
-    final notificationStatus = await Permission.notification.status;
+    // Tambahkan delay sedikit agar UI siap sebelum pop-up muncul
+    await Future.delayed(const Duration(milliseconds: 500));
 
-    if (notificationStatus.isDenied) {
-      final results = await [
-        Permission.notification,
-        Permission.location,
-      ].request();
+    final permissions = [
+      Permission.notification,
+      Permission.locationWhenInUse,
+      Permission.camera,
+    ];
 
-      final hasDenied = results.values.any((status) => status.isDenied);
-      final hasPermanentlyDenied = results.values.any((status) => status.isPermanentlyDenied);
+    // Request permissions
+    final results = await permissions.request();
 
-      if (hasPermanentlyDenied) {
-        emit(PermissionStatusState.permanentlyDenied);
-      } else if (hasDenied) {
-        emit(PermissionStatusState.denied);
-      } else {
-        emit(PermissionStatusState.granted);
-      }
-    } else if (notificationStatus.isPermanentlyDenied) {
+    final hasDenied = results.values.any((status) => status.isDenied);
+    final hasPermanentlyDenied = results.values.any((status) => status.isPermanentlyDenied);
+
+    if (hasPermanentlyDenied) {
       emit(PermissionStatusState.permanentlyDenied);
+    } else if (hasDenied) {
+      emit(PermissionStatusState.denied);
     } else {
       emit(PermissionStatusState.granted);
     }
