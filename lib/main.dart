@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:psm_mobile/core/network/dio_client.dart';
 import 'package:psm_mobile/core/notification/notification_service.dart';
@@ -19,6 +20,13 @@ import 'package:psm_mobile/features/portal/domain/repositories/portal_repository
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Request permissions at the very start
+  await [
+    Permission.notification,
+    Permission.locationWhenInUse,
+    Permission.camera,
+  ].request();
 
   final sharedPreferencesService = SharedPreferencesService();
 

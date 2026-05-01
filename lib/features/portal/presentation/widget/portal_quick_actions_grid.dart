@@ -247,6 +247,9 @@ class PortalQuickActionsGrid extends StatelessWidget {
                     mappedIcon = Icons.assignment_ind;
                   } else if (menu.icon == "mdi-poll") {
                     mappedIcon = Icons.poll;
+                  } else if (menu.title.toLowerCase().contains("absensi")) {
+                    mappedIcon = Icons.fingerprint;
+                    mappedColor = Colors.blue;
                   } else {
                     mappedIcon = Icons.menu;
                   }
@@ -262,6 +265,8 @@ class PortalQuickActionsGrid extends StatelessWidget {
                     () {
                       if (menu.route == "/rekap-settlement" || menu.title == "Settlement" || menu.route == "/settlement/dashboard") {
                         context.push('/settlement/dashboard');
+                      } else if (menu.title.toLowerCase().contains("absensi") || menu.route == "/attendance") {
+                        context.push('/attendance');
                       } else {
                         PortalDialogs.showComingSoonDialog(context, menu.title, "Fitur ini masih dalam pengembangan.");
                       }
