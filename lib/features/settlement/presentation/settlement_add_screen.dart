@@ -1,115 +1,79 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:psm_mobile/core/theme/core_styling.dart';
-import 'package:psm_mobile/features/settlement/presentation/widgets/settlement_input_card.dart';
-
-import 'package:psm_mobile/core/helper/camera_access_helper.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_bloc.dart';
+import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_event.dart';
+import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_state.dart';
+import 'package:psm_mobile/features/settlement/presentation/widgets/wizard_first_step.dart';
+import 'package:psm_mobile/features/settlement/presentation/widgets/wizard_detail_step.dart';
+import 'package:psm_mobile/features/settlement/presentation/widgets/wizard_last_step.dart';
 
 class SettlementAddScreen extends StatefulWidget {
   const SettlementAddScreen({super.key});
-
 
   @override
   State<SettlementAddScreen> createState() => _SettlementAddScreenState();
 }
 
 class _SettlementAddScreenState extends State<SettlementAddScreen> {
-
-  File? _image;
-
-  Future<void> _openCamera() async {
-    const ratio = 16 / 9;
-
-    CameraAccessHelper.checkPermissions(
-      context,
-      onGranted: () async {
-        final result = await context.push<File?>('/camera', extra: ratio);
-
-        if (result != null) {
-          setState(() {
-            _image = result;
-          });
-        }
-      },
-    );
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      context.read<SettlementBloc>().add(PageInputLoad());
+    });
   }
 
-  void _previewImage() {
-    if (_image == null) return;
+  void _showSubmitDialog(BuildContext context) {
+    final TextEditingController controller = TextEditingController();
 
     showDialog(
       context: context,
-      builder: (_) {
-        return Dialog(
-          backgroundColor: Colors.transparent,
-          insetPadding: const EdgeInsets.all(12),
-          child: Column(
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          title: const Text("Konfirmasi Submit"),
+          content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              /// IMAGE PREVIEW
-              Flexible(
-                child: Stack(
-                  children: [
-                    InteractiveViewer(
-                      child: Image.file(_image!),
-                    ),
-
-                    Positioned(
-                      top: 10,
-                      right: 10,
-                      child: IconButton(
-                        icon: const Icon(Icons.close, color: Colors.white),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                    ),
-                  ],
-                ),
+              const Text(
+                "Apakah anda ingin melakukan submit untuk data yang sudah dimasukkan?",
               ),
+              const SizedBox(height: 12),
 
-              const SizedBox(height: 10),
-
-              /// ACTION BUTTONS
-              Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        gradient: CoreStyling.coreDeleteButtonGradient,
-                        borderRadius: BorderRadius.circular(50),
-                      ),
-                      child: IconButton(
-                        onPressed: () {
-                          setState(() {
-                            _image = null;
-                          });
-                          Navigator.pop(context);
-                        },
-                        icon: const Icon(Icons.delete, color: Colors.white),
-                      ),
-                    ),
-
-                    Container(
-                      decoration: BoxDecoration(
-                        gradient: CoreStyling.coreActiveButtonGradient,
-                        borderRadius: BorderRadius.circular(50),
-                      ),
-                      child: IconButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          _openCamera();
-                        },
-                        icon: const Icon(Icons.camera_alt, color: Colors.white),
-                      ),
-                    ),
-                  ],
+              TextField(
+                controller: controller,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: "Reason",
                 ),
               ),
             ],
           ),
+
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(dialogContext);
+              },
+              child: const Text("Tidak"),
+            ),
+
+            ElevatedButton(
+              onPressed: () {
+                final note = controller.text;
+
+                Navigator.pop(dialogContext);
+
+                context.read<SettlementBloc>().add(
+                  SubmitWorkflow(note),
+                );
+              },
+              child: const Text("Submit"),
+            ),
+          ],
         );
       },
     );
@@ -119,132 +83,187 @@ class _SettlementAddScreenState extends State<SettlementAddScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Scaffold(
-      backgroundColor: theme.primaryColor,
-      appBar: AppBar(
+    return BlocListener<SettlementBloc, SettlementState>(
+      listenWhen: (previous, current) => previous.status != current.status,
+
+      listener: (context, state) {
+        if (state.status == SettlementStatus.successSave) {
+          _showSubmitDialog(context);
+        }
+
+        if (state.status == SettlementStatus.failedSave) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.message ?? "Gagal menyimpan"),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      },
+      child: Scaffold(
         backgroundColor: theme.primaryColor,
-        elevation: 0,
-        centerTitle: false,
-        title: const Text("Submit Settlement"),
-      ),
-      body: Container(
-        padding: const EdgeInsets.symmetric(vertical: 25),
-        width: double.infinity,
-        height: double.infinity,
-        decoration: BoxDecoration(color: Color(0xFFFAFAFA)),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                scrollDirection: Axis.vertical,
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 8.0),
-                  child: Column(
-                    spacing: 18,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Padding(
-                      //   padding: const EdgeInsets.symmetric(horizontal: 10),
-                      //   child: Text(
-                      //     "Langkah 1 dari 2",
-                      //     style: TextStyle(fontWeight: FontWeight.w600),
-                      //   ),
-                      // ),
-                      SettlementInputCard(
-                        title: "Data Transaksi Melalui Kartu",
-                        method: "card",
-                      ),
-                      SettlementInputCard(
-                        title: "Data Transaksi Melalui Brizzi",
-                        method: "brizzi",
-                      ),
-                      SettlementInputCard(
-                        title: "Data Transaksi Melalui QRIS",
-                        method: "qris",
-                      ),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white
-                        ),
+        appBar: AppBar(
+          backgroundColor: theme.primaryColor,
+          elevation: 0,
+          title: const Text("Submit Settlement"),
+        ),
+        body: BlocBuilder<SettlementBloc, SettlementState>(
+          builder: (context, state) {
+            if (state.status == SettlementStatus.loading) {
+              return Container(
+                width: double.infinity,
+                height: double.infinity,
+                color: Colors.white,
+                child: Center(child: CircularProgressIndicator()),
+              );
+            }
+
+            if (state.status == SettlementStatus.error) {
+              return Container(
+                width: double.infinity,
+                height: double.infinity,
+                color: Colors.white,
+                child: Center(
+                  child: Text(state.message ?? "Terjadi kesalahan"),
+                ),
+              );
+            }
+            return Container(
+              color: Colors.white,
+              child: Column(
+                children: [
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(15.0),
+                      child: SizedBox(
+                        width: double.infinity,
                         child: Column(
-                          spacing: 10,
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 10),
-                              child: Text(
-                                "Unggah Foto Bukti Settlement",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
+                            BlocBuilder<SettlementBloc, SettlementState>(
+                              buildWhen: (previous, current) =>
+                                  previous.steps != current.steps,
+                              builder: (context, state) {
+                                return Text(
+                                  "Step ${state.steps} of ${state.totalSteps}",
+                                  style: TextStyle(fontWeight: FontWeight.w500),
+                                );
+                              },
                             ),
-                            GestureDetector(
-                              onTap: _image == null ? _openCamera : _previewImage,
-                              child: Container(
-                                margin: const EdgeInsets.symmetric(horizontal: 10),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(6),
-                                  border: Border.all(
-                                    color: Colors.grey,
-                                    width: .5,
-                                  ),
-                                ),
-                                child: AspectRatio(
-                                  aspectRatio: 16/4,
-                                  child: _image == null
-                                      ? Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: const [
-                                      Icon(Icons.camera_alt_rounded),
-                                      SizedBox(height: 8),
-                                      Text("Format: PNG/JPG, Max 2mb"),
-                                    ],
-                                  )
-                                      : ClipRRect(
-                                    borderRadius: BorderRadius.circular(6),
-                                    child: Image.file(
-                                      _image!,
-                                      fit: BoxFit.cover,
-                                      width: double.infinity,
-                                      height: double.infinity,
+                            SizedBox(height: 20),
+                            BlocBuilder<SettlementBloc, SettlementState>(
+                              buildWhen: (prev, curr) =>
+                                  prev.steps != curr.steps,
+                              builder: (context, state) {
+                                if (state.steps == 1) {
+                                  return Expanded(child: WizardFirstStep());
+                                } else if (state.steps >= 2 &&
+                                    state.steps <= state.totalSteps - 1) {
+                                  return Expanded(
+                                    child: WizardDetailStep(
+                                      currStep: state.steps,
                                     ),
-                                  ),
-                                ),
-                              ),
+                                  );
+                                } else {
+                                  return Expanded(child: WizardLastStep());
+                                }
+                              },
                             ),
                           ],
                         ),
                       ),
-                    ],
+                    ),
                   ),
-                ),
-              ),
-            ),
-            Container(
-              margin: const EdgeInsets.all(10),
-              padding: const EdgeInsets.symmetric(vertical: 6),
-              width: double.infinity,
-              decoration: BoxDecoration(
-                gradient: CoreStyling.coreActiveButtonGradient,
-                borderRadius: BorderRadius.circular(3.0),
-              ),
-              child: GestureDetector(
-                onTap: () {},
-                child: Text(
-                  "Simpan",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 23,
+                      vertical: 25,
+                    ),
+                    child: BlocBuilder<SettlementBloc, SettlementState>(
+                      builder: (context, state) {
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            ElevatedButton(
+                              onPressed: () => {
+                                if (state.steps > 1)
+                                  {
+                                    context.read<SettlementBloc>().add(
+                                      MoveStepWizard(state.steps - 1),
+                                    ),
+                                  },
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: state.steps > 1
+                                    ? const Color(0xFF1E3C72)
+                                    : const Color(0xFF5E5E5E),
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 12,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
+                                elevation: 5,
+                                shadowColor: const Color(
+                                  0xFF1E3C72,
+                                ).withValues(alpha: 0.4),
+                              ),
+                              child: Text("Back"),
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
+                                if (state.steps == 1 &&
+                                    (state.idBus == 0 ||
+                                        state.idKoridor == 0)) {
+                                  return;
+                                }
+
+                                if (state.steps < state.totalSteps) {
+                                  context.read<SettlementBloc>().add(
+                                    MoveStepWizard(state.steps + 1),
+                                  );
+                                } else {
+                                  if (state.idBus != 0 ||
+                                      state.idKoridor != 0) {
+                                    context.read<SettlementBloc>().add(
+                                      SubmitSettlement(),
+                                    );
+                                  }
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor:
+                                ((state.steps == 1 && (state.idBus == 0 || state.idKoridor == 0)))
+                                    ? const Color(0xFF5E5E5E)
+                                    : const Color(0xFF1E3C72),
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 12,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
+                                elevation: 5,
+                                shadowColor: const Color(
+                                  0xFF1E3C72,
+                                ).withValues(alpha: 0.4),
+                              ),
+                              child: Text(
+                                state.steps < state.totalSteps
+                                    ? "Next"
+                                    : "Save",
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
                   ),
-                ),
+                ],
               ),
-            ),
-          ],
+            );
+          },
         ),
       ),
     );

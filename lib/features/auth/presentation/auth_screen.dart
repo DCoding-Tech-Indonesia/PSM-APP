@@ -258,7 +258,6 @@ class _AuthScreenState extends State<AuthScreen> {
                                   builder: (context, state) {
                                     return CoreInputField(
                                       label: "Username",
-                                      keyInput: "username",
                                       hintText: "Masukkan username sanak",
                                       isRequired: true,
                                       rule: InputRule.text,
@@ -278,7 +277,6 @@ class _AuthScreenState extends State<AuthScreen> {
                                   builder: (context, state) {
                                     return CoreInputField(
                                       label: "Password",
-                                      keyInput: "password",
                                       hintText: "********",
                                       isRequired: true,
                                       isSecured: true,

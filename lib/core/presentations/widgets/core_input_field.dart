@@ -7,7 +7,6 @@ class CoreInputField extends StatefulWidget {
   const CoreInputField({
     super.key,
     required this.label,
-    required this.keyInput,
     this.isRequired = false,
     this.hintText = '',
     this.onChanged,
@@ -17,7 +16,6 @@ class CoreInputField extends StatefulWidget {
   });
 
   final String label;
-  final String keyInput;
   final bool isRequired;
   final String hintText;
   final ValueChanged<String>? onChanged;

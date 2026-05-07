@@ -46,8 +46,6 @@ class PortalBloc extends Bloc<PortalEvent, PortalState> {
     });
 
     on<Logout>((event, emit) async {
-      print("INI");
-      
       final userId = await secureStorageService.readUserId() ?? state.userId;
       final username = await secureStorageService.readUsername() ?? state.username;
       

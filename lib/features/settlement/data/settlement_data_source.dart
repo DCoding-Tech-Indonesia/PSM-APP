@@ -1,0 +1,169 @@
+import 'package:dio/dio.dart';
+import 'package:psm_mobile/core/storage/secure_storage.dart';
+import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/module_audit_trail.dart';
+import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/status_audit_trail.dart';
+import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/task_audit_trail.dart';
+import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/user_audit_trail.dart';
+import 'package:psm_mobile/features/settlement/domain/entities/reference_bus.dart';
+import 'package:psm_mobile/features/settlement/domain/entities/reference_detail.dart';
+import 'package:psm_mobile/features/settlement/domain/entities/settlement_create.dart';
+
+class SettlementDataSource {
+  final Dio dio;
+  final SecureStorageService secureStorageService;
+
+  SettlementDataSource({
+    required this.dio,
+    required this.secureStorageService,
+  });
+
+  Future<List<ReferenceBus>> fetchReferenceBus(String keyword) async {
+    final response = await dio.get(
+      '/reference/bus',
+      queryParameters: {
+        'keyword': keyword,
+        'page': 1,
+        'perPage': 999
+      },
+    );
+
+    final data = response.data['data'] as List;
+
+    return data.map((e) => ReferenceBus.fromJson(e)).toList();
+  }
+
+  Future<List<ReferenceDetail>> fetchReferenceKoridor(String keyword) async {
+    final response = await dio.get(
+      '/reference/koridor',
+      queryParameters: {
+        'keyword': keyword,
+        'page': 1,
+        'perPage': 999
+      },
+    );
+
+    final data = response.data['data'] as List;
+
+    return data.map((e) => ReferenceDetail.fromJson(e)).toList();
+  }
+
+  Future<List<ReferenceDetail>> fetchReferencePayment(String keyword) async {
+    final response = await dio.get(
+      '/reference/payment',
+      queryParameters: {
+        'keyword': keyword,
+        'page': 1,
+        'perPage': 999
+      },
+    );
+
+    final data = response.data['data'] as List;
+
+    return data.map((e) => ReferenceDetail.fromJson(e)).toList();
+  }
+
+  Future<List<ReferenceDetail>> fetchReferenceCustType(String keyword) async {
+    final response = await dio.get(
+      '/reference/customer-type',
+      queryParameters: {
+        'keyword': keyword,
+        'page': 1,
+        'perPage': 999
+      },
+    );
+
+    final data = response.data['data'] as List;
+
+    return data.map((e) => ReferenceDetail.fromJson(e)).toList();
+  }
+
+  Future<String> createSettlement(SettlementCreate request) async {
+    try {
+      final response = await dio.post(
+        '/settelment/create',
+        data: request.toJson(),
+      );
+
+      final idAuditTrail = response.data["data"][0]["auditTrailId"].toString();
+
+      return idAuditTrail;
+    } catch (e) {
+      print(e);
+      return e.toString();
+    }
+  }
+
+  Future<List<TaskAuditTrail>> fetchTaskAuditTrailList(String keyword) async {
+    try {
+      final idUser = await secureStorageService.readUserId();
+
+      final response = await dio.get(
+        '/audittrail/task/approval/list',
+        queryParameters: {
+          'keyword': keyword,
+          'page': 1,
+          'perPage': 999,
+          'createdBy': idUser
+        },
+      );
+
+      print(response);
+
+      final List data = response.data['data'] ?? [];
+
+      return data.map((e) {
+        return TaskAuditTrail(
+          id: e['id'],
+          createdDate: e['createdDate'],
+          approvedDate: e['approvedDate'],
+
+          createdBy: UserAuditTrail(
+            id: e['createdBy']['id'],
+            userName: e['createdBy']['userName'],
+          ),
+
+          approvedBy: e['approvedBy'] != null
+              ? UserAuditTrail(
+            id: e['approvedBy']['id'],
+            userName: e['approvedBy']['userName'],
+          )
+              : null,
+
+          module: ModuleAuditTrail(
+            id: e['module']['id'],
+            code: e['module']['code'],
+            name: e['module']['name'],
+          ),
+
+          status: StatusAuditTrail(
+            id: e['status']['id'],
+            code: e['status']['code'],
+            name: e['status']['name'],
+          ),
+        );
+      }).toList();
+    } catch (e) {
+      print(e);
+      rethrow;
+    }
+  }
+
+  Future<String> submitWorkflow(int idAuditTrail, String reason) async {
+    try {
+      final response = await dio.post(
+        '/workflow/submit',
+        data: {
+          "idAuditTrail": [
+            idAuditTrail
+          ],
+          "reason": reason
+        },
+      );
+
+      return "Berhasil";
+    } catch (e) {
+      print(e);
+      return e.toString();
+    }
+  }
+}

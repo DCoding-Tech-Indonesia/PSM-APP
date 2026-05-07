@@ -1,8 +1,9 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:psm_mobile/core/network/dio_client.dart';
 import 'package:psm_mobile/core/presentations/cubit/core_tab_cubit.dart';
 import 'package:psm_mobile/core/presentations/widgets/custom_camera_widget.dart';
+import 'package:psm_mobile/core/router/route_observer.dart';
 import 'package:psm_mobile/core/storage/secure_storage.dart';
 import 'package:psm_mobile/core/storage/shared_preferences.dart';
 import 'package:psm_mobile/features/auth/domain/repositories/auth_repository.dart';
@@ -10,6 +11,8 @@ import 'package:psm_mobile/features/auth/presentation/auth_screen.dart';
 import 'package:psm_mobile/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:psm_mobile/features/portal/domain/repositories/portal_repository.dart';
 import 'package:psm_mobile/features/portal/presentation/bloc/portal_bloc.dart';
+import 'package:psm_mobile/features/settlement/data/settlement_data_source.dart';
+import 'package:psm_mobile/features/settlement/data/settlement_repository_impl.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_bloc.dart';
 import 'package:psm_mobile/features/settlement/presentation/cubit/settlement_category_cubit.dart';
 import 'package:psm_mobile/features/settlement/presentation/cubit/settlement_step_cubit.dart';
@@ -24,6 +27,7 @@ late final GoRouter appRouter;
 void setupRouter(String initialLocation) {
   appRouter = GoRouter(
     initialLocation: initialLocation,
+    observers: [routeObserver],
 
     routes: [
       // AUTH ROUTE
@@ -60,11 +64,20 @@ void setupRouter(String initialLocation) {
       GoRoute(
         path: '/settlement/dashboard',
         builder: (context, state) {
+          final dio = DioClient().instance;
+          final secureStorageService = SecureStorageService();
           final sharedPreferencesService = context.read<SharedPreferencesService>();
 
           return MultiBlocProvider(
             providers: [
               BlocProvider(create: (_) => CoreTabCubit()),
+              BlocProvider(
+                create: (_) => SettlementBloc(
+                  SettlementRepositoryImpl(
+                    dataSource: SettlementDataSource(dio: dio, secureStorageService: secureStorageService),
+                  ),
+                ),
+              ),
             ],
             child: SettlementDashboardScreen(sharedPreferencesService: sharedPreferencesService),
           );
@@ -73,12 +86,21 @@ void setupRouter(String initialLocation) {
       GoRoute(
         path: '/settlement/add',
         builder: (context, state) {
+          final dio = DioClient().instance;
+          final secureStorageService = SecureStorageService();
+
           return MultiBlocProvider(
             providers: [
               BlocProvider(create: (_) => SettlementTabCubit()),
               BlocProvider(create: (_) => SettlementCategoryCubit()),
               BlocProvider(create: (_) => SettlementStepCubit()),
-              BlocProvider(create: (_) => SettlementBloc()),
+              BlocProvider(
+                create: (_) => SettlementBloc(
+                  SettlementRepositoryImpl(
+                    dataSource: SettlementDataSource(dio: dio, secureStorageService: secureStorageService),
+                  ),
+                ),
+              ),
             ],
             child: const SettlementAddScreen(),
           );

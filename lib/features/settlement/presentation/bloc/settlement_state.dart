@@ -1,64 +1,128 @@
-import 'dart:io';
 import 'package:equatable/equatable.dart';
+import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/task_audit_trail.dart';
+import 'package:psm_mobile/features/settlement/domain/entities/reference_bus.dart';
+import 'package:psm_mobile/features/settlement/domain/entities/reference_detail.dart';
+import 'package:psm_mobile/features/settlement/domain/entities/settlement_detail.dart';
+import 'package:psm_mobile/features/settlement/domain/entities/settlement_document.dart';
+
+enum SettlementStatus { initial, loading, success, error, successSave, failedSave }
 
 class SettlementState extends Equatable {
-  final File? settlementPict;
-  final Map<String, Map<String, int>> paymentData, pricing;
+  final List<TaskAuditTrail> listTaskAuditTrail;
+
+  final int steps;
+  final int totalSteps;
+  final List<ReferenceBus> referenceBus;
+  final List<ReferenceDetail> referenceKoridor;
+  final List<String> labelPayment;
+  final List<String> labelCustomer;
+  final String noUnit;
+  final String namaKoridor;
+
+  final SettlementStatus status;
+
+  final String processId;
+  final int auditTrailId;
+  final int idBus;
+  final String code;
+  final int idKoridor;
+  final int idShift;
+
+  final List<SettlementDetail> detail;
+  final List<SettlementDocument> document;
+
+  final String? message;
 
   const SettlementState({
-    this.settlementPict,
-    this.paymentData = const {
-      "card": {
-        "pelajar": 0,
-        "umum": 0,
-        "lansia": 0,
-      },
-      "brizzi": {
-        "pelajar": 0,
-        "umum": 0,
-        "lansia": 0,
-      },
-      "qris": {
-        "pelajar": 0,
-        "umum": 0,
-        "lansia": 0,
-      },
-    },
-    this.pricing = const {
-      "card": {
-        "pelajar": 2500,
-        "umum": 3000,
-        "lansia": 2000,
-      },
-      "brizzi": {
-        "pelajar": 2500,
-        "umum": 3000,
-        "lansia": 2000,
-      },
-      "qris": {
-        "pelajar": 2500,
-        "umum": 3000,
-        "lansia": 2000,
-      },
-    },
+    this.listTaskAuditTrail = const [],
+
+    this.steps = 1,
+    this.totalSteps = 1,
+    this.referenceBus = const [],
+    this.referenceKoridor = const [],
+    this.labelPayment = const [],
+    this.labelCustomer = const [],
+    this.noUnit = '',
+    this.namaKoridor = '',
+    this.status = SettlementStatus.initial,
+    this.processId = '',
+    this.auditTrailId = 0,
+    this.idBus = 0,
+    this.code = '',
+    this.idKoridor = 0,
+    this.idShift = 0,
+    this.detail = const [],
+    this.document = const [],
+    this.message,
   });
 
   SettlementState copyWith({
-    File? settlementPict,
-    Map<String, Map<String, int>>? paymentData,
-    Map<String, Map<String, int>>? pricing,
+    List<TaskAuditTrail>? listTaskAuditTrail,
+
+    int? steps,
+    int? totalSteps,
+    List<ReferenceBus>? referenceBus,
+    List<ReferenceDetail>? referenceKoridor,
+    List<String>? labelPayment,
+    List<String>? labelCustomer,
+    String? noUnit,
+    String? namaKoridor,
+    SettlementStatus? status,
+    String? processId,
+    int? auditTrailId,
+    int? idBus,
+    String? code,
+    int? idKoridor,
+    int? idShift,
+    List<SettlementDetail>? detail,
+    List<SettlementDocument>? document,
+    String? message,
   }) {
     return SettlementState(
-      settlementPict: settlementPict ?? this.settlementPict,
-      paymentData: paymentData ?? this.paymentData,
-      pricing: pricing ?? this.pricing,
+      listTaskAuditTrail: listTaskAuditTrail ?? this.listTaskAuditTrail,
+
+      steps: steps ?? this.steps,
+      totalSteps: totalSteps ?? this.totalSteps,
+      referenceBus: referenceBus ?? this.referenceBus,
+      referenceKoridor: referenceKoridor ?? this.referenceKoridor,
+      labelPayment: labelPayment ?? this.labelPayment,
+      labelCustomer: labelCustomer ?? this.labelCustomer,
+      noUnit: noUnit ?? this.noUnit,
+      namaKoridor: namaKoridor ?? this.namaKoridor,
+      status: status ?? this.status,
+      processId: processId ?? this.processId,
+      auditTrailId: auditTrailId ?? this.auditTrailId,
+      idBus: idBus ?? this.idBus,
+      code: code ?? this.code,
+      idKoridor: idKoridor ?? this.idKoridor,
+      idShift: idShift ?? this.idShift,
+      detail: detail ?? this.detail,
+      document: document ?? this.document,
+      message: message,
     );
   }
 
   @override
   List<Object?> get props => [
-    settlementPict,
-    paymentData,
-    pricing,
+    listTaskAuditTrail,
+
+    steps,
+    totalSteps,
+    referenceBus,
+    referenceKoridor,
+    labelPayment,
+    labelCustomer,
+    noUnit,
+    namaKoridor,
+    status,
+    processId,
+    auditTrailId,
+    idBus,
+    code,
+    idKoridor,
+    idShift,
+    detail,
+    document,
+    message,
   ];
 }

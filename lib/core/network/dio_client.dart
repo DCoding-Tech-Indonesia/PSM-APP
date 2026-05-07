@@ -48,8 +48,9 @@ class DioClient {
             debugPrint(options.data.toString());
           }
 
-          handler.next(options);
         }
+
+        handler.next(options);
       },
       onResponse: (response, handler) {
         if (kDebugMode) debugPrint('[RES] ${response.statusCode} ${response.requestOptions.path}');

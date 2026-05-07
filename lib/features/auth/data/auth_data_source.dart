@@ -27,7 +27,7 @@ class AuthDataSource {
 
       if (success == true) {
         final token = response.data["data"][0]["token"];
-        final refreshToken = response.data["data"][0]["refreshToken"] ?? ''; // Fallback string if it might be missing
+        final refreshToken = response.data["data"][0]["refreshToken"] ?? '';
         final userId = response.data["data"][0]["userId"];
         
         secureStorageService.saveAccessToken(token);
@@ -65,8 +65,6 @@ class AuthDataSource {
           'username': username,
         },
       );
-      print("RESPONSE LOGOUT");
-      print(response);
       secureStorageService.clearLogin();
       DioClient().clearAuthToken();
     } catch (e) {
