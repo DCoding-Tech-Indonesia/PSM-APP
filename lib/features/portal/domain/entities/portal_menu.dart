@@ -5,6 +5,7 @@ class PortalMenu {
   final String? route;
   final int orderIndex;
   final String typeMenu;
+  final List<PortalMenu> children;
 
   PortalMenu({
     required this.menuId,
@@ -13,6 +14,7 @@ class PortalMenu {
     this.route,
     required this.orderIndex,
     required this.typeMenu,
+    required this.children,
   });
 
   factory PortalMenu.fromJson(Map<String, dynamic> json) {
@@ -23,6 +25,9 @@ class PortalMenu {
       route: json['route'],
       orderIndex: json['orderIndex'] ?? 0,
       typeMenu: json['typeMenu'] ?? '',
+      children: json['children'] != null
+          ? (json['children'] as List).map((i) => PortalMenu.fromJson(i)).toList()
+          : [],
     );
   }
 }

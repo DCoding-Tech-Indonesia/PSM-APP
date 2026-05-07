@@ -6,6 +6,7 @@ class UserProfile {
   final String email;
   final String name;
   final List<PortalMenu> menu;
+  final List<PortalMenu> children;
 
   UserProfile({
     required this.id,
@@ -13,6 +14,7 @@ class UserProfile {
     required this.email,
     required this.name,
     required this.menu,
+    required this.children,
   });
 
   factory UserProfile.fromJson(Map<String, dynamic> json) {
@@ -23,6 +25,9 @@ class UserProfile {
       name: json['name'] ?? '',
       menu: json['menu'] != null
           ? (json['menu'] as List).map((i) => PortalMenu.fromJson(i)).toList()
+          : [],
+      children: json['children'] != null
+          ? (json['children'] as List).map((i) => PortalMenu.fromJson(i)).toList()
           : [],
     );
   }

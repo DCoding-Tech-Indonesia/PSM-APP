@@ -224,6 +224,7 @@ class PortalQuickActionsGrid extends StatelessWidget {
 
                   if (kDebugMode) {
                     print("[MENU FILTERED][$index] ${filteredMenus[index].title}");
+                    print("[CHILDREN][${filteredMenus[index].title}] ${menu.children.map((e) => e.title).toList()}");
                   }
 
                   // Dynamic icon mapping based on menu string
