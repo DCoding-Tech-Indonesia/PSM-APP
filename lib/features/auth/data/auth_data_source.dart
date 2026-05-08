@@ -58,7 +58,7 @@ class AuthDataSource {
 
   Future<void> logout(String id, String username) async {
     try {
-      final response = await dio.post(
+      await dio.post(
         '/auth/logout',
         data: {
           'id': id,

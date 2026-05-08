@@ -36,7 +36,7 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       await dataSource.logout(id, username);
       return right("KALUA");
-    } on DioException catch (e) {
+    } on DioException catch (_) {
       return left(ServerFailure("GAGAL"));
     } catch (_) {
       return left(
@@ -50,7 +50,7 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       await dataSource.checkToken();
       return right("CHECK");
-    } on DioException catch (e) {
+    } on DioException catch (_) {
       return left(ServerFailure("GAGAL"));
     } catch (_) {
       return Left(

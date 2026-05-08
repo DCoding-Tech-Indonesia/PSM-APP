@@ -25,8 +25,8 @@ class PortalBloc extends Bloc<PortalEvent, PortalState> {
     on<PageLoad>((event, emit) async {
       emit(PortalLoading());
 
-      final userId = await secureStorageService.readUserId();
-      final username = await secureStorageService.readUsername();
+      // final userId = await secureStorageService.readUserId();
+      // final username = await secureStorageService.readUsername();
       final token = await secureStorageService.readAccessToken();
 
       if (token != null) {

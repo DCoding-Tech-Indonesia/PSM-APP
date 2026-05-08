@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:provider/provider.dart';
 import 'package:psm_mobile/core/network/dio_client.dart';
 import 'package:psm_mobile/core/notification/notification_service.dart';
 import 'package:psm_mobile/core/permission/permission_cubit.dart';
@@ -17,6 +16,7 @@ import 'package:psm_mobile/features/auth/domain/repositories/auth_repository.dar
 import 'package:psm_mobile/features/portal/data/datasources/portal_data_source.dart';
 import 'package:psm_mobile/features/portal/data/repositories/portal_repository_impl.dart';
 import 'package:psm_mobile/features/portal/domain/repositories/portal_repository.dart';
+import 'package:psm_mobile/features/portal/presentation/bloc/portal_bloc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -85,10 +85,10 @@ void main() async {
   runApp(
     MultiRepositoryProvider(
       providers: [
-        Provider<SharedPreferencesService>.value(
+        RepositoryProvider<SharedPreferencesService>.value(
           value: sharedPreferencesService,
         ),
-        Provider<SecureStorageService>(create: (_) => SecureStorageService()),
+        RepositoryProvider<SecureStorageService>(create: (_) => SecureStorageService()),
         RepositoryProvider<AuthRepository>(
           create: (_) => AuthRepositoryImpl(
             dataSource: AuthDataSource(
@@ -118,6 +118,13 @@ class MyApp extends StatelessWidget {
       providers: [
         BlocProvider(
           create: (_) => PermissionCubit()..checkAndRequestPermissions(),
+        ),
+        BlocProvider(
+          create: (context) => PortalBloc(
+            context.read<AuthRepository>(),
+            context.read<SecureStorageService>(),
+            context.read<PortalRepository>(),
+          ),
         ),
       ],
       child: MaterialApp.router(

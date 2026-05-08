@@ -46,8 +46,8 @@ class _PortalScreenState extends State<PortalScreen> {
             String userEmail = "Loading...";
 
             if (state is PortalLoaded) {
-              userName = state.profile.name ?? state.profile.username ?? "";
-              userEmail = state.profile.username ?? "";
+              userName = state.profile.name;
+              userEmail = state.profile.username;
             }
 
             return RefreshIndicator(

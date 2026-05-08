@@ -9,8 +9,7 @@ import 'package:psm_mobile/core/storage/shared_preferences.dart';
 import 'package:psm_mobile/features/auth/domain/repositories/auth_repository.dart';
 import 'package:psm_mobile/features/auth/presentation/auth_screen.dart';
 import 'package:psm_mobile/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:psm_mobile/features/portal/domain/repositories/portal_repository.dart';
-import 'package:psm_mobile/features/portal/presentation/bloc/portal_bloc.dart';
+import 'package:psm_mobile/features/portal/presentation/portal_screen.dart';
 import 'package:psm_mobile/features/settlement/data/settlement_data_source.dart';
 import 'package:psm_mobile/features/settlement/data/settlement_repository_impl.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_bloc.dart';
@@ -19,7 +18,6 @@ import 'package:psm_mobile/features/settlement/presentation/cubit/settlement_ste
 import 'package:psm_mobile/features/settlement/presentation/cubit/settlement_tab_cubit.dart';
 import 'package:psm_mobile/features/settlement/presentation/settlement_dashboard_screen.dart';
 import 'package:psm_mobile/features/settlement/presentation/settlement_add_screen.dart';
-import 'package:psm_mobile/features/portal/presentation/portal_screen.dart';
 import 'package:psm_mobile/features/attendance/presentation/screens/attendance_screen.dart';
 
 late final GoRouter appRouter;
@@ -49,14 +47,7 @@ void setupRouter(String initialLocation) {
       GoRoute(
         path: '/portal',
         builder: (context, state) {
-          final secureStorageService = context.read<SecureStorageService>();
-          final authRepository = context.read<AuthRepository>();
-          final portalRepository = context.read<PortalRepository>();
-
-          return BlocProvider(
-            create: (_) => PortalBloc(authRepository, secureStorageService, portalRepository),
-              child: const PortalScreen(),
-          );
+          return const PortalScreen();
         },
       ),
 

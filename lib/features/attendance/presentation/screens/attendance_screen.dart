@@ -1,19 +1,36 @@
 import 'dart:ui' as ui;
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:psm_mobile/features/attendance/presentation/bloc/attendance_bloc.dart';
 import 'package:psm_mobile/features/attendance/presentation/bloc/attendance_state.dart';
 import 'package:psm_mobile/features/attendance/data/models/attendance_record.dart';
+import 'package:psm_mobile/features/attendance/data/repositories/attendance_repository_impl.dart';
+import 'package:psm_mobile/features/attendance/data/datasources/attendance_remote_data_source.dart';
+import 'package:psm_mobile/features/portal/presentation/bloc/portal_bloc.dart';
+import 'package:psm_mobile/features/portal/presentation/bloc/portal_state.dart';
+import 'package:psm_mobile/core/network/dio_client.dart';
+import 'package:psm_mobile/core/helper/location_service.dart';
 
 class AttendanceScreen extends StatelessWidget {
   const AttendanceScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // Get userId from PortalBloc
+    final portalState = context.read<PortalBloc>().state;
+    String userId = '';
+    if (portalState is PortalLoaded) {
+      userId = portalState.profile.id;
+    }
+
     return BlocProvider(
-      create: (context) => AttendanceBloc()..add(LoadAttendanceData()),
+      create: (context) => AttendanceBloc(
+        repository: AttendanceRepositoryImpl(
+          remoteDataSource: AttendanceRemoteDataSourceImpl(DioClient()),
+        ),
+        locationService: LocationService(),
+      )..add(LoadAttendanceData(userId: userId)),
       child: const AttendanceViewContent(),
     );
   }
@@ -29,52 +46,64 @@ class AttendanceViewContent extends StatelessWidget {
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
-        child: BlocBuilder<AttendanceBloc, AttendanceState>(
-          builder: (context, state) {
-            if (state is AttendanceInitial) {
-              return const Center(child: CircularProgressIndicator());
+        child: BlocListener<AttendanceBloc, AttendanceState>(
+          listener: (context, state) {
+            if (state is AttendanceLoaded && state.errorMessage != null) {
+              _showErrorDialog(context, 'Kesalahan', state.errorMessage!);
             }
+          },
+          child: BlocBuilder<AttendanceBloc, AttendanceState>(
+            builder: (context, state) {
+              if (state is AttendanceInitial) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-            final s = state as AttendanceLoaded;
+              final s = state as AttendanceLoaded;
 
-            return Column(
-              children: [
-                _buildCustomHeader(context, theme),
-                Expanded(
-                  child: RefreshIndicator(
-                    onRefresh: () async {
-                      context.read<AttendanceBloc>().add(RefreshLocation());
-                      // Beri jeda sedikit agar animasi refresh terlihat natural
-                      await Future.delayed(const Duration(seconds: 1));
-                    },
-                    child: SingleChildScrollView(
-                      physics: const AlwaysScrollableScrollPhysics(
-                        parent: BouncingScrollPhysics(),
-                      ),
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          _buildLocationStatusCard(context, s),
-                          const SizedBox(height: 16),
-                          _buildDateTimeCard(s),
-                          const SizedBox(height: 20),
-                          _buildAttendanceStatusCard(s),
-                          const SizedBox(height: 20),
-                          _buildActionButtons(context, s),
-                          const SizedBox(height: 20),
-                          _buildMonthlyStatsCard(s),
-                          const SizedBox(height: 20),
-                          _buildRecentHistoryCard(s),
-                          const SizedBox(height: 40),
-                        ],
+              return Column(
+                children: [
+                  _buildCustomHeader(context, theme),
+                  Expanded(
+                    child: RefreshIndicator(
+                      onRefresh: () async {
+                        final bloc = context.read<AttendanceBloc>();
+                        bloc.add(RefreshAttendanceData());
+                        
+                        // Menunggu hingga state kembali ke 'Loaded' dengan 'isLoading: false'
+                        // agar animasi refresh indicator tetap berputar sampai data benar-benar siap.
+                        await bloc.stream.firstWhere(
+                          (state) => state is AttendanceLoaded && !state.isLoading
+                        );
+                      },
+                      child: SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(
+                          parent: BouncingScrollPhysics(),
+                        ),
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            _buildLocationStatusCard(context, s),
+                            const SizedBox(height: 16),
+                            _buildDateTimeCard(s),
+                            const SizedBox(height: 20),
+                            _buildAttendanceStatusCard(s),
+                            const SizedBox(height: 20),
+                            _buildActionButtons(context, s),
+                            const SizedBox(height: 20),
+                            _buildMonthlyStatsCard(s),
+                            const SizedBox(height: 20),
+                            _buildRecentHistoryCard(s),
+                            const SizedBox(height: 40),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
-            );
-          },
+                ],
+              );
+            },
+          ),
         ),
       ),
     );
@@ -137,71 +166,6 @@ class AttendanceViewContent extends StatelessWidget {
           //   ],
           // ),
         ],
-      ),
-    );
-  }
-
-  void _showErrorDialog(BuildContext context, String title, String message) {
-    showDialog(
-      context: context,
-      builder: (context) => _BaseBlurDialog(
-        title: title,
-        message: message,
-        badgeColor: Colors.red,
-        badgeText: 'ERROR',
-        badgeIcon: Icons.error_outline,
-        buttonColor: Colors.red[600]!,
-      ),
-    );
-  }
-
-  void _showInfoDialog(BuildContext context, String title, String message) {
-    final theme = Theme.of(context);
-    showDialog(
-      context: context,
-      builder: (context) => _BaseBlurDialog(
-        title: title,
-        message: message,
-        badgeColor: Colors.blue,
-        badgeText: 'INFO',
-        badgeIcon: Icons.info,
-        buttonColor: Colors.blue[600]!,
-      ),
-    );
-  }
-
-  void _showSuccessDialog(BuildContext context, String title, String message) {
-    showDialog(
-      context: context,
-      builder: (context) => _BaseBlurDialog(
-        title: title,
-        message: message,
-        badgeColor: Colors.green,
-        badgeText: 'SUCCESS',
-        badgeIcon: Icons.check_circle,
-        buttonColor: Colors.green[600]!,
-      ),
-    );
-  }
-
-  void _showConfirmDialog({
-    required BuildContext context,
-    required String title,
-    required String message,
-    required VoidCallback onConfirm,
-    Color color = Colors.blue,
-  }) {
-    showDialog(
-      context: context,
-      builder: (context) => _BaseBlurDialog(
-        title: title,
-        message: message,
-        badgeColor: color,
-        badgeText: 'KONFIRMASI',
-        badgeIcon: Icons.help_outline,
-        buttonColor: color,
-        confirmText: 'Ya, Lanjutkan',
-        onConfirm: onConfirm,
       ),
     );
   }
@@ -332,37 +296,39 @@ class AttendanceViewContent extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.white12,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text('Jarak dari Kantor', style: TextStyle(fontSize: 14, color: Colors.white70)),
-                        Text(
-                          state.distanceFromOffice,
-                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
-                        ),
-                      ],
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: state.canCheckIn ? Colors.white24 : Colors.transparent,
-                        borderRadius: BorderRadius.circular(6),
+              if (state.radiusInfo != '0m') ...[
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white12,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Jarak dari ${state.locationStatus}', style: const TextStyle(fontSize: 14, color: Colors.white70)),
+                          Text(
+                            state.distanceFromOffice,
+                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                          ),
+                        ],
                       ),
-                      child: const Text('Radius: 100m', style: TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.w500)),
-                    ),
-                  ],
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: state.canCheckIn ? Colors.white24 : Colors.transparent,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text('Radius: ${state.radiusInfo}', style: const TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.w500)),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
+              ],
             ],
           ),
         ),
@@ -437,17 +403,59 @@ class AttendanceViewContent extends StatelessWidget {
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text('Status Absensi Hari Ini', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                        Text(
-                          state.checkOutTime.isNotEmpty
-                              ? 'Selesai'
-                              : state.isCheckedIn
-                                ? 'Sudah Check-in'
-                                : 'Belum Check-in',
-                          style: TextStyle(fontSize: 14, color: statusColor, fontWeight: FontWeight.w600),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('Status Absensi Hari Ini', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                            Text(
+                              state.checkOutTime.isNotEmpty
+                                  ? 'Selesai'
+                                  : state.isCheckedIn
+                                    ? 'Sudah Check-in'
+                                    : 'Belum Check-in',
+                              style: TextStyle(fontSize: 14, color: statusColor, fontWeight: FontWeight.w600),
+                            ),
+                          ],
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: (state.isCadangan ? Colors.amber : Colors.green).withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: (state.isCadangan ? Colors.amber : Colors.green).withValues(alpha: 0.3), width: 1),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: 8,
+                                height: 8,
+                                decoration: BoxDecoration(
+                                  color: state.isCadangan ? Colors.amber : Colors.green,
+                                  shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: (state.isCadangan ? Colors.amber : Colors.green).withValues(alpha: 0.5),
+                                      blurRadius: 4,
+                                    )
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                state.isCadangan ? 'Cadangan' : 'Utama',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: state.isCadangan ? Colors.amber[900] : Colors.green[900],
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
@@ -459,7 +467,7 @@ class AttendanceViewContent extends StatelessWidget {
                 children: [
                   Expanded(
                     child: InkWell(
-                      onTap: state.isLoading 
+                      onTap: (state.isLoading || state.radiusInfo == '0m')
                         ? null 
                         : state.isCheckedIn
                           ? null
@@ -490,7 +498,7 @@ class AttendanceViewContent extends StatelessWidget {
                   const SizedBox(width: 16),
                   Expanded(
                     child: InkWell(
-                      onTap: state.isLoading
+                      onTap: (state.isLoading || state.radiusInfo == '0m')
                         ? null
                         : (state.checkOutTime.isNotEmpty || !state.isCheckedIn)
                           ? null
@@ -557,7 +565,7 @@ class AttendanceViewContent extends StatelessWidget {
       children: [
         Expanded(
           child: ElevatedButton(
-            onPressed: state.isLoading 
+            onPressed: (state.isLoading || state.radiusInfo == '0m')
                 ? null 
                 : state.isCheckedIn
                   ? null
@@ -596,7 +604,7 @@ class AttendanceViewContent extends StatelessWidget {
         const SizedBox(width: 16),
         Expanded(
           child: ElevatedButton(
-            onPressed: state.isLoading
+            onPressed: (state.isLoading || state.radiusInfo == '0m')
                 ? null
                 : (state.checkOutTime.isNotEmpty || !state.isCheckedIn)
                   ? null
@@ -689,7 +697,14 @@ class AttendanceViewContent extends StatelessWidget {
       children: [
         const Text('Riwayat Terakhir', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         const SizedBox(height: 12),
-        if (state.history.isEmpty)
+        if (state.isLoading)
+          const Center(
+            child: Padding(
+              padding: EdgeInsets.all(40.0),
+              child: CircularProgressIndicator(),
+            ),
+          )
+        else if (state.history.isEmpty)
           const Center(
             child: Padding(
               padding: EdgeInsets.all(20.0),
@@ -727,11 +742,9 @@ class AttendanceViewContent extends StatelessWidget {
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    _buildMiniBadge('In: ${record.checkIn}', Colors.green),
-                    if (record.checkOut != null) ...[
-                      const SizedBox(width: 8),
-                      _buildMiniBadge('Out: ${record.checkOut}', Colors.red),
-                    ],
+                    _buildMiniBadge('In: ${record.checkInTime}', Colors.green),
+                    const SizedBox(width: 8),
+                    _buildMiniBadge('Out: ${record.checkOutTime}', Colors.red),
                   ],
                 ),
               ],
@@ -961,4 +974,68 @@ class _BaseBlurDialog extends StatelessWidget {
       ),
     );
   }
+}
+
+void _showErrorDialog(BuildContext context, String title, String message) {
+  showDialog(
+    context: context,
+    builder: (context) => _BaseBlurDialog(
+      title: title,
+      message: message,
+      badgeColor: Colors.red,
+      badgeText: 'ERROR',
+      badgeIcon: Icons.error_outline,
+      buttonColor: Colors.red[600]!,
+    ),
+  );
+}
+
+// void _showInfoDialog(BuildContext context, String title, String message) {
+//   showDialog(
+//     context: context,
+//     builder: (context) => _BaseBlurDialog(
+//       title: title,
+//       message: message,
+//       badgeColor: Colors.blue,
+//       badgeText: 'INFO',
+//       badgeIcon: Icons.info,
+//       buttonColor: Colors.blue[600]!,
+//     ),
+//   );
+// }
+
+// void _showSuccessDialog(BuildContext context, String title, String message) {
+//   showDialog(
+//     context: context,
+//     builder: (context) => _BaseBlurDialog(
+//       title: title,
+//       message: message,
+//       badgeColor: Colors.green,
+//       badgeText: 'SUCCESS',
+//       badgeIcon: Icons.check_circle,
+//       buttonColor: Colors.green[600]!,
+//     ),
+//   );
+// }
+
+void _showConfirmDialog({
+  required BuildContext context,
+  required String title,
+  required String message,
+  required VoidCallback onConfirm,
+  Color color = Colors.blue,
+}) {
+  showDialog(
+    context: context,
+    builder: (context) => _BaseBlurDialog(
+      title: title,
+      message: message,
+      badgeColor: color,
+      badgeText: 'KONFIRMASI',
+      badgeIcon: Icons.help_outline,
+      buttonColor: color,
+      confirmText: 'Ya, Lanjutkan',
+      onConfirm: onConfirm,
+    ),
+  );
 }

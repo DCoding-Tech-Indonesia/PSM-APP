@@ -6,11 +6,18 @@ abstract class AttendanceEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-class LoadAttendanceData extends AttendanceEvent {}
+class LoadAttendanceData extends AttendanceEvent {
+  final String userId;
+  LoadAttendanceData({required this.userId});
+  
+  @override
+  List<Object?> get props => [userId];
+}
 class UpdateTime extends AttendanceEvent {}
 class RefreshLocation extends AttendanceEvent {}
 class CheckInRequested extends AttendanceEvent {}
 class CheckOutRequested extends AttendanceEvent {}
+class RefreshAttendanceData extends AttendanceEvent {}
 class DebugStoredDataRequested extends AttendanceEvent {}
 
 abstract class AttendanceState extends Equatable {
@@ -21,6 +28,7 @@ abstract class AttendanceState extends Equatable {
 class AttendanceInitial extends AttendanceState {}
 
 class AttendanceLoaded extends AttendanceState {
+  final String userId;
   final String currentDate;
   final String currentTime;
   final bool isCheckedIn;
@@ -31,10 +39,14 @@ class AttendanceLoaded extends AttendanceState {
   final bool isMocked;
   final String locationStatus;
   final String distanceFromOffice;
+  final String? errorMessage;
   final AttendanceStats stats;
   final List<AttendanceRecord> history;
+  final String radiusInfo;
+  final bool isCadangan;
 
   AttendanceLoaded({
+    required this.userId,
     required this.currentDate,
     required this.currentTime,
     required this.isCheckedIn,
@@ -45,12 +57,16 @@ class AttendanceLoaded extends AttendanceState {
     this.isMocked = false,
     required this.locationStatus,
     required this.distanceFromOffice,
+    this.errorMessage,
     required this.stats,
     required this.history,
+    this.radiusInfo = '100m',
+    this.isCadangan = false,
   });
 
   @override
   List<Object?> get props => [
+    userId,
     currentDate,
     currentTime,
     isCheckedIn,
@@ -61,11 +77,15 @@ class AttendanceLoaded extends AttendanceState {
     isMocked,
     locationStatus,
     distanceFromOffice,
+    errorMessage,
     stats,
     history,
+    radiusInfo,
+    isCadangan,
   ];
 
   AttendanceLoaded copyWith({
+    String? userId,
     String? currentDate,
     String? currentTime,
     bool? isCheckedIn,
@@ -76,10 +96,14 @@ class AttendanceLoaded extends AttendanceState {
     bool? isMocked,
     String? locationStatus,
     String? distanceFromOffice,
+    String? errorMessage,
     AttendanceStats? stats,
     List<AttendanceRecord>? history,
+    String? radiusInfo,
+    bool? isCadangan,
   }) {
     return AttendanceLoaded(
+      userId: userId ?? this.userId,
       currentDate: currentDate ?? this.currentDate,
       currentTime: currentTime ?? this.currentTime,
       isCheckedIn: isCheckedIn ?? this.isCheckedIn,
@@ -90,8 +114,12 @@ class AttendanceLoaded extends AttendanceState {
       isMocked: isMocked ?? this.isMocked,
       locationStatus: locationStatus ?? this.locationStatus,
       distanceFromOffice: distanceFromOffice ?? this.distanceFromOffice,
+      errorMessage: errorMessage,
       stats: stats ?? this.stats,
       history: history ?? this.history,
+      radiusInfo: radiusInfo ?? this.radiusInfo,
+      isCadangan: isCadangan ?? this.isCadangan,
     );
   }
 }
+
