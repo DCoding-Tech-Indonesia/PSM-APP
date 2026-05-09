@@ -15,6 +15,11 @@ abstract class AttendanceRemoteDataSource {
     required double lat,
     required double lon,
   });
+  Future<Map<String, dynamic>?> getStats({
+    required int userId,
+    required int month,
+    required int year,
+  });
 }
 
 class AttendanceRemoteDataSourceImpl implements AttendanceRemoteDataSource {
@@ -89,6 +94,31 @@ class AttendanceRemoteDataSourceImpl implements AttendanceRemoteDataSource {
         } else {
           throw response.data['message'] ?? 'Gagal mendapatkan detail lokasi';
         }
+      }
+      return null;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>?> getStats({
+    required int userId,
+    required int month,
+    required int year,
+  }) async {
+    try {
+      final response = await _dioClient.instance.get(
+        '/absensi/statistik',
+        queryParameters: {
+          'userId': userId,
+          'month': month,
+          'year': year,
+        },
+      );
+
+      if (response.data != null && response.data['status'] == true) {
+        return response.data;
       }
       return null;
     } catch (e) {

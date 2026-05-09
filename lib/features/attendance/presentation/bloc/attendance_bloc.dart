@@ -72,9 +72,28 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
   Future<void> _fetchHistoryAndEmit(String userId, Emitter<AttendanceState> emit, AttendanceLoaded currentState) async {
     try {
       final uId = int.tryParse(userId) ?? 0;
-      final history = await repository.getHistory(uId, 3);
-      
       final now = DateTime.now();
+      
+      // Fetch History and Stats in parallel
+      final results = await Future.wait([
+        repository.getHistory(uId, 3),
+        repository.getStats(userId: uId, month: now.month, year: now.year),
+      ]);
+
+      final List<AttendanceRecord> history = results[0] as List<AttendanceRecord>;
+      final Map<String, dynamic>? statsResponse = results[1] as Map<String, dynamic>?;
+
+      AttendanceStats stats = currentState.stats;
+      if (statsResponse != null && statsResponse['data'] is List && (statsResponse['data'] as List).isNotEmpty) {
+        final data = statsResponse['data'][0];
+        stats = AttendanceStats(
+          totalDays: data['totalJadwal'] ?? 0,
+          presentDays: data['totalHadir'] ?? 0,
+          lateDays: data['totalTerlambat'] ?? 0,
+          absentDays: data['totalAbsen'] ?? 0,
+        );
+      }
+      
       bool isCheckedIn = false;
       String checkInTime = '';
       String checkOutTime = '';
@@ -94,6 +113,7 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
       emit(currentState.copyWith(
         isLoading: false,
         history: history,
+        stats: stats,
         isCheckedIn: isCheckedIn,
         checkInTime: checkInTime,
         checkOutTime: checkOutTime,
@@ -205,22 +225,8 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
         final success = await repository.submitAttendance(request);
 
         if (success) {
-          final now = DateTime.now();
-          final timeStr = DateFormat('HH:mm:ss').format(now);
-          
-          final newRecord = AttendanceRecord(
-            id: 0,
-            checkIn: now,
-            latIn: position.latitude,
-            longIn: position.longitude,
-          );
-
-          emit(s.copyWith(
-            isLoading: false,
-            isCheckedIn: true,
-            checkInTime: timeStr,
-            history: [newRecord, ...s.history],
-          ));
+          // Re-fetch everything to ensure stats and history are synchronized
+          await _fetchHistoryAndEmit(s.userId, emit, s);
         } else {
           emit(s.copyWith(isLoading: false, errorMessage: 'Gagal melakukan check-in. Silakan coba lagi.'));
         }
@@ -250,28 +256,8 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
         final success = await repository.submitAttendance(request);
 
         if (success) {
-          final now = DateTime.now();
-          final timeStr = DateFormat('HH:mm:ss').format(now);
-
-          List<AttendanceRecord> updatedHistory = List.from(s.history);
-          if (updatedHistory.isNotEmpty) {
-            final last = updatedHistory[0];
-            updatedHistory[0] = AttendanceRecord(
-              id: last.id,
-              checkIn: last.checkIn,
-              checkOut: now,
-              latIn: last.latIn,
-              longIn: last.longIn,
-              latOut: position.latitude,
-              longOut: position.longitude,
-            );
-          }
-
-          emit(s.copyWith(
-            isLoading: false,
-            checkOutTime: timeStr,
-            history: updatedHistory,
-          ));
+          // Re-fetch everything to ensure stats and history are synchronized
+          await _fetchHistoryAndEmit(s.userId, emit, s);
         } else {
           emit(s.copyWith(isLoading: false, errorMessage: 'Gagal melakukan check-out. Silakan coba lagi.'));
         }

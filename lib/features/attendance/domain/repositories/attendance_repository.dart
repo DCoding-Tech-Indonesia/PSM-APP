@@ -9,4 +9,9 @@ abstract class AttendanceRepository {
     required double lat,
     required double lon,
   });
+  Future<Map<String, dynamic>?> getStats({
+    required int userId,
+    required int month,
+    required int year,
+  });
 }

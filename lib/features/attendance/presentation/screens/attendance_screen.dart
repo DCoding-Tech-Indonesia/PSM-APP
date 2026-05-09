@@ -85,16 +85,29 @@ class AttendanceViewContent extends StatelessWidget {
                           children: [
                             _buildLocationStatusCard(context, s),
                             const SizedBox(height: 16),
-                            _buildDateTimeCard(s),
-                            const SizedBox(height: 20),
-                            _buildAttendanceStatusCard(s),
-                            const SizedBox(height: 20),
-                            _buildActionButtons(context, s),
-                            const SizedBox(height: 20),
-                            _buildMonthlyStatsCard(s),
-                            const SizedBox(height: 20),
-                            _buildRecentHistoryCard(s),
-                            const SizedBox(height: 40),
+                            if (state.isLoading) ...[
+                              // const Center(
+                              //   child: Column(
+                              //     children: [
+                              //       SizedBox(height: 50),
+                              //       CircularProgressIndicator(strokeWidth: 2.0),
+                              //       SizedBox(height: 10),
+                              //       Text('Memuat data...'),
+                              //     ],
+                              //   ),
+                              // ),
+                            ] else ...[
+                              _buildDateTimeCard(s),
+                              const SizedBox(height: 20),
+                              _buildAttendanceStatusCard(s),
+                              const SizedBox(height: 20),
+                              _buildActionButtons(context, s),
+                              const SizedBox(height: 20),
+                              _buildMonthlyStatsCard(s),
+                              const SizedBox(height: 20),
+                              _buildRecentHistoryCard(s),
+                              const SizedBox(height: 40),
+                            ],
                           ],
                         ),
                       ),
@@ -665,15 +678,25 @@ class AttendanceViewContent extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  _buildStatItem('Total', state.stats.totalDays.toString(), Colors.blue),
-                  _buildStatItem('Hadir', state.stats.presentDays.toString(), Colors.green),
-                  _buildStatItem('Late', state.stats.lateDays.toString(), Colors.orange),
-                  _buildStatItem('Alpha', state.stats.absentDays.toString(), Colors.red),
-                ],
-              ),
+              // if (state.isLoading) 
+              //   const Center(
+              //     child: Column(
+              //       children: [
+              //         CircularProgressIndicator(),
+              //         SizedBox(height: 10),
+              //         Text("Loading..."),
+              //       ],
+              //     ),)
+              // else
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildStatItem('Total', state.stats.totalDays.toString(), Colors.blue),
+                    _buildStatItem('Hadir', state.stats.presentDays.toString(), Colors.green),
+                    _buildStatItem('Late', state.stats.lateDays.toString(), Colors.orange),
+                    _buildStatItem('Alpha', state.stats.absentDays.toString(), Colors.red),
+                  ],
+                ),
             ],
           ),
         );
@@ -692,28 +715,61 @@ class AttendanceViewContent extends StatelessWidget {
   }
 
   Widget _buildRecentHistoryCard(AttendanceLoaded state) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text('Riwayat Terakhir', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 12),
-        if (state.isLoading)
-          const Center(
-            child: Padding(
-              padding: EdgeInsets.all(40.0),
-              child: CircularProgressIndicator(),
+    return Builder(
+      builder: (context) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('Riwayat Terakhir', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                TextButton(
+                  onPressed: () {
+                    _showInfoDialog(context, "TEST", "TEST"); // TESTING
+                  },
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.blue[700],
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                  child: const Row(
+                    children: [
+                      Text('Lihat Semua', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                      SizedBox(width: 4),
+                      Icon(Icons.arrow_forward_ios, size: 12),
+                    ],
+                  ),
+                ),
+              ],
             ),
-          )
-        else if (state.history.isEmpty)
-          const Center(
-            child: Padding(
-              padding: EdgeInsets.all(20.0),
-              child: Text('Belum ada riwayat', style: TextStyle(color: Colors.grey)),
-            ),
-          )
-        else
-          ...state.history.map((record) => _buildHistoryItem(record)),
-      ],
+            const SizedBox(height: 12),
+            // if (state.isLoading)
+            //   const Center(
+            //     child: Padding(
+            //       padding: EdgeInsets.all(40.0),
+            //       child: Column(
+            //         children: [
+            //           CircularProgressIndicator(),
+            //           SizedBox(height: 10),
+            //           Text("Loading..."),
+            //         ],
+            //       ),
+            //     ),
+            //   )
+            // else 
+            if (state.history.isEmpty)
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(20.0),
+                  child: Text('Belum ada riwayat', style: TextStyle(color: Colors.grey)),
+                ),
+              )
+            else
+              ...state.history.map((record) => _buildHistoryItem(record)),
+          ],
+        );
+      }
     );
   }
 
@@ -990,19 +1046,19 @@ void _showErrorDialog(BuildContext context, String title, String message) {
   );
 }
 
-// void _showInfoDialog(BuildContext context, String title, String message) {
-//   showDialog(
-//     context: context,
-//     builder: (context) => _BaseBlurDialog(
-//       title: title,
-//       message: message,
-//       badgeColor: Colors.blue,
-//       badgeText: 'INFO',
-//       badgeIcon: Icons.info,
-//       buttonColor: Colors.blue[600]!,
-//     ),
-//   );
-// }
+void _showInfoDialog(BuildContext context, String title, String message) {
+  showDialog(
+    context: context,
+    builder: (context) => _BaseBlurDialog(
+      title: title,
+      message: message,
+      badgeColor: Colors.blue,
+      badgeText: 'INFO',
+      badgeIcon: Icons.info,
+      buttonColor: Colors.blue[600]!,
+    ),
+  );
+}
 
 // void _showSuccessDialog(BuildContext context, String title, String message) {
 //   showDialog(

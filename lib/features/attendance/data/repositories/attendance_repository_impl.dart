@@ -30,4 +30,17 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
       lon: lon,
     );
   }
+
+  @override
+  Future<Map<String, dynamic>?> getStats({
+    required int userId,
+    required int month,
+    required int year,
+  }) async {
+    return await remoteDataSource.getStats(
+      userId: userId,
+      month: month,
+      year: year,
+    );
+  }
 }
