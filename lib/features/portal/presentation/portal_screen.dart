@@ -6,7 +6,6 @@ import 'package:psm_mobile/features/portal/presentation/bloc/portal_state.dart';
 
 import 'bloc/portal_event.dart';
 import 'widget/portal_header.dart';
-import 'widget/portal_date_time_card.dart';
 import 'widget/portal_welcome_banner.dart';
 import 'widget/portal_quick_stats_bar.dart';
 import 'widget/portal_quick_actions_grid.dart';
@@ -63,9 +62,6 @@ class _PortalScreenState extends State<PortalScreen> {
                         // Custom Header Section
                         PortalHeader(userName: userName, userEmail: userEmail),
 
-                        // Date Section at Bottom
-                        const PortalDateTimeCard(),
-
                         // Welcome Banner
                         const PortalWelcomeBanner(),
 
@@ -100,4 +96,3 @@ class _PortalScreenState extends State<PortalScreen> {
     );
   }
 }
-

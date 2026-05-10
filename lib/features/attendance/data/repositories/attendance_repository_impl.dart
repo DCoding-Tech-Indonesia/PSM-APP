@@ -1,6 +1,7 @@
 import 'package:psm_mobile/features/attendance/data/datasources/attendance_remote_data_source.dart';
 import 'package:psm_mobile/features/attendance/data/models/attendance_record.dart';
 import 'package:psm_mobile/features/attendance/data/models/attendance_request.dart';
+import 'package:psm_mobile/features/attendance/data/models/schedule_model.dart';
 import 'package:psm_mobile/features/attendance/domain/repositories/attendance_repository.dart';
 
 class AttendanceRepositoryImpl implements AttendanceRepository {
@@ -41,6 +42,19 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
       userId: userId,
       month: month,
       year: year,
+    );
+  }
+
+  @override
+  Future<List<ScheduleModel>> getSchedules({
+    required int userId,
+    required String startDate,
+    required String endDate,
+  }) async {
+    return await remoteDataSource.getSchedules(
+      userId: userId,
+      startDate: startDate,
+      endDate: endDate,
     );
   }
 }

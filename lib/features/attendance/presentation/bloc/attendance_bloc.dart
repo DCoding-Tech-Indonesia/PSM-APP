@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:psm_mobile/features/attendance/data/models/attendance_record.dart';
 import 'package:psm_mobile/features/attendance/data/models/attendance_request.dart';
+import 'package:psm_mobile/features/attendance/data/models/schedule_model.dart';
 import 'package:psm_mobile/features/attendance/domain/repositories/attendance_repository.dart';
 import 'package:psm_mobile/core/helper/location_service.dart';
 import 'attendance_state.dart';
@@ -50,8 +51,9 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
       canCheckIn: false,
       locationStatus: 'Mencari lokasi...',
       distanceFromOffice: '0m',
-      stats: AttendanceStats(totalDays: 20, presentDays: 18, lateDays: 2, absentDays: 0),
+      stats: AttendanceStats(),
       history: [],
+      schedules: [],
     );
     emit(initialState);
 
@@ -74,14 +76,20 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
       final uId = int.tryParse(userId) ?? 0;
       final now = DateTime.now();
       
-      // Fetch History and Stats in parallel
+      // Calculate start and end date for 7 days schedule (Today in the middle)
+      final startDate = DateFormat('yyyy-MM-dd').format(now.subtract(const Duration(days: 3)));
+      final endDate = DateFormat('yyyy-MM-dd').format(now.add(const Duration(days: 3)));
+      
+      // Fetch History, Stats, and Schedules in parallel
       final results = await Future.wait([
         repository.getHistory(uId, 3),
         repository.getStats(userId: uId, month: now.month, year: now.year),
+        repository.getSchedules(userId: uId, startDate: startDate, endDate: endDate),
       ]);
 
       final List<AttendanceRecord> history = results[0] as List<AttendanceRecord>;
       final Map<String, dynamic>? statsResponse = results[1] as Map<String, dynamic>?;
+      final List<ScheduleModel> schedules = results[2] as List<ScheduleModel>;
 
       AttendanceStats stats = currentState.stats;
       if (statsResponse != null && statsResponse['data'] is List && (statsResponse['data'] as List).isNotEmpty) {
@@ -114,6 +122,7 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
         isLoading: false,
         history: history,
         stats: stats,
+        schedules: schedules,
         isCheckedIn: isCheckedIn,
         checkInTime: checkInTime,
         checkOutTime: checkOutTime,

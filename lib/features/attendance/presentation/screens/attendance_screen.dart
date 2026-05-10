@@ -11,6 +11,7 @@ import 'package:psm_mobile/features/portal/presentation/bloc/portal_bloc.dart';
 import 'package:psm_mobile/features/portal/presentation/bloc/portal_state.dart';
 import 'package:psm_mobile/core/network/dio_client.dart';
 import 'package:psm_mobile/core/helper/location_service.dart';
+import 'package:psm_mobile/features/portal/presentation/widget/portal_schedule_ribbon.dart';
 
 class AttendanceScreen extends StatelessWidget {
   const AttendanceScreen({super.key});
@@ -79,7 +80,7 @@ class AttendanceViewContent extends StatelessWidget {
                         physics: const AlwaysScrollableScrollPhysics(
                           parent: BouncingScrollPhysics(),
                         ),
-                        padding: const EdgeInsets.all(16),
+                        // padding: const EdgeInsets.all(16),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
@@ -97,8 +98,10 @@ class AttendanceViewContent extends StatelessWidget {
                               //   ),
                               // ),
                             ] else ...[
-                              _buildDateTimeCard(s),
-                              const SizedBox(height: 20),
+                              const PortalScheduleRibbon(),
+                              // const SizedBox(height: 16),
+                              // _buildDateTimeCard(s),
+                              // const SizedBox(height: 20),
                               _buildAttendanceStatusCard(s),
                               const SizedBox(height: 20),
                               _buildActionButtons(context, s),
@@ -190,6 +193,7 @@ class AttendanceViewContent extends StatelessWidget {
         final isDark = theme.brightness == Brightness.dark;
 
         return Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           decoration: BoxDecoration(
             color: theme.cardTheme.color,
@@ -259,6 +263,7 @@ class AttendanceViewContent extends StatelessWidget {
     return Stack(
       children: [
         Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16),
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -348,6 +353,7 @@ class AttendanceViewContent extends StatelessWidget {
         if (state.isLoading)
           Positioned.fill(
             child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16),
               decoration: BoxDecoration(
                 color: Colors.black38,
                 borderRadius: BorderRadius.circular(16),
@@ -381,6 +387,7 @@ class AttendanceViewContent extends StatelessWidget {
         final isDark = theme.brightness == Brightness.dark;
 
         return Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16),
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             color: theme.cardTheme.color,
@@ -574,86 +581,89 @@ class AttendanceViewContent extends StatelessWidget {
   }
 
   Widget _buildActionButtons(BuildContext context, AttendanceLoaded state) {
-    return Row(
-      children: [
-        Expanded(
-          child: ElevatedButton(
-            onPressed: (state.isLoading || state.radiusInfo == '0m')
-                ? null 
-                : state.isCheckedIn
-                  ? null
-                  : () {
-                      if (state.isMocked) {
-                        _showErrorDialog(context, 'Fake GPS Terdeteksi', 'Sistem mendeteksi penggunaan aplikasi manipulasi lokasi. Harap gunakan lokasi asli perangkat Anda.');
-                      } else if (!state.canCheckIn) {
-                        _showErrorDialog(context, 'Di Luar Lokasi', 'Anda berada di luar radius kantor (${state.distanceFromOffice}). Silakan mendekat ke area kantor untuk melakukan absensi.');
-                      } else {
-                        _showConfirmDialog(
-                          context: context,
-                          title: 'Konfirmasi Check-in',
-                          message: 'Apakah Anda yakin ingin melakukan Check-in sekarang?',
-                          color: Colors.green,
-                          onConfirm: () => context.read<AttendanceBloc>().add(CheckInRequested()),
-                        );
-                      }
-                    },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: state.isCheckedIn ? Colors.grey : Colors.green,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 18),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              elevation: 4,
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(state.isCheckedIn ? Icons.check_circle : Icons.login),
-                const SizedBox(width: 8),
-                Text(state.isCheckedIn ? 'Check-in OK' : 'Check-in', style: const TextStyle(fontWeight: FontWeight.bold)),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: ElevatedButton(
-            onPressed: (state.isLoading || state.radiusInfo == '0m')
-                ? null
-                : (state.checkOutTime.isNotEmpty || !state.isCheckedIn)
-                  ? null
-                  : () {
-                      if (state.isMocked) {
-                        _showErrorDialog(context, 'Fake GPS Terdeteksi', 'Sistem mendeteksi penggunaan aplikasi manipulasi lokasi. Harap gunakan lokasi asli perangkat Anda.');
-                      } else if (!state.canCheckIn) {
-                        _showErrorDialog(context, 'Di Luar Lokasi', 'Anda berada di luar radius kantor (${state.distanceFromOffice}). Silakan mendekat ke area kantor untuk melakukan absensi.');
-                      } else {
-                        _showConfirmDialog(
-                          context: context,
-                          title: 'Konfirmasi Check-out',
-                          message: 'Apakah Anda yakin ingin melakukan Check-out sekarang?',
-                          color: Colors.red,
-                          onConfirm: () => context.read<AttendanceBloc>().add(CheckOutRequested()),
-                        );
-                      }
-                    },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: state.checkOutTime.isNotEmpty ? Colors.grey : Colors.red,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 18),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              elevation: 4,
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(state.checkOutTime.isNotEmpty ? Icons.check_circle : Icons.logout),
-                const SizedBox(width: 8),
-                Text(state.checkOutTime.isNotEmpty ? 'Check-out OK' : 'Check-out', style: const TextStyle(fontWeight: FontWeight.bold)),
-              ],
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        children: [
+          Expanded(
+            child: ElevatedButton(
+              onPressed: (state.isLoading || state.radiusInfo == '0m')
+                  ? null 
+                  : state.isCheckedIn
+                    ? null
+                    : () {
+                        if (state.isMocked) {
+                          _showErrorDialog(context, 'Fake GPS Terdeteksi', 'Sistem mendeteksi penggunaan aplikasi manipulasi lokasi. Harap gunakan lokasi asli perangkat Anda.');
+                        } else if (!state.canCheckIn) {
+                          _showErrorDialog(context, 'Di Luar Lokasi', 'Anda berada di luar radius kantor (${state.distanceFromOffice}). Silakan mendekat ke area kantor untuk melakukan absensi.');
+                        } else {
+                          _showConfirmDialog(
+                            context: context,
+                            title: 'Konfirmasi Check-in',
+                            message: 'Apakah Anda yakin ingin melakukan Check-in sekarang?',
+                            color: Colors.green,
+                            onConfirm: () => context.read<AttendanceBloc>().add(CheckInRequested()),
+                          );
+                        }
+                      },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: state.isCheckedIn ? Colors.grey : Colors.green,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 18),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                elevation: 4,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(state.isCheckedIn ? Icons.check_circle : Icons.login),
+                  const SizedBox(width: 8),
+                  Text(state.isCheckedIn ? 'Check-in OK' : 'Check-in', style: const TextStyle(fontWeight: FontWeight.bold)),
+                ],
+              ),
             ),
           ),
-        ),
-      ],
+          const SizedBox(width: 16),
+          Expanded(
+            child: ElevatedButton(
+              onPressed: (state.isLoading || state.radiusInfo == '0m')
+                  ? null
+                  : (state.checkOutTime.isNotEmpty || !state.isCheckedIn)
+                    ? null
+                    : () {
+                        if (state.isMocked) {
+                          _showErrorDialog(context, 'Fake GPS Terdeteksi', 'Sistem mendeteksi penggunaan aplikasi manipulasi lokasi. Harap gunakan lokasi asli perangkat Anda.');
+                        } else if (!state.canCheckIn) {
+                          _showErrorDialog(context, 'Di Luar Lokasi', 'Anda berada di luar radius kantor (${state.distanceFromOffice}). Silakan mendekat ke area kantor untuk melakukan absensi.');
+                        } else {
+                          _showConfirmDialog(
+                            context: context,
+                            title: 'Konfirmasi Check-out',
+                            message: 'Apakah Anda yakin ingin melakukan Check-out sekarang?',
+                            color: Colors.red,
+                            onConfirm: () => context.read<AttendanceBloc>().add(CheckOutRequested()),
+                          );
+                        }
+                      },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: state.checkOutTime.isNotEmpty ? Colors.grey : Colors.red,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 18),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                elevation: 4,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(state.checkOutTime.isNotEmpty ? Icons.check_circle : Icons.logout),
+                  const SizedBox(width: 8),
+                  Text(state.checkOutTime.isNotEmpty ? 'Check-out OK' : 'Check-out', style: const TextStyle(fontWeight: FontWeight.bold)),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -662,6 +672,7 @@ class AttendanceViewContent extends StatelessWidget {
       builder: (context) {
         final theme = Theme.of(context);
         return Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16),
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             color: theme.cardTheme.color,
@@ -717,57 +728,60 @@ class AttendanceViewContent extends StatelessWidget {
   Widget _buildRecentHistoryCard(AttendanceLoaded state) {
     return Builder(
       builder: (context) {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text('Riwayat Terakhir', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                TextButton(
-                  onPressed: () {
-                    _showInfoDialog(context, "TEST", "TEST"); // TESTING
-                  },
-                  style: TextButton.styleFrom(
-                    foregroundColor: Colors.blue[700],
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        return Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('Riwayat Terakhir', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  TextButton(
+                    onPressed: () {
+                      _showInfoDialog(context, "TEST", "TEST"); // TESTING
+                    },
+                    style: TextButton.styleFrom(
+                      foregroundColor: Colors.blue[700],
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    ),
+                    child: const Row(
+                      children: [
+                        Text('Lihat Semua', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                        SizedBox(width: 4),
+                        Icon(Icons.arrow_forward_ios, size: 12),
+                      ],
+                    ),
                   ),
-                  child: const Row(
-                    children: [
-                      Text('Lihat Semua', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                      SizedBox(width: 4),
-                      Icon(Icons.arrow_forward_ios, size: 12),
-                    ],
+                ],
+              ),
+              const SizedBox(height: 12),
+              // if (state.isLoading)
+              //   const Center(
+              //     child: Padding(
+              //       padding: EdgeInsets.all(40.0),
+              //       child: Column(
+              //         children: [
+              //           CircularProgressIndicator(),
+              //           SizedBox(height: 10),
+              //           Text("Loading..."),
+              //         ],
+              //       ),
+              //     ),
+              //   )
+              // else 
+              if (state.history.isEmpty)
+                const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(20.0),
+                    child: Text('Belum ada riwayat', style: TextStyle(color: Colors.grey)),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            // if (state.isLoading)
-            //   const Center(
-            //     child: Padding(
-            //       padding: EdgeInsets.all(40.0),
-            //       child: Column(
-            //         children: [
-            //           CircularProgressIndicator(),
-            //           SizedBox(height: 10),
-            //           Text("Loading..."),
-            //         ],
-            //       ),
-            //     ),
-            //   )
-            // else 
-            if (state.history.isEmpty)
-              const Center(
-                child: Padding(
-                  padding: EdgeInsets.all(20.0),
-                  child: Text('Belum ada riwayat', style: TextStyle(color: Colors.grey)),
-                ),
-              )
-            else
-              ...state.history.map((record) => _buildHistoryItem(record)),
-          ],
+                )
+              else
+                ...state.history.map((record) => _buildHistoryItem(record)),
+            ],
+          )
         );
       }
     );

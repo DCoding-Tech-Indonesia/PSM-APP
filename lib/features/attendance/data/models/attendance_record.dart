@@ -53,16 +53,3 @@ class AttendanceRecord {
   }
 }
 
-class AttendanceStats {
-  final int totalDays;
-  final int presentDays;
-  final int lateDays;
-  final int absentDays;
-
-  AttendanceStats({
-    this.totalDays = 0,
-    this.presentDays = 0,
-    this.lateDays = 0,
-    this.absentDays = 0,
-  });
-}

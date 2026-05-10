@@ -1,6 +1,7 @@
 import 'package:psm_mobile/core/network/dio_client.dart';
 import 'package:psm_mobile/features/attendance/data/models/attendance_record.dart';
 import 'package:psm_mobile/features/attendance/data/models/attendance_request.dart';
+import 'package:psm_mobile/features/attendance/data/models/schedule_model.dart';
 
 abstract class AttendanceRemoteDataSource {
   Future<bool> postAttendance(AttendanceRequest request);
@@ -19,6 +20,11 @@ abstract class AttendanceRemoteDataSource {
     required int userId,
     required int month,
     required int year,
+  });
+  Future<List<ScheduleModel>> getSchedules({
+    required int userId,
+    required String startDate,
+    required String endDate,
   });
 }
 
@@ -121,6 +127,34 @@ class AttendanceRemoteDataSourceImpl implements AttendanceRemoteDataSource {
         return response.data;
       }
       return null;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<List<ScheduleModel>> getSchedules({
+    required int userId,
+    required String startDate,
+    required String endDate,
+  }) async {
+    try {
+      final response = await _dioClient.instance.get(
+        '/jadwal/list',
+        queryParameters: {
+          'userId': userId,
+          'startDate': startDate,
+          'endDate': endDate,
+          'page': 1,
+          'perPage': 10,
+        },
+      );
+
+      if (response.data != null && response.data['status'] == true) {
+        final List data = response.data['data'] ?? [];
+        return data.map((json) => ScheduleModel.fromJson(json)).toList();
+      }
+      return [];
     } catch (e) {
       rethrow;
     }

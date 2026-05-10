@@ -1,5 +1,6 @@
 import 'package:psm_mobile/features/attendance/data/models/attendance_record.dart';
 import 'package:psm_mobile/features/attendance/data/models/attendance_request.dart';
+import 'package:psm_mobile/features/attendance/data/models/schedule_model.dart';
 
 abstract class AttendanceRepository {
   Future<bool> submitAttendance(AttendanceRequest request);
@@ -13,5 +14,10 @@ abstract class AttendanceRepository {
     required int userId,
     required int month,
     required int year,
+  });
+  Future<List<ScheduleModel>> getSchedules({
+    required int userId,
+    required String startDate,
+    required String endDate,
   });
 }

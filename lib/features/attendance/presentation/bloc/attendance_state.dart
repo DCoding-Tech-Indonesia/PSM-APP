@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:psm_mobile/features/attendance/data/models/attendance_record.dart';
+import 'package:psm_mobile/features/attendance/data/models/schedule_model.dart';
 
 abstract class AttendanceEvent extends Equatable {
   @override
@@ -42,6 +43,7 @@ class AttendanceLoaded extends AttendanceState {
   final String? errorMessage;
   final AttendanceStats stats;
   final List<AttendanceRecord> history;
+  final List<ScheduleModel> schedules;
   final String radiusInfo;
   final bool isCadangan;
 
@@ -60,6 +62,7 @@ class AttendanceLoaded extends AttendanceState {
     this.errorMessage,
     required this.stats,
     required this.history,
+    this.schedules = const [],
     this.radiusInfo = '100m',
     this.isCadangan = false,
   });
@@ -80,6 +83,7 @@ class AttendanceLoaded extends AttendanceState {
     errorMessage,
     stats,
     history,
+    schedules,
     radiusInfo,
     isCadangan,
   ];
@@ -99,6 +103,7 @@ class AttendanceLoaded extends AttendanceState {
     String? errorMessage,
     AttendanceStats? stats,
     List<AttendanceRecord>? history,
+    List<ScheduleModel>? schedules,
     String? radiusInfo,
     bool? isCadangan,
   }) {
@@ -117,9 +122,26 @@ class AttendanceLoaded extends AttendanceState {
       errorMessage: errorMessage,
       stats: stats ?? this.stats,
       history: history ?? this.history,
+      schedules: schedules ?? this.schedules,
       radiusInfo: radiusInfo ?? this.radiusInfo,
       isCadangan: isCadangan ?? this.isCadangan,
     );
   }
 }
 
+class AttendanceStats extends Equatable {
+  final int totalDays;
+  final int presentDays;
+  final int lateDays;
+  final int absentDays;
+
+  AttendanceStats({
+    this.totalDays = 0,
+    this.presentDays = 0,
+    this.lateDays = 0,
+    this.absentDays = 0,
+  });
+
+  @override
+  List<Object?> get props => [totalDays, presentDays, lateDays, absentDays];
+}
