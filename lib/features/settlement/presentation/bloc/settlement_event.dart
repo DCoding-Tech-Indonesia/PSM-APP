@@ -5,7 +5,11 @@ abstract class SettlementEvent {}
 
 class PageDashboardLoad extends SettlementEvent {}
 
-class PageInputLoad extends SettlementEvent {}
+class PageInputLoad extends SettlementEvent {
+  final int? idAuditTrail;
+
+  PageInputLoad(this.idAuditTrail);
+}
 
 class SelectBus extends SettlementEvent {
   final int id;

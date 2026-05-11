@@ -165,7 +165,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           emit(
             state.copyWith(
               loginSuccess: response.isSuccess,
-              loginMessage: "Welcome back!",
+              loginMessage: response.message.toLowerCase() == 'login berhasil' ? 'Welcome Back!' : response.message,
               popup: true,
             ),
           );

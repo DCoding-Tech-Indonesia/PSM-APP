@@ -17,8 +17,9 @@ import 'package:psm_mobile/features/settlement/presentation/cubit/settlement_cat
 import 'package:psm_mobile/features/settlement/presentation/cubit/settlement_step_cubit.dart';
 import 'package:psm_mobile/features/settlement/presentation/cubit/settlement_tab_cubit.dart';
 import 'package:psm_mobile/features/settlement/presentation/settlement_dashboard_screen.dart';
-import 'package:psm_mobile/features/settlement/presentation/settlement_add_screen.dart';
+import 'package:psm_mobile/features/settlement/presentation/settlement_form_screen.dart';
 import 'package:psm_mobile/features/attendance/presentation/screens/attendance_screen.dart';
+import 'package:psm_mobile/features/settlement/presentation/settlement_screen.dart';
 
 late final GoRouter appRouter;
 
@@ -57,7 +58,6 @@ void setupRouter(String initialLocation) {
         builder: (context, state) {
           final dio = DioClient().instance;
           final secureStorageService = SecureStorageService();
-          final sharedPreferencesService = context.read<SharedPreferencesService>();
 
           return MultiBlocProvider(
             providers: [
@@ -70,15 +70,17 @@ void setupRouter(String initialLocation) {
                 ),
               ),
             ],
-            child: SettlementDashboardScreen(sharedPreferencesService: sharedPreferencesService),
+            child: SettlementScreen(),
           );
         },
       ),
       GoRoute(
-        path: '/settlement/add',
+        path: '/settlement/form',
         builder: (context, state) {
           final dio = DioClient().instance;
           final secureStorageService = SecureStorageService();
+
+          final idAuditTrail = state.extra as int?;
 
           return MultiBlocProvider(
             providers: [
@@ -88,12 +90,17 @@ void setupRouter(String initialLocation) {
               BlocProvider(
                 create: (_) => SettlementBloc(
                   SettlementRepositoryImpl(
-                    dataSource: SettlementDataSource(dio: dio, secureStorageService: secureStorageService),
+                    dataSource: SettlementDataSource(
+                      dio: dio,
+                      secureStorageService: secureStorageService,
+                    ),
                   ),
                 ),
               ),
             ],
-            child: const SettlementAddScreen(),
+            child: SettlementFormScreen(
+              idAuditTrail: idAuditTrail,
+            ),
           );
         },
       ),

@@ -23,6 +23,8 @@ class AuthDataSource {
         },
       );
 
+      print(response);
+
       final success = response.data["status"];
 
       if (success == true) {

@@ -12,5 +12,7 @@ abstract class SettlementRepository {
   Future<Either<Failure, List<ReferenceDetail>>> fetchReferenceCustType(String keyword);
   Future<Either<Failure, String>> createSettlement(SettlementCreate request);
   Future<Either<Failure, List<TaskAuditTrail>>> fetchTaskAuditTrailList(String keyword);
+  Future<Either<Failure, SettlementCreate>> fetchTaskAuditTrailDetail(int idAuditTrail);
+  Future<Either<Failure, String>> updateSettlement(SettlementCreate request);
   Future<Either<Failure, String>> submitWorkflow(int idAuditTrail, String reason);
 }

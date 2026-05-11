@@ -10,17 +10,6 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
   final SettlementRepository settlementRepository;
 
   SettlementBloc(this.settlementRepository) : super(const SettlementState()) {
-    on<PageDashboardLoad>((event, emit) async {
-      emit(state.copyWith(status: SettlementStatus.loading));
-
-      final result = await settlementRepository.fetchTaskAuditTrailList('');
-
-      result.fold((failure) {}, (data) {
-        emit(state.copyWith(listTaskAuditTrail: data));
-      });
-      emit(state.copyWith(status: SettlementStatus.success));
-    });
-
     on<PageInputLoad>((event, emit) async {
       emit(state.copyWith(status: SettlementStatus.loading));
 
@@ -35,6 +24,9 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
         '',
       );
 
+      List busList = [];
+      List koridorList = [];
+
       resultBus.fold(
         (failure) {
           emit(
@@ -45,12 +37,8 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
           );
         },
         (data) {
-          emit(
-            state.copyWith(
-              status: SettlementStatus.success,
-              referenceBus: data,
-            ),
-          );
+          busList = data;
+          emit(state.copyWith(referenceBus: data));
         },
       );
 
@@ -64,16 +52,10 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
           );
         },
         (data) {
-          emit(
-            state.copyWith(
-              status: SettlementStatus.success,
-              referenceKoridor: data,
-            ),
-          );
+          koridorList = data;
+          emit(state.copyWith(referenceKoridor: data));
         },
       );
-
-      List<SettlementDetail> details = [];
 
       List paymentList = [];
       List custList = [];
@@ -86,7 +68,6 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
               message: failure.message,
             ),
           );
-          return;
         },
         (data) {
           paymentList = data;
@@ -101,7 +82,6 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
               message: failure.message,
             ),
           );
-          return;
         },
         (data) {
           custList = data;
@@ -118,13 +98,16 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
         return;
       }
 
+      List<SettlementDetail> details = [];
       List<String> labelPayment = [];
       List<String> labelCustomer = [];
 
       for (final payment in paymentList) {
         labelPayment.add(payment.name);
+
         for (final cust in custList) {
           labelCustomer.add(cust.name);
+
           details.add(
             SettlementDetail(
               idPayment: payment.id,
@@ -136,14 +119,98 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
         }
       }
 
+      int? idBus;
+      int? idKoridor;
+      String noUnit = '';
+      String namaKoridor = '';
+
+      if (event.idAuditTrail != null) {
+        emit(state.copyWith(auditTrailId: event.idAuditTrail));
+        final resultAudit = await settlementRepository
+            .fetchTaskAuditTrailDetail(event.idAuditTrail!);
+
+        resultAudit.fold(
+          (failure) {
+            emit(
+              state.copyWith(
+                status: SettlementStatus.error,
+                message: failure.message,
+              ),
+            );
+          },
+          (auditData) {
+            idBus = auditData.idBus;
+            idKoridor = auditData.idKoridor;
+
+            final selectedBus = busList.cast<dynamic>().firstWhere(
+              (e) => e?.id == idBus,
+              orElse: () => null,
+            );
+
+            if (selectedBus != null) {
+              noUnit = selectedBus.platNomor ?? '';
+            }
+
+            final selectedKoridor = koridorList.cast<dynamic>().firstWhere(
+              (e) => e?.id == idKoridor,
+              orElse: () => null,
+            );
+
+            if (selectedKoridor != null) {
+              namaKoridor = selectedKoridor.name ?? '';
+            }
+
+            details = details.map((defaultDetail) {
+              final matched = auditData.detail.firstWhere(
+                (e) =>
+                    e.idPayment == defaultDetail.idPayment &&
+                    e.idNasabah == defaultDetail.idNasabah,
+                orElse: () => defaultDetail,
+              );
+
+              return SettlementDetail(
+                idPayment: defaultDetail.idPayment,
+                idNasabah: defaultDetail.idNasabah,
+                total: matched.total,
+                value: matched.value,
+              );
+            }).toList();
+          },
+        );
+      }
+
       emit(
         state.copyWith(
-          totalSteps: paymentList.length + 2,
           status: SettlementStatus.success,
+          totalSteps: paymentList.length + 2,
           detail: details,
           labelPayment: labelPayment,
           labelCustomer: labelCustomer,
+          idBus: idBus ?? state.idBus,
+          idKoridor: idKoridor ?? state.idKoridor,
+          noUnit: noUnit,
+          namaKoridor: namaKoridor,
         ),
+      );
+    });
+
+    on<PageDashboardLoad>((event, emit) async {
+      emit(state.copyWith(status: SettlementStatus.loading));
+
+      final list = await settlementRepository.fetchTaskAuditTrailList('');
+
+      list.fold(
+        (failure) {
+          emit(
+            state.copyWith(
+              status: SettlementStatus.error,
+              message: failure.message,
+            ),
+          );
+        },
+        (data) {
+          // emit(state.copyWith(listTaskAuditTrail: data));
+        },
       );
     });
 
@@ -230,6 +297,7 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
       emit(state.copyWith(status: SettlementStatus.loading));
 
       final request = SettlementCreate(
+        auditTrailId: state.auditTrailId,
         idBus: state.idBus,
         code: "AMAIK NEW GEN LOS",
         idKoridor: state.idKoridor,
@@ -238,7 +306,13 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
         document: state.document,
       );
 
-      final result = await settlementRepository.createSettlement(request);
+      var result;
+
+      if (state.auditTrailId.toString() != '') {
+        result = await settlementRepository.updateSettlement(request);
+      } else {
+        result = await settlementRepository.createSettlement(request);
+      }
 
       result.fold(
         (failure) {
@@ -250,12 +324,10 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
           );
         },
         (data) {
-          emit(
-            state.copyWith(
-              status: SettlementStatus.successSave,
-              auditTrailId: int.parse(data),
-            ),
-          );
+          emit(state.copyWith(status: SettlementStatus.successSave));
+          if (state.auditTrailId.toString() == '') {
+            emit(state.copyWith(auditTrailId: int.parse(data)));
+          }
         },
       );
     });
@@ -276,11 +348,7 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
           );
         },
         (data) {
-          emit(
-            state.copyWith(
-              status: SettlementStatus.successSave,
-            ),
-          );
+          emit(state.copyWith(status: SettlementStatus.successSave));
         },
       );
     });

@@ -122,6 +122,40 @@ class SettlementRepositoryImpl implements SettlementRepository {
   }
 
   @override
+  Future<Either<Failure, SettlementCreate>> fetchTaskAuditTrailDetail(
+      int idAuditTrail,
+      ) async {
+    try {
+      final result = await dataSource.fetchTaskAuditTrailDetail(idAuditTrail);
+
+      return right(result);
+    } on DioException catch (e) {
+      final message =
+          e.response?.data?['message'] ?? 'Terjadi kesalahan server';
+
+      return left(ServerFailure(message));
+    } catch (_) {
+      return left(const ServerFailure('Unexpected error'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, String>> updateSettlement(SettlementCreate request) async {
+    try {
+      final response = await dataSource.updateSettlement(request);
+
+      return right(response);
+    } on DioException catch (e) {
+      final message =
+          e.response?.data?['message'] ?? 'Terjadi kesalahan server';
+
+      return left(ServerFailure(message));
+    } catch (_) {
+      return left(const ServerFailure('Unexpected error'));
+    }
+  }
+
+  @override
   Future<Either<Failure, String>> submitWorkflow(int idAuditTrail, String reason) async {
     try {
       final response = await dataSource.submitWorkflow(idAuditTrail, reason);

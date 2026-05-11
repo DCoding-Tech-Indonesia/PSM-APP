@@ -13,6 +13,15 @@ class SettlementDetail extends Equatable{
     required this.value,
   });
 
+  factory SettlementDetail.fromJson(Map<String, dynamic> json) {
+    return SettlementDetail(
+      idPayment: json['idPayment'] ?? 0,
+      idNasabah: json['idNasabah'] ?? 0,
+      total: json['total'] ?? 0,
+      value: json['value'] ?? 0,
+    );
+  }
+
   Map<String, dynamic> toJson() => {
     "idPayment": idPayment,
     "idNasabah": idNasabah,

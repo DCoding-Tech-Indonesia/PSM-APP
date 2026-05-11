@@ -98,16 +98,14 @@ class SettlementDataSource {
       final idUser = await secureStorageService.readUserId();
 
       final response = await dio.get(
-        '/audittrail/task/approval/list',
+        '/audittrail/task/settelment/list',
         queryParameters: {
           'keyword': keyword,
           'page': 1,
-          'perPage': 999,
-          'createdBy': idUser
+          'perPage': 1,
+          'createdBy': idUser,
         },
       );
-
-      print(response);
 
       final List data = response.data['data'] ?? [];
 
@@ -148,6 +146,45 @@ class SettlementDataSource {
     }
   }
 
+  Future<SettlementCreate> fetchTaskAuditTrailDetail(int idAuditTrail) async {
+    try {
+      final response = await dio.get(
+        '/audittrail/task/settelment/detail',
+        queryParameters: {
+          'id': idAuditTrail
+        },
+      );
+
+      final detail = response.data["data"][0]["dataAfter"];
+
+      return SettlementCreate.fromJson(detail);
+    } catch (e) {
+      print(e);
+      rethrow;
+    }
+  }
+
+  Future<String> updateSettlement(SettlementCreate request) async {
+    try {
+      final response = await dio.post(
+        '/audittrail/task/approval/edit',
+        data: {
+          "idAuditTrail": request.auditTrailId,
+          "payload": request,
+          "reason": "UPDATE"
+        },
+      );
+
+      print("response");
+      print(response);
+
+      return "Berhasil Update";
+    } catch (e) {
+      print(e);
+      return e.toString();
+    }
+  }
+
   Future<String> submitWorkflow(int idAuditTrail, String reason) async {
     try {
       final response = await dio.post(
@@ -159,6 +196,9 @@ class SettlementDataSource {
           "reason": reason
         },
       );
+
+      print("[RESPONSE] SUBMIT WORKFLOW");
+      print(response);
 
       return "Berhasil";
     } catch (e) {

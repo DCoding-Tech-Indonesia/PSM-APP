@@ -25,7 +25,7 @@ class SettlementDashboardScreen extends StatefulWidget {
 }
 
 class _SettlementDashboardScreenState
-    extends State<SettlementDashboardScreen> with RouteAware {
+  extends State<SettlementDashboardScreen> with RouteAware {
 
   @override
   void initState() {
@@ -110,7 +110,7 @@ class _SettlementDashboardScreenState
               foregroundColor: Colors.white,
               child: const Icon(Icons.add),
               onPressed: () {
-                context.push('/settlement/add');
+                context.push('/settlement/form');
               },
             );
           } else {

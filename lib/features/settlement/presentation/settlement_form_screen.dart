@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_bloc.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_event.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_state.dart';
@@ -7,19 +8,21 @@ import 'package:psm_mobile/features/settlement/presentation/widgets/wizard_first
 import 'package:psm_mobile/features/settlement/presentation/widgets/wizard_detail_step.dart';
 import 'package:psm_mobile/features/settlement/presentation/widgets/wizard_last_step.dart';
 
-class SettlementAddScreen extends StatefulWidget {
-  const SettlementAddScreen({super.key});
+class SettlementFormScreen extends StatefulWidget {
+  const SettlementFormScreen({super.key, required this.idAuditTrail});
+
+  final int? idAuditTrail;
 
   @override
-  State<SettlementAddScreen> createState() => _SettlementAddScreenState();
+  State<SettlementFormScreen> createState() => _SettlementFormScreenState();
 }
 
-class _SettlementAddScreenState extends State<SettlementAddScreen> {
+class _SettlementFormScreenState extends State<SettlementFormScreen> {
   @override
   void initState() {
     super.initState();
     Future.microtask(() {
-      context.read<SettlementBloc>().add(PageInputLoad());
+      context.read<SettlementBloc>().add(PageInputLoad(widget.idAuditTrail));
     });
   }
 
@@ -57,6 +60,7 @@ class _SettlementAddScreenState extends State<SettlementAddScreen> {
             TextButton(
               onPressed: () {
                 Navigator.pop(dialogContext);
+                context.pop();
               },
               child: const Text("Tidak"),
             ),

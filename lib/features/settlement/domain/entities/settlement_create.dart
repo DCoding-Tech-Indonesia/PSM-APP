@@ -22,6 +22,23 @@ class SettlementCreate {
     required this.document,
   });
 
+  factory SettlementCreate.fromJson(Map<String, dynamic> json) {
+    return SettlementCreate(
+      processId: json['processId'],
+      auditTrailId: json['auditTrailId'],
+      idBus: json['idBus'] ?? 0,
+      code: json['code'] ?? '',
+      idKoridor: json['idKoridor'] ?? 0,
+      idShift: json['idShift'] ?? 0,
+      detail: (json['detail'] as List<dynamic>? ?? [])
+          .map((e) => SettlementDetail.fromJson(e))
+          .toList(),
+      document: (json['document'] as List<dynamic>? ?? [])
+          .map((e) => SettlementDocument.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+
   Map<String, dynamic> toJson() => {
     "processId": processId,
     "auditTrailId": auditTrailId,
