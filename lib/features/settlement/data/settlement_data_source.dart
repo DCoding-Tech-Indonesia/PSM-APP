@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:psm_mobile/core/storage/secure_storage.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/module_audit_trail.dart';
@@ -77,6 +79,40 @@ class SettlementDataSource {
     return data.map((e) => ReferenceDetail.fromJson(e)).toList();
   }
 
+  Future<int> uploadDocument(File file) async {
+    try {
+      final fileName = file.path.split('/').last;
+
+      final formData = FormData.fromMap({
+        'file': await MultipartFile.fromFile(
+          file.path,
+          filename: fileName,
+        ),
+      });
+
+      final response = await dio.post(
+        '/reference/upload-document/additional',
+        data: formData,
+        options: Options(
+          contentType: 'multipart/form-data',
+        ),
+      );
+
+      print(response);
+
+      final imageId = response.data['data']['id'];
+
+      return imageId;
+    } on DioException catch (e) {
+      throw Exception(
+        e.response?.data.toString() ??
+            'Upload document failed',
+      );
+    } catch (e) {
+      throw Exception(e.toString());
+    }
+  }
+
   Future<String> createSettlement(SettlementCreate request) async {
     try {
       final response = await dio.post(
@@ -102,12 +138,15 @@ class SettlementDataSource {
         queryParameters: {
           'keyword': keyword,
           'page': 1,
-          'perPage': 1,
+          'perPage': 99,
           'createdBy': idUser,
         },
       );
 
       final List data = response.data['data'] ?? [];
+
+      print("IKO E DATA E");
+      print(data);
 
       return data.map((e) {
         return TaskAuditTrail(

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:fpdart/fpdart.dart';
 import 'package:psm_mobile/core/error/failure.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/task_audit_trail.dart';
@@ -10,6 +12,7 @@ abstract class SettlementRepository {
   Future<Either<Failure, List<ReferenceDetail>>> fetchReferenceKoridor(String keyword);
   Future<Either<Failure, List<ReferenceDetail>>> fetchReferencePayment(String keyword);
   Future<Either<Failure, List<ReferenceDetail>>> fetchReferenceCustType(String keyword);
+  Future<Either<Failure, int>> uploadDocument(File file);
   Future<Either<Failure, String>> createSettlement(SettlementCreate request);
   Future<Either<Failure, List<TaskAuditTrail>>> fetchTaskAuditTrailList(String keyword);
   Future<Either<Failure, SettlementCreate>> fetchTaskAuditTrailDetail(int idAuditTrail);

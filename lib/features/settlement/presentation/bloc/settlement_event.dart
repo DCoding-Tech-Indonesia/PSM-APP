@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:psm_mobile/features/settlement/domain/entities/settlement_detail.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/settlement_document.dart';
 
@@ -74,6 +76,12 @@ class RemoveDocument extends SettlementEvent {
   final SettlementDocument document;
 
   RemoveDocument(this.document);
+}
+
+class UploadDocument extends SettlementEvent {
+  final File file;
+
+  UploadDocument(this.file);
 }
 
 class SubmitSettlement extends SettlementEvent {}

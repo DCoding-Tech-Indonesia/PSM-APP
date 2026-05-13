@@ -1,23 +1,20 @@
 import 'package:equatable/equatable.dart';
 
-class SettlementDetail extends Equatable{
+class SettlementDetailInput extends Equatable {
   final int idPayment;
   final int idNasabah;
-  final int total;
   final int value;
 
-  const SettlementDetail({
+  const SettlementDetailInput({
     required this.idPayment,
     required this.idNasabah,
-    required this.total,
     required this.value,
   });
 
-  factory SettlementDetail.fromJson(Map<String, dynamic> json) {
-    return SettlementDetail(
+  factory SettlementDetailInput.fromJson(Map<String, dynamic> json) {
+    return SettlementDetailInput(
       idPayment: json['idPayment'] ?? 0,
       idNasabah: json['idNasabah'] ?? 0,
-      total: json['total'] ?? 0,
       value: json['value'] ?? 0,
     );
   }
@@ -25,10 +22,9 @@ class SettlementDetail extends Equatable{
   Map<String, dynamic> toJson() => {
     "idPayment": idPayment,
     "idNasabah": idNasabah,
-    "total": total,
     "value": value,
   };
 
   @override
-  List<Object?> get props => [idPayment, idNasabah, total, value];
+  List<Object?> get props => [idPayment, idNasabah, value];
 }

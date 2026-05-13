@@ -1,9 +1,10 @@
 import 'dart:io';
+
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:image/image.dart' as img;
+import 'package:path_provider/path_provider.dart';
 
 class CustomCameraWidget extends StatefulWidget {
   final double ratio;
@@ -14,12 +15,17 @@ class CustomCameraWidget extends StatefulWidget {
   });
 
   @override
-  State<CustomCameraWidget> createState() => _CustomCameraWidgetState();
+  State<CustomCameraWidget> createState() =>
+      _CustomCameraWidgetState();
 }
 
-class _CustomCameraWidgetState extends State<CustomCameraWidget> {
+class _CustomCameraWidgetState
+    extends State<CustomCameraWidget> {
   CameraController? _controller;
+
   List<CameraDescription>? cameras;
+
+  bool _isCapturing = false;
 
   @override
   void initState() {
@@ -38,11 +44,14 @@ class _CustomCameraWidgetState extends State<CustomCameraWidget> {
 
     await _controller!.initialize();
 
-    if (mounted) setState(() {});
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   Future<File> _cropToRatio(File file) async {
     final bytes = await file.readAsBytes();
+
     final original = img.decodeImage(bytes)!;
 
     final w = original.width;
@@ -70,24 +79,183 @@ class _CustomCameraWidgetState extends State<CustomCameraWidget> {
     );
 
     final dir = await getTemporaryDirectory();
+
     final path =
         '${dir.path}/${DateTime.now().millisecondsSinceEpoch}.jpg';
 
     final newFile = File(path);
-    await newFile.writeAsBytes(img.encodeJpg(cropped, quality: 90));
+
+    await newFile.writeAsBytes(
+      img.encodeJpg(
+        cropped,
+        quality: 90,
+      ),
+    );
 
     return newFile;
   }
 
   Future<void> takePicture() async {
-    if (!_controller!.value.isInitialized) return;
+    if (_controller == null ||
+        !_controller!.value.isInitialized ||
+        _isCapturing) {
+      return;
+    }
 
-    final image = await _controller!.takePicture();
-    final file = File(image.path);
+    try {
+      setState(() {
+        _isCapturing = true;
+      });
 
-    final cropped = await _cropToRatio(file);
+      final image = await _controller!.takePicture();
 
-    context.pop(cropped);
+      final file = File(image.path);
+
+      final cropped = await _cropToRatio(file);
+
+      if (!mounted) return;
+
+      _showPreviewModal(cropped);
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isCapturing = false;
+        });
+      }
+    }
+  }
+
+  void _showPreviewModal(File imageFile) {
+    showModalBottomSheet(
+      context: context,
+      isDismissible: false,
+      enableDrag: false,
+      isScrollControlled: true,
+      backgroundColor: Colors.black,
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  children: [
+                    const Expanded(
+                      child: Text(
+                        "Preview Foto",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+
+                    IconButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      icon: const Icon(
+                        Icons.close,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 12),
+
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: AspectRatio(
+                    aspectRatio: widget.ratio,
+                    child: Image.file(
+                      imageFile,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        style:
+                        OutlinedButton.styleFrom(
+                          foregroundColor:
+                          Colors.white,
+                          side: const BorderSide(
+                            color: Colors.white,
+                          ),
+                          padding:
+                          const EdgeInsets.symmetric(
+                            vertical: 14,
+                          ),
+                          shape:
+                          RoundedRectangleBorder(
+                            borderRadius:
+                            BorderRadius.circular(
+                              12,
+                            ),
+                          ),
+                        ),
+                        child: const Text(
+                          "Batal",
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(width: 12),
+
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+
+                          context.pop(imageFile);
+                        },
+                        style:
+                        ElevatedButton.styleFrom(
+                          backgroundColor:
+                          Colors.blue,
+                          padding:
+                          const EdgeInsets.symmetric(
+                            vertical: 14,
+                          ),
+                          shape:
+                          RoundedRectangleBorder(
+                            borderRadius:
+                            BorderRadius.circular(
+                              12,
+                            ),
+                          ),
+                        ),
+                        child: const Text(
+                          "Simpan",
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 10),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -98,9 +266,12 @@ class _CustomCameraWidgetState extends State<CustomCameraWidget> {
 
   @override
   Widget build(BuildContext context) {
-    if (_controller == null || !_controller!.value.isInitialized) {
+    if (_controller == null ||
+        !_controller!.value.isInitialized) {
       return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
       );
     }
 
@@ -118,22 +289,8 @@ class _CustomCameraWidgetState extends State<CustomCameraWidget> {
           Positioned.fill(
             child: IgnorePointer(
               child: Container(
-                color: Colors.black.withOpacity(0.5),
-              ),
-            ),
-          ),
-
-          Positioned.fill(
-            child: IgnorePointer(
-              child: Center(
-                child: AspectRatio(
-                  aspectRatio: widget.ratio,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.transparent,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
+                color: Colors.black.withOpacity(
+                  0.5,
                 ),
               ),
             ),
@@ -144,8 +301,12 @@ class _CustomCameraWidgetState extends State<CustomCameraWidget> {
               aspectRatio: widget.ratio,
               child: Container(
                 decoration: BoxDecoration(
-                  border: Border.all(color: Colors.white, width: 3),
-                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: Colors.white,
+                    width: 3,
+                  ),
+                  borderRadius:
+                  BorderRadius.circular(16),
                 ),
               ),
             ),
@@ -157,14 +318,30 @@ class _CustomCameraWidgetState extends State<CustomCameraWidget> {
             right: 0,
             child: Center(
               child: GestureDetector(
-                onTap: takePicture,
+                onTap:
+                _isCapturing ? null : takePicture,
                 child: Container(
-                  width: 70,
-                  height: 70,
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    color: _isCapturing
+                        ? Colors.grey
+                        : Colors.white,
                     shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Colors.white,
+                      width: 4,
+                    ),
                   ),
+                  child: _isCapturing
+                      ? const Padding(
+                    padding: EdgeInsets.all(20),
+                    child:
+                    CircularProgressIndicator(
+                      strokeWidth: 3,
+                    ),
+                  )
+                      : null,
                 ),
               ),
             ),

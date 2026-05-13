@@ -1,5 +1,8 @@
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:psm_mobile/features/settlement/domain/entities/reference_bus.dart';
+import 'package:psm_mobile/features/settlement/domain/entities/reference_detail.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_bloc.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_event.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_state.dart';
@@ -15,25 +18,60 @@ class WizardFirstStep extends StatelessWidget {
       children: [
         BlocBuilder<SettlementBloc, SettlementState>(
           builder: (context, state) {
-            return DropdownButtonFormField<int>(
-              value: state.idBus == 0 ? null : state.idBus,
-              decoration: const InputDecoration(
-                labelText: "No Bus",
-                border: OutlineInputBorder(),
+            return DropdownSearch<ReferenceBus>(
+              items: (f, cs) => state.referenceBus,
+
+              selectedItem: state.referenceBus.firstWhere(
+                (e) => e.id == state.idBus,
               ),
-              items: state.referenceBus.map((bus) {
-                return DropdownMenuItem<int>(
-                  value: bus.id,
-                  child: Text('${bus.nomorLambung} - ${bus.platNomor}'),
-                );
-              }).toList(),
-              onChanged: (value) {
+
+              itemAsString: (item) =>
+                  '${item.nomorLambung} - ${item.platNomor}',
+
+              compareFn: (a, b) => a.id == b.id,
+
+              decoratorProps: const DropDownDecoratorProps(
+                decoration: InputDecoration(
+                  labelText: "Pilih Bus",
+                  hintText: "Pilih Bus",
+                  border: OutlineInputBorder(),
+                ),
+              ),
+
+              popupProps: PopupProps.bottomSheet(
+                showSearchBox: true,
+
+                title: Container(
+                  decoration: const BoxDecoration(color: Colors.blueAccent),
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  child: const Text(
+                    'Daftar Bus',
+                    style: TextStyle(
+                      fontSize: 21,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+
+                bottomSheetProps: const BottomSheetProps(
+                  clipBehavior: Clip.antiAlias,
+                  shape: OutlineInputBorder(
+                    borderSide: BorderSide.none,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(25),
+                      topRight: Radius.circular(25),
+                    ),
+                  ),
+                ),
+              ),
+
+              onSelected: (value) {
                 if (value == null) return;
-                final selected = state.referenceBus.firstWhere(
-                      (bus) => bus.id == value,
-                );
+
                 context.read<SettlementBloc>().add(
-                  SelectBus(selected.id, selected.platNomor),
+                  SelectBus(value.id, value.platNomor),
                 );
               },
             );
@@ -41,25 +79,59 @@ class WizardFirstStep extends StatelessWidget {
         ),
         BlocBuilder<SettlementBloc, SettlementState>(
           builder: (context, state) {
-            return DropdownButtonFormField<int>(
-              value: state.idKoridor == 0 ? null : state.idKoridor,
-              decoration: const InputDecoration(
-                labelText: "Koridor",
-                border: OutlineInputBorder(),
+            return DropdownSearch<ReferenceDetail>(
+              items: (f, cs) => state.referenceKoridor,
+
+              selectedItem: state.referenceKoridor.firstWhere(
+                (e) => e.id == state.idKoridor,
               ),
-              items: state.referenceKoridor.map((koridor) {
-                return DropdownMenuItem<int>(
-                  value: koridor.id,
-                  child: Text('${koridor.code} - ${koridor.name}'),
-                );
-              }).toList(),
-              onChanged: (value) {
+
+              itemAsString: (item) => '${item.code} - ${item.name}',
+
+              compareFn: (a, b) => a.id == b.id,
+
+              decoratorProps: const DropDownDecoratorProps(
+                decoration: InputDecoration(
+                  labelText: "Pilih Koridor",
+                  hintText: "Pilih Koridor",
+                  border: OutlineInputBorder(),
+                ),
+              ),
+
+              popupProps: PopupProps.bottomSheet(
+                showSearchBox: true,
+
+                title: Container(
+                  decoration: const BoxDecoration(color: Colors.blueAccent),
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  child: const Text(
+                    'Daftar Koridor',
+                    style: TextStyle(
+                      fontSize: 21,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+
+                bottomSheetProps: const BottomSheetProps(
+                  clipBehavior: Clip.antiAlias,
+                  shape: OutlineInputBorder(
+                    borderSide: BorderSide.none,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(25),
+                      topRight: Radius.circular(25),
+                    ),
+                  ),
+                ),
+              ),
+
+              onSelected: (value) {
                 if (value == null) return;
-                final selected = state.referenceKoridor.firstWhere(
-                      (koridor) => koridor.id == value,
-                );
+
                 context.read<SettlementBloc>().add(
-                  SelectKoridor(selected.id, selected.name),
+                  SelectKoridor(value.id, value.name),
                 );
               },
             );

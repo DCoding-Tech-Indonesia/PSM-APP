@@ -3,6 +3,7 @@ import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/task_a
 import 'package:psm_mobile/features/settlement/domain/entities/reference_bus.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/reference_detail.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/settlement_detail.dart';
+import 'package:psm_mobile/features/settlement/domain/entities/settlement_detail_input.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/settlement_document.dart';
 
 enum SettlementStatus { initial, loading, success, error, successSave, failedSave }
@@ -29,6 +30,7 @@ class SettlementState extends Equatable {
   final int idShift;
 
   final List<SettlementDetail> detail;
+  final List<SettlementDetailInput> detailInput;
   final List<SettlementDocument> document;
 
   final String? message;
@@ -52,6 +54,7 @@ class SettlementState extends Equatable {
     this.idKoridor = 0,
     this.idShift = 0,
     this.detail = const [],
+    this.detailInput = const [],
     this.document = const [],
     this.message,
   });
@@ -75,6 +78,7 @@ class SettlementState extends Equatable {
     int? idKoridor,
     int? idShift,
     List<SettlementDetail>? detail,
+    List<SettlementDetailInput>? detailInput,
     List<SettlementDocument>? document,
     String? message,
   }) {
@@ -97,6 +101,7 @@ class SettlementState extends Equatable {
       idKoridor: idKoridor ?? this.idKoridor,
       idShift: idShift ?? this.idShift,
       detail: detail ?? this.detail,
+      detailInput: detailInput ?? this.detailInput,
       document: document ?? this.document,
       message: message,
     );
@@ -122,6 +127,7 @@ class SettlementState extends Equatable {
     idKoridor,
     idShift,
     detail,
+    detailInput,
     document,
     message,
   ];

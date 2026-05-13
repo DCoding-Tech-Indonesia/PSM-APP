@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/settlement_create.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/settlement_detail.dart';
+import 'package:psm_mobile/features/settlement/domain/entities/settlement_detail_input.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/settlement_document.dart';
 import 'package:psm_mobile/features/settlement/domain/repositories/settlement_repository.dart';
 import 'settlement_event.dart';
@@ -99,6 +100,7 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
       }
 
       List<SettlementDetail> details = [];
+      List<SettlementDetailInput> inputDetails = [];
       List<String> labelPayment = [];
       List<String> labelCustomer = [];
 
@@ -115,6 +117,13 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
               total: 0,
               value: 0,
             ),
+          );
+
+          inputDetails.add(
+            SettlementDetailInput(
+              idPayment: payment.id,
+              idNasabah: cust.id,
+              value: 10000)
           );
         }
       }
@@ -184,6 +193,7 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
           status: SettlementStatus.success,
           totalSteps: paymentList.length + 2,
           detail: details,
+          detailInput: inputDetails,
           labelPayment: labelPayment,
           labelCustomer: labelCustomer,
           idBus: idBus ?? state.idBus,
@@ -291,6 +301,33 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
         ..remove(event.document);
 
       emit(state.copyWith(document: newList));
+    });
+
+    on<UploadDocument>((event, emit) async {
+      final uploadDoc = await settlementRepository.uploadDocument(event.file);
+
+      print("uploadDoc");
+      print(uploadDoc);
+
+      List<SettlementDocument> documents = [];
+
+      uploadDoc.fold(
+        (failure) {
+          emit(
+            state.copyWith(
+              status: SettlementStatus.failedSave,
+              message: failure.message,
+            ),
+          );
+        },
+        (data) {
+          documents.add(
+            SettlementDocument(idDocument: data, idDocumentType: data),
+          );
+        },
+      );
+
+      emit(state.copyWith(document: documents));
     });
 
     on<SubmitSettlement>((event, emit) async {

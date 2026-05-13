@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:psm_mobile/core/error/failure.dart';
@@ -86,6 +88,22 @@ class SettlementRepositoryImpl implements SettlementRepository {
   }
 
   @override
+  Future<Either<Failure, int>> uploadDocument(File file) async {
+    try {
+      final response = await dataSource.uploadDocument(file);
+
+      return right(response);
+    } on DioException catch (e) {
+      final message =
+          e.response?.data?['message'] ?? 'Terjadi kesalahan server';
+
+      return left(ServerFailure(message));
+    } catch (_) {
+      return left(const ServerFailure('Unexpected error'));
+    }
+  }
+
+  @override
   Future<Either<Failure, String>> createSettlement(
     SettlementCreate request,
   ) async {
@@ -123,8 +141,8 @@ class SettlementRepositoryImpl implements SettlementRepository {
 
   @override
   Future<Either<Failure, SettlementCreate>> fetchTaskAuditTrailDetail(
-      int idAuditTrail,
-      ) async {
+    int idAuditTrail,
+  ) async {
     try {
       final result = await dataSource.fetchTaskAuditTrailDetail(idAuditTrail);
 
@@ -140,7 +158,9 @@ class SettlementRepositoryImpl implements SettlementRepository {
   }
 
   @override
-  Future<Either<Failure, String>> updateSettlement(SettlementCreate request) async {
+  Future<Either<Failure, String>> updateSettlement(
+    SettlementCreate request,
+  ) async {
     try {
       final response = await dataSource.updateSettlement(request);
 
@@ -156,7 +176,10 @@ class SettlementRepositoryImpl implements SettlementRepository {
   }
 
   @override
-  Future<Either<Failure, String>> submitWorkflow(int idAuditTrail, String reason) async {
+  Future<Either<Failure, String>> submitWorkflow(
+    int idAuditTrail,
+    String reason,
+  ) async {
     try {
       final response = await dataSource.submitWorkflow(idAuditTrail, reason);
 

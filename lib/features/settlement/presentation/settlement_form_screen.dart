@@ -105,10 +105,10 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
         }
       },
       child: Scaffold(
-        backgroundColor: theme.primaryColor,
         appBar: AppBar(
-          backgroundColor: theme.primaryColor,
-          elevation: 0,
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.black,
+          centerTitle: false,
           title: const Text("Submit Settlement"),
         ),
         body: BlocBuilder<SettlementBloc, SettlementState>(
@@ -179,10 +179,7 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 23,
-                      vertical: 25,
-                    ),
+                    padding: const EdgeInsets.fromLTRB(23, 0, 23, 25),
                     child: BlocBuilder<SettlementBloc, SettlementState>(
                       builder: (context, state) {
                         return Row(

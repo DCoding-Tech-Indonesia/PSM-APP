@@ -177,7 +177,10 @@ class _SettlementScreenState extends State<SettlementScreen> {
                       if (state.listTaskAuditTrail.isEmpty)
                         Positioned.fill(
                           child: Container(
-                            decoration: BoxDecoration(color: Colors.black26, borderRadius: BorderRadius.circular(10)),
+                            decoration: BoxDecoration(
+                              color: Colors.black26,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
                             child: Center(
                               child: GestureDetector(
                                 onTap: () {
@@ -275,11 +278,101 @@ class _SettlementScreenState extends State<SettlementScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text("Riwayat Terakhir", style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),),
-                  Text("Lihat Semua >", style: TextStyle(color: Colors.blueAccent, fontWeight: FontWeight.w600)),
+                  Text(
+                    "Riwayat Terakhir",
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+                  ),
+                  Text(
+                    "Lihat Semua >",
+                    style: TextStyle(
+                      color: Colors.blueAccent,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ],
               ),
-            )
+            ),
+            SizedBox(
+              height: 300,
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Column(
+                    children: [
+                      ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: 10,
+                        itemBuilder: (context, index) {
+                          return Container(
+                            margin: const EdgeInsets.symmetric(vertical: 5),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                width: 1,
+                                color: Color(0xFFBDBDBD),
+                              ),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  spacing: 10,
+                                  children: [
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.lightGreen,
+                                        borderRadius: BorderRadius.circular(3),
+                                      ),
+                                      child: Icon(
+                                        Icons.check,
+                                        size: 25,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "Rabu, 13 Mei 2026",
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                        DefaultTextStyle(
+                                          style: TextStyle(
+                                            fontSize: 10,
+                                            color: Colors.blueGrey,
+                                          ),
+                                          child: Row(
+                                            spacing: 8,
+                                            children: [
+                                              Text("BA 131K 4U"),
+                                              Text("Halte Dakek Siko"),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                Text("19.45"),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),
