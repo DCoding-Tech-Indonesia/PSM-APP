@@ -219,7 +219,7 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
           );
         },
         (data) {
-          // emit(state.copyWith(listTaskAuditTrail: data));
+          emit(state.copyWith(listTaskAuditTrail: data));
         },
       );
     });
@@ -345,7 +345,7 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
 
       var result;
 
-      if (state.auditTrailId.toString() != '') {
+      if (state.auditTrailId.toString() != '0') {
         result = await settlementRepository.updateSettlement(request);
       } else {
         result = await settlementRepository.createSettlement(request);

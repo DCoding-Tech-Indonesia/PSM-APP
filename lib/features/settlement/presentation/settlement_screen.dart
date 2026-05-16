@@ -293,7 +293,7 @@ class _SettlementScreenState extends State<SettlementScreen> {
               ),
             ),
             SizedBox(
-              height: 300,
+              height: 450,
               child: SingleChildScrollView(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),

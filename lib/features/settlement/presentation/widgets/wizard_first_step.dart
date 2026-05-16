@@ -18,15 +18,25 @@ class WizardFirstStep extends StatelessWidget {
       children: [
         BlocBuilder<SettlementBloc, SettlementState>(
           builder: (context, state) {
+            ReferenceBus? selectedBus;
+
+            if (state.referenceBus.isNotEmpty) {
+              final matchedBus = state.referenceBus.where(
+                    (e) => e.id == state.idBus,
+              );
+
+              if (matchedBus.isNotEmpty) {
+                selectedBus = matchedBus.first;
+              }
+            }
+
             return DropdownSearch<ReferenceBus>(
               items: (f, cs) => state.referenceBus,
 
-              selectedItem: state.referenceBus.firstWhere(
-                (e) => e.id == state.idBus,
-              ),
+              selectedItem: selectedBus,
 
               itemAsString: (item) =>
-                  '${item.nomorLambung} - ${item.platNomor}',
+              '${item.nomorLambung} - ${item.platNomor}',
 
               compareFn: (a, b) => a.id == b.id,
 
@@ -42,7 +52,9 @@ class WizardFirstStep extends StatelessWidget {
                 showSearchBox: true,
 
                 title: Container(
-                  decoration: const BoxDecoration(color: Colors.blueAccent),
+                  decoration: const BoxDecoration(
+                    color: Colors.blueAccent,
+                  ),
                   alignment: Alignment.center,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   child: const Text(
@@ -77,14 +89,25 @@ class WizardFirstStep extends StatelessWidget {
             );
           },
         ),
+
         BlocBuilder<SettlementBloc, SettlementState>(
           builder: (context, state) {
+            ReferenceDetail? selectedKoridor;
+
+            if (state.referenceKoridor.isNotEmpty) {
+              final matchedKoridor = state.referenceKoridor.where(
+                    (e) => e.id == state.idKoridor,
+              );
+
+              if (matchedKoridor.isNotEmpty) {
+                selectedKoridor = matchedKoridor.first;
+              }
+            }
+
             return DropdownSearch<ReferenceDetail>(
               items: (f, cs) => state.referenceKoridor,
 
-              selectedItem: state.referenceKoridor.firstWhere(
-                (e) => e.id == state.idKoridor,
-              ),
+              selectedItem: selectedKoridor,
 
               itemAsString: (item) => '${item.code} - ${item.name}',
 
@@ -102,7 +125,9 @@ class WizardFirstStep extends StatelessWidget {
                 showSearchBox: true,
 
                 title: Container(
-                  decoration: const BoxDecoration(color: Colors.blueAccent),
+                  decoration: const BoxDecoration(
+                    color: Colors.blueAccent,
+                  ),
                   alignment: Alignment.center,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   child: const Text(
