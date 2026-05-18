@@ -1,4 +1,3 @@
-import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -12,6 +11,7 @@ import 'package:psm_mobile/features/portal/presentation/bloc/portal_state.dart';
 import 'package:psm_mobile/core/network/dio_client.dart';
 import 'package:psm_mobile/core/helper/location_service.dart';
 import 'package:psm_mobile/features/portal/presentation/widget/portal_schedule_ribbon.dart';
+import 'package:psm_mobile/core/presentations/widgets/core_blur_dialog.dart';
 
 class AttendanceScreen extends StatelessWidget {
   const AttendanceScreen({super.key});
@@ -50,7 +50,7 @@ class AttendanceViewContent extends StatelessWidget {
         child: BlocListener<AttendanceBloc, AttendanceState>(
           listener: (context, state) {
             if (state is AttendanceLoaded && state.errorMessage != null) {
-              _showErrorDialog(context, 'Kesalahan', state.errorMessage!);
+              showCoreErrorDialog(context, 'Kesalahan', state.errorMessage!);
             }
           },
           child: BlocBuilder<AttendanceBloc, AttendanceState>(
@@ -84,6 +84,7 @@ class AttendanceViewContent extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
+                            _buildDateTimeCard(s),
                             _buildLocationStatusCard(context, s),
                             const SizedBox(height: 16),
                             if (state.isLoading) ...[
@@ -126,8 +127,9 @@ class AttendanceViewContent extends StatelessWidget {
   }
 
   Widget _buildCustomHeader(BuildContext context, ThemeData theme) {
+    final size = MediaQuery.of(context).size;
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(size.width * 0.045),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -172,11 +174,7 @@ class AttendanceViewContent extends StatelessWidget {
           //       icon: const Icon(Icons.refresh),
           //       onPressed: () {
           //         context.read<AttendanceBloc>().add(RefreshLocation());
-          //         _showSuccessDialog(
-          //           context,
-          //           'Data Diperbarui',
-          //           'Data absensi berhasil diperbarui.',
-          //         );
+          //         // showCoreSuccessDialog(context, 'Data Diperbarui', 'Data absensi berhasil diperbarui.');
           //       },
           //     ),
           //   ],
@@ -191,25 +189,26 @@ class AttendanceViewContent extends StatelessWidget {
       builder: (context) {
         final theme = Theme.of(context);
         final isDark = theme.brightness == Brightness.dark;
+        final size = MediaQuery.of(context).size;
 
         return Container(
-          margin: const EdgeInsets.symmetric(horizontal: 16),
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-          decoration: BoxDecoration(
-            color: theme.cardTheme.color,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: isDark ? Colors.black26 : Colors.grey.withValues(alpha: 0.15),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
-              ),
-            ],
-            border: Border.all(
-              color: isDark ? Colors.transparent : Colors.grey.withValues(alpha: 0.2),
-              width: 1,
-            ),
-          ),
+          // margin: EdgeInsets.symmetric(horizontal: size.width * 0.045),
+          padding: EdgeInsets.symmetric(horizontal: size.width * 0.05, vertical: size.height * 0.005),
+          // decoration: BoxDecoration(
+          //   color: theme.cardTheme.color,
+          //   borderRadius: BorderRadius.circular(16),
+          //   boxShadow: [
+          //     BoxShadow(
+          //       color: isDark ? Colors.black26 : Colors.grey.withValues(alpha: 0.15),
+          //       blurRadius: 20,
+          //       offset: const Offset(0, 10),
+          //     ),
+          //   ],
+          //   border: Border.all(
+          //     color: isDark ? Colors.transparent : Colors.grey.withValues(alpha: 0.2),
+          //     width: 1,
+          //   ),
+          // ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -260,11 +259,12 @@ class AttendanceViewContent extends StatelessWidget {
   }
 
   Widget _buildLocationStatusCard(BuildContext context, AttendanceLoaded state) {
+    final size = MediaQuery.of(context).size;
     return Stack(
       children: [
         Container(
-          margin: const EdgeInsets.symmetric(horizontal: 16),
-          padding: const EdgeInsets.all(20),
+          margin: EdgeInsets.symmetric(horizontal: size.width * 0.045),
+          padding: EdgeInsets.all(size.width * 0.05),
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: state.canCheckIn
@@ -353,7 +353,7 @@ class AttendanceViewContent extends StatelessWidget {
         if (state.isLoading)
           Positioned.fill(
             child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16),
+              margin: EdgeInsets.symmetric(horizontal: size.width * 0.045),
               decoration: BoxDecoration(
                 color: Colors.black38,
                 borderRadius: BorderRadius.circular(16),
@@ -385,10 +385,11 @@ class AttendanceViewContent extends StatelessWidget {
       builder: (context) {
         final theme = Theme.of(context);
         final isDark = theme.brightness == Brightness.dark;
+        final size = MediaQuery.of(context).size;
 
         return Container(
-          margin: const EdgeInsets.symmetric(horizontal: 16),
-          padding: const EdgeInsets.all(20),
+          margin: EdgeInsets.symmetric(horizontal: size.width * 0.045),
+          padding: EdgeInsets.all(size.width * 0.05),
           decoration: BoxDecoration(
             color: theme.cardTheme.color,
             borderRadius: BorderRadius.circular(16),
@@ -493,11 +494,11 @@ class AttendanceViewContent extends StatelessWidget {
                           ? null
                           : () {
                               if (state.isMocked) {
-                                _showErrorDialog(context, 'Fake GPS Terdeteksi', 'Sistem mendeteksi penggunaan aplikasi manipulasi lokasi. Harap gunakan lokasi asli perangkat Anda.');
+                                showCoreErrorDialog(context, 'Fake GPS Terdeteksi', 'Sistem mendeteksi penggunaan aplikasi manipulasi lokasi. Harap gunakan lokasi asli perangkat Anda.');
                               } else if (!state.canCheckIn) {
-                                _showErrorDialog(context, 'Di Luar Lokasi', 'Anda berada di luar radius kantor (${state.distanceFromOffice}). Silakan mendekat ke area kantor untuk melakukan absensi.');
+                                showCoreErrorDialog(context, 'Di Luar Lokasi', 'Anda berada di luar radius kantor (${state.distanceFromOffice}). Silakan mendekat ke area kantor untuk melakukan absensi.');
                               } else {
-                                _showConfirmDialog(
+                                showCoreConfirmDialog(
                                   context: context,
                                   title: 'Konfirmasi Check-in',
                                   message: 'Apakah Anda yakin ingin melakukan Check-in sekarang?',
@@ -524,11 +525,11 @@ class AttendanceViewContent extends StatelessWidget {
                           ? null
                           : () {
                               if (state.isMocked) {
-                                _showErrorDialog(context, 'Fake GPS Terdeteksi', 'Sistem mendeteksi penggunaan aplikasi manipulasi lokasi. Harap gunakan lokasi asli perangkat Anda.');
+                                showCoreErrorDialog(context, 'Fake GPS Terdeteksi', 'Sistem mendeteksi penggunaan aplikasi manipulasi lokasi. Harap gunakan lokasi asli perangkat Anda.');
                               } else if (!state.canCheckIn) {
-                                _showErrorDialog(context, 'Di Luar Lokasi', 'Anda berada di luar radius kantor (${state.distanceFromOffice}). Silakan mendekat ke area kantor untuk melakukan absensi.');
+                                showCoreErrorDialog(context, 'Di Luar Lokasi', 'Anda berada di luar radius kantor (${state.distanceFromOffice}). Silakan mendekat ke area kantor untuk melakukan absensi.');
                               } else {
-                                _showConfirmDialog(
+                                showCoreConfirmDialog(
                                   context: context,
                                   title: 'Konfirmasi Check-out',
                                   message: 'Apakah Anda yakin ingin melakukan Check-out sekarang?',
@@ -581,8 +582,9 @@ class AttendanceViewContent extends StatelessWidget {
   }
 
   Widget _buildActionButtons(BuildContext context, AttendanceLoaded state) {
+    final size = MediaQuery.of(context).size;
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
+      margin: EdgeInsets.symmetric(horizontal: size.width * 0.045),
       child: Row(
         children: [
           Expanded(
@@ -593,11 +595,11 @@ class AttendanceViewContent extends StatelessWidget {
                     ? null
                     : () {
                         if (state.isMocked) {
-                          _showErrorDialog(context, 'Fake GPS Terdeteksi', 'Sistem mendeteksi penggunaan aplikasi manipulasi lokasi. Harap gunakan lokasi asli perangkat Anda.');
+                          showCoreErrorDialog(context, 'Fake GPS Terdeteksi', 'Sistem mendeteksi penggunaan aplikasi manipulasi lokasi. Harap gunakan lokasi asli perangkat Anda.');
                         } else if (!state.canCheckIn) {
-                          _showErrorDialog(context, 'Di Luar Lokasi', 'Anda berada di luar radius kantor (${state.distanceFromOffice}). Silakan mendekat ke area kantor untuk melakukan absensi.');
+                          showCoreErrorDialog(context, 'Di Luar Lokasi', 'Anda berada di luar radius kantor (${state.distanceFromOffice}). Silakan mendekat ke area kantor untuk melakukan absensi.');
                         } else {
-                          _showConfirmDialog(
+                          showCoreConfirmDialog(
                             context: context,
                             title: 'Konfirmasi Check-in',
                             message: 'Apakah Anda yakin ingin melakukan Check-in sekarang?',
@@ -632,11 +634,11 @@ class AttendanceViewContent extends StatelessWidget {
                     ? null
                     : () {
                         if (state.isMocked) {
-                          _showErrorDialog(context, 'Fake GPS Terdeteksi', 'Sistem mendeteksi penggunaan aplikasi manipulasi lokasi. Harap gunakan lokasi asli perangkat Anda.');
+                          showCoreErrorDialog(context, 'Fake GPS Terdeteksi', 'Sistem mendeteksi penggunaan aplikasi manipulasi lokasi. Harap gunakan lokasi asli perangkat Anda.');
                         } else if (!state.canCheckIn) {
-                          _showErrorDialog(context, 'Di Luar Lokasi', 'Anda berada di luar radius kantor (${state.distanceFromOffice}). Silakan mendekat ke area kantor untuk melakukan absensi.');
+                          showCoreErrorDialog(context, 'Di Luar Lokasi', 'Anda berada di luar radius kantor (${state.distanceFromOffice}). Silakan mendekat ke area kantor untuk melakukan absensi.');
                         } else {
-                          _showConfirmDialog(
+                          showCoreConfirmDialog(
                             context: context,
                             title: 'Konfirmasi Check-out',
                             message: 'Apakah Anda yakin ingin melakukan Check-out sekarang?',
@@ -671,9 +673,10 @@ class AttendanceViewContent extends StatelessWidget {
     return Builder(
       builder: (context) {
         final theme = Theme.of(context);
+        final size = MediaQuery.of(context).size;
         return Container(
-          margin: const EdgeInsets.symmetric(horizontal: 16),
-          padding: const EdgeInsets.all(20),
+          margin: EdgeInsets.symmetric(horizontal: size.width * 0.045),
+          padding: EdgeInsets.all(size.width * 0.05),
           decoration: BoxDecoration(
             color: theme.cardTheme.color,
             borderRadius: BorderRadius.circular(20),
@@ -728,8 +731,9 @@ class AttendanceViewContent extends StatelessWidget {
   Widget _buildRecentHistoryCard(AttendanceLoaded state) {
     return Builder(
       builder: (context) {
+        final size = MediaQuery.of(context).size;
         return Container(
-          margin: const EdgeInsets.symmetric(horizontal: 16),
+          margin: EdgeInsets.symmetric(horizontal: size.width * 0.045),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -739,7 +743,7 @@ class AttendanceViewContent extends StatelessWidget {
                   const Text('Riwayat Terakhir', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   TextButton(
                     onPressed: () {
-                      _showInfoDialog(context, "TEST", "TEST"); // TESTING
+                      showCoreInfoDialog(context, "TEST", "TEST"); // TESTING
                     },
                     style: TextButton.styleFrom(
                       foregroundColor: Colors.blue[700],
@@ -779,7 +783,7 @@ class AttendanceViewContent extends StatelessWidget {
                   ),
                 )
               else
-                ...state.history.map((record) => _buildHistoryItem(record)),
+                ...state.history.map((record) => _buildHistoryItem(record, size)),
             ],
           )
         );
@@ -787,10 +791,10 @@ class AttendanceViewContent extends StatelessWidget {
     );
   }
 
-  Widget _buildHistoryItem(AttendanceRecord record) {
+  Widget _buildHistoryItem(AttendanceRecord record, Size size) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(size.width * 0.04),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -832,280 +836,4 @@ class AttendanceViewContent extends StatelessWidget {
       child: Text(text, style: TextStyle(fontSize: 10, color: color, fontWeight: FontWeight.bold)),
     );
   }
-}
-
-class _BaseBlurDialog extends StatelessWidget {
-  final String title;
-  final String message;
-  final Color badgeColor;
-  final String badgeText;
-  final IconData badgeIcon;
-  final Color buttonColor;
-  final String? confirmText;
-  final VoidCallback? onConfirm;
-
-  const _BaseBlurDialog({
-    required this.title,
-    required this.message,
-    required this.badgeColor,
-    required this.badgeText,
-    required this.badgeIcon,
-    required this.buttonColor,
-    this.confirmText,
-    this.onConfirm,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      child: BackdropFilter(
-        filter: ui.ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-        child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 10),
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: theme.cardTheme.color?.withValues(alpha: 0.8) ?? Colors.white.withValues(alpha: 0.8),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: Colors.white.withValues(alpha: 0.2),
-              width: 1.5,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.1),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
-              ),
-            ],
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Badge Section
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [badgeColor, badgeColor.withValues(alpha: 0.7)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(badgeIcon, color: Colors.white, size: 16),
-                    const SizedBox(width: 8),
-                    Text(
-                      badgeText,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.1,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              // Title Section
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: theme.textTheme.titleLarge?.color,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 12),
-
-              // Message Section
-              Text(
-                message,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: theme.textTheme.bodyMedium?.color?.withValues(alpha: 0.7),
-                  height: 1.5,
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              // Divider
-              Container(
-                height: 1,
-                color: theme.dividerColor.withValues(alpha: 0.1),
-              ),
-              const SizedBox(height: 20),
-
-              // Action Buttons
-              if (onConfirm != null) ...[
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () => Navigator.pop(context),
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          side: BorderSide(color: theme.dividerColor.withValues(alpha: 0.2)),
-                        ),
-                        child: Text('Batal', style: TextStyle(color: theme.textTheme.bodyMedium?.color)),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Container(
-                        height: 48,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [buttonColor, buttonColor.withValues(alpha: 0.7)],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: buttonColor.withValues(alpha: 0.3),
-                              blurRadius: 8,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: Material(
-                          color: Colors.transparent,
-                          child: InkWell(
-                            borderRadius: BorderRadius.circular(12),
-                            onTap: () {
-                              Navigator.pop(context);
-                              onConfirm!();
-                            },
-                            child: Center(
-                              child: Text(
-                                confirmText ?? 'Ya',
-                                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ] else ...[
-                // Single Button (Info/Error/Success)
-                Container(
-                  width: double.infinity,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [Colors.blue[600]!, Colors.blue[400]!],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.blue.withValues(alpha: 0.3),
-                        blurRadius: 8,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(12),
-                      onTap: () => Navigator.pop(context),
-                      child: const Center(
-                        child: Text(
-                          'Mengerti',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-void _showErrorDialog(BuildContext context, String title, String message) {
-  showDialog(
-    context: context,
-    builder: (context) => _BaseBlurDialog(
-      title: title,
-      message: message,
-      badgeColor: Colors.red,
-      badgeText: 'ERROR',
-      badgeIcon: Icons.error_outline,
-      buttonColor: Colors.red[600]!,
-    ),
-  );
-}
-
-void _showInfoDialog(BuildContext context, String title, String message) {
-  showDialog(
-    context: context,
-    builder: (context) => _BaseBlurDialog(
-      title: title,
-      message: message,
-      badgeColor: Colors.blue,
-      badgeText: 'INFO',
-      badgeIcon: Icons.info,
-      buttonColor: Colors.blue[600]!,
-    ),
-  );
-}
-
-// void _showSuccessDialog(BuildContext context, String title, String message) {
-//   showDialog(
-//     context: context,
-//     builder: (context) => _BaseBlurDialog(
-//       title: title,
-//       message: message,
-//       badgeColor: Colors.green,
-//       badgeText: 'SUCCESS',
-//       badgeIcon: Icons.check_circle,
-//       buttonColor: Colors.green[600]!,
-//     ),
-//   );
-// }
-
-void _showConfirmDialog({
-  required BuildContext context,
-  required String title,
-  required String message,
-  required VoidCallback onConfirm,
-  Color color = Colors.blue,
-}) {
-  showDialog(
-    context: context,
-    builder: (context) => _BaseBlurDialog(
-      title: title,
-      message: message,
-      badgeColor: color,
-      badgeText: 'KONFIRMASI',
-      badgeIcon: Icons.help_outline,
-      buttonColor: color,
-      confirmText: 'Ya, Lanjutkan',
-      onConfirm: onConfirm,
-    ),
-  );
 }

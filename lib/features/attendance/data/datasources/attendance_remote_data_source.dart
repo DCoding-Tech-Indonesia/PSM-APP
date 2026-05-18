@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:psm_mobile/core/network/dio_client.dart';
 import 'package:psm_mobile/features/attendance/data/models/attendance_record.dart';
 import 'package:psm_mobile/features/attendance/data/models/attendance_request.dart';
@@ -41,10 +42,19 @@ class AttendanceRemoteDataSourceImpl implements AttendanceRemoteDataSource {
         data: request.toJson(),
       );
       
-      if (response.data != null && response.data['status'] == true) {
-        return true;
+      if (response.data != null) {
+        if (response.data['status'] == true) {
+          return true;
+        } else {
+          throw response.data['message'] ?? 'Gagal melakukan check-in.';
+        }
       }
       return false;
+    } on DioException catch (e) {
+      if (e.response?.data != null && e.response!.data is Map && e.response!.data['message'] != null) {
+        throw e.response!.data['message'];
+      }
+      throw 'Terjadi kesalahan pada jaringan atau server.';
     } catch (e) {
       rethrow;
     }

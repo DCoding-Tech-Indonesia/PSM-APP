@@ -12,11 +12,6 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
   Timer? _timer;
   final AttendanceRepository repository;
   final LocationService locationService;
-  
-  // Office Location (Contoh: Padang)
-  static const double OFFICE_LAT = -6.222273965725354;
-  static const double OFFICE_LNG = 106.82932792536074;
-  static const double RADIUS = 100.0;
 
   AttendanceBloc({
     required this.repository,

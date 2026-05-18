@@ -135,7 +135,7 @@ class AttendanceStats extends Equatable {
   final int lateDays;
   final int absentDays;
 
-  AttendanceStats({
+  const AttendanceStats({
     this.totalDays = 0,
     this.presentDays = 0,
     this.lateDays = 0,

@@ -53,7 +53,14 @@ class DioClient {
         handler.next(options);
       },
       onResponse: (response, handler) {
-        if (kDebugMode) debugPrint('[RES] ${response.statusCode} ${response.requestOptions.path}');
+        // if (kDebugMode) debugPrint('[RES] ${response.statusCode} ${response.requestOptions.path}');
+        if (kDebugMode) {
+          // Ambil message dari response body jika ada, jika tidak gunakan statusMessage bawaan HTTP
+          final msg = (response.data is Map && response.data['message'] != null) 
+              ? response.data['message'] 
+              : response.statusMessage;
+          debugPrint('[RESPONSE] ${response.data} ${response.statusCode} $msg ${response.requestOptions.path}');
+        }
         handler.next(response);
       },
       onError: (e, handler) async {

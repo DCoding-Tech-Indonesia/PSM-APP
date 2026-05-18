@@ -5,7 +5,6 @@ import 'package:psm_mobile/features/attendance/presentation/bloc/attendance_bloc
 import 'package:psm_mobile/features/attendance/presentation/bloc/attendance_state.dart';
 import 'package:psm_mobile/core/helper/location_service.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:psm_mobile/features/attendance/data/models/attendance_record.dart';
 import 'package:psm_mobile/features/attendance/data/models/attendance_request.dart';
 import 'package:bloc_test/bloc_test.dart';
 

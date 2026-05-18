@@ -23,7 +23,9 @@ class AuthDataSource {
         },
       );
 
-      print(response);
+      if (kDebugMode) {
+        print(response);
+      }
 
       final success = response.data["status"];
 
