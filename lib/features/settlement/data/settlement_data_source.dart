@@ -6,6 +6,7 @@ import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/module
 import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/status_audit_trail.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/task_audit_trail.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/user_audit_trail.dart';
+import 'package:psm_mobile/features/settlement/domain/entities/document_preview.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/reference_bus.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/reference_detail.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/settlement_create.dart';
@@ -14,19 +15,12 @@ class SettlementDataSource {
   final Dio dio;
   final SecureStorageService secureStorageService;
 
-  SettlementDataSource({
-    required this.dio,
-    required this.secureStorageService,
-  });
+  SettlementDataSource({required this.dio, required this.secureStorageService});
 
   Future<List<ReferenceBus>> fetchReferenceBus(String keyword) async {
     final response = await dio.get(
       '/reference/bus',
-      queryParameters: {
-        'keyword': keyword,
-        'page': 1,
-        'perPage': 999
-      },
+      queryParameters: {'keyword': keyword, 'page': 1, 'perPage': 999},
     );
 
     final data = response.data['data'] as List;
@@ -37,11 +31,7 @@ class SettlementDataSource {
   Future<List<ReferenceDetail>> fetchReferenceKoridor(String keyword) async {
     final response = await dio.get(
       '/reference/koridor',
-      queryParameters: {
-        'keyword': keyword,
-        'page': 1,
-        'perPage': 999
-      },
+      queryParameters: {'keyword': keyword, 'page': 1, 'perPage': 999},
     );
 
     final data = response.data['data'] as List;
@@ -52,11 +42,7 @@ class SettlementDataSource {
   Future<List<ReferenceDetail>> fetchReferencePayment(String keyword) async {
     final response = await dio.get(
       '/reference/payment',
-      queryParameters: {
-        'keyword': keyword,
-        'page': 1,
-        'perPage': 999
-      },
+      queryParameters: {'keyword': keyword, 'page': 1, 'perPage': 999},
     );
 
     final data = response.data['data'] as List;
@@ -67,11 +53,7 @@ class SettlementDataSource {
   Future<List<ReferenceDetail>> fetchReferenceCustType(String keyword) async {
     final response = await dio.get(
       '/reference/customer-type',
-      queryParameters: {
-        'keyword': keyword,
-        'page': 1,
-        'perPage': 999
-      },
+      queryParameters: {'keyword': keyword, 'page': 1, 'perPage': 999},
     );
 
     final data = response.data['data'] as List;
@@ -79,35 +61,42 @@ class SettlementDataSource {
     return data.map((e) => ReferenceDetail.fromJson(e)).toList();
   }
 
-  Future<int> uploadDocument(File file) async {
+  Future<String> fetchReferenceCustomerBilling(int idTypeNasabah) async {
+    final response = await dio.get(
+      '/reference/customer-billing',
+      queryParameters: {
+        'idTypeNasabah': idTypeNasabah,
+        'page': 1,
+        'perPage': 999,
+      },
+    );
+
+    final custBill = response.data["data"][0]["value"];
+
+    return custBill;
+  }
+
+  Future<DocumentPreview> uploadDocument(File file) async {
     try {
       final fileName = file.path.split('/').last;
 
       final formData = FormData.fromMap({
-        'file': await MultipartFile.fromFile(
-          file.path,
-          filename: fileName,
-        ),
+        'doc': await MultipartFile.fromFile(file.path, filename: fileName),
       });
 
       final response = await dio.post(
         '/reference/upload-document/additional',
         data: formData,
-        options: Options(
-          contentType: 'multipart/form-data',
-        ),
       );
 
-      print(response);
+      final imageId = response.data['data'][0]['id'];
+      final host = response.data['data'][0]['server'];
+      final url = response.data['data'][0]['url'];
 
-      final imageId = response.data['data']['id'];
-
-      return imageId;
+      return DocumentPreview(idDocument: imageId, url: '$host/$url');
     } on DioException catch (e) {
-      throw Exception(
-        e.response?.data.toString() ??
-            'Upload document failed',
-      );
+      print(e.response?.data);
+      rethrow;
     } catch (e) {
       throw Exception(e.toString());
     }
@@ -144,9 +133,7 @@ class SettlementDataSource {
       );
 
       final List data = response.data['data'] ?? [];
-
-      print("IKO E DATA E");
-      print(data);
+      print(data[0]);
 
       return data.map((e) {
         return TaskAuditTrail(
@@ -161,9 +148,9 @@ class SettlementDataSource {
 
           approvedBy: e['approvedBy'] != null
               ? UserAuditTrail(
-            id: e['approvedBy']['id'],
-            userName: e['approvedBy']['userName'],
-          )
+                  id: e['approvedBy']['id'],
+                  userName: e['approvedBy']['userName'],
+                )
               : null,
 
           module: ModuleAuditTrail(
@@ -189,9 +176,7 @@ class SettlementDataSource {
     try {
       final response = await dio.get(
         '/audittrail/task/settelment/detail',
-        queryParameters: {
-          'id': idAuditTrail
-        },
+        queryParameters: {'id': idAuditTrail},
       );
 
       final detail = response.data["data"][0]["dataAfter"];
@@ -210,12 +195,9 @@ class SettlementDataSource {
         data: {
           "idAuditTrail": request.auditTrailId,
           "payload": request,
-          "reason": "UPDATE"
+          "reason": "UPDATE",
         },
       );
-
-      print("response");
-      print(response);
 
       return "Berhasil Update";
     } catch (e) {
@@ -229,15 +211,10 @@ class SettlementDataSource {
       final response = await dio.post(
         '/workflow/submit',
         data: {
-          "idAuditTrail": [
-            idAuditTrail
-          ],
-          "reason": reason
+          "idAuditTrail": [idAuditTrail],
+          "reason": reason,
         },
       );
-
-      print("[RESPONSE] SUBMIT WORKFLOW");
-      print(response);
 
       return "Berhasil";
     } catch (e) {

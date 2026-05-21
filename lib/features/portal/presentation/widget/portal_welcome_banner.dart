@@ -33,7 +33,7 @@ class PortalWelcomeBanner extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Cari Pitih Untuak Anak Bini Sanak',
+                  'PSM Mobile',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,

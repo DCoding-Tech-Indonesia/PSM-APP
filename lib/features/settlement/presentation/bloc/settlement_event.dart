@@ -72,16 +72,16 @@ class AddDocument extends SettlementEvent {
   AddDocument(this.document);
 }
 
-class RemoveDocument extends SettlementEvent {
-  final SettlementDocument document;
-
-  RemoveDocument(this.document);
-}
-
 class UploadDocument extends SettlementEvent {
   final File file;
 
   UploadDocument(this.file);
+}
+
+class RemoveDocumentById extends SettlementEvent {
+  final int idDocument;
+
+  RemoveDocumentById(this.idDocument);
 }
 
 class SubmitSettlement extends SettlementEvent {}

@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:psm_mobile/features/settlement/domain/entities/document_preview.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/settlement_create.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/settlement_detail.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/settlement_detail_input.dart';
@@ -100,6 +101,8 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
       }
 
       List<SettlementDetail> details = [];
+      List<SettlementDocument> documents = [];
+      List<DocumentPreview> documentsPreview = [];
       List<SettlementDetailInput> inputDetails = [];
       List<String> labelPayment = [];
       List<String> labelCustomer = [];
@@ -119,11 +122,28 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
             ),
           );
 
-          inputDetails.add(
-            SettlementDetailInput(
-              idPayment: payment.id,
-              idNasabah: cust.id,
-              value: 10000)
+          final resultCustBill = await settlementRepository
+              .fetchReferenceCustomerBilling(cust.id);
+
+          resultCustBill.fold(
+            (failure) {
+              inputDetails.add(
+                SettlementDetailInput(
+                  idPayment: payment.id,
+                  idNasabah: cust.id,
+                  value: 10000,
+                ),
+              );
+            },
+            (data) {
+              inputDetails.add(
+                SettlementDetailInput(
+                  idPayment: payment.id,
+                  idNasabah: cust.id,
+                  value: int.parse(data),
+                ),
+              );
+            },
           );
         }
       }
@@ -184,6 +204,20 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
                 value: matched.value,
               );
             }).toList();
+
+            documents = auditData.document.map<SettlementDocument>((doc) {
+              return SettlementDocument(
+                idDocument: doc.idDocument,
+                idDocumentType: doc.idDocumentType,
+              );
+            }).toList();
+
+            documentsPreview = auditData.document.map<DocumentPreview>((doc) {
+              return DocumentPreview(
+                idDocument: doc.idDocument,
+                url: doc.urlDoc!,
+              );
+            }).toList();
           },
         );
       }
@@ -200,6 +234,8 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
           idKoridor: idKoridor ?? state.idKoridor,
           noUnit: noUnit,
           namaKoridor: namaKoridor,
+          document: documents,
+          documentPreview: documentsPreview,
         ),
       );
     });
@@ -296,20 +332,10 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
       emit(state.copyWith(document: newList));
     });
 
-    on<RemoveDocument>((event, emit) {
-      final newList = List<SettlementDocument>.from(state.document)
-        ..remove(event.document);
-
-      emit(state.copyWith(document: newList));
-    });
-
     on<UploadDocument>((event, emit) async {
+      emit(state.copyWith(status: SettlementStatus.loading));
+
       final uploadDoc = await settlementRepository.uploadDocument(event.file);
-
-      print("uploadDoc");
-      print(uploadDoc);
-
-      List<SettlementDocument> documents = [];
 
       uploadDoc.fold(
         (failure) {
@@ -321,13 +347,38 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
           );
         },
         (data) {
-          documents.add(
-            SettlementDocument(idDocument: data, idDocumentType: data),
+          final newDocuments = List<SettlementDocument>.from(state.document)
+            ..add(SettlementDocument(idDocument: data.idDocument, idDocumentType: data.idDocument));
+
+          final newDocumentsPreview = List<DocumentPreview>.from(state.documentPreview)
+            ..add(DocumentPreview(idDocument: data.idDocument, url: data.url));
+
+          emit(
+            state.copyWith(
+              status: SettlementStatus.success,
+              document: newDocuments,
+              documentPreview: newDocumentsPreview
+            ),
           );
         },
       );
+    });
 
-      emit(state.copyWith(document: documents));
+    on<RemoveDocumentById>((event, emit) {
+      final updatedDocuments = state.document
+          .where((e) => e.idDocument != event.idDocument)
+          .toList();
+
+      final updatedPreviews = state.documentPreview
+          .where((e) => e.idDocument != event.idDocument)
+          .toList();
+
+      emit(
+        state.copyWith(
+          document: updatedDocuments,
+          documentPreview: updatedPreviews,
+        ),
+      );
     });
 
     on<SubmitSettlement>((event, emit) async {
@@ -336,7 +387,7 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
       final request = SettlementCreate(
         auditTrailId: state.auditTrailId,
         idBus: state.idBus,
-        code: "AMAIK NEW GEN LOS",
+        code: "DUMMY CODE",
         idKoridor: state.idKoridor,
         idShift: state.idShift,
         detail: state.detail,

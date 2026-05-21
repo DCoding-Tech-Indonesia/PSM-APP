@@ -33,11 +33,16 @@ void setupRouter(String initialLocation) {
         path: '/login',
         builder: (context, state) {
           final secureStorageService = context.read<SecureStorageService>();
-          final sharedPreferencesService = context.read<SharedPreferencesService>();
+          final sharedPreferencesService = context
+              .read<SharedPreferencesService>();
           final authRepository = context.read<AuthRepository>();
 
           return BlocProvider(
-            create: (_) => AuthBloc(secureStorageService, sharedPreferencesService, authRepository),
+            create: (_) => AuthBloc(
+              secureStorageService,
+              sharedPreferencesService,
+              authRepository,
+            ),
             child: const AuthScreen(),
           );
         },
@@ -64,7 +69,10 @@ void setupRouter(String initialLocation) {
               BlocProvider(
                 create: (_) => SettlementBloc(
                   SettlementRepositoryImpl(
-                    dataSource: SettlementDataSource(dio: dio, secureStorageService: secureStorageService),
+                    dataSource: SettlementDataSource(
+                      dio: dio,
+                      secureStorageService: secureStorageService,
+                    ),
                   ),
                 ),
               ),
@@ -97,9 +105,7 @@ void setupRouter(String initialLocation) {
                 ),
               ),
             ],
-            child: SettlementFormScreen(
-              idAuditTrail: idAuditTrail,
-            ),
+            child: SettlementFormScreen(idAuditTrail: idAuditTrail),
           );
         },
       ),
@@ -108,11 +114,14 @@ void setupRouter(String initialLocation) {
       GoRoute(
         path: '/camera',
         builder: (context, state) {
+          final extra = state.extra as Map;
 
-          final ratio = state.extra as double? ?? 1;
+          final ratio = extra['ratio'] as double;
+          final settlementBloc = extra['bloc'] as SettlementBloc;
 
-          return CustomCameraWidget(
-            ratio: ratio,
+          return BlocProvider.value(
+            value: settlementBloc,
+            child: CustomCameraWidget(ratio: ratio),
           );
         },
       ),

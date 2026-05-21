@@ -5,6 +5,7 @@ import 'package:fpdart/fpdart.dart';
 import 'package:psm_mobile/core/error/failure.dart';
 import 'package:psm_mobile/features/settlement/data/settlement_data_source.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/task_audit_trail.dart';
+import 'package:psm_mobile/features/settlement/domain/entities/document_preview.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/reference_bus.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/reference_detail.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/settlement_create.dart';
@@ -88,7 +89,27 @@ class SettlementRepositoryImpl implements SettlementRepository {
   }
 
   @override
-  Future<Either<Failure, int>> uploadDocument(File file) async {
+  Future<Either<Failure, String>> fetchReferenceCustomerBilling(
+    int idTypeNasabah,
+  ) async {
+    try {
+      final result = await dataSource.fetchReferenceCustomerBilling(
+        idTypeNasabah,
+      );
+
+      return Right(result);
+    } on DioException catch (e) {
+      final message =
+          e.response?.data?['message'] ?? 'Terjadi kesalahan server';
+
+      return left(ServerFailure(message));
+    } catch (_) {
+      return left(const ServerFailure('Unexpected error'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, DocumentPreview>> uploadDocument(File file) async {
     try {
       final response = await dataSource.uploadDocument(file);
 

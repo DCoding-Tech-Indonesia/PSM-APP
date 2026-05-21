@@ -353,8 +353,8 @@ class _SettlementScreenState extends State<SettlementScreen> {
                                           child: Row(
                                             spacing: 8,
                                             children: [
-                                              Text("BA 131K 4U"),
-                                              Text("Halte Dakek Siko"),
+                                              Text("BA 1945 AG"),
+                                              Text("Halte [NAMA_HALTE]"),
                                             ],
                                           ),
                                         ),

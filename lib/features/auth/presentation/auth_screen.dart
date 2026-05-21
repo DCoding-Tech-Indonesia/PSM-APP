@@ -85,6 +85,7 @@ class _AuthScreenState extends State<AuthScreen> {
         final isSuccess = state.loginSuccess;
 
         showModalBottomSheet(
+          isDismissible: false,
           context: context,
           builder: (_) => CoreBottomModalAlert(
             success: isSuccess,
@@ -229,7 +230,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      "Masuek la sanak,",
+                                      "Selamat Datang,",
                                       style: TextStyle(
                                         fontSize: 24,
                                         fontWeight: FontWeight.bold,
@@ -239,7 +240,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                     ),
                                     const SizedBox(height: 8),
                                     Text(
-                                      "Pitih dapek dicari, hiduik cuma sekali.",
+                                      "Aplikasi PSM Mobile.",
                                       style: TextStyle(
                                         fontSize: 13,
                                         color: Colors.grey[600],
@@ -258,7 +259,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                   builder: (context, state) {
                                     return CoreInputField(
                                       label: "Username",
-                                      hintText: "Masukkan username sanak",
+                                      hintText: "Username",
                                       isRequired: true,
                                       rule: InputRule.text,
                                       initValue: state.username,
@@ -336,7 +337,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                               ),
                                               const SizedBox(width: 8),
                                               Text(
-                                                "Ingek Aden",
+                                                "Ingat Saya",
                                                 style: TextStyle(
                                                   color: Colors.grey[700],
                                                   fontSize: 14,
@@ -350,7 +351,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                     TextButton(
                                       onPressed: () {},
                                       child: const Text(
-                                        "Lupo password?",
+                                        "Lupa password?",
                                         style: TextStyle(
                                           color: Color(0xFF1E3C72),
                                           fontWeight: FontWeight.w600,
@@ -388,7 +389,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                               ).withValues(alpha: 0.4),
                                             ),
                                             child: const Text(
-                                              "Masuek",
+                                              "Masuk",
                                               style: TextStyle(
                                                 fontSize: 16,
                                                 fontWeight: FontWeight.bold,

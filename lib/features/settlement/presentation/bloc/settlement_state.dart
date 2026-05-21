@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/task_audit_trail.dart';
+import 'package:psm_mobile/features/settlement/domain/entities/document_preview.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/reference_bus.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/reference_detail.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/settlement_detail.dart';
@@ -32,6 +33,7 @@ class SettlementState extends Equatable {
   final List<SettlementDetail> detail;
   final List<SettlementDetailInput> detailInput;
   final List<SettlementDocument> document;
+  final List<DocumentPreview> documentPreview;
 
   final String? message;
 
@@ -56,6 +58,7 @@ class SettlementState extends Equatable {
     this.detail = const [],
     this.detailInput = const [],
     this.document = const [],
+    this.documentPreview = const [],
     this.message,
   });
 
@@ -80,6 +83,7 @@ class SettlementState extends Equatable {
     List<SettlementDetail>? detail,
     List<SettlementDetailInput>? detailInput,
     List<SettlementDocument>? document,
+    List<DocumentPreview>? documentPreview,
     String? message,
   }) {
     return SettlementState(
@@ -103,6 +107,7 @@ class SettlementState extends Equatable {
       detail: detail ?? this.detail,
       detailInput: detailInput ?? this.detailInput,
       document: document ?? this.document,
+      documentPreview: documentPreview ?? this.documentPreview,
       message: message,
     );
   }
@@ -129,6 +134,7 @@ class SettlementState extends Equatable {
     detail,
     detailInput,
     document,
+    documentPreview,
     message,
   ];
 }
