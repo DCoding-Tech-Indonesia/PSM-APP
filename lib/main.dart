@@ -60,11 +60,13 @@ void main() async {
       // Hit API check-token untuk memastikan sesi masih valid di server
       // Jika token expired, interceptor akan otomatis mencoba refresh terlebih dahulu
       final response = await dioClient.instance.post('/auth/check-token');
-      
+
       if (response.statusCode == 200 && response.data['status'] == true) {
         // Jika valid, simpan token baru (jika ada pembaruan) dan masuk ke portal
         final newData = response.data['data'];
-        if (newData is List && newData.isNotEmpty && newData[0]['token'] != null) {
+        if (newData is List &&
+            newData.isNotEmpty &&
+            newData[0]['token'] != null) {
           final newToken = newData[0]['token'];
           await secureStorage.saveAccessToken(newToken);
           dioClient.setAuthToken(newToken);
@@ -88,7 +90,9 @@ void main() async {
         RepositoryProvider<SharedPreferencesService>.value(
           value: sharedPreferencesService,
         ),
-        RepositoryProvider<SecureStorageService>(create: (_) => SecureStorageService()),
+        RepositoryProvider<SecureStorageService>(
+          create: (_) => SecureStorageService(),
+        ),
         RepositoryProvider<AuthRepository>(
           create: (_) => AuthRepositoryImpl(
             dataSource: AuthDataSource(
@@ -98,9 +102,9 @@ void main() async {
           ),
         ),
         RepositoryProvider<PortalRepository>(
-            create: (_) => PortalRepositoryImpl(
-                dataSource: PortalDataSource(dio: dioClient.instance)
-            ),
+          create: (_) => PortalRepositoryImpl(
+            dataSource: PortalDataSource(dio: dioClient.instance),
+          ),
         ),
         BlocProvider(create: (_) => CoreTabCubit()),
       ],

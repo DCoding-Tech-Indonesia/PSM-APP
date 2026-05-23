@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:formz/formz.dart';
 import 'package:psm_mobile/core/network/dio_client.dart';
 import 'package:psm_mobile/core/storage/secure_storage.dart';
 import 'package:psm_mobile/core/storage/shared_preferences.dart';
@@ -63,12 +64,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     on<UsernameChanged>((event, emit) {
       final username = event.value;
-      emit(state.copyWith(username: username));
+      print("AuthBloc UsernameChanged: $username");
+      emit(state.copyWith(username: username, usernameError: '', clearErrors: false));
     });
 
     on<PasswordChanged>((event, emit) {
       final password = Password.dirty(event.value);
-      emit(state.copyWith(password: password));
+      print("AuthBloc PasswordChanged: ${password.value}");
+      emit(state.copyWith(password: password, passwordError: '', clearErrors: false));
     });
 
     on<RememberMeToggled>((event, emit) {
@@ -79,14 +82,18 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final username = state.username;
       final password = Password.dirty(state.password.value);
 
-      final isValid = username.isNotEmpty && password.isValid;
+      final usernameErr = username.isEmpty ? 'Username tidak boleh kosong' : null;
+      final passwordErr = password.value.isEmpty ? 'Password tidak boleh kosong' : null;
 
-      if (!isValid) {
+      print("AuthBloc AuthSubmitted: username='$username', password='${password.value}', usernameErr=$usernameErr, passwordErr=$passwordErr");
+
+      if (usernameErr != null || passwordErr != null) {
         emit(
           state.copyWith(
             username: username,
             password: password,
-            isValid: false,
+            usernameError: usernameErr,
+            passwordError: passwordErr,
           ),
         );
         return;
@@ -97,6 +104,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         secureStorageService.savePassCred(state.password.value);
       }
 
+      emit(state.copyWith(submissionStatus: FormzSubmissionStatus.inProgress));
+
       final result = await authRepository.login(
         state.username,
         state.password.value,
@@ -106,6 +115,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         (failure) {
           emit(
             state.copyWith(
+              submissionStatus: FormzSubmissionStatus.failure,
               loginSuccess: false,
               loginMessage: "Login failed, try again later.",
               popup: true,
@@ -115,6 +125,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         (response) async {
           emit(
             state.copyWith(
+              submissionStatus: response.isSuccess
+                  ? FormzSubmissionStatus.success
+                  : FormzSubmissionStatus.failure,
               loginSuccess: response.isSuccess,
               loginMessage: response.message,
               popup: true,
@@ -146,6 +159,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         secureStorageService.savePassCred(state.password.value);
       }
 
+      emit(state.copyWith(submissionStatus: FormzSubmissionStatus.inProgress));
+
       final result = await authRepository.login(
         state.username,
         state.password.value,
@@ -155,6 +170,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         (failure) {
           emit(
             state.copyWith(
+              submissionStatus: FormzSubmissionStatus.failure,
               loginSuccess: false,
               loginMessage: "Login failed, try again later.",
               popup: true,
@@ -164,6 +180,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         (response) async {
           emit(
             state.copyWith(
+              submissionStatus: response.isSuccess
+                  ? FormzSubmissionStatus.success
+                  : FormzSubmissionStatus.failure,
               loginSuccess: response.isSuccess,
               loginMessage: response.message.toLowerCase() == 'login berhasil' ? 'Welcome Back!' : response.message,
               popup: true,

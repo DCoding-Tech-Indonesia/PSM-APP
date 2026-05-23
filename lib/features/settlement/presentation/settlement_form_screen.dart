@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:psm_mobile/core/presentations/widgets/core_button.dart';
+import 'package:psm_mobile/core/presentations/widgets/widgets.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_bloc.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_event.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_state.dart';
@@ -71,9 +73,7 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
 
                 Navigator.pop(dialogContext);
 
-                context.read<SettlementBloc>().add(
-                  SubmitWorkflow(note),
-                );
+                context.read<SettlementBloc>().add(SubmitWorkflow(note));
               },
               child: const Text("Submit"),
             ),
@@ -86,6 +86,7 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final size = MediaQuery.sizeOf(context);
 
     return BlocListener<SettlementBloc, SettlementState>(
       listenWhen: (previous, current) => previous.status != current.status,
@@ -105,40 +106,40 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
         }
       },
       child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          foregroundColor: Colors.black,
-          centerTitle: false,
-          title: const Text("Submit Settlement"),
-        ),
-        body: BlocBuilder<SettlementBloc, SettlementState>(
-          builder: (context, state) {
-            if (state.status == SettlementStatus.loading) {
-              return Container(
-                width: double.infinity,
-                height: double.infinity,
-                color: Colors.white,
-                child: Center(child: CircularProgressIndicator()),
-              );
-            }
+        body: SafeArea(
+          child: BlocBuilder<SettlementBloc, SettlementState>(
+            builder: (context, state) {
+              if (state.status == SettlementStatus.loading) {
+                return Container(
+                  width: double.infinity,
+                  height: double.infinity,
+                  color: Colors.white,
+                  child: Center(child: CircularProgressIndicator()),
+                );
+              }
 
-            if (state.status == SettlementStatus.error) {
-              return Container(
-                width: double.infinity,
-                height: double.infinity,
-                color: Colors.white,
-                child: Center(
-                  child: Text(state.message ?? "Terjadi kesalahan"),
-                ),
-              );
-            }
-            return Container(
-              color: Colors.white,
-              child: Column(
+              if (state.status == SettlementStatus.error) {
+                return Container(
+                  width: double.infinity,
+                  height: double.infinity,
+                  color: Colors.white,
+                  child: Center(
+                    child: Text(state.message ?? "Terjadi kesalahan"),
+                  ),
+                );
+              }
+              return Column(
                 children: [
+                  CoreHeader(
+                    title: 'Submit Settlement',
+                    subtitle: 'Settlement',
+                  ),
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.all(15.0),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: size.width * 0.05,
+                        vertical: size.height * 0.005,
+                      ),
                       child: SizedBox(
                         width: double.infinity,
                         child: Column(
@@ -150,7 +151,10 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
                               builder: (context, state) {
                                 return Text(
                                   "Step ${state.steps} of ${state.totalSteps}",
-                                  style: TextStyle(fontWeight: FontWeight.w500),
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700,
+                                  ),
                                 );
                               },
                             ),
@@ -185,7 +189,8 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
                         return Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            ElevatedButton(
+                            CoreButton(
+                              width: size.width * 0.24,
                               onPressed: () => {
                                 if (state.steps > 1)
                                   {
@@ -194,25 +199,19 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
                                     ),
                                   },
                               },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: state.steps > 1
-                                    ? const Color(0xFF1E3C72)
-                                    : const Color(0xFF5E5E5E),
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 12,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(15),
-                                ),
-                                elevation: 5,
-                                shadowColor: const Color(
-                                  0xFF1E3C72,
-                                ).withValues(alpha: 0.4),
-                              ),
-                              child: Text("Back"),
+                              borderRadius: 15,
+                              borderColor: state.steps > 1
+                                  ? const Color(0xFF1E3C72)
+                                  : const Color.fromARGB(255, 143, 141, 141),
+                              backgroundColor: state.steps > 1
+                                  ? Colors.transparent
+                                  : const Color.fromARGB(255, 143, 141, 141),
+                              foregroundColor: state.steps > 1
+                                  ? const Color(0xFF1E3C72)
+                                  : Colors.white,
+                              text: "Previous",
                             ),
-                            ElevatedButton(
+                            CoreButton(
                               onPressed: () {
                                 if (state.steps == 1 &&
                                     (state.idBus == 0 ||
@@ -233,28 +232,20 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
                                   }
                                 }
                               },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor:
-                                ((state.steps == 1 && (state.idBus == 0 || state.idKoridor == 0)))
-                                    ? const Color(0xFF5E5E5E)
-                                    : const Color(0xFF1E3C72),
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 12,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(15),
-                                ),
-                                elevation: 5,
-                                shadowColor: const Color(
-                                  0xFF1E3C72,
-                                ).withValues(alpha: 0.4),
-                              ),
-                              child: Text(
-                                state.steps < state.totalSteps
-                                    ? "Next"
-                                    : "Save",
-                              ),
+                              width: size.width * 0.24,
+                              borderRadius: 15,
+                              backgroundColor:
+                                  ((state.steps == 1 &&
+                                      (state.idBus == 0 ||
+                                          state.idKoridor == 0)))
+                                  ? const Color(0xFF5E5E5E)
+                                  : state.steps == state.totalSteps
+                                  ? Colors.green
+                                  : const Color(0xFF1E3C72),
+                              foregroundColor: Colors.white,
+                              text: state.steps < state.totalSteps
+                                  ? "Next"
+                                  : "Save",
                             ),
                           ],
                         );
@@ -262,9 +253,9 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
                     ),
                   ),
                 ],
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
       ),
     );

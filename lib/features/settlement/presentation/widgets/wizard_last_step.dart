@@ -78,7 +78,6 @@ class _WizardLastStepState extends State<WizardLastStep> {
 
   @override
   Widget build(BuildContext context) {
-
     void _showPreviewDialog(DocumentPreview doc) {
       showDialog(
         context: context,
@@ -93,10 +92,7 @@ class _WizardLastStepState extends State<WizardLastStep> {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(20),
                   child: InteractiveViewer(
-                    child: Image.network(
-                      doc.url,
-                      fit: BoxFit.contain,
-                    ),
+                    child: Image.network(doc.url, fit: BoxFit.contain),
                   ),
                 ),
 
@@ -186,7 +182,7 @@ class _WizardLastStepState extends State<WizardLastStep> {
                     state.namaKoridor != '' ? state.namaKoridor : '-',
                     softWrap: true,
                     style: const TextStyle(
-                      fontSize: 20,
+                      fontSize: 24,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -212,7 +208,7 @@ class _WizardLastStepState extends State<WizardLastStep> {
                       fontWeight: FontWeight.w800,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 6),
                   WizardLastStepDateTime(),
                 ],
               ),
@@ -226,37 +222,43 @@ class _WizardLastStepState extends State<WizardLastStep> {
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
                   mainAxisSpacing: 10,
-                  crossAxisSpacing: 10,
-                  childAspectRatio: 3.5,
+                  crossAxisSpacing: 16,
+                  childAspectRatio: 3.0,
                 ),
                 itemBuilder: (context, index) {
                   final item = paymentMethods[index];
 
                   return InkWell(
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(20),
                     onTap: () {
                       _changeTabDetail(index, item);
                     },
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 12,
-                        vertical: 10,
+                        vertical: 8,
                       ),
                       decoration: BoxDecoration(
                         gradient: _selectedDetail == item
                             ? LinearGradient(
                                 colors: [
                                   Colors.blue.shade600,
-                                  Colors.blue.shade400,
+                                  Colors.blue.shade300,
                                 ],
                               )
                             : null,
                         color: _selectedDetail == item ? null : Colors.white,
                         borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: _selectedDetail == item
+                              ? Colors.blue.shade400
+                              : Colors.black.withValues(alpha: 0.1),
+                          width: 0.5,
+                        ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.08),
-                            blurRadius: 2,
+                            color: Colors.black.withValues(alpha: 0.1),
+                            blurRadius: 1,
                             offset: const Offset(0, 1),
                           ),
                         ],
@@ -264,28 +266,28 @@ class _WizardLastStepState extends State<WizardLastStep> {
                       child: Row(
                         children: [
                           Container(
-                            padding: const EdgeInsets.all(2),
+                            padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(999),
                             ),
                             child: Image.asset(
                               getIcon(item),
-                              height: 26,
-                              width: 26,
+                              height: 32,
+                              width: 32,
                             ),
                           ),
 
-                          const SizedBox(width: 10),
+                          const SizedBox(width: 12),
 
                           Expanded(
                             child: Text(
                               item,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
-                                fontSize: 12,
+                                fontSize: 14,
                                 fontWeight: _selectedDetail == item
-                                    ? FontWeight.w600
+                                    ? FontWeight.w700
                                     : FontWeight.w500,
                                 color: _selectedDetail == item
                                     ? Colors.white
@@ -303,94 +305,117 @@ class _WizardLastStepState extends State<WizardLastStep> {
               const SizedBox(height: 24),
 
               if (_selectedDetail.isNotEmpty) ...[
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const Text(
-                      "Details",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: Colors.grey.withValues(alpha: 0.15),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.03),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
                       ),
-                    ),
-
-                    const SizedBox(height: 12),
-
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text("Tipe Pembayaran"),
-                        Text(
-                          _selectedDetail,
-                          style: TextStyle(fontWeight: FontWeight.w600),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const Text(
+                        "Rincian Pembayaran",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
                         ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 8),
-
-                    ...customerTypesFiltered.asMap().entries.map((data) {
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 4),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(data.value),
-                            BlocBuilder<SettlementBloc, SettlementState>(
-                              builder: (context, state) {
-                                return Text(
-                                  '${state.detail[_indexDetail + data.key].total} x ${StringFormatter().idrFormatter(state.detailInput[_indexDetail + data.key].value)}',
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                      );
-                    }),
-
-                    const Divider(),
-
-                    BlocBuilder<SettlementBloc, SettlementState>(
-                      builder: (context, state) {
-                        final total = _selectedDetail.isEmpty
-                            ? 0
-                            : customerTypesFiltered.asMap().entries.fold(0, (
-                                sum,
-                                entry,
-                              ) {
-                                final index = _indexDetail + entry.key;
-
-                                if (index >= state.detail.length) {
-                                  return sum;
-                                }
-
-                                return sum +
-                                    state.detail[index].total *
-                                        state.detailInput[index].value;
-                              });
-
-                        return Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              "Total",
-                              style: TextStyle(
-                                fontSize: 17,
-                                fontWeight: FontWeight.w600,
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            "Metode",
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                          Text(
+                            _selectedDetail,
+                            style: const TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      ...customerTypesFiltered.asMap().entries.map((data) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 6),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                data.value,
+                                style: const TextStyle(color: Colors.grey),
                               ),
-                            ),
-                            Text(
-                              StringFormatter().idrFormatter(total),
-                              style: const TextStyle(
-                                fontSize: 17,
-                                fontWeight: FontWeight.w600,
+                              BlocBuilder<SettlementBloc, SettlementState>(
+                                builder: (context, state) {
+                                  return Text(
+                                    '${state.detail[_indexDetail + data.key].total} x ${StringFormatter().idrFormatter(state.detailInput[_indexDetail + data.key].value)}',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  );
+                                },
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         );
-                      },
-                    ),
-                  ],
+                      }),
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 12),
+                        child: Divider(height: 1, color: Color(0xFFF0F0F0)),
+                      ),
+                      BlocBuilder<SettlementBloc, SettlementState>(
+                        builder: (context, state) {
+                          final total = _selectedDetail.isEmpty
+                              ? 0
+                              : customerTypesFiltered.asMap().entries.fold(0, (
+                                  sum,
+                                  entry,
+                                ) {
+                                  final index = _indexDetail + entry.key;
+                                  if (index >= state.detail.length) {
+                                    return sum;
+                                  }
+                                  return sum +
+                                      state.detail[index].total *
+                                          state.detailInput[index].value;
+                                });
+
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                "Total Harga",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              Text(
+                                StringFormatter().idrFormatter(total),
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                    ],
+                  ),
                 ),
               ],
 
@@ -408,7 +433,7 @@ class _WizardLastStepState extends State<WizardLastStep> {
 
                   BlocBuilder<SettlementBloc, SettlementState>(
                     buildWhen: (prev, curr) =>
-                    prev.documentPreview != curr.documentPreview,
+                        prev.documentPreview != curr.documentPreview,
                     builder: (context, state) {
                       if (state.documentPreview.isEmpty) {
                         return const SizedBox.shrink();
@@ -430,7 +455,7 @@ class _WizardLastStepState extends State<WizardLastStep> {
                                 child: Stack(
                                   children: [
                                     Image.network(doc.url),
-                              
+
                                     Positioned.fill(
                                       child: Container(
                                         decoration: BoxDecoration(
@@ -445,7 +470,7 @@ class _WizardLastStepState extends State<WizardLastStep> {
                                         ),
                                       ),
                                     ),
-                              
+
                                     Positioned(
                                       top: 8,
                                       right: 8,
@@ -456,7 +481,9 @@ class _WizardLastStepState extends State<WizardLastStep> {
                                         ),
                                         decoration: BoxDecoration(
                                           color: Colors.black.withOpacity(0.6),
-                                          borderRadius: BorderRadius.circular(20),
+                                          borderRadius: BorderRadius.circular(
+                                            20,
+                                          ),
                                         ),
                                         child: Text(
                                           '${index + 1}',
@@ -481,140 +508,92 @@ class _WizardLastStepState extends State<WizardLastStep> {
                   const SizedBox(height: 12),
 
                   BlocBuilder<SettlementBloc, SettlementState>(
-                    buildWhen: (prev, curr) => prev.documentPreview != curr.documentPreview,
+                    buildWhen: (prev, curr) =>
+                        prev.documentPreview != curr.documentPreview,
                     builder: (context, state) {
-                      if(state.documentPreview.isEmpty) {
-                        return InkWell(
-                          onTap: _openCamera,
-                          borderRadius: BorderRadius.circular(16),
-                          child: Container(
-                            height: 220,
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              color: Colors.grey.shade200,
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(color: Colors.grey.shade400),
-                            ),
-                            child: _image != null
-                                ? Stack(
-                              children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(16),
-                                  child: Image.file(
-                                    _image!,
-                                    width: double.infinity,
-                                    height: double.infinity,
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
+                      final theme = Theme.of(context);
+                      final isEmpty = state.documentPreview.isEmpty;
 
-                                Positioned(
-                                  top: 12,
-                                  right: 12,
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.black54,
-                                      borderRadius: BorderRadius.circular(100),
-                                    ),
-                                    child: IconButton(
-                                      onPressed: () {
-                                        setState(() {
-                                          _image = null;
-                                        });
-                                      },
-                                      icon: const Icon(
-                                        Icons.close,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            )
-                                : Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: const [
-                                Icon(
-                                  Icons.camera_alt,
-                                  size: 40,
-                                  color: Colors.grey,
-                                ),
-                                SizedBox(height: 8),
-                                Text(
-                                  "Ambil Foto",
-                                  style: TextStyle(color: Colors.grey),
-                                ),
-                              ],
+                      return InkWell(
+                        onTap: _openCamera,
+                        borderRadius: BorderRadius.circular(16),
+                        child: Container(
+                          height: isEmpty ? 200 : 100,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.primary.withValues(
+                              alpha: 0.05,
+                            ),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: theme.colorScheme.primary.withValues(
+                                alpha: 0.3,
+                              ),
+                              width: 1.5,
                             ),
                           ),
-                        );
-                      } else {
-                        return InkWell(
-                          onTap: _openCamera,
-                          borderRadius: BorderRadius.circular(16),
-                          child: Container(
-                            height: 110,
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              color: Colors.grey.shade200,
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(color: Colors.grey.shade400),
-                            ),
-                            child: _image != null
-                                ? Stack(
-                              children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(16),
-                                  child: Image.file(
-                                    _image!,
-                                    width: double.infinity,
-                                    height: double.infinity,
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-
-                                Positioned(
-                                  top: 12,
-                                  right: 12,
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.black54,
-                                      borderRadius: BorderRadius.circular(100),
-                                    ),
-                                    child: IconButton(
-                                      onPressed: () {
-                                        setState(() {
-                                          _image = null;
-                                        });
-                                      },
-                                      icon: const Icon(
-                                        Icons.close,
-                                        color: Colors.white,
+                          child: _image != null
+                              ? Stack(
+                                  children: [
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(14),
+                                      child: Image.file(
+                                        _image!,
+                                        width: double.infinity,
+                                        height: double.infinity,
+                                        fit: BoxFit.cover,
                                       ),
                                     ),
-                                  ),
+
+                                    Positioned(
+                                      top: 12,
+                                      right: 12,
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: Colors.black54,
+                                          borderRadius: BorderRadius.circular(
+                                            100,
+                                          ),
+                                        ),
+                                        child: IconButton(
+                                          onPressed: () {
+                                            setState(() {
+                                              _image = null;
+                                            });
+                                          },
+                                          icon: const Icon(
+                                            Icons.close,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              : Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.add_a_photo_outlined,
+                                      size: isEmpty ? 48 : 32,
+                                      color: theme.colorScheme.primary,
+                                    ),
+                                    const SizedBox(height: 12),
+                                    Text(
+                                      isEmpty
+                                          ? "Ambil Foto Bukti"
+                                          : "Tambah Foto Lain",
+                                      style: TextStyle(
+                                        color: theme.colorScheme.primary,
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: isEmpty ? 16 : 14,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            )
-                                : Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: const [
-                                Icon(
-                                  Icons.camera_alt,
-                                  size: 40,
-                                  color: Colors.grey,
-                                ),
-                                SizedBox(height: 8),
-                                Text(
-                                  "Tambah Foto",
-                                  style: TextStyle(color: Colors.grey),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      }
-                    }
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),

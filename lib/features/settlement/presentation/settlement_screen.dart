@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:psm_mobile/core/helper/string_formatter.dart';
+import 'package:psm_mobile/core/presentations/widgets/core_blur_dialog.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_state.dart';
+import 'package:psm_mobile/features/settlement/presentation/widgets/settlement_header.dart';
 
 import 'bloc/settlement_bloc.dart';
 import 'bloc/settlement_event.dart';
@@ -26,355 +28,444 @@ class _SettlementScreenState extends State<SettlementScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        centerTitle: false,
-        title: Text("Settlement"),
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            BlocBuilder<SettlementBloc, SettlementState>(
-              builder: (context, state) {
-                return Container(
-                  margin: const EdgeInsets.symmetric(
-                    vertical: 10,
-                    horizontal: 20,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.lightBlue,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Stack(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 18,
-                          horizontal: 16,
-                        ),
-                        child: Column(
-                          spacing: 18,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  spacing: 10,
+      body: SafeArea(
+        child: BlocBuilder<SettlementBloc, SettlementState>(
+          builder: (context, state) {
+            return Column(
+              children: [
+                const SettlementHeader(),
+                Expanded(
+                  child: SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(
+                      parent: BouncingScrollPhysics(),
+                    ),
+                    child: Column(
+                      children: [
+                        Container(
+                          margin: const EdgeInsets.symmetric(
+                            vertical: 10,
+                            horizontal: 20,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.lightBlue,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Stack(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 18,
+                                  horizontal: 16,
+                                ),
+                                child: Column(
+                                  spacing: 18,
                                   children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Row(
+                                          spacing: 10,
+                                          children: [
+                                            Container(
+                                              padding: const EdgeInsets.all(8),
+                                              decoration: BoxDecoration(
+                                                color: Colors.lightBlue[400],
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                              ),
+                                              child: Icon(
+                                                Icons.bus_alert_sharp,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                            DefaultTextStyle(
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                              ),
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    state
+                                                            .listTaskAuditTrail
+                                                            .isNotEmpty
+                                                        ? "Nama Halte"
+                                                        : "-",
+                                                    style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.w700,
+                                                      fontSize: 16,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    state
+                                                            .listTaskAuditTrail
+                                                            .isNotEmpty
+                                                        ? "No. Polisi Unit"
+                                                        : "-",
+                                                    style: TextStyle(
+                                                      color: Colors.white70,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        GestureDetector(
+                                          onTap: () {
+                                            if (state.listTaskAuditTrail[0].id
+                                                    .toString() !=
+                                                '') {
+                                              context.push(
+                                                '/settlement/form',
+                                                extra: state
+                                                    .listTaskAuditTrail[0]
+                                                    .id,
+                                              );
+                                            }
+                                          },
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Icon(
+                                              Icons.edit,
+                                              color: Colors.white,
+                                              size: 20,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                     Container(
-                                      padding: const EdgeInsets.all(8),
+                                      padding: const EdgeInsets.all(10),
                                       decoration: BoxDecoration(
                                         color: Colors.lightBlue[400],
                                         borderRadius: BorderRadius.circular(10),
                                       ),
-                                      child: Icon(
-                                        Icons.bus_alert_sharp,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    DefaultTextStyle(
-                                      style: TextStyle(color: Colors.white),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            state.listTaskAuditTrail.isNotEmpty
-                                                ? "Nama Halte"
-                                                : "-",
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.w700,
-                                              fontSize: 16,
+                                      child: DefaultTextStyle(
+                                        style: TextStyle(color: Colors.white),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  "Total Pendapatan",
+                                                  style: TextStyle(
+                                                    color: Colors.white70,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  state
+                                                          .listTaskAuditTrail
+                                                          .isNotEmpty
+                                                      ? StringFormatter()
+                                                            .idrFormatter(
+                                                              450000,
+                                                            )
+                                                      : "-",
+                                                  style: TextStyle(
+                                                    fontSize: 15,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                ),
+                                              ],
                                             ),
-                                          ),
-                                          Text(
-                                            state.listTaskAuditTrail.isNotEmpty
-                                                ? "No. Polisi Unit"
-                                                : "-",
-                                            style: TextStyle(
-                                              color: Colors.white70,
+                                            Column(
+                                              children: [
+                                                state
+                                                        .listTaskAuditTrail
+                                                        .isNotEmpty
+                                                    ? Text("13.40")
+                                                    : Text("--:--"),
+                                              ],
                                             ),
-                                          ),
-                                        ],
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ],
                                 ),
-                                GestureDetector(
-                                  onTap: () {
-                                    if (state.listTaskAuditTrail[0].id
-                                            .toString() !=
-                                        '') {
-                                      context.push(
-                                        '/settlement/form',
-                                        extra: state.listTaskAuditTrail[0].id,
-                                      );
-                                    }
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Icon(
-                                      Icons.edit,
-                                      color: Colors.white,
-                                      size: 20,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: Colors.lightBlue[400],
-                                borderRadius: BorderRadius.circular(10),
                               ),
-                              child: DefaultTextStyle(
-                                style: TextStyle(color: Colors.white),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          "Total Pendapatan",
-                                          style: TextStyle(
-                                            color: Colors.white70,
-                                          ),
-                                        ),
-                                        Text(
-                                          state.listTaskAuditTrail.isNotEmpty
-                                              ? StringFormatter().idrFormatter(
-                                                  450000,
-                                                )
-                                              : "-",
-                                          style: TextStyle(
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    Column(
-                                      children: [
-                                        state.listTaskAuditTrail.isNotEmpty
-                                            ? Text("13.40")
-                                            : Text("--:--"),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
 
-                      if (state.listTaskAuditTrail.isEmpty)
-                        Positioned.fill(
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.black26,
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Center(
-                              child: GestureDetector(
-                                onTap: () {
-                                  context.push('/settlement/form');
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 20,
-                                    vertical: 3,
+                              if (state.listTaskAuditTrail.isEmpty)
+                                Positioned.fill(
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.black26,
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Center(
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          context.push('/settlement/form');
+                                        },
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 20,
+                                            vertical: 3,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius: BorderRadius.circular(
+                                              3,
+                                            ),
+                                          ),
+                                          child: Text("Input Settlement"),
+                                        ),
+                                      ),
+                                    ),
                                   ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(3),
-                                  ),
-                                  child: Text("Input Settlement"),
                                 ),
-                              ),
-                            ),
+                            ],
                           ),
                         ),
-                    ],
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 18,
+                            horizontal: 16,
+                          ),
+                          margin: const EdgeInsets.symmetric(
+                            vertical: 10,
+                            horizontal: 20,
+                          ),
+                          decoration: BoxDecoration(
+                            color: theme.cardTheme.color,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: Colors.grey.withValues(alpha: 0.1),
+                            ),
+                          ),
+                          child: Column(
+                            spacing: 20,
+                            children: [
+                              const Row(
+                                children: [
+                                  Icon(Icons.analytics, color: Colors.purple),
+                                  SizedBox(width: 12),
+                                  Expanded(
+                                    child: Text(
+                                      'Statistik Bulan Ini',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Column(
+                                    children: [
+                                      Text(
+                                        "10",
+                                        style: TextStyle(
+                                          color: Colors.green,
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 20,
+                                        ),
+                                      ),
+                                      Text(
+                                        "Approved",
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Column(
+                                    children: [
+                                      Text(
+                                        "3",
+                                        style: TextStyle(
+                                          color: Colors.red,
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 20,
+                                        ),
+                                      ),
+                                      Text(
+                                        "Rejected",
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Column(
+                                    children: [
+                                      Text(
+                                        "1",
+                                        style: TextStyle(
+                                          color: Colors.grey,
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 20,
+                                        ),
+                                      ),
+                                      Text(
+                                        "Pending",
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 5,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Expanded(
+                                child: Text(
+                                  'Riwayat Terakhir',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  showCoreInfoDialog(
+                                    context,
+                                    "TEST",
+                                    "TEST",
+                                  ); // TESTING
+                                },
+                                style: TextButton.styleFrom(
+                                  foregroundColor: Colors.blue[700],
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 4,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Row(
+                                    children: [
+                                      const Text(
+                                        'Lihat Semua',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 13,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 4),
+                                      const Icon(
+                                        Icons.arrow_forward_ios,
+                                        size: 12,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: 5,
+                            itemBuilder: (context, index) =>
+                                _buildHistoryItem(),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                );
-              },
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
-              margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(width: 1, color: Color(0xFFBDBDBD)),
+                ),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHistoryItem() {
+    final theme = Theme.of(context);
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      // decoration: BoxDecoration(
+      //   border: Border.all(width: 1, color: const Color(0xFFBDBDBD)),
+      //   borderRadius: BorderRadius.circular(10),
+      // ),
+      decoration: BoxDecoration(
+        color: theme.cardTheme.color,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            spacing: 10,
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.lightGreen,
+                  borderRadius: BorderRadius.circular(3),
+                ),
+                child: const Icon(Icons.check, size: 25, color: Colors.white),
               ),
-              child: Column(
-                spacing: 20,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    spacing: 10,
-                    children: [
-                      Icon(Icons.analytics_outlined, size: 20),
-                      Text(
-                        "Statistik Bulan Ini",
-                        style: TextStyle(fontWeight: FontWeight.w600),
-                      ),
-                    ],
+                  const Text(
+                    'Rabu, 13 Mei 2026',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Column(
-                        children: [
-                          Text(
-                            "10",
-                            style: TextStyle(
-                              color: Colors.green,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 20,
-                            ),
-                          ),
-                          Text("Approved"),
-                        ],
-                      ),
-                      Column(
-                        children: [
-                          Text(
-                            "3",
-                            style: TextStyle(
-                              color: Colors.red,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 20,
-                            ),
-                          ),
-                          Text("Rejected"),
-                        ],
-                      ),
-                      Column(
-                        children: [
-                          Text(
-                            "1",
-                            style: TextStyle(
-                              color: Colors.grey,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 20,
-                            ),
-                          ),
-                          Text("Pending"),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "Riwayat Terakhir",
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
-                  ),
-                  Text(
-                    "Lihat Semua >",
-                    style: TextStyle(
-                      color: Colors.blueAccent,
-                      fontWeight: FontWeight.w600,
+                  DefaultTextStyle(
+                    style: const TextStyle(
+                      fontSize: 10,
+                      color: Colors.blueGrey,
+                    ),
+                    child: Row(
+                      spacing: 8,
+                      children: const [
+                        Text('BA 1945 AG'),
+                        Text('Halte [NAMA_HALTE]'),
+                      ],
                     ),
                   ),
                 ],
               ),
-            ),
-            SizedBox(
-              height: 450,
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Column(
-                    children: [
-                      ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: 10,
-                        itemBuilder: (context, index) {
-                          return Container(
-                            margin: const EdgeInsets.symmetric(vertical: 5),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 6,
-                            ),
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                width: 1,
-                                color: Color(0xFFBDBDBD),
-                              ),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  spacing: 10,
-                                  children: [
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.lightGreen,
-                                        borderRadius: BorderRadius.circular(3),
-                                      ),
-                                      child: Icon(
-                                        Icons.check,
-                                        size: 25,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          "Rabu, 13 Mei 2026",
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w700,
-                                          ),
-                                        ),
-                                        DefaultTextStyle(
-                                          style: TextStyle(
-                                            fontSize: 10,
-                                            color: Colors.blueGrey,
-                                          ),
-                                          child: Row(
-                                            spacing: 8,
-                                            children: [
-                                              Text("BA 1945 AG"),
-                                              Text("Halte [NAMA_HALTE]"),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                                Text("19.45"),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
+            ],
+          ),
+          const Text(
+            '19.45',
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+          ),
+        ],
       ),
     );
   }

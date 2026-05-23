@@ -112,16 +112,19 @@ class _PortalScheduleRibbonState extends State<PortalScheduleRibbon> {
                     ),
                   ),
                   const SizedBox(width: 10),
-                  Text(
-                    'Jadwal Mingguan',
-                    style: TextStyle(
-                      color: isDark ? Colors.white : Colors.black87,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 0.5,
+                  Expanded(
+                    child: Text(
+                      'Jadwal Mingguan',
+                      style: TextStyle(
+                        color: isDark ? Colors.white : Colors.black87,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.5,
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  const Spacer(),
+                  const SizedBox(width: 8),
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 10,
@@ -131,12 +134,15 @@ class _PortalScheduleRibbonState extends State<PortalScheduleRibbon> {
                       color: theme.primaryColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: Text(
-                      DateFormat('MMMM yyyy').format(selectedDate),
-                      style: TextStyle(
-                        color: theme.primaryColor,
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        DateFormat('MMMM yyyy').format(selectedDate),
+                        style: TextStyle(
+                          color: theme.primaryColor,
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
@@ -286,24 +292,27 @@ class _PortalScheduleRibbonState extends State<PortalScheduleRibbon> {
                               size: 24,
                             ),
                           ),
-                          const SizedBox(width: 18),
+                          const SizedBox(width: 12),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Row(
                                   children: [
-                                    Text(
-                                      DateUtils.isSameDay(selectedDate, now)
-                                          ? 'SHIFT HARI INI'
-                                          : 'SHIFT TERJADWAL',
-                                      style: TextStyle(
-                                        color: theme.primaryColor.withValues(
-                                          alpha: 0.8,
+                                    Flexible(
+                                      child: Text(
+                                        DateUtils.isSameDay(selectedDate, now)
+                                            ? 'SHIFT HARI INI'
+                                            : 'SHIFT TERJADWAL',
+                                        style: TextStyle(
+                                          color: theme.primaryColor.withValues(
+                                            alpha: 0.8,
+                                          ),
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w800,
+                                          letterSpacing: 1.2,
                                         ),
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.w800,
-                                        letterSpacing: 1.2,
+                                        overflow: TextOverflow.ellipsis,
                                       ),
                                     ),
                                   ],
@@ -319,6 +328,7 @@ class _PortalScheduleRibbonState extends State<PortalScheduleRibbon> {
                                     fontWeight: FontWeight.w900,
                                     letterSpacing: -0.5,
                                   ),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                                 const SizedBox(height: 4),
                                 Row(
@@ -349,9 +359,10 @@ class _PortalScheduleRibbonState extends State<PortalScheduleRibbon> {
                               ],
                             ),
                           ),
+                          const SizedBox(width: 8),
                           Container(
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
+                              horizontal: 10,
                               vertical: 6,
                             ),
                             decoration: BoxDecoration(
@@ -362,19 +373,22 @@ class _PortalScheduleRibbonState extends State<PortalScheduleRibbon> {
                               border: Border.all(
                                 color:
                                     (currentSchedule.isCadangan
-                                            ? Colors.amber
-                                            : Colors.green)
+                                             ? Colors.amber
+                                             : Colors.green)
                                         .withValues(alpha: 0.2),
                               ),
                             ),
-                            child: Text(
-                              currentSchedule.isCadangan ? 'CADANGAN' : 'UTAMA',
-                              style: TextStyle(
-                                color: currentSchedule.isCadangan
-                                    ? Colors.amber[700]
-                                    : Colors.green,
-                                fontSize: 10,
-                                fontWeight: FontWeight.w900,
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                currentSchedule.isCadangan ? 'CADANGAN' : 'UTAMA',
+                                style: TextStyle(
+                                  color: currentSchedule.isCadangan
+                                      ? Colors.amber[700]
+                                      : Colors.green,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w900,
+                                ),
                               ),
                             ),
                           ),

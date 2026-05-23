@@ -2,10 +2,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:formz/formz.dart';
 import 'package:go_router/go_router.dart';
 import 'package:local_auth/local_auth.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_bottom_modal_alert.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_input_field.dart';
+import 'package:psm_mobile/core/presentations/widgets/widgets.dart';
 import 'package:psm_mobile/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:psm_mobile/features/auth/presentation/bloc/auth_event.dart';
 import 'package:psm_mobile/features/auth/presentation/bloc/auth_state.dart';
@@ -255,14 +255,18 @@ class _AuthScreenState extends State<AuthScreen> {
                                 // Input Fields
                                 BlocBuilder<AuthBloc, AuthState>(
                                   buildWhen: (prev, curr) =>
-                                  prev.username != curr.username,
+                                      prev.username != curr.username ||
+                                      prev.usernameError != curr.usernameError,
                                   builder: (context, state) {
-                                    return CoreInputField(
+                                    return CoreInputFieldNew(
                                       label: "Username",
                                       hintText: "Username",
                                       isRequired: true,
-                                      rule: InputRule.text,
+                                      rule: InputRuleSuffixNew.text,
                                       initValue: state.username,
+                                      errorText: (state.usernameError?.isNotEmpty ?? false)
+                                          ? state.usernameError
+                                          : null,
                                       onChanged: (value) => context
                                           .read<AuthBloc>()
                                           .add(UsernameChanged(value)),
@@ -274,15 +278,19 @@ class _AuthScreenState extends State<AuthScreen> {
 
                                 BlocBuilder<AuthBloc, AuthState>(
                                   buildWhen: (prev, curr) =>
-                                  prev.password != curr.password,
+                                      prev.password != curr.password ||
+                                      prev.passwordError != curr.passwordError,
                                   builder: (context, state) {
-                                    return CoreInputField(
+                                    return CoreInputFieldNew(
                                       label: "Password",
                                       hintText: "********",
                                       isRequired: true,
                                       isSecured: true,
-                                      rule: InputRule.text,
+                                      rule: InputRuleSuffixNew.text,
                                       initValue: state.password.value,
+                                      errorText: (state.passwordError?.isNotEmpty ?? false)
+                                          ? state.passwordError
+                                          : null,
                                       onChanged: (value) => context
                                           .read<AuthBloc>()
                                           .add(PasswordChanged(value)),
@@ -299,52 +307,19 @@ class _AuthScreenState extends State<AuthScreen> {
                                   children: [
                                     BlocBuilder<AuthBloc, AuthState>(
                                       builder: (context, state) {
-                                        return InkWell(
-                                          onTap: () {
+                                        return CoreCheckbox(
+                                          value: state.rememberMe,
+                                          label: "Ingat Saya",
+                                          activeColor: const Color(0xFF1E3C72),
+                                          labelStyle: TextStyle(
+                                            color: Colors.grey[700],
+                                            fontSize: 14,
+                                          ),
+                                          onChanged: (value) {
                                             context.read<AuthBloc>().add(
-                                              RememberMeToggled(
-                                                !state.rememberMe,
-                                              ),
+                                              RememberMeToggled(value ?? false),
                                             );
                                           },
-                                          child: Row(
-                                            children: [
-                                              SizedBox(
-                                                height: 24,
-                                                width: 24,
-                                                child: Checkbox(
-                                                  checkColor: Colors.white,
-                                                  value: state.rememberMe,
-                                                  activeColor: const Color(
-                                                    0xFF1E3C72,
-                                                  ),
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          4,
-                                                        ),
-                                                  ),
-                                                  onChanged: (value) {
-                                                    context
-                                                        .read<AuthBloc>()
-                                                        .add(
-                                                          RememberMeToggled(
-                                                            value ?? false,
-                                                          ),
-                                                        );
-                                                  },
-                                                ),
-                                              ),
-                                              const SizedBox(width: 8),
-                                              Text(
-                                                "Ingat Saya",
-                                                style: TextStyle(
-                                                  color: Colors.grey[700],
-                                                  fontSize: 14,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
                                         );
                                       },
                                     ),
@@ -362,76 +337,63 @@ class _AuthScreenState extends State<AuthScreen> {
                                 ),
 
                                 // Buttons
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: BlocBuilder<AuthBloc, AuthState>(
-                                        builder: (context, state) {
-                                          return ElevatedButton(
+                                BlocBuilder<AuthBloc, AuthState>(
+                                  builder: (context, state) {
+                                    return Row(
+                                      children: [
+                                        Expanded(
+                                          child: CoreButton(
+                                            text: "Masuk",
                                             onPressed: () =>
                                                 _loginPressed(context),
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor: const Color(
-                                                0xFF1E3C72,
-                                              ),
-                                              foregroundColor: Colors.white,
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    vertical: 18,
-                                                  ),
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(15),
-                                              ),
-                                              elevation: 5,
-                                              shadowColor: const Color(
-                                                0xFF1E3C72,
-                                              ).withValues(alpha: 0.4),
+                                            isLoading:
+                                                state.submissionStatus ==
+                                                FormzSubmissionStatus
+                                                    .inProgress,
+                                            backgroundColor: const Color(
+                                              0xFF1E3C72,
                                             ),
-                                            child: const Text(
-                                              "Masuk",
-                                              style: TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                    ),
-                                    const SizedBox(width: 15),
-                                    BlocBuilder<AuthBloc, AuthState>(
-                                      builder: (context, state) {
-                                        return Material(
-                                          color: state.allowBiometric
+                                            foregroundColor: Colors.white,
+                                            borderRadius: 15,
+                                            elevation: 5,
+                                            height: 56,
+                                            // size: CoreButtonSize.large,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 15),
+                                        CoreButton(
+                                          onPressed: state.allowBiometric
+                                              ? () => handleFingerprint(context)
+                                              : null,
+                                          backgroundColor: state.allowBiometric
                                               ? const Color(0xFFF1F4F9)
                                               : Colors.grey[200],
-                                          borderRadius: BorderRadius.circular(
-                                            15,
+                                          borderRadius: 15,
+                                          elevation: 0,
+                                          height: 56,
+                                          width: 56,
+                                          padding: EdgeInsets.zero,
+                                          child: Icon(
+                                            Icons.fingerprint_rounded,
+                                            size: 30,
+                                            color: state.allowBiometric
+                                                ? const Color(0xFF1E3C72)
+                                                : Colors.grey[400],
                                           ),
-                                          child: InkWell(
-                                            onTap: state.allowBiometric
-                                                ? () =>
-                                                      handleFingerprint(context)
-                                                : null,
-                                            borderRadius: BorderRadius.circular(
-                                              15,
-                                            ),
-                                            child: Container(
-                                              padding: const EdgeInsets.all(16),
-                                              child: Icon(
-                                                Icons.fingerprint_rounded,
-                                                size: 30,
-                                                color: state.allowBiometric
-                                                    ? const Color(0xFF1E3C72)
-                                                    : Colors.grey[400],
-                                              ),
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  ],
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                ),
+                                const SizedBox(height: 20),
+                                CoreButton(
+                                  text: "Demo Widget Global",
+                                  type: CoreButtonType.outline,
+                                  width: double.infinity,
+                                  borderRadius: 15,
+                                  onPressed: () {
+                                    context.push('/widget-demo');
+                                  },
                                 ),
                                 const SizedBox(height: 20),
                               ],

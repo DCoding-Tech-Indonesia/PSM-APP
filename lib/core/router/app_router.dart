@@ -2,7 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:psm_mobile/core/network/dio_client.dart';
 import 'package:psm_mobile/core/presentations/cubit/core_tab_cubit.dart';
-import 'package:psm_mobile/core/presentations/widgets/custom_camera_widget.dart';
+import 'package:psm_mobile/core/presentations/widgets/widgets.dart';
 import 'package:psm_mobile/core/router/route_observer.dart';
 import 'package:psm_mobile/core/storage/secure_storage.dart';
 import 'package:psm_mobile/core/storage/shared_preferences.dart';
@@ -128,6 +128,10 @@ void setupRouter(String initialLocation) {
       GoRoute(
         path: '/attendance',
         builder: (context, state) => const AttendanceScreen(),
+      ),
+      GoRoute(
+        path: '/widget-demo',
+        builder: (context, state) => const WidgetDemoScreen(),
       ),
     ],
   );

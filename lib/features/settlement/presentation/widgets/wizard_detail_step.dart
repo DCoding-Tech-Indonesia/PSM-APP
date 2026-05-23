@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:psm_mobile/core/helper/string_formatter.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_input_field.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_input_with_suffix_field.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_bloc.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_event.dart';
@@ -46,57 +45,60 @@ class WizardDetailStep extends StatelessWidget {
 
         return SingleChildScrollView(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    paymentName,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                decoration: BoxDecoration(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.primary.withValues(alpha: 0.2),
                   ),
-                  if (paymentName.toUpperCase() == 'CREDIT CARD')
-                    Padding(
-                      padding: const EdgeInsets.only(right: 15.0),
-                      child: Image.asset("./assets/logo/card.png", height: 35),
-                    ),
-                  if (paymentName.toUpperCase() == 'BRIZI')
-                    Padding(
-                      padding: const EdgeInsets.only(right: 15.0),
-                      child: Image.asset(
-                        "./assets/logo/brizzi.png",
-                        height: 35,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      paymentName,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
-                  if (paymentName.toUpperCase() == 'CASH')
-                    Padding(
-                      padding: const EdgeInsets.only(right: 15.0),
-                      child: Image.asset("./assets/logo/cash.png", height: 35),
-                    ),
-                  if (paymentName.toUpperCase() == 'QRIS')
-                    Padding(
-                      padding: const EdgeInsets.only(right: 15.0),
-                      child: Image.asset("./assets/logo/qris.png", height: 35),
-                    ),
-                ],
+                    if (paymentName.toUpperCase() == 'CREDIT CARD')
+                      Image.asset("assets/logo/card.png", height: 32),
+                    if (paymentName.toUpperCase() == 'BRIZI')
+                      Image.asset("assets/logo/brizzi.png", height: 32),
+                    if (paymentName.toUpperCase() == 'CASH')
+                      Image.asset("assets/logo/cash.png", height: 32),
+                    if (paymentName.toUpperCase() == 'QRIS')
+                      Image.asset("assets/logo/qris.png", height: 32),
+                  ],
+                ),
               ),
-          
-              const SizedBox(height: 10),
-          
+
+              const SizedBox(height: 24),
+
               ...indexes.map((i) {
                 final valInput = state.detail[i];
                 final detInput = state.detailInput[i];
-          
+
                 final label = i < state.labelCustomer.length
                     ? state.labelCustomer[i]
                     : 'Customer ${valInput.idNasabah}';
-          
+
                 return Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.only(bottom: 16),
                   child: CoreInputWithSuffixField(
                     label: label,
                     suffixText: StringFormatter().idrFormatter(detInput.value),
@@ -116,10 +118,11 @@ class WizardDetailStep extends StatelessWidget {
                 );
               }),
 
-              const Divider(),
+              const SizedBox(height: 16),
 
               BlocBuilder<SettlementBloc, SettlementState>(
-                buildWhen: (prev, curr) => prev.detail != curr.detail || prev.steps != curr.steps,
+                buildWhen: (prev, curr) =>
+                    prev.detail != curr.detail || prev.steps != curr.steps,
                 builder: (context, state) {
                   final startIndex = (state.steps - 2) * 3;
                   final endIndex = startIndex + 3;
@@ -133,27 +136,46 @@ class WizardDetailStep extends StatelessWidget {
 
                   final total = currentItems.fold<int>(
                     0,
-                        (sum, item) => sum + item.value,
+                    (sum, item) => sum + item.value,
                   );
-          
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        "Total :",
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                        ),
+
+                  return Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 16,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.05),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.primary.withValues(alpha: 0.2),
+                        width: 1.5,
                       ),
-                      Text(
-                        StringFormatter().idrFormatter(total),
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          "Total :",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                    ],
+                        Text(
+                          StringFormatter().idrFormatter(total),
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w800,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
+                      ],
+                    ),
                   );
                 },
               ),
