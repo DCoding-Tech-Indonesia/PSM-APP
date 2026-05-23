@@ -183,7 +183,7 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(23, 0, 23, 25),
+                    padding: const EdgeInsets.fromLTRB(23, 16, 23, 25),
                     child: BlocBuilder<SettlementBloc, SettlementState>(
                       builder: (context, state) {
                         return Row(
