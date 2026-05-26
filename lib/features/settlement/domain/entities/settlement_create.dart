@@ -4,8 +4,6 @@ import 'package:psm_mobile/features/settlement/domain/entities/settlement_docume
 class SettlementCreate {
   final String? processId;
   final int? auditTrailId;
-  final int idBus;
-  final String? code;
   final int idKoridor;
   final int idShift;
   final List<SettlementDetail> detail;
@@ -14,8 +12,6 @@ class SettlementCreate {
   SettlementCreate({
     this.processId,
     this.auditTrailId,
-    required this.idBus,
-    this.code,
     required this.idKoridor,
     required this.idShift,
     required this.detail,
@@ -26,8 +22,6 @@ class SettlementCreate {
     return SettlementCreate(
       processId: json['processId'],
       auditTrailId: json['auditTrailId'],
-      idBus: json['idBus'] ?? 0,
-      code: json['code'] ?? '',
       idKoridor: json['idKoridor'] ?? 0,
       idShift: json['idShift'] ?? 0,
       detail: (json['detail'] as List<dynamic>? ?? [])
@@ -42,8 +36,6 @@ class SettlementCreate {
   Map<String, dynamic> toJson() => {
     "processId": processId,
     "auditTrailId": auditTrailId,
-    "idBus": idBus,
-    "code": code,
     "idKoridor": idKoridor,
     "idShift": idShift,
     "detail": detail.map((e) => e.toJson()).toList(),

@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_button.dart';
 import 'package:psm_mobile/core/presentations/widgets/widgets.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_bloc.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_event.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_state.dart';
+import 'package:psm_mobile/features/settlement/presentation/widgets/wizard_detail_step_new.dart';
 import 'package:psm_mobile/features/settlement/presentation/widgets/wizard_first_step.dart';
-import 'package:psm_mobile/features/settlement/presentation/widgets/wizard_detail_step.dart';
 import 'package:psm_mobile/features/settlement/presentation/widgets/wizard_last_step.dart';
 
 class SettlementFormScreen extends StatefulWidget {
@@ -83,9 +82,60 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
     );
   }
 
+  Future<void> _showStep2Confirmation(BuildContext context) async {
+    final isConfirm = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          title: const Text("Konfirmasi"),
+          content: const Text(
+            "Apakah anda sudah melengkapi input detail settlement dengan benar?",
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(dialogContext, false);
+              },
+              child: const Text("Belum"),
+            ),
+            GestureDetector(
+              onTap: () {
+                Navigator.pop(dialogContext, true);
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  border: BoxBorder.all(width: .6, color: Colors.grey),
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.1),
+                      blurRadius: 4,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: const Text("Sudah"),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (isConfirm == true) {
+      context.read<SettlementBloc>().add(
+        MoveStepWizard(3),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final size = MediaQuery.sizeOf(context);
 
     return BlocListener<SettlementBloc, SettlementState>(
@@ -168,8 +218,8 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
                                 } else if (state.steps >= 2 &&
                                     state.steps <= state.totalSteps - 1) {
                                   return Expanded(
-                                    child: WizardDetailStep(
-                                      currStep: state.steps,
+                                    child: WizardDetailStepNew(
+                                      // currStep: state.steps,
                                     ),
                                   );
                                 } else {
@@ -209,13 +259,16 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
                               foregroundColor: state.steps > 1
                                   ? const Color(0xFF1E3C72)
                                   : Colors.white,
-                              text: "Previous",
+                              text: "Back",
                             ),
                             CoreButton(
-                              onPressed: () {
-                                if (state.steps == 1 &&
-                                    (state.idBus == 0 ||
-                                        state.idKoridor == 0)) {
+                              onPressed: () async {
+                                if (state.steps == 1 && state.ritase == 0) {
+                                  return;
+                                }
+
+                                if (state.steps == 2) {
+                                  await _showStep2Confirmation(context);
                                   return;
                                 }
 
@@ -235,9 +288,7 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
                               width: size.width * 0.24,
                               borderRadius: 15,
                               backgroundColor:
-                                  ((state.steps == 1 &&
-                                      (state.idBus == 0 ||
-                                          state.idKoridor == 0)))
+                              (state.steps == 1 && state.ritase == 0)
                                   ? const Color(0xFF5E5E5E)
                                   : state.steps == state.totalSteps
                                   ? Colors.green

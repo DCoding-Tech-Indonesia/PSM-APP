@@ -1,12 +1,15 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:psm_mobile/core/storage/secure_storage.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/module_audit_trail.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/status_audit_trail.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/task_audit_trail.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/user_audit_trail.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/document_preview.dart';
+import 'package:psm_mobile/features/settlement/domain/entities/reference_billing.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/reference_bus.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/reference_detail.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/settlement_create.dart';
@@ -17,10 +20,10 @@ class SettlementDataSource {
 
   SettlementDataSource({required this.dio, required this.secureStorageService});
 
-  Future<List<ReferenceBus>> fetchReferenceBus(String keyword) async {
+  Future<List<ReferenceBus>> fetchReferenceBus(String keyword, int idKoridor) async {
     final response = await dio.get(
       '/reference/bus',
-      queryParameters: {'keyword': keyword, 'page': 1, 'perPage': 999},
+      queryParameters: {'keyword': keyword, 'page': 1, 'perPage': 999, 'idKoridor': idKoridor},
     );
 
     final data = response.data['data'] as List;
@@ -37,6 +40,17 @@ class SettlementDataSource {
     final data = response.data['data'] as List;
 
     return data.map((e) => ReferenceDetail.fromJson(e)).toList();
+  }
+
+  Future<double> fetchNextRitase(int idKoridor, int idBus) async {
+    final response = await dio.get(
+      '/reference/next-ritase',
+      queryParameters: {'idKoridor': idKoridor, 'idBus': idBus},
+    );
+
+    final data = response.data['data'][0]['ritaseKe'] as double;
+
+    return data;
   }
 
   Future<List<ReferenceDetail>> fetchReferencePayment(String keyword) async {
@@ -61,7 +75,7 @@ class SettlementDataSource {
     return data.map((e) => ReferenceDetail.fromJson(e)).toList();
   }
 
-  Future<String> fetchReferenceCustomerBilling(int idTypeNasabah) async {
+  Future<List<ReferenceBilling>> fetchReferenceCustomerBilling(int idTypeNasabah) async {
     final response = await dio.get(
       '/reference/customer-billing',
       queryParameters: {
@@ -71,9 +85,12 @@ class SettlementDataSource {
       },
     );
 
-    final custBill = response.data["data"][0]["value"];
+    final data = response.data["data"] as List;
 
-    return custBill;
+    print("INI BILLING");
+    print(data);
+
+    return data.map((e) => ReferenceBilling.fromJson(e)).toList();
   }
 
   Future<DocumentPreview> uploadDocument(File file) async {
@@ -109,6 +126,30 @@ class SettlementDataSource {
         data: request.toJson(),
       );
 
+      if (kDebugMode) {
+        print("========== RESPONSE ==========");
+
+        print("PATH:");
+        print(response.requestOptions.path);
+
+        print("STATUS CODE:");
+        print(response.statusCode);
+
+        print("HEADERS:");
+        print(
+          const JsonEncoder.withIndent('  ')
+              .convert(response.headers.map),
+        );
+
+        print("DATA:");
+        print(
+          const JsonEncoder.withIndent('  ')
+              .convert(response.data),
+        );
+
+        print("================================");
+      }
+
       final idAuditTrail = response.data["data"][0]["auditTrailId"].toString();
 
       return idAuditTrail;
@@ -133,7 +174,6 @@ class SettlementDataSource {
       );
 
       final List data = response.data['data'] ?? [];
-      print(data[0]);
 
       return data.map((e) {
         return TaskAuditTrail(
@@ -190,7 +230,7 @@ class SettlementDataSource {
 
   Future<String> updateSettlement(SettlementCreate request) async {
     try {
-      final response = await dio.post(
+      await dio.post(
         '/audittrail/task/approval/edit',
         data: {
           "idAuditTrail": request.auditTrailId,
@@ -208,7 +248,7 @@ class SettlementDataSource {
 
   Future<String> submitWorkflow(int idAuditTrail, String reason) async {
     try {
-      final response = await dio.post(
+      await dio.post(
         '/workflow/submit',
         data: {
           "idAuditTrail": [idAuditTrail],

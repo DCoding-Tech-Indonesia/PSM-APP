@@ -16,40 +16,20 @@ class WizardFirstStep extends StatelessWidget {
       spacing: 10,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // ── Pilih Bus ──────────────────────────────────────────────────
         BlocBuilder<SettlementBloc, SettlementState>(
+          buildWhen: (prev, curr) => prev.ritase != curr.ritase,
           builder: (context, state) {
-            ReferenceBus? selectedBus;
 
-            if (state.referenceBus.isNotEmpty) {
-              final matched = state.referenceBus.where(
-                (e) => e.id == state.idBus,
-              );
-              if (matched.isNotEmpty) selectedBus = matched.first;
+            if (state.ritase == 0) {
+              return Text("Pilih Bus dan Koridor");
+            } else {
+              return Text("Ritase ke ${state.ritase.toString()}");
             }
-
-            return CoreDropdownSearch<ReferenceBus>(
-              label: 'Pilih Bus',
-              popupTitle: 'Daftar Bus',
-              items: state.referenceBus,
-              selectedItem: selectedBus,
-              itemAsString: (item) =>
-                  '${item.nomorLambung} - ${item.platNomor}',
-              compareFn: (a, b) => a.id == b.id,
-              isRequired: true,
-              onSelected: (value) {
-                if (value == null) return;
-                context.read<SettlementBloc>().add(
-                  SelectBus(value.id, value.platNomor),
-                );
-              },
-            );
-          },
+          }
         ),
 
         SizedBox(height: 8),
 
-        // ── Pilih Koridor ───────────────────────────────────────────────
         BlocBuilder<SettlementBloc, SettlementState>(
           builder: (context, state) {
             ReferenceDetail? selectedKoridor;
@@ -73,6 +53,43 @@ class WizardFirstStep extends StatelessWidget {
                 if (value == null) return;
                 context.read<SettlementBloc>().add(
                   SelectKoridor(value.id, value.name),
+                );
+              },
+            );
+          },
+        ),
+
+        SizedBox(height: 8),
+
+        BlocBuilder<SettlementBloc, SettlementState>(
+          buildWhen: (prev, curr) => curr.idBus != 0 || prev.idBus != curr.idBus || prev.referenceBus != curr.referenceBus,
+          builder: (context, state) {
+            ReferenceBus? selectedBus;
+
+            if (state.referenceBus.isNotEmpty) {
+              final matched = state.referenceBus.where(
+                (e) => e.id == state.idBus,
+              );
+              if (matched.isNotEmpty) selectedBus = matched.first;
+            }
+
+            if (state.idKoridor == 0 || state.referenceBus.isEmpty) {
+              return SizedBox(height: 0);
+            }
+
+            return CoreDropdownSearch<ReferenceBus>(
+              label: 'Pilih Bus',
+              popupTitle: 'Daftar Bus',
+              items: state.referenceBus,
+              selectedItem: selectedBus,
+              itemAsString: (item) =>
+                  '${item.nomorLambung} - ${item.platNomor}',
+              compareFn: (a, b) => a.id == b.id,
+              isRequired: true,
+              onSelected: (value) {
+                if (value == null) return;
+                context.read<SettlementBloc>().add(
+                  SelectBus(value.id, value.platNomor),
                 );
               },
             );

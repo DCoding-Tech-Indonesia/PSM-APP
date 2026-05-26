@@ -14,9 +14,12 @@ class SettlementState extends Equatable {
 
   final int steps;
   final int totalSteps;
+
   final List<ReferenceBus> referenceBus;
   final List<ReferenceDetail> referenceKoridor;
-  final List<String> labelPayment;
+  final List<ReferenceDetail> referencePayment;
+  final List<ReferenceDetail> referenceCustomer;
+
   final List<String> labelCustomer;
   final String noUnit;
   final String namaKoridor;
@@ -28,7 +31,7 @@ class SettlementState extends Equatable {
   final int idBus;
   final String code;
   final int idKoridor;
-  final int idShift;
+  final double ritase;
 
   final List<SettlementDetail> detail;
   final List<SettlementDetailInput> detailInput;
@@ -42,9 +45,12 @@ class SettlementState extends Equatable {
 
     this.steps = 1,
     this.totalSteps = 1,
+
     this.referenceBus = const [],
     this.referenceKoridor = const [],
-    this.labelPayment = const [],
+    this.referencePayment = const [],
+    this.referenceCustomer = const [],
+
     this.labelCustomer = const [],
     this.noUnit = '',
     this.namaKoridor = '',
@@ -54,7 +60,7 @@ class SettlementState extends Equatable {
     this.idBus = 0,
     this.code = '',
     this.idKoridor = 0,
-    this.idShift = 0,
+    this.ritase = 0,
     this.detail = const [],
     this.detailInput = const [],
     this.document = const [],
@@ -67,9 +73,13 @@ class SettlementState extends Equatable {
 
     int? steps,
     int? totalSteps,
+
     List<ReferenceBus>? referenceBus,
     List<ReferenceDetail>? referenceKoridor,
-    List<String>? labelPayment,
+    List<ReferenceDetail>? referencePayment,
+    List<ReferenceDetail>? referenceCustomer,
+    List<ReferenceDetail>? referenceBilling,
+
     List<String>? labelCustomer,
     String? noUnit,
     String? namaKoridor,
@@ -79,7 +89,7 @@ class SettlementState extends Equatable {
     int? idBus,
     String? code,
     int? idKoridor,
-    int? idShift,
+    double? ritase,
     List<SettlementDetail>? detail,
     List<SettlementDetailInput>? detailInput,
     List<SettlementDocument>? document,
@@ -91,9 +101,12 @@ class SettlementState extends Equatable {
 
       steps: steps ?? this.steps,
       totalSteps: totalSteps ?? this.totalSteps,
+
       referenceBus: referenceBus ?? this.referenceBus,
       referenceKoridor: referenceKoridor ?? this.referenceKoridor,
-      labelPayment: labelPayment ?? this.labelPayment,
+      referencePayment: referencePayment ?? this.referencePayment,
+      referenceCustomer: referenceCustomer ?? this.referenceCustomer,
+
       labelCustomer: labelCustomer ?? this.labelCustomer,
       noUnit: noUnit ?? this.noUnit,
       namaKoridor: namaKoridor ?? this.namaKoridor,
@@ -103,7 +116,7 @@ class SettlementState extends Equatable {
       idBus: idBus ?? this.idBus,
       code: code ?? this.code,
       idKoridor: idKoridor ?? this.idKoridor,
-      idShift: idShift ?? this.idShift,
+      ritase: ritase ?? this.ritase,
       detail: detail ?? this.detail,
       detailInput: detailInput ?? this.detailInput,
       document: document ?? this.document,
@@ -118,9 +131,12 @@ class SettlementState extends Equatable {
 
     steps,
     totalSteps,
+
     referenceBus,
     referenceKoridor,
-    labelPayment,
+    referencePayment,
+    referenceCustomer,
+
     labelCustomer,
     noUnit,
     namaKoridor,
@@ -130,7 +146,7 @@ class SettlementState extends Equatable {
     idBus,
     code,
     idKoridor,
-    idShift,
+    ritase,
     detail,
     detailInput,
     document,

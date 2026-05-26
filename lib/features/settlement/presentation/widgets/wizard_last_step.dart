@@ -7,6 +7,7 @@ import 'package:psm_mobile/core/helper/camera_access_helper.dart';
 import 'package:psm_mobile/core/helper/string_formatter.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/document_preview.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/document_return_value.dart';
+import 'package:psm_mobile/features/settlement/domain/entities/settlement_detail.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_bloc.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_event.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_state.dart';
@@ -20,27 +21,15 @@ class WizardLastStep extends StatefulWidget {
 }
 
 class _WizardLastStepState extends State<WizardLastStep> {
-  int _indexDetail = 0;
+  int _selectedPaymentId = 0;
   String _selectedDetail = '';
   int _totalTransaction = 0;
 
   File? _image;
 
-  void _changeTabDetail(int index, String val) {
-    var selectedIndex = 0;
-
-    if (index == 0) {
-      selectedIndex = 0;
-    } else if (index == 1) {
-      selectedIndex = 3;
-    } else if (index == 2) {
-      selectedIndex = 5;
-    } else {
-      selectedIndex = 9;
-    }
-
+  void _changeTabDetail(String val, int idPayment) {
     setState(() {
-      _indexDetail = selectedIndex;
+      _selectedPaymentId = idPayment;
       _selectedDetail = val;
     });
   }
@@ -152,13 +141,11 @@ class _WizardLastStepState extends State<WizardLastStep> {
 
     return BlocBuilder<SettlementBloc, SettlementState>(
       builder: (context, state) {
-        final paymentMethods = state.labelPayment;
-        final customerTypes = state.labelCustomer;
-        final customerTypesFiltered = customerTypes.toSet().toList();
+        final paymentMethods = state.referencePayment;
 
         String getIcon(String method) {
           switch (method) {
-            case "Credit Card":
+            case "Debit Card":
               return "assets/logo/card.png";
             case "BRIZI":
               return "assets/logo/brizzi.png";
@@ -231,7 +218,7 @@ class _WizardLastStepState extends State<WizardLastStep> {
                   return InkWell(
                     borderRadius: BorderRadius.circular(20),
                     onTap: () {
-                      _changeTabDetail(index, item);
+                      _changeTabDetail(item.name, item.id);
                     },
                     child: Container(
                       padding: const EdgeInsets.symmetric(
@@ -239,7 +226,7 @@ class _WizardLastStepState extends State<WizardLastStep> {
                         vertical: 8,
                       ),
                       decoration: BoxDecoration(
-                        gradient: _selectedDetail == item
+                        gradient: _selectedDetail == item.name
                             ? LinearGradient(
                                 colors: [
                                   Colors.blue.shade600,
@@ -247,10 +234,12 @@ class _WizardLastStepState extends State<WizardLastStep> {
                                 ],
                               )
                             : null,
-                        color: _selectedDetail == item ? null : Colors.white,
+                        color: _selectedDetail == item.name
+                            ? null
+                            : Colors.white,
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
-                          color: _selectedDetail == item
+                          color: _selectedDetail == item.name
                               ? Colors.blue.shade400
                               : Colors.black.withValues(alpha: 0.1),
                           width: 0.5,
@@ -272,7 +261,7 @@ class _WizardLastStepState extends State<WizardLastStep> {
                               borderRadius: BorderRadius.circular(999),
                             ),
                             child: Image.asset(
-                              getIcon(item),
+                              getIcon(item.name),
                               height: 32,
                               width: 32,
                             ),
@@ -282,14 +271,14 @@ class _WizardLastStepState extends State<WizardLastStep> {
 
                           Expanded(
                             child: Text(
-                              item,
+                              item.name,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 fontSize: 14,
-                                fontWeight: _selectedDetail == item
+                                fontWeight: _selectedDetail == item.name
                                     ? FontWeight.w700
                                     : FontWeight.w500,
-                                color: _selectedDetail == item
+                                color: _selectedDetail == item.name
                                     ? Colors.white
                                     : Colors.black,
                               ),
@@ -347,68 +336,64 @@ class _WizardLastStepState extends State<WizardLastStep> {
                         ],
                       ),
                       const SizedBox(height: 12),
-                      ...customerTypesFiltered.asMap().entries.map((data) {
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 6),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                data.value,
-                                style: const TextStyle(color: Colors.grey),
-                              ),
-                              BlocBuilder<SettlementBloc, SettlementState>(
-                                builder: (context, state) {
-                                  return Text(
-                                    '${state.detail[_indexDetail + data.key].total} x ${StringFormatter().idrFormatter(state.detailInput[_indexDetail + data.key].value)}',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
-                        );
-                      }),
+
                       const Padding(
                         padding: EdgeInsets.symmetric(vertical: 12),
                         child: Divider(height: 1, color: Color(0xFFF0F0F0)),
                       ),
+
                       BlocBuilder<SettlementBloc, SettlementState>(
                         builder: (context, state) {
-                          final total = _selectedDetail.isEmpty
-                              ? 0
-                              : customerTypesFiltered.asMap().entries.fold(0, (
-                                  sum,
-                                  entry,
-                                ) {
-                                  final index = _indexDetail + entry.key;
-                                  if (index >= state.detail.length) {
-                                    return sum;
-                                  }
-                                  return sum +
-                                      state.detail[index].total *
-                                          state.detailInput[index].value;
-                                });
+                          final customerType = state.referenceCustomer.toList();
 
-                          return Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          final details = state.detail
+                              .where((e) => e.idPayment == _selectedPaymentId)
+                              .toList();
+
+                          var totalValue = 0;
+
+                          return Column(
                             children: [
-                              const Text(
-                                "Total Harga",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                              Column(
+                                children: customerType.map((customer) {
+                                  final detail = details
+                                      .cast<SettlementDetail?>()
+                                      .firstWhere(
+                                        (e) => e?.idNasabah == customer.id,
+                                      );
+
+                                  final total = detail?.total ?? 0;
+                                  final value = detail?.billingValue ?? 0;
+
+                                  totalValue += total * value;
+
+                                  return Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 6,
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(customer.name),
+                                        Text(
+                                          '$total x ${StringFormatter().idrFormatter(value)}',
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }).toList(),
                               ),
-                              Text(
-                                StringFormatter().idrFormatter(total),
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Theme.of(context).colorScheme.primary,
-                                ),
+                              const Divider(),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text("Total"),
+                                  Text(
+                                    StringFormatter().idrFormatter(totalValue),
+                                  ),
+                                ],
                               ),
                             ],
                           );
@@ -439,22 +424,35 @@ class _WizardLastStepState extends State<WizardLastStep> {
                         return const SizedBox.shrink();
                       }
 
-                      return SizedBox(
-                        height: 140,
-                        child: ListView.separated(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: state.documentPreview.length,
-                          separatorBuilder: (_, _) => const SizedBox(width: 12),
-                          itemBuilder: (context, index) {
-                            final doc = state.documentPreview[index];
+                      return BlocBuilder<SettlementBloc, SettlementState>(
+                        buildWhen: (prev, curr) =>
+                            prev.documentPreview != curr.documentPreview,
+                        builder: (context, state) {
+                          final hasImage = state.documentPreview.isNotEmpty;
 
-                            return GestureDetector(
-                              onTap: () => _showPreviewDialog(doc),
+                          if (!hasImage) {
+                            return const SizedBox.shrink();
+                          }
+
+                          final doc = state.documentPreview.first;
+
+                          return GestureDetector(
+                            onTap: () => _showPreviewDialog(doc),
+                            child: Container(
+                              height: 220,
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(18),
+                                border: Border.all(
+                                  color: Colors.grey.withValues(alpha: 0.2),
+                                ),
+                              ),
                               child: ClipRRect(
-                                borderRadius: BorderRadius.circular(16),
+                                borderRadius: BorderRadius.circular(18),
                                 child: Stack(
+                                  fit: StackFit.expand,
                                   children: [
-                                    Image.network(doc.url),
+                                    Image.network(doc.url, fit: BoxFit.cover),
 
                                     Positioned.fill(
                                       child: Container(
@@ -464,7 +462,7 @@ class _WizardLastStepState extends State<WizardLastStep> {
                                             end: Alignment.bottomCenter,
                                             colors: [
                                               Colors.transparent,
-                                              Colors.black.withOpacity(0.15),
+                                              Colors.black.withOpacity(0.2),
                                             ],
                                           ),
                                         ),
@@ -472,35 +470,29 @@ class _WizardLastStepState extends State<WizardLastStep> {
                                     ),
 
                                     Positioned(
-                                      top: 8,
-                                      right: 8,
+                                      top: 12,
+                                      right: 12,
                                       child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                          vertical: 4,
-                                        ),
+                                        padding: const EdgeInsets.all(8),
                                         decoration: BoxDecoration(
-                                          color: Colors.black.withOpacity(0.6),
+                                          color: Colors.black54,
                                           borderRadius: BorderRadius.circular(
-                                            20,
+                                            100,
                                           ),
                                         ),
-                                        child: Text(
-                                          '${index + 1}',
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w600,
-                                          ),
+                                        child: const Icon(
+                                          Icons.remove_red_eye_outlined,
+                                          color: Colors.white,
+                                          size: 20,
                                         ),
                                       ),
                                     ),
                                   ],
                                 ),
                               ),
-                            );
-                          },
-                        ),
+                            ),
+                          );
+                        },
                       );
                     },
                   ),
@@ -512,87 +504,92 @@ class _WizardLastStepState extends State<WizardLastStep> {
                         prev.documentPreview != curr.documentPreview,
                     builder: (context, state) {
                       final theme = Theme.of(context);
-                      final isEmpty = state.documentPreview.isEmpty;
+                      final isEmpty =
+                          state.documentPreview.isEmpty && _image == null;
 
-                      return InkWell(
-                        onTap: _openCamera,
-                        borderRadius: BorderRadius.circular(16),
-                        child: Container(
-                          height: isEmpty ? 200 : 100,
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            color: theme.colorScheme.primary.withValues(
-                              alpha: 0.05,
-                            ),
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
+                      if (!isEmpty) {
+                        return SizedBox();
+                      } else {
+                        return InkWell(
+                          onTap: _openCamera,
+                          borderRadius: BorderRadius.circular(16),
+                          child: Container(
+                            height: isEmpty ? 200 : 100,
+                            width: double.infinity,
+                            decoration: BoxDecoration(
                               color: theme.colorScheme.primary.withValues(
-                                alpha: 0.3,
+                                alpha: 0.05,
                               ),
-                              width: 1.5,
-                            ),
-                          ),
-                          child: _image != null
-                              ? Stack(
-                                  children: [
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.circular(14),
-                                      child: Image.file(
-                                        _image!,
-                                        width: double.infinity,
-                                        height: double.infinity,
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
-
-                                    Positioned(
-                                      top: 12,
-                                      right: 12,
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          color: Colors.black54,
-                                          borderRadius: BorderRadius.circular(
-                                            100,
-                                          ),
-                                        ),
-                                        child: IconButton(
-                                          onPressed: () {
-                                            setState(() {
-                                              _image = null;
-                                            });
-                                          },
-                                          icon: const Icon(
-                                            Icons.close,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                )
-                              : Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.add_a_photo_outlined,
-                                      size: isEmpty ? 48 : 32,
-                                      color: theme.colorScheme.primary,
-                                    ),
-                                    const SizedBox(height: 12),
-                                    Text(
-                                      isEmpty
-                                          ? "Ambil Foto Bukti"
-                                          : "Tambah Foto Lain",
-                                      style: TextStyle(
-                                        color: theme.colorScheme.primary,
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: isEmpty ? 16 : 14,
-                                      ),
-                                    ),
-                                  ],
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: theme.colorScheme.primary.withValues(
+                                  alpha: 0.3,
                                 ),
-                        ),
-                      );
+                                width: 1.5,
+                              ),
+                            ),
+                            child: _image != null
+                                ? Stack(
+                                    children: [
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(14),
+                                        child: Image.file(
+                                          _image!,
+                                          width: double.infinity,
+                                          height: double.infinity,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
+
+                                      Positioned(
+                                        top: 12,
+                                        right: 12,
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            color: Colors.black54,
+                                            borderRadius: BorderRadius.circular(
+                                              100,
+                                            ),
+                                          ),
+                                          child: IconButton(
+                                            onPressed: () {
+                                              setState(() {
+                                                _image = null;
+                                              });
+                                            },
+                                            icon: const Icon(
+                                              Icons.close,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                : Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.add_a_photo_outlined,
+                                        size: isEmpty ? 48 : 32,
+                                        color: theme.colorScheme.primary,
+                                      ),
+                                      const SizedBox(height: 12),
+                                      Text(
+                                        isEmpty
+                                            ? "Ambil Foto Bukti"
+                                            : "Tambah Foto Lain",
+                                        style: TextStyle(
+                                          color: theme.colorScheme.primary,
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: isEmpty ? 16 : 14,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                          ),
+                        );
+                      }
                     },
                   ),
                 ],

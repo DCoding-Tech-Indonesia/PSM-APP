@@ -39,8 +39,8 @@ class WizardDetailStep extends StatelessWidget {
         final selectedPaymentId = paymentIds[index];
         final indexes = groupedIndex[selectedPaymentId]!;
 
-        final paymentName = index < state.labelPayment.length
-            ? state.labelPayment[index]
+        final paymentName = index < state.referencePayment.length
+            ? state.referencePayment[index].name
             : "Payment $selectedPaymentId";
 
         return SingleChildScrollView(

@@ -10,7 +10,7 @@ class SettlementDocument extends Equatable{
   factory SettlementDocument.fromJson(Map<String, dynamic> json) {
     return SettlementDocument(
       idDocument: json['idDocument'] ?? 0,
-      idDocumentType: json['idDocumentType'] ?? 0,
+      idDocumentType: json['idDocumentType'] ?? 3,
       urlDoc: json['urlDoc'],
     );
   }

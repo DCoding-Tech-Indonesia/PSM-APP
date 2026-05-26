@@ -94,7 +94,7 @@ class _SettlementScreenState extends State<SettlementScreen> {
                                                     state
                                                             .listTaskAuditTrail
                                                             .isNotEmpty
-                                                        ? "Nama Halte"
+                                                        ? "Nama Koridor"
                                                         : "-",
                                                     style: TextStyle(
                                                       fontWeight:
@@ -238,11 +238,20 @@ class _SettlementScreenState extends State<SettlementScreen> {
                             horizontal: 20,
                           ),
                           decoration: BoxDecoration(
-                            color: theme.cardTheme.color,
+                            color: Colors.white,
                             borderRadius: BorderRadius.circular(20),
                             border: Border.all(
-                              color: Colors.grey.withValues(alpha: 0.1),
+                              color: Colors.grey[300]!,
                             ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(
+                                  alpha: 0.05,
+                                ),
+                                blurRadius: 20,
+                                offset: const Offset(0, 10),
+                              ),
+                            ],
                           ),
                           child: Column(
                             spacing: 20,
@@ -411,18 +420,22 @@ class _SettlementScreenState extends State<SettlementScreen> {
   }
 
   Widget _buildHistoryItem() {
-    final theme = Theme.of(context);
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 5),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      // decoration: BoxDecoration(
-      //   border: Border.all(width: 1, color: const Color(0xFFBDBDBD)),
-      //   borderRadius: BorderRadius.circular(10),
-      // ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
-        color: theme.cardTheme.color,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(
+              alpha: 0.05,
+            ),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -431,17 +444,18 @@ class _SettlementScreenState extends State<SettlementScreen> {
             spacing: 10,
             children: [
               Container(
+                padding: const EdgeInsets.all(7),
                 decoration: BoxDecoration(
-                  color: Colors.lightGreen,
-                  borderRadius: BorderRadius.circular(3),
+                  color: Colors.blue,
+                  borderRadius: BorderRadius.circular(999),
                 ),
-                child: const Icon(Icons.check, size: 25, color: Colors.white),
+                child: Text("0.5", style: TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.w700)),
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    'Rabu, 13 Mei 2026',
+                    'Koridor A',
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
                   ),
                   DefaultTextStyle(
@@ -453,7 +467,6 @@ class _SettlementScreenState extends State<SettlementScreen> {
                       spacing: 8,
                       children: const [
                         Text('BA 1945 AG'),
-                        Text('Halte [NAMA_HALTE]'),
                       ],
                     ),
                   ),

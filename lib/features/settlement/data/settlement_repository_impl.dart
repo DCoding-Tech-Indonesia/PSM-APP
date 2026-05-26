@@ -6,6 +6,7 @@ import 'package:psm_mobile/core/error/failure.dart';
 import 'package:psm_mobile/features/settlement/data/settlement_data_source.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/task_audit_trail.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/document_preview.dart';
+import 'package:psm_mobile/features/settlement/domain/entities/reference_billing.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/reference_bus.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/reference_detail.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/settlement_create.dart';
@@ -19,9 +20,10 @@ class SettlementRepositoryImpl implements SettlementRepository {
   @override
   Future<Either<Failure, List<ReferenceBus>>> fetchReferenceBus(
     String keyword,
+    int idKoridor
   ) async {
     try {
-      final result = await dataSource.fetchReferenceBus(keyword);
+      final result = await dataSource.fetchReferenceBus(keyword, idKoridor);
 
       return right(result);
     } on DioException catch (e) {
@@ -40,6 +42,25 @@ class SettlementRepositoryImpl implements SettlementRepository {
   ) async {
     try {
       final result = await dataSource.fetchReferenceKoridor(keyword);
+
+      return right(result);
+    } on DioException catch (e) {
+      final message =
+          e.response?.data?['message'] ?? 'Terjadi kesalahan server';
+
+      return left(ServerFailure(message));
+    } catch (_) {
+      return left(const ServerFailure('Unexpected error'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, double>> fetchNextRitase(
+      int idKoridor,
+      int idBus
+      ) async {
+    try {
+      final result = await dataSource.fetchNextRitase(idKoridor, idBus);
 
       return right(result);
     } on DioException catch (e) {
@@ -89,7 +110,7 @@ class SettlementRepositoryImpl implements SettlementRepository {
   }
 
   @override
-  Future<Either<Failure, String>> fetchReferenceCustomerBilling(
+  Future<Either<Failure, List<ReferenceBilling>>> fetchReferenceCustomerBilling(
     int idTypeNasabah,
   ) async {
     try {

@@ -85,7 +85,6 @@ class _AuthScreenState extends State<AuthScreen> {
         final isSuccess = state.loginSuccess;
 
         showModalBottomSheet(
-          isDismissible: false,
           context: context,
           builder: (_) => CoreBottomModalAlert(
             success: isSuccess,

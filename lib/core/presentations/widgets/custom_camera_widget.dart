@@ -27,7 +27,6 @@ class _CustomCameraWidgetState extends State<CustomCameraWidget> {
   List<CameraDescription>? cameras;
 
   bool _isCapturing = false;
-  bool _isUploading = false;
 
   @override
   void initState() {
@@ -199,7 +198,6 @@ class _CustomCameraWidgetState extends State<CustomCameraWidget> {
                         onPressed: () async {
                           try {
                             setState(() {
-                              _isUploading = true;
                             });
 
                             final bloc = settlementBlocContext;
@@ -232,8 +230,6 @@ class _CustomCameraWidgetState extends State<CustomCameraWidget> {
                               return;
                             }
 
-                            final uploadedDocument = resultState.document.last;
-
                             final previewContext = context;
 
                             Navigator.pop(previewContext);
@@ -264,7 +260,6 @@ class _CustomCameraWidgetState extends State<CustomCameraWidget> {
                           } finally {
                             if (mounted) {
                               setState(() {
-                                _isUploading = false;
                               });
                             }
                           }

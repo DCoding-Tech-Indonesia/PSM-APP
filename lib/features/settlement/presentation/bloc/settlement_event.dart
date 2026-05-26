@@ -33,13 +33,6 @@ class MoveStepWizard extends SettlementEvent {
   MoveStepWizard(this.value);
 }
 
-class SettlementFieldChanged extends SettlementEvent {
-  final String field;
-  final dynamic value;
-
-  SettlementFieldChanged(this.field, this.value);
-}
-
 class AddDetail extends SettlementEvent {
   final SettlementDetail detail;
 
