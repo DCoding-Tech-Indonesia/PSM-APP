@@ -3,24 +3,26 @@ import 'package:flutter/material.dart';
 
 class CoreBlurDialog extends StatelessWidget {
   final String title;
-  final String message;
+  final String? message;
   final Color badgeColor;
   final String badgeText;
   final IconData badgeIcon;
   final Color buttonColor;
   final String? confirmText;
   final VoidCallback? onConfirm;
+  final Widget? contentWidget;
 
   const CoreBlurDialog({
     super.key,
     required this.title,
-    required this.message,
+    this.message,
     required this.badgeColor,
     required this.badgeText,
     required this.badgeIcon,
     required this.buttonColor,
     this.confirmText,
     this.onConfirm,
+    this.contentWidget,
   });
 
   @override
@@ -95,16 +97,24 @@ class CoreBlurDialog extends StatelessWidget {
               const SizedBox(height: 12),
 
               // Message Section
-              Text(
-                message,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: theme.textTheme.bodyMedium?.color?.withValues(alpha: 0.7),
-                  height: 1.5,
+              if (message != null && message!.isNotEmpty) ...[
+                Text(
+                  message!,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: theme.textTheme.bodyMedium?.color?.withValues(alpha: 0.7),
+                    height: 1.5,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 24),
+                const SizedBox(height: 24),
+              ],
+
+              // Content Widget
+              if (contentWidget != null) ...[
+                contentWidget!,
+                const SizedBox(height: 24),
+              ],
 
               // Divider
               Container(
@@ -214,7 +224,7 @@ class CoreBlurDialog extends StatelessWidget {
   }
 }
 
-void showCoreErrorDialog(BuildContext context, String title, String message) {
+void showCoreErrorDialog(BuildContext context, String title, String message, {Widget? contentWidget}) {
   showDialog(
     context: context,
     builder: (context) => CoreBlurDialog(
@@ -224,11 +234,12 @@ void showCoreErrorDialog(BuildContext context, String title, String message) {
       badgeText: 'ERROR',
       badgeIcon: Icons.error_outline,
       buttonColor: Colors.red[600]!,
+      contentWidget: contentWidget,
     ),
   );
 }
 
-void showCoreInfoDialog(BuildContext context, String title, String message) {
+void showCoreInfoDialog(BuildContext context, String title, String message, {Widget? contentWidget}) {
   showDialog(
     context: context,
     builder: (context) => CoreBlurDialog(
@@ -238,6 +249,7 @@ void showCoreInfoDialog(BuildContext context, String title, String message) {
       badgeText: 'INFO',
       badgeIcon: Icons.info,
       buttonColor: Colors.blue[600]!,
+      contentWidget: contentWidget,
     ),
   );
 }
@@ -245,7 +257,8 @@ void showCoreInfoDialog(BuildContext context, String title, String message) {
 void showCoreConfirmDialog({
   required BuildContext context,
   required String title,
-  required String message,
+  String? message,
+  Widget? contentWidget,
   required VoidCallback onConfirm,
   Color color = Colors.blue,
 }) {
@@ -260,6 +273,7 @@ void showCoreConfirmDialog({
       buttonColor: color,
       confirmText: 'Ya, Lanjutkan',
       onConfirm: onConfirm,
+      contentWidget: contentWidget,
     ),
   );
 }

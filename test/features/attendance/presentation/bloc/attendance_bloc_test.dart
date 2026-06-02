@@ -9,7 +9,9 @@ import 'package:psm_mobile/features/attendance/data/models/attendance_request.da
 import 'package:bloc_test/bloc_test.dart';
 
 class MockAttendanceRepository extends Mock implements AttendanceRepository {}
+
 class MockLocationService extends Mock implements LocationService {}
+
 class FakeAttendanceRequest extends Fake implements AttendanceRequest {}
 
 void main() {
@@ -53,9 +55,16 @@ void main() {
     blocTest<AttendanceBloc, AttendanceState>(
       'should emit AttendanceLoaded with correct userId when LoadAttendanceData is added',
       build: () {
-        when(() => mockLocationService.getCurrentLocation()).thenAnswer((_) async => tPosition);
-        when(() => mockLocationService.calculateDistance(any(), any(), any(), any())).thenReturn(50.0);
-        when(() => mockRepository.getHistory(any(), any())).thenAnswer((_) async => []);
+        when(
+          () => mockLocationService.getCurrentLocation(),
+        ).thenAnswer((_) async => tPosition);
+        when(
+          () =>
+              mockLocationService.calculateDistance(any(), any(), any(), any()),
+        ).thenReturn(50.0);
+        when(
+          () => mockRepository.getHistory(any(), any()),
+        ).thenAnswer((_) async => []);
         return bloc;
       },
       act: (bloc) => bloc.add(LoadAttendanceData(userId: tUserId)),
@@ -69,9 +78,16 @@ void main() {
     blocTest<AttendanceBloc, AttendanceState>(
       'should emit AttendanceLoaded with isCheckedIn true when CheckInRequested is successful',
       build: () {
-        when(() => mockLocationService.getCurrentLocation()).thenAnswer((_) async => tPosition);
-        when(() => mockLocationService.calculateDistance(any(), any(), any(), any())).thenReturn(50.0);
-        when(() => mockRepository.submitAttendance(any())).thenAnswer((_) async => true);
+        when(
+          () => mockLocationService.getCurrentLocation(),
+        ).thenAnswer((_) async => tPosition);
+        when(
+          () =>
+              mockLocationService.calculateDistance(any(), any(), any(), any()),
+        ).thenReturn(50.0);
+        when(
+          () => mockRepository.submitAttendance(any()),
+        ).thenAnswer((_) async => true);
         return bloc;
       },
       seed: () => AttendanceLoaded(
@@ -85,13 +101,19 @@ void main() {
         canCheckIn: true,
         locationStatus: 'In Range',
         distanceFromOffice: '50m',
-        stats: AttendanceStats(),
+        // stats: AttendanceStats(),
         history: [],
+        shifts: [],
+        bus: [],
       ),
-      act: (bloc) => bloc.add(CheckInRequested()),
+      act: (bloc) => bloc.add(CheckInRequested(busId: 1, shiftId: 1)),
       expect: () => [
         isA<AttendanceLoaded>().having((s) => s.isLoading, 'isLoading', true),
-        isA<AttendanceLoaded>().having((s) => s.isCheckedIn, 'isCheckedIn', true),
+        isA<AttendanceLoaded>().having(
+          (s) => s.isCheckedIn,
+          'isCheckedIn',
+          true,
+        ),
       ],
       verify: (_) {
         verify(() => mockRepository.submitAttendance(any())).called(1);

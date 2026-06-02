@@ -83,9 +83,9 @@ class _PortalScheduleRibbonState extends State<PortalScheduleRibbon> {
     return BlocBuilder<AttendanceBloc, AttendanceState>(
       builder: (context, state) {
         List<ScheduleModel> schedules = [];
-        if (state is AttendanceLoaded) {
-          schedules = state.schedules;
-        }
+        // if (state is AttendanceLoaded) {
+        //   schedules = state.schedules;
+        // }
 
         // Find schedule for selected date
         ScheduleModel? currentSchedule;
@@ -373,15 +373,17 @@ class _PortalScheduleRibbonState extends State<PortalScheduleRibbon> {
                               border: Border.all(
                                 color:
                                     (currentSchedule.isCadangan
-                                             ? Colors.amber
-                                             : Colors.green)
+                                            ? Colors.amber
+                                            : Colors.green)
                                         .withValues(alpha: 0.2),
                               ),
                             ),
                             child: FittedBox(
                               fit: BoxFit.scaleDown,
                               child: Text(
-                                currentSchedule.isCadangan ? 'CADANGAN' : 'UTAMA',
+                                currentSchedule.isCadangan
+                                    ? 'CADANGAN'
+                                    : 'UTAMA',
                                 style: TextStyle(
                                   color: currentSchedule.isCadangan
                                       ? Colors.amber[700]

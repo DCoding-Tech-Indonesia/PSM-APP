@@ -4,10 +4,7 @@ import 'package:psm_mobile/features/attendance/presentation/bloc/attendance_stat
 class MonthlyStatsCard extends StatelessWidget {
   final AttendanceLoaded state;
 
-  const MonthlyStatsCard({
-    super.key,
-    required this.state,
-  });
+  const MonthlyStatsCard({super.key, required this.state});
 
   @override
   Widget build(BuildContext context) {
@@ -22,87 +19,87 @@ class MonthlyStatsCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
       ),
-      child: Column(
-        children: [
-          const Row(
-            children: [
-              Icon(Icons.analytics, color: Colors.purple),
-              SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  'Statistik Bulan Ini',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              Expanded(
-                child: _buildStatItem(
-                  'Total',
-                  state.stats.totalDays.toString(),
-                  Colors.blue,
-                ),
-              ),
-              Expanded(
-                child: _buildStatItem(
-                  'Hadir',
-                  state.stats.presentDays.toString(),
-                  Colors.green,
-                ),
-              ),
-              Expanded(
-                child: _buildStatItem(
-                  'Late',
-                  state.stats.lateDays.toString(),
-                  Colors.orange,
-                ),
-              ),
-              Expanded(
-                child: _buildStatItem(
-                  'Alpha',
-                  state.stats.absentDays.toString(),
-                  Colors.red,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
+      // child: Column(
+      //   children: [
+      //     const Row(
+      //       children: [
+      //         Icon(Icons.analytics, color: Colors.purple),
+      //         SizedBox(width: 12),
+      //         Expanded(
+      //           child: Text(
+      //             'Statistik Bulan Ini',
+      //             style: TextStyle(
+      //               fontSize: 16,
+      //               fontWeight: FontWeight.bold,
+      //             ),
+      //             overflow: TextOverflow.ellipsis,
+      //           ),
+      //         ),
+      //       ],
+      //     ),
+      //     const SizedBox(height: 20),
+      //     Row(
+      //       mainAxisAlignment: MainAxisAlignment.spaceAround,
+      //       children: [
+      //         Expanded(
+      //           child: _buildStatItem(
+      //             'Total',
+      //             state.stats.totalDays.toString(),
+      //             Colors.blue,
+      //           ),
+      //         ),
+      //         Expanded(
+      //           child: _buildStatItem(
+      //             'Hadir',
+      //             state.stats.presentDays.toString(),
+      //             Colors.green,
+      //           ),
+      //         ),
+      //         Expanded(
+      //           child: _buildStatItem(
+      //             'Late',
+      //             state.stats.lateDays.toString(),
+      //             Colors.orange,
+      //           ),
+      //         ),
+      //         Expanded(
+      //           child: _buildStatItem(
+      //             'Alpha',
+      //             state.stats.absentDays.toString(),
+      //             Colors.red,
+      //           ),
+      //         ),
+      //       ],
+      //     ),
+      //   ],
+      // ),
     );
   }
 
-  Widget _buildStatItem(String label, String value, Color color) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        FittedBox(
-          fit: BoxFit.scaleDown,
-          child: Text(
-            value,
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
-          ),
-        ),
-        const SizedBox(height: 4),
-        FittedBox(
-          fit: BoxFit.scaleDown,
-          child: Text(
-            label,
-            style: const TextStyle(fontSize: 12, color: Colors.grey),
-          ),
-        ),
-      ],
-    );
-  }
+  // Widget _buildStatItem(String label, String value, Color color) {
+  //   return Column(
+  //     mainAxisSize: MainAxisSize.min,
+  //     children: [
+  //       FittedBox(
+  //         fit: BoxFit.scaleDown,
+  //         child: Text(
+  //           value,
+  //           style: TextStyle(
+  //             fontSize: 20,
+  //             fontWeight: FontWeight.bold,
+  //             color: color,
+  //           ),
+  //         ),
+  //       ),
+  //       const SizedBox(height: 4),
+  //       FittedBox(
+  //         fit: BoxFit.scaleDown,
+  //         child: Text(
+  //           label,
+  //           style: const TextStyle(fontSize: 12, color: Colors.grey),
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
 }

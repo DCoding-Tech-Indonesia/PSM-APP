@@ -7,10 +7,7 @@ import 'package:psm_mobile/features/attendance/presentation/bloc/attendance_stat
 class AttendanceActionButtons extends StatelessWidget {
   final AttendanceLoaded state;
 
-  const AttendanceActionButtons({
-    super.key,
-    required this.state,
-  });
+  const AttendanceActionButtons({super.key, required this.state});
 
   @override
   Widget build(BuildContext context) {
@@ -24,9 +21,10 @@ class AttendanceActionButtons extends StatelessWidget {
               height: 56,
               backgroundColor: state.isCheckedIn ? Colors.grey : Colors.green,
               foregroundColor: Colors.white,
-              onPressed: (state.isLoading || state.radiusInfo == '0m')
-                  ? null
-                  : state.isCheckedIn
+              onPressed:
+                  (state.isLoading ||
+                      state.radiusInfo == '0m' ||
+                      state.isCheckedIn)
                   ? null
                   : () {
                       if (state.isMocked) {
@@ -42,14 +40,63 @@ class AttendanceActionButtons extends StatelessWidget {
                           'Anda berada di luar radius kantor (${state.distanceFromOffice}). Silakan mendekat ke area kantor untuk melakukan absensi.',
                         );
                       } else {
+                        int selectedShiftId = 0;
+                        int selectedBusId = 0;
+
                         showCoreConfirmDialog(
                           context: context,
                           title: 'Konfirmasi Check-in',
                           message:
                               'Apakah Anda yakin ingin melakukan Check-in sekarang?',
                           color: Colors.green,
+                          contentWidget: StatefulBuilder(
+                            builder: (context, setState) {
+                              return Column(
+                                children: [
+                                  CoreDropdownSearch<dynamic>(
+                                    label: 'Shift',
+                                    popupTitle: 'Pilih Shift',
+                                    items: state.shifts,
+                                    itemAsString: (s) =>
+                                        s['name']?.toString() ?? '',
+                                    compareFn: (a, b) => a['id'] == b['id'],
+                                    onSelected: (selected) {
+                                      if (selected != null) {
+                                        selectedShiftId =
+                                            int.tryParse(
+                                              selected['id'].toString(),
+                                            ) ??
+                                            0;
+                                      }
+                                    },
+                                  ),
+                                  const SizedBox(height: 16),
+                                  CoreDropdownSearch<dynamic>(
+                                    label: 'Bus',
+                                    popupTitle: 'Pilih Bus',
+                                    items: state.bus,
+                                    itemAsString: (s) =>
+                                        s['name']?.toString() ?? '',
+                                    compareFn: (a, b) => a['id'] == b['id'],
+                                    onSelected: (selected) {
+                                      if (selected != null) {
+                                        selectedBusId =
+                                            int.tryParse(
+                                              selected['id'].toString(),
+                                            ) ??
+                                            0;
+                                      }
+                                    },
+                                  ),
+                                ],
+                              );
+                            },
+                          ),
                           onConfirm: () => context.read<AttendanceBloc>().add(
-                            CheckInRequested(),
+                            CheckInRequested(
+                              shiftId: selectedShiftId,
+                              busId: selectedBusId,
+                            ),
                           ),
                         );
                       }
@@ -78,9 +125,10 @@ class AttendanceActionButtons extends StatelessWidget {
                   ? Colors.grey
                   : Colors.red,
               foregroundColor: Colors.white,
-              onPressed: (state.isLoading || state.radiusInfo == '0m')
-                  ? null
-                  : (state.checkOutTime.isNotEmpty || !state.isCheckedIn)
+              onPressed:
+                  (state.isLoading ||
+                      state.radiusInfo == '0m' ||
+                      !state.isCheckedIn)
                   ? null
                   : () {
                       if (state.isMocked) {

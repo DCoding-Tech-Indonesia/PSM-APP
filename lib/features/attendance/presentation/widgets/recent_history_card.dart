@@ -129,6 +129,8 @@ class RecentHistoryCard extends StatelessWidget {
                   children: [
                     _buildMiniBadge('In: ${record.checkInTime}', Colors.green),
                     _buildMiniBadge('Out: ${record.checkOutTime}', Colors.red),
+                    if (record.shiftName != null && record.shiftName!.isNotEmpty)
+                      _buildMiniBadge(record.shiftName!, Colors.blue),
                   ],
                 ),
               ],

@@ -1,11 +1,13 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:psm_mobile/features/attendance/data/models/attendance_record.dart';
 import 'package:psm_mobile/features/attendance/data/models/attendance_request.dart';
-import 'package:psm_mobile/features/attendance/data/models/schedule_model.dart';
+// import 'package:psm_mobile/features/attendance/data/models/schedule_model.dart';
 import 'package:psm_mobile/features/attendance/domain/repositories/attendance_repository.dart';
 import 'package:psm_mobile/core/helper/location_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'attendance_state.dart';
 
 class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
@@ -13,17 +15,15 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
   final AttendanceRepository repository;
   final LocationService locationService;
 
-  AttendanceBloc({
-    required this.repository,
-    required this.locationService,
-  }) : super(AttendanceInitial()) {
+  AttendanceBloc({required this.repository, required this.locationService})
+    : super(AttendanceInitial()) {
     on<LoadAttendanceData>(_onLoadData);
     on<UpdateTime>(_onUpdateTime);
     on<RefreshLocation>(_onRefreshLocation);
     on<CheckInRequested>(_onCheckIn);
     on<CheckOutRequested>(_onCheckOut);
     on<RefreshAttendanceData>(_onRefreshData);
-    
+
     _startTimer();
   }
 
@@ -33,7 +33,10 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
     });
   }
 
-  Future<void> _onLoadData(LoadAttendanceData event, Emitter<AttendanceState> emit) async {
+  Future<void> _onLoadData(
+    LoadAttendanceData event,
+    Emitter<AttendanceState> emit,
+  ) async {
     final now = DateTime.now();
     final initialState = AttendanceLoaded(
       userId: event.userId,
@@ -46,18 +49,23 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
       canCheckIn: false,
       locationStatus: 'Mencari lokasi...',
       distanceFromOffice: '0m',
-      stats: AttendanceStats(),
       history: [],
-      schedules: [],
+      // stats: AttendanceStats(),
+      // schedules: [],
+      shifts: [],
+      bus: [],
     );
     emit(initialState);
 
     await _fetchHistoryAndEmit(event.userId, emit, initialState);
-    
+
     add(RefreshLocation());
   }
 
-  Future<void> _onRefreshData(RefreshAttendanceData event, Emitter<AttendanceState> emit) async {
+  Future<void> _onRefreshData(
+    RefreshAttendanceData event,
+    Emitter<AttendanceState> emit,
+  ) async {
     if (state is AttendanceLoaded) {
       final s = state as AttendanceLoaded;
       emit(s.copyWith(isLoading: true));
@@ -66,63 +74,93 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
     }
   }
 
-  Future<void> _fetchHistoryAndEmit(String userId, Emitter<AttendanceState> emit, AttendanceLoaded currentState) async {
+  Future<void> _fetchHistoryAndEmit(
+    String userId,
+    Emitter<AttendanceState> emit,
+    AttendanceLoaded currentState,
+  ) async {
     try {
       final uId = int.tryParse(userId) ?? 0;
       final now = DateTime.now();
-      
+
       // Calculate start and end date for 7 days schedule (Today in the middle)
-      final startDate = DateFormat('yyyy-MM-dd').format(now.subtract(const Duration(days: 3)));
-      final endDate = DateFormat('yyyy-MM-dd').format(now.add(const Duration(days: 3)));
-      
+      // final startDate = DateFormat(
+      //   'yyyy-MM-dd',
+      // ).format(now.subtract(const Duration(days: 3)));
+      // final endDate = DateFormat(
+      //   'yyyy-MM-dd',
+      // ).format(now.add(const Duration(days: 3)));
+
       // Fetch History, Stats, and Schedules in parallel
       final results = await Future.wait([
         repository.getHistory(uId, 3),
-        repository.getStats(userId: uId, month: now.month, year: now.year),
-        repository.getSchedules(userId: uId, startDate: startDate, endDate: endDate),
+        // repository.getStats(userId: uId, month: now.month, year: now.year),
+        // repository.getSchedules(
+        //   userId: uId,
+        //   startDate: startDate,
+        //   endDate: endDate,
+        // ),
+        repository.getShifts(),
+        repository.getBus(),
       ]);
 
-      final List<AttendanceRecord> history = results[0] as List<AttendanceRecord>;
-      final Map<String, dynamic>? statsResponse = results[1] as Map<String, dynamic>?;
-      final List<ScheduleModel> schedules = results[2] as List<ScheduleModel>;
+      final List<AttendanceRecord> history =
+          results[0] as List<AttendanceRecord>;
+      // final Map<String, dynamic>? statsResponse =
+      //     results[1] as Map<String, dynamic>?;
+      // final List<ScheduleModel> schedules = results[2] as List<ScheduleModel>;
+      final List<dynamic> shifts = results[1] as List<dynamic>;
+      final List<dynamic> bus = results[2] as List<dynamic>;
 
-      AttendanceStats stats = currentState.stats;
-      if (statsResponse != null && statsResponse['data'] is List && (statsResponse['data'] as List).isNotEmpty) {
-        final data = statsResponse['data'][0];
-        stats = AttendanceStats(
-          totalDays: data['totalJadwal'] ?? 0,
-          presentDays: data['totalHadir'] ?? 0,
-          lateDays: data['totalTerlambat'] ?? 0,
-          absentDays: data['totalAbsen'] ?? 0,
-        );
-      }
-      
+      // AttendanceStats stats = currentState.stats;
+      // if (statsResponse != null &&
+      //     statsResponse['data'] is List &&
+      //     (statsResponse['data'] as List).isNotEmpty) {
+      //   final data = statsResponse['data'][0];
+      //   stats = AttendanceStats(
+      //     totalDays: data['totalJadwal'] ?? 0,
+      //     presentDays: data['totalHadir'] ?? 0,
+      //     lateDays: data['totalTerlambat'] ?? 0,
+      //     absentDays: data['totalAbsen'] ?? 0,
+      //   );
+      // }
+
       bool isCheckedIn = false;
       String checkInTime = '';
       String checkOutTime = '';
-      
+
       if (history.isNotEmpty) {
         final last = history[0];
         final todayStr = DateFormat('yyyy-MM-dd').format(now);
-        final lastDateStr = last.checkIn != null ? DateFormat('yyyy-MM-dd').format(last.checkIn!) : '';
-        
+        final lastDateStr = last.checkIn != null
+            ? DateFormat('yyyy-MM-dd').format(last.checkIn!)
+            : '';
+
         if (todayStr == lastDateStr) {
-          isCheckedIn = last.checkIn != null;
+          isCheckedIn = last.checkIn != null && last.checkOut == null;
           checkInTime = last.checkInTime;
           checkOutTime = last.checkOut != null ? last.checkOutTime : '';
         }
       }
 
-      emit(currentState.copyWith(
-        isLoading: false,
-        history: history,
-        stats: stats,
-        schedules: schedules,
-        isCheckedIn: isCheckedIn,
-        checkInTime: checkInTime,
-        checkOutTime: checkOutTime,
-      ));
-    } catch (e) {
+      emit(
+        currentState.copyWith(
+          isLoading: false,
+          history: history,
+          // stats: stats,
+          // schedules: schedules,
+          isCheckedIn: isCheckedIn,
+          checkInTime: checkInTime,
+          checkOutTime: checkOutTime,
+          shifts: shifts,
+          bus: bus,
+        ),
+      );
+    } catch (e, stackTrace) {
+      if (kDebugMode) {
+        print('=== Error in _fetchHistoryAndEmit: $e ===');
+        print(stackTrace);
+      }
       emit(currentState.copyWith(isLoading: false));
     }
   }
@@ -131,21 +169,26 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
     if (state is AttendanceLoaded) {
       final s = state as AttendanceLoaded;
       final now = DateTime.now();
-      emit(s.copyWith(
-        currentTime: DateFormat('HH:mm:ss').format(now),
-        currentDate: DateFormat('EEEE, dd MMM yyyy').format(now),
-      ));
+      emit(
+        s.copyWith(
+          currentTime: DateFormat('HH:mm:ss').format(now),
+          currentDate: DateFormat('EEEE, dd MMM yyyy').format(now),
+        ),
+      );
     }
   }
 
-  Future<void> _onRefreshLocation(RefreshLocation event, Emitter<AttendanceState> emit) async {
+  Future<void> _onRefreshLocation(
+    RefreshLocation event,
+    Emitter<AttendanceState> emit,
+  ) async {
     if (state is AttendanceLoaded) {
       final s = state as AttendanceLoaded;
       emit(s.copyWith(isLoading: true));
 
       try {
         final position = await locationService.getCurrentLocation();
-        
+
         if (position != null) {
           final detail = await repository.getAttendanceDetail(
             userId: int.tryParse(s.userId) ?? 0,
@@ -159,24 +202,29 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
               final info = dataList[0];
               String jarakStr = info['jarak'] ?? '0m';
               String radiusStr = info['radius'] ?? '0m';
-              String namaLokasi = info['namaLokasi'] ?? 'Lokasi tidak diketahui';
+              String namaLokasi =
+                  info['namaLokasi'] ?? 'Lokasi tidak diketahui';
               bool isCadangan = info['isCadangan'] ?? false;
-              
+
               double jarakVal = _parseDistanceValue(jarakStr);
               double radiusVal = _parseDistanceValue(radiusStr);
               bool inRadius = jarakVal <= radiusVal;
 
-              emit(s.copyWith(
-                isLoading: false,
-                distanceFromOffice: jarakStr,
-                canCheckIn: inRadius && !position.isMocked,
-                isMocked: position.isMocked,
-                locationStatus: position.isMocked 
-                    ? 'FAKE GPS TERDETEKSI!' 
-                    : namaLokasi,
-                radiusInfo: radiusStr,
-                isCadangan: isCadangan,
-              ));
+              emit(
+                s.copyWith(
+                  isLoading: false,
+                  distanceFromOffice: jarakStr,
+                  canCheckIn: inRadius && !position.isMocked,
+                  isMocked: position.isMocked,
+                  locationStatus: position.isMocked
+                      ? 'FAKE GPS TERDETEKSI!'
+                      : namaLokasi,
+                  radiusInfo: radiusStr,
+                  isCadangan: isCadangan,
+                  shifts: s.shifts,
+                  bus: s.bus,
+                ),
+              );
             } else {
               throw 'Detail lokasi tidak ditemukan dalam respons';
             }
@@ -187,16 +235,20 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
       } catch (e) {
         final errorMsg = e.toString().replaceFirst('Exception: ', '');
         bool isFakeGps = errorMsg.contains('Fake GPS');
-        
-        emit(s.copyWith(
-          isLoading: false, 
-          locationStatus: errorMsg, 
-          canCheckIn: false,
-          isMocked: isFakeGps,
-          distanceFromOffice: '0m',
-          radiusInfo: '0m',
-          isCadangan: false,
-        ));
+
+        emit(
+          s.copyWith(
+            isLoading: false,
+            locationStatus: errorMsg,
+            canCheckIn: false,
+            isMocked: isFakeGps,
+            distanceFromOffice: '0m',
+            radiusInfo: '0m',
+            isCadangan: false,
+            shifts: s.shifts,
+            bus: s.bus,
+          ),
+        );
       }
     }
   }
@@ -209,11 +261,14 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
     return 0;
   }
 
-  Future<void> _onCheckIn(CheckInRequested event, Emitter<AttendanceState> emit) async {
+  Future<void> _onCheckIn(
+    CheckInRequested event,
+    Emitter<AttendanceState> emit,
+  ) async {
     if (state is AttendanceLoaded) {
       final s = state as AttendanceLoaded;
       if (!s.canCheckIn) return;
-      
+
       emit(s.copyWith(isLoading: true));
 
       try {
@@ -224,15 +279,26 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
           idUser: int.tryParse(s.userId) ?? 0,
           lokasiLat: position.latitude,
           lokasiLong: position.longitude,
+          idShift: event.shiftId,
+          idBus: event.busId,
         );
 
         final success = await repository.submitAttendance(request);
 
         if (success) {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setInt('active_shift_id', event.shiftId);
+          await prefs.setInt('active_bus_id', event.busId);
+
           // Re-fetch everything to ensure stats and history are synchronized
           await _fetchHistoryAndEmit(s.userId, emit, s);
         } else {
-          emit(s.copyWith(isLoading: false, errorMessage: 'Gagal melakukan check-in. Silakan coba lagi.'));
+          emit(
+            s.copyWith(
+              isLoading: false,
+              errorMessage: 'Gagal melakukan check-in. Silakan coba lagi.',
+            ),
+          );
         }
       } catch (e) {
         emit(s.copyWith(isLoading: false, errorMessage: e.toString()));
@@ -240,7 +306,10 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
     }
   }
 
-  Future<void> _onCheckOut(CheckOutRequested event, Emitter<AttendanceState> emit) async {
+  Future<void> _onCheckOut(
+    CheckOutRequested event,
+    Emitter<AttendanceState> emit,
+  ) async {
     if (state is AttendanceLoaded) {
       final s = state as AttendanceLoaded;
       if (!s.isCheckedIn || s.checkOutTime.isNotEmpty) return;
@@ -251,10 +320,16 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
         final position = await locationService.getCurrentLocation();
         if (position == null) throw 'Gagal mendapatkan lokasi';
 
+        final prefs = await SharedPreferences.getInstance();
+        final shiftId = prefs.getInt('active_shift_id') ?? 0;
+        final busId = prefs.getInt('active_bus_id') ?? 0;
+
         final request = AttendanceRequest(
           idUser: int.tryParse(s.userId) ?? 0,
           lokasiLat: position.latitude,
           lokasiLong: position.longitude,
+          idShift: shiftId,
+          idBus: busId,
         );
 
         final success = await repository.submitAttendance(request);
@@ -263,7 +338,12 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
           // Re-fetch everything to ensure stats and history are synchronized
           await _fetchHistoryAndEmit(s.userId, emit, s);
         } else {
-          emit(s.copyWith(isLoading: false, errorMessage: 'Gagal melakukan check-out. Silakan coba lagi.'));
+          emit(
+            s.copyWith(
+              isLoading: false,
+              errorMessage: 'Gagal melakukan check-out. Silakan coba lagi.',
+            ),
+          );
         }
       } catch (e) {
         emit(s.copyWith(isLoading: false, errorMessage: e.toString()));

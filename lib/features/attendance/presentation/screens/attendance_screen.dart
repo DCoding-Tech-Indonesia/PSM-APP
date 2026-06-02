@@ -9,7 +9,6 @@ import 'package:psm_mobile/features/portal/presentation/bloc/portal_bloc.dart';
 import 'package:psm_mobile/features/portal/presentation/bloc/portal_state.dart';
 import 'package:psm_mobile/core/network/dio_client.dart';
 import 'package:psm_mobile/core/helper/location_service.dart';
-import 'package:psm_mobile/features/portal/presentation/widget/portal_schedule_ribbon.dart';
 import 'package:psm_mobile/features/attendance/presentation/widgets/widgets.dart';
 
 class AttendanceScreen extends StatelessWidget {
@@ -98,12 +97,12 @@ class AttendanceViewContent extends StatelessWidget {
                               DateTimeCard(state: s),
                               LocationStatusCard(state: s),
                               const SizedBox(height: 16),
-                              const PortalScheduleRibbon(),
+                              // const PortalScheduleRibbon(),
                               AttendanceStatusCard(state: s),
                               const SizedBox(height: 20),
                               AttendanceActionButtons(state: s),
-                              const SizedBox(height: 20),
-                              MonthlyStatsCard(state: s),
+                              // const SizedBox(height: 20),
+                              // MonthlyStatsCard(state: s),
                               const SizedBox(height: 20),
                               RecentHistoryCard(state: s),
                               const SizedBox(height: 40),
