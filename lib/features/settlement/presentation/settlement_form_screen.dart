@@ -5,9 +5,9 @@ import 'package:psm_mobile/core/presentations/widgets/widgets.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_bloc.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_event.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_state.dart';
-import 'package:psm_mobile/features/settlement/presentation/widgets/wizard_detail_step_new.dart';
-import 'package:psm_mobile/features/settlement/presentation/widgets/wizard_first_step.dart';
-import 'package:psm_mobile/features/settlement/presentation/widgets/wizard_last_step.dart';
+import 'package:psm_mobile/features/settlement/presentation/widgets/form/wizard_detail_step_new.dart';
+import 'package:psm_mobile/features/settlement/presentation/widgets/form/wizard_first_step.dart';
+import 'package:psm_mobile/features/settlement/presentation/widgets/form/wizard_last_step.dart';
 import 'package:step_progress/step_progress.dart';
 
 class SettlementFormScreen extends StatefulWidget {

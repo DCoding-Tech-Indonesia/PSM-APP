@@ -11,7 +11,7 @@ import 'package:psm_mobile/features/settlement/domain/entities/settlement_detail
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_bloc.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_event.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_state.dart';
-import 'package:psm_mobile/features/settlement/presentation/widgets/wizard_last_step_date_time.dart';
+import 'package:psm_mobile/features/settlement/presentation/widgets/form/wizard_last_step_date_time.dart';
 
 class WizardLastStep extends StatefulWidget {
   const WizardLastStep({super.key});
