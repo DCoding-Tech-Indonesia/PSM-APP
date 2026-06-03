@@ -175,37 +175,11 @@ class SettlementDataSource {
 
       final List data = response.data['data'] ?? [];
 
-      return data.map((e) {
-        return TaskAuditTrail(
-          id: e['id'],
-          createdDate: e['createdDate'],
-          approvedDate: e['approvedDate'],
+      final result = data
+          .map<TaskAuditTrail>((e) => TaskAuditTrail.fromJson(e))
+          .toList();
 
-          createdBy: UserAuditTrail(
-            id: e['createdBy']['id'],
-            userName: e['createdBy']['userName'],
-          ),
-
-          approvedBy: e['approvedBy'] != null
-              ? UserAuditTrail(
-                  id: e['approvedBy']['id'],
-                  userName: e['approvedBy']['userName'],
-                )
-              : null,
-
-          module: ModuleAuditTrail(
-            id: e['module']['id'],
-            code: e['module']['code'],
-            name: e['module']['name'],
-          ),
-
-          status: StatusAuditTrail(
-            id: e['status']['id'],
-            code: e['status']['code'],
-            name: e['status']['name'],
-          ),
-        );
-      }).toList();
+      return result;
     } catch (e) {
       print(e);
       rethrow;

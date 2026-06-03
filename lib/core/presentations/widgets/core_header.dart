@@ -7,6 +7,7 @@ class CoreHeader extends StatelessWidget {
   final bool showBackButton;
   final VoidCallback? onBackPressed;
   final List<Widget>? actions;
+  final Color? customBgColor;
 
   const CoreHeader({
     super.key,
@@ -15,6 +16,7 @@ class CoreHeader extends StatelessWidget {
     this.showBackButton = true,
     this.onBackPressed,
     this.actions,
+    this.customBgColor,
   });
 
   @override
@@ -23,6 +25,7 @@ class CoreHeader extends StatelessWidget {
 
     return Container(
       padding: EdgeInsets.all(size.width * 0.045),
+      color: customBgColor ?? Colors.transparent,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

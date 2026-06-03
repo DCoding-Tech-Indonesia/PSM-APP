@@ -8,6 +8,7 @@ import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_stat
 import 'package:psm_mobile/features/settlement/presentation/widgets/wizard_detail_step_new.dart';
 import 'package:psm_mobile/features/settlement/presentation/widgets/wizard_first_step.dart';
 import 'package:psm_mobile/features/settlement/presentation/widgets/wizard_last_step.dart';
+import 'package:step_progress/step_progress.dart';
 
 class SettlementFormScreen extends StatefulWidget {
   const SettlementFormScreen({super.key, required this.idAuditTrail});
@@ -106,7 +107,10 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
                 Navigator.pop(dialogContext, true);
               },
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 10,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   border: BoxBorder.all(width: .6, color: Colors.grey),
@@ -128,9 +132,7 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
     );
 
     if (isConfirm == true) {
-      context.read<SettlementBloc>().add(
-        MoveStepWizard(3),
-      );
+      context.read<SettlementBloc>().add(MoveStepWizard(3));
     }
   }
 
@@ -178,35 +180,72 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
                   ),
                 );
               }
-              return Column(
-                children: [
-                  CoreHeader(
-                    title: 'Submit Settlement',
-                    subtitle: 'Settlement',
-                  ),
-                  Expanded(
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: size.width * 0.05,
-                        vertical: size.height * 0.005,
-                      ),
-                      child: SizedBox(
-                        width: double.infinity,
+              return Container(
+                decoration: BoxDecoration(color: Colors.grey.shade50),
+                child: Column(
+                  children: [
+                    CoreHeader(
+                      title: 'Submit Settlement',
+                      subtitle: 'Settlement',
+                      customBgColor: Colors.white,
+                    ),
+                    Expanded(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          vertical: size.height * 0.005,
+                        ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            BlocBuilder<SettlementBloc, SettlementState>(
-                              buildWhen: (previous, current) =>
-                                  previous.steps != current.steps,
-                              builder: (context, state) {
-                                return Text(
-                                  "Step ${state.steps} of ${state.totalSteps}",
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w700,
+                            Container(
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                border: Border(
+                                  top: BorderSide(
+                                    color: Color(0xFFB3B3B3),
+                                    width: .65,
                                   ),
-                                );
-                              },
+                                  bottom: BorderSide(
+                                    color: Color(0xFFB3B3B3),
+                                    width: .65,
+                                  ),
+                                ),
+                              ),
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: size.width * 0.05,
+                                  vertical: size.height * 0.01,
+                                ),
+                                child:
+                                BlocBuilder<SettlementBloc, SettlementState>(
+                                  buildWhen: (previous, current) =>
+                                  previous.steps != current.steps ||
+                                      previous.totalSteps != current.totalSteps,
+                                  builder: (context, state) {
+                                    return Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Expanded(
+                                          child: StepProgress(
+                                            totalSteps: state.totalSteps,
+                                            currentStep: state.steps - 1,
+                                            padding: const EdgeInsets.all(10),
+                                            theme: const StepProgressThemeData(
+                                              activeForegroundColor: Colors.blueAccent,
+                                              stepLineSpacing: 28,
+                                              stepLineStyle: StepLineStyle(
+                                                lineThickness: 10,
+                                                isBreadcrumb: true,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                ),
+                              ),
                             ),
                             SizedBox(height: 20),
                             BlocBuilder<SettlementBloc, SettlementState>(
@@ -218,9 +257,7 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
                                 } else if (state.steps >= 2 &&
                                     state.steps <= state.totalSteps - 1) {
                                   return Expanded(
-                                    child: WizardDetailStepNew(
-                                      // currStep: state.steps,
-                                    ),
+                                    child: WizardDetailStepNew(),
                                   );
                                 } else {
                                   return Expanded(child: WizardLastStep());
@@ -231,79 +268,79 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
                         ),
                       ),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(23, 16, 23, 25),
-                    child: BlocBuilder<SettlementBloc, SettlementState>(
-                      builder: (context, state) {
-                        return Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            CoreButton(
-                              width: size.width * 0.24,
-                              onPressed: () => {
-                                if (state.steps > 1)
-                                  {
-                                    context.read<SettlementBloc>().add(
-                                      MoveStepWizard(state.steps - 1),
-                                    ),
-                                  },
-                              },
-                              borderRadius: 15,
-                              borderColor: state.steps > 1
-                                  ? const Color(0xFF1E3C72)
-                                  : const Color.fromARGB(255, 143, 141, 141),
-                              backgroundColor: state.steps > 1
-                                  ? Colors.transparent
-                                  : const Color.fromARGB(255, 143, 141, 141),
-                              foregroundColor: state.steps > 1
-                                  ? const Color(0xFF1E3C72)
-                                  : Colors.white,
-                              text: "Back",
-                            ),
-                            CoreButton(
-                              onPressed: () async {
-                                if (state.steps == 1 && state.ritase == 0) {
-                                  return;
-                                }
-
-                                if (state.steps == 2) {
-                                  await _showStep2Confirmation(context);
-                                  return;
-                                }
-
-                                if (state.steps < state.totalSteps) {
-                                  context.read<SettlementBloc>().add(
-                                    MoveStepWizard(state.steps + 1),
-                                  );
-                                } else {
-                                  if (state.idBus != 0 ||
-                                      state.idKoridor != 0) {
-                                    context.read<SettlementBloc>().add(
-                                      SubmitSettlement(),
-                                    );
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(23, 16, 23, 25),
+                      child: BlocBuilder<SettlementBloc, SettlementState>(
+                        builder: (context, state) {
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              CoreButton(
+                                width: size.width * 0.24,
+                                onPressed: () => {
+                                  if (state.steps > 1)
+                                    {
+                                      context.read<SettlementBloc>().add(
+                                        MoveStepWizard(state.steps - 1),
+                                      ),
+                                    },
+                                },
+                                borderRadius: 15,
+                                borderColor: state.steps > 1
+                                    ? const Color(0xFF1E3C72)
+                                    : const Color.fromARGB(255, 143, 141, 141),
+                                backgroundColor: state.steps > 1
+                                    ? Colors.transparent
+                                    : const Color.fromARGB(255, 143, 141, 141),
+                                foregroundColor: state.steps > 1
+                                    ? const Color(0xFF1E3C72)
+                                    : Colors.white,
+                                text: "Back",
+                              ),
+                              CoreButton(
+                                onPressed: () async {
+                                  if (state.steps == 1 && state.ritase == 0) {
+                                    return;
                                   }
-                                }
-                              },
-                              width: size.width * 0.24,
-                              borderRadius: 15,
-                              backgroundColor:
-                              (state.steps == 1 && state.ritase == 0)
-                                  ? const Color(0xFF5E5E5E)
-                                  : state.steps == state.totalSteps
-                                  ? Colors.green
-                                  : const Color(0xFF1E3C72),
-                              foregroundColor: Colors.white,
-                              text: state.steps < state.totalSteps
-                                  ? "Next"
-                                  : "Save",
-                            ),
-                          ],
-                        );
-                      },
+
+                                  if (state.steps == 2) {
+                                    await _showStep2Confirmation(context);
+                                    return;
+                                  }
+
+                                  if (state.steps < state.totalSteps) {
+                                    context.read<SettlementBloc>().add(
+                                      MoveStepWizard(state.steps + 1),
+                                    );
+                                  } else {
+                                    if (state.idBus != 0 ||
+                                        state.idKoridor != 0) {
+                                      context.read<SettlementBloc>().add(
+                                        SubmitSettlement(),
+                                      );
+                                    }
+                                  }
+                                },
+                                width: size.width * 0.24,
+                                borderRadius: 15,
+                                backgroundColor:
+                                    (state.steps == 1 && state.ritase == 0)
+                                    ? const Color(0xFF5E5E5E)
+                                    : state.steps == state.totalSteps
+                                    ? Colors.green
+                                    : const Color(0xFF1E3C72),
+                                foregroundColor: Colors.white,
+                                text: state.steps < state.totalSteps
+                                    ? "Next"
+                                    : "Save",
+                              ),
+                            ],
+                          );
+                        },
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               );
             },
           ),

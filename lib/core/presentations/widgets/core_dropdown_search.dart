@@ -1,5 +1,6 @@
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
+import 'package:psm_mobile/core/presentations/widgets/core_selected_dropdown_indicator.dart';
 
 /// A generic reusable dropdown with search, styled for the app's design system.
 ///
@@ -31,6 +32,7 @@ class CoreDropdownSearch<T> extends StatelessWidget {
     this.hintText,
     this.headerColor,
     this.isRequired = false,
+    this.isItemSelected,
   });
 
   /// Label shown inside the input field.
@@ -62,6 +64,8 @@ class CoreDropdownSearch<T> extends StatelessWidget {
 
   /// When `true`, appends a red asterisk to the label.
   final bool isRequired;
+
+  final bool Function(T item)? isItemSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -97,7 +101,7 @@ class CoreDropdownSearch<T> extends StatelessWidget {
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
         ),
       ),
-      popupProps: PopupProps.dialog(
+      popupProps: PopupProps.modalBottomSheet(
         showSearchBox: true,
         searchFieldProps: TextFieldProps(
           decoration: InputDecoration(
@@ -156,16 +160,21 @@ class CoreDropdownSearch<T> extends StatelessWidget {
             ],
           ),
         ),
-        dialogProps: const DialogProps(
+        modalBottomSheetProps: const ModalBottomSheetProps(
+          enableDrag: true,
+          barrierDismissible: true,
           clipBehavior: Clip.antiAlias,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(24)),
-          ),
+            borderRadius: BorderRadiusGeometry.all(Radius.circular(24)),
+          )
         ),
         itemBuilder: (context, item, isSelected, _) {
           final theme = Theme.of(context);
+
+          final selected = isItemSelected?.call(item) ?? isSelected;
+
           return Container(
-            color: isSelected
+            color: selected
                 ? theme.colorScheme.primary.withValues(alpha: 0.1)
                 : Colors.transparent,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -177,22 +186,20 @@ class CoreDropdownSearch<T> extends StatelessWidget {
                     itemAsString(item),
                     style: TextStyle(
                       fontSize: 16,
-                      fontWeight: isSelected
+                      fontWeight: selected
                           ? FontWeight.bold
                           : FontWeight.normal,
-                      color: isSelected ? theme.colorScheme.primary : null,
+                      color: selected ? theme.colorScheme.primary : null,
                     ),
                   ),
                 ),
-                if (isSelected)
-                  Icon(Icons.check_circle, color: theme.colorScheme.primary),
+                CoreSelectedDropdownIndicator(active: selected),
               ],
             ),
           );
         },
       ),
       onSelected: onSelected,
-      // onChanged: onSelected,
     );
   }
 }

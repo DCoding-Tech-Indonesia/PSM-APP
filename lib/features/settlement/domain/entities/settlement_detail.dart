@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 
 class SettlementDetail extends Equatable {
+  final int? idDetail;
   final int idBus;
   final double ritaseKe;
   final int idPayment;
@@ -8,9 +9,10 @@ class SettlementDetail extends Equatable {
   final int idCustomerBilling;
   final int total;
   final int value;
-  final int billingValue;
+  final int? billingValue;
 
   const SettlementDetail({
+    this.idDetail,
     required this.idBus,
     required this.ritaseKe,
     required this.idPayment,
@@ -18,11 +20,12 @@ class SettlementDetail extends Equatable {
     required this.idCustomerBilling,
     required this.total,
     required this.value,
-    required this.billingValue,
+    this.billingValue,
   });
 
   factory SettlementDetail.fromJson(Map<String, dynamic> json) {
     return SettlementDetail(
+      idDetail: json['idDetail'],
       idBus: json['idBus'] ?? 0,
       ritaseKe: (json['ritaseKe'] ?? 0).toDouble(),
       idPayment: json['idPayment'] ?? 0,
@@ -30,22 +33,23 @@ class SettlementDetail extends Equatable {
       idCustomerBilling: json['idCustomerBilling'] ?? 0,
       total: json['total'] ?? 0,
       value: json['value'] ?? 0,
-      billingValue: json['billingValue'] ?? 0,
+      billingValue: json['billingValue'],
     );
   }
 
   Map<String, dynamic> toJson() => {
+    "idDetail": idDetail ?? 0,
     "idBus": idBus,
     "ritaseKe": ritaseKe,
     "idPayment": idPayment,
     "idNasabah": idNasabah,
     "idCustomerBilling": idCustomerBilling,
     "total": total,
-    "value": value,
-    "billingValue": billingValue,
+    "value": value
   };
 
   SettlementDetail copyWith({
+    int? idDetail,
     int? idBus,
     double? ritaseKe,
     int? idPayment,
@@ -56,12 +60,12 @@ class SettlementDetail extends Equatable {
     int? billingValue,
   }) {
     return SettlementDetail(
+      idDetail: idDetail ?? this.idDetail,
       idBus: idBus ?? this.idBus,
       ritaseKe: ritaseKe ?? this.ritaseKe,
       idPayment: idPayment ?? this.idPayment,
       idNasabah: idNasabah ?? this.idNasabah,
-      idCustomerBilling:
-      idCustomerBilling ?? this.idCustomerBilling,
+      idCustomerBilling: idCustomerBilling ?? this.idCustomerBilling,
       total: total ?? this.total,
       value: value ?? this.value,
       billingValue: billingValue ?? this.billingValue,
@@ -70,6 +74,7 @@ class SettlementDetail extends Equatable {
 
   @override
   List<Object?> get props => [
+    idDetail,
     idBus,
     ritaseKe,
     idPayment,

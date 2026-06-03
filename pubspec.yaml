@@ -50,6 +50,7 @@ dependencies:
   lottie: ^3.3.3
   carousel_slider: ^5.1.2
   dropdown_search: ^7.0.0
+  step_progress: ^2.7.1
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

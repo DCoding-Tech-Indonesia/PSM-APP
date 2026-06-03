@@ -37,4 +37,8 @@ class StringFormatter {
     return '$day $month ($hour:$minute)';
   }
 
+  String formatHourMinute(String value) {
+    return DateFormat('HH:mm').format(DateTime.parse(value));
+  }
+
 }

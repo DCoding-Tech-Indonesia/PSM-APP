@@ -26,233 +26,302 @@ class _WizardDetailStepNewState extends State<WizardDetailStepNew> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.sizeOf(context);
+
     return SingleChildScrollView(
       child: Column(
         children: [
-          BlocBuilder<SettlementBloc, SettlementState>(
-            buildWhen: (prev, curr) =>
-                prev.namaKoridor != curr.namaKoridor ||
-                prev.noUnit != curr.noUnit,
-            builder: (context, state) {
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    state.namaKoridor,
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                  ),
-                  Row(
-                    spacing: 5,
-                    children: [
-                      Text(state.noUnit),
-                    ],
-                  ),
-                ],
-              );
-            },
-          ),
-
-          BlocBuilder<SettlementBloc, SettlementState>(
-            builder: (context, state) {
-              return Row(
-                children: [
-                  ...state.referencePayment.map((payment) {
-                    final isActive = payment.id == selectedPaymentMethod;
-
-                    return Expanded(
-                      child: GestureDetector(
-                        onTap: () => _changeTab(payment.id, payment.name),
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 250),
-                          curve: Curves.easeInOut,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          decoration: BoxDecoration(
-                            border: Border(
-                              bottom: BorderSide(
-                                color: isActive
-                                    ? Colors.blueAccent
-                                    : Colors.transparent,
-                                width: 3,
-                              ),
-                            ),
-                          ),
-                          alignment: Alignment.center,
-                          child: AnimatedDefaultTextStyle(
-                            duration: const Duration(milliseconds: 250),
-                            style: TextStyle(
-                              color: isActive
-                                  ? Colors.blueAccent
-                                  : Colors.grey,
-                              fontWeight: isActive
-                                  ? FontWeight.w600
-                                  : FontWeight.w400,
-                            ),
-                            child: Text(payment.name),
+          Container(
+            padding: EdgeInsets.only(
+              left: size.width * 0.05,
+              right: size.width * 0.05,
+              top: size.height * 0.03,
+            ),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              border: Border(
+                top: BorderSide(color: Color(0xFFB3B3B3), width: .65),
+                bottom: BorderSide(color: Color(0xFFB3B3B3), width: .65),
+              ),
+            ),
+            child: Column(
+              children: [
+                BlocBuilder<SettlementBloc, SettlementState>(
+                  buildWhen: (prev, curr) =>
+                      prev.namaKoridor != curr.namaKoridor ||
+                      prev.noUnit != curr.noUnit,
+                  builder: (context, state) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          state.namaKoridor,
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
-                      ),
+                        Row(spacing: 5, children: [Text(state.noUnit)]),
+                      ],
                     );
-                  }),
-                ],
-              );
-            },
+                  },
+                ),
+
+                BlocBuilder<SettlementBloc, SettlementState>(
+                  builder: (context, state) {
+                    return Row(
+                      children: [
+                        ...state.referencePayment.map((payment) {
+                          final isActive = payment.id == selectedPaymentMethod;
+
+                          return Expanded(
+                            child: GestureDetector(
+                              onTap: () => _changeTab(payment.id, payment.name),
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 250),
+                                curve: Curves.easeInOut,
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 14,
+                                ),
+                                decoration: BoxDecoration(
+                                  border: Border(
+                                    bottom: BorderSide(
+                                      color: isActive
+                                          ? Colors.blueAccent
+                                          : Colors.transparent,
+                                      width: 3,
+                                    ),
+                                  ),
+                                ),
+                                alignment: Alignment.center,
+                                child: AnimatedDefaultTextStyle(
+                                  duration: const Duration(milliseconds: 250),
+                                  style: TextStyle(
+                                    color: isActive
+                                        ? Colors.blueAccent
+                                        : Colors.grey,
+                                    fontWeight: isActive
+                                        ? FontWeight.w600
+                                        : FontWeight.w400,
+                                  ),
+                                  child: Text(payment.name),
+                                ),
+                              ),
+                            ),
+                          );
+                        }),
+                      ],
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
 
           const SizedBox(height: 20),
 
           if (selectedPaymentMethod != 0)
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-              decoration: BoxDecoration(
-                border: Border.all(width: .5, color: Colors.black87),
-                borderRadius: BorderRadius.circular(6),
+              padding: EdgeInsets.symmetric(
+                horizontal: size.width * 0.05,
+                vertical: size.height * 0.03,
               ),
-              child: BlocBuilder<SettlementBloc, SettlementState>(
-                builder: (context, state) {
-                  final totalPenumpang = state.detail
-                      .where((data) => data.idPayment == selectedPaymentMethod)
-                      .fold<int>(0, (sum, data) => sum + data.total);
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border(
+                  top: BorderSide(color: Color(0xFFB3B3B3), width: .65),
+                  bottom: BorderSide(color: Color(0xFFB3B3B3), width: .65),
+                ),
+              ),
+              child: Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      border: Border.all(width: .5, color: Colors.black87),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: BlocBuilder<SettlementBloc, SettlementState>(
+                      builder: (context, state) {
+                        final totalPenumpang = state.detail
+                            .where(
+                              (data) => data.idPayment == selectedPaymentMethod,
+                            )
+                            .fold<int>(0, (sum, data) => sum + data.total);
 
-                  final totalPerPayment = state.detail
-                      .where((data) => data.idPayment == selectedPaymentMethod)
-                      .fold<int>(0, (sum, data) => sum + data.value);
+                        final totalPerPayment = state.detail
+                            .where(
+                              (data) => data.idPayment == selectedPaymentMethod,
+                            )
+                            .fold<int>(0, (sum, data) => sum + data.value);
 
-                  final total = state.detail
-                      .fold<int>(0, (sum, data) => sum + data.value);
+                        final total = state.detail.fold<int>(
+                          0,
+                          (sum, data) => sum + data.value,
+                        );
 
-                  return Column(
-                    children: [
-                      SizedBox(
-                        height: 48,
-                        child: Row(
-                          spacing: 15,
-                          crossAxisAlignment: CrossAxisAlignment.center,
+                        return Column(
                           children: [
-                            if (selectedPaymentLabel!.toUpperCase() == "QRIS")
-                              Image.asset("./assets/logo/qris.png", width: 50),
-                            if (selectedPaymentLabel!.toUpperCase() == "BRIZI")
-                              Image.asset("./assets/logo/brizzi.png", width: 50),
-                            if (selectedPaymentLabel!.toUpperCase() == "DEBIT CARD")
-                              Image.asset("./assets/logo/card.png", width: 50),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                            SizedBox(
+                              height: 48,
+                              child: Row(
+                                spacing: 15,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  if (selectedPaymentLabel!.toUpperCase() ==
+                                      "QRIS")
+                                    Image.asset(
+                                      "./assets/logo/qris.png",
+                                      width: 50,
+                                    ),
+                                  if (selectedPaymentLabel!.toUpperCase() ==
+                                      "BRIZI")
+                                    Image.asset(
+                                      "./assets/logo/brizzi.png",
+                                      width: 50,
+                                    ),
+                                  if (selectedPaymentLabel!.toUpperCase() ==
+                                      "DEBIT CARD")
+                                    Image.asset(
+                                      "./assets/logo/card.png",
+                                      width: 50,
+                                    ),
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        selectedPaymentLabel.toString(),
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      Text(
+                                        StringFormatter().idrFormatter(100000),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const Divider(thickness: 1, color: Colors.black26),
+                            Row(
                               children: [
-                                Text(
-                                  selectedPaymentLabel.toString(),
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w600,
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "Total Penumpang",
+                                        style: TextStyle(fontSize: 10),
+                                      ),
+                                      Text(
+                                        totalPenumpang.toString(),
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                                Text(StringFormatter().idrFormatter(100000)),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "Total Pendapatan",
+                                        style: TextStyle(fontSize: 10),
+                                      ),
+                                      Text(
+                                        StringFormatter().idrFormatter(
+                                          totalPerPayment,
+                                        ),
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "Total",
+                                        style: TextStyle(fontSize: 10),
+                                      ),
+                                      Text(
+                                        StringFormatter().idrFormatter(total),
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ],
                             ),
                           ],
-                        ),
-                      ),
-                      const Divider(thickness: 1, color: Colors.black26),
-                      Row(
+                        );
+                      },
+                    ),
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  BlocBuilder<SettlementBloc, SettlementState>(
+                    builder: (context, state) {
+                      return Column(
                         children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Total Penumpang",
-                                  style: TextStyle(fontSize: 10),
-                                ),
-                                Text(
-                                  totalPenumpang.toString(),
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w600,
+                          ...state.referenceCustomer.map((cust) {
+                            final detail = state.detail.firstWhere(
+                              (e) =>
+                                  e.idPayment == selectedPaymentMethod &&
+                                  e.idNasabah == cust.id,
+                            );
+
+                            return CoreInputWithSuffixField(
+                              label: cust.name,
+                              suffixText: StringFormatter().idrFormatter(
+                                detail.billingValue!,
+                              ),
+
+                              initValue: detail.total.toString(),
+
+                              rule: InputRuleSuffix.positiveNumber,
+
+                              onChanged: (val) {
+                                context.read<SettlementBloc>().add(
+                                  UpdateDetail(
+                                    idPayment: selectedPaymentMethod,
+                                    idNasabah: cust.id,
+                                    total: int.tryParse(val) ?? 0,
+                                    value: int.tryParse(val) != null
+                                        ? int.tryParse(val)! *
+                                              detail.billingValue!
+                                        : 0,
                                   ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Total Pendapatan",
-                                  style: TextStyle(fontSize: 10),
-                                ),
-                                Text(
-                                  StringFormatter().idrFormatter(totalPerPayment),
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text("Total", style: TextStyle(fontSize: 10)),
-                                Text(
-                                  StringFormatter().idrFormatter(total),
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                                );
+                              },
+                            );
+                          }),
                         ],
-                      ),
-                    ],
-                  );
-                }
+                      );
+                    },
+                  ),
+                ],
               ),
-            ),
-
-          const SizedBox(height: 10),
-
-          if (selectedPaymentMethod != 0)
-            BlocBuilder<SettlementBloc, SettlementState>(
-              builder: (context, state) {
-                return Column(
-                  children: [
-                    ...state.referenceCustomer.map((cust) {
-                      final detail = state.detail.firstWhere(
-                        (e) =>
-                            e.idPayment == selectedPaymentMethod &&
-                            e.idNasabah == cust.id,
-                      );
-
-                      return CoreInputWithSuffixField(
-                        label: cust.name,
-                        suffixText: StringFormatter().idrFormatter(
-                          detail.billingValue,
-                        ),
-
-                        initValue: detail.total.toString(),
-
-                        rule: InputRuleSuffix.positiveNumber,
-
-                        onChanged: (val) {
-                          context.read<SettlementBloc>().add(
-                            UpdateDetail(
-                              idPayment: selectedPaymentMethod,
-                              idNasabah: cust.id,
-                              total: int.tryParse(val) ?? 0,
-                              value: int.tryParse(val) != null
-                                  ? int.tryParse(val)! * detail.billingValue
-                                  : 0,
-                            ),
-                          );
-                        },
-                      );
-                    }),
-                  ],
-                );
-              },
             ),
         ],
       ),

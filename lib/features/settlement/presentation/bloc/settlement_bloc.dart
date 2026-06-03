@@ -1,12 +1,15 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/document_preview.dart';
+import 'package:psm_mobile/features/settlement/domain/entities/reference_bus.dart';
+import 'package:psm_mobile/features/settlement/domain/entities/reference_detail.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/settlement_create.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/settlement_detail.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/settlement_document.dart';
 import 'package:psm_mobile/features/settlement/domain/repositories/settlement_repository.dart';
 import 'settlement_event.dart';
 import 'settlement_state.dart';
+import 'dart:convert';
 
 class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
   final SettlementRepository settlementRepository;
@@ -15,86 +18,76 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
     on<PageInputLoad>((event, emit) async {
       emit(state.copyWith(status: SettlementStatus.loading));
 
-      final resultKoridor = await settlementRepository.fetchReferenceKoridor(
-        '',
-      );
-      final resultPayment = await settlementRepository.fetchReferencePayment(
-        '',
-      );
-      final resultCustType = await settlementRepository.fetchReferenceCustType(
-        '',
-      );
-
-      List paymentList = [];
-      List custList = [];
-
-      resultKoridor.fold(
-        (failure) {
-          emit(
-            state.copyWith(
-              status: SettlementStatus.error,
-              message: failure.message,
-            ),
-          );
-        },
-        (data) {
-          emit(state.copyWith(referenceKoridor: data));
-        },
-      );
-
-      resultPayment.fold(
-        (failure) {
-          emit(
-            state.copyWith(
-              status: SettlementStatus.error,
-              message: failure.message,
-            ),
-          );
-        },
-        (data) {
-          paymentList = data;
-          emit(state.copyWith(referencePayment: data));
-        },
-      );
-
-      resultCustType.fold(
-        (failure) {
-          emit(
-            state.copyWith(
-              status: SettlementStatus.error,
-              message: failure.message,
-            ),
-          );
-        },
-        (data) {
-          custList = data;
-          emit(state.copyWith(referenceCustomer: data));
-        },
-      );
-
-      if (paymentList.isEmpty || custList.isEmpty) {
-        emit(
-          state.copyWith(
-            status: SettlementStatus.error,
-            message: 'Data reference tidak lengkap',
-          ),
+      try {
+        final resultKoridor = await settlementRepository.fetchReferenceKoridor(
+          '',
         );
-        return;
-      }
 
-      List<SettlementDetail> details = [];
-      List<SettlementDocument> documents = [];
-      List<DocumentPreview> documentsPreview = [];
-      List<String> labelCustomer = [];
+        final resultPayment = await settlementRepository.fetchReferencePayment(
+          '',
+        );
 
-      for (final payment in paymentList) {
-        for (final cust in custList) {
-          labelCustomer.add(cust.name);
+        final resultCustType = await settlementRepository
+            .fetchReferenceCustType('');
 
-          final resultCustBill = await settlementRepository
-              .fetchReferenceCustomerBilling(cust.id);
+        int? auditTrailId;
+        int? idKoridor;
+        int? idBus;
+        double? ritaseKe;
+        String? namaKoridor;
+        String? noUnit;
 
-          resultCustBill.fold(
+        List<SettlementDetail> details = [];
+        List<SettlementDetail> existingDetails = [];
+        List<SettlementDocument> existingDocuments = [];
+
+        List<SettlementDocument> documents = [];
+        List<DocumentPreview> documentsPreview = [];
+        List<String> labelCustomer = [];
+
+        List<ReferenceDetail> paymentList = [];
+        List<ReferenceDetail> custList = [];
+        List<ReferenceBus> busList = [];
+
+        if (event.idAuditTrail != null) {
+          final detailSettlement = await settlementRepository
+              .fetchTaskAuditTrailDetail(event.idAuditTrail!);
+
+          final isSuccess = detailSettlement.fold(
+            (failure) {
+              emit(
+                state.copyWith(
+                  status: SettlementStatus.error,
+                  message: failure.message,
+                ),
+              );
+              return false;
+            },
+            (data) {
+              auditTrailId = event.idAuditTrail;
+              idKoridor = data.idKoridor;
+              idBus = data.detail.first.idBus;
+              ritaseKe = data.detail.first.ritaseKe;
+
+              existingDetails = data.detail;
+              existingDocuments = data.document;
+
+              debugPrint(
+                const JsonEncoder.withIndent('  ').convert(data.toJson()),
+              );
+
+              return true;
+            },
+          );
+
+          if (!isSuccess) return;
+
+          final resultBus = await settlementRepository.fetchReferenceBus(
+            '',
+            idKoridor!,
+          );
+
+          resultBus.fold(
             (failure) {
               emit(
                 state.copyWith(
@@ -104,34 +97,152 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
               );
             },
             (data) {
-              details.add(
-                SettlementDetail(
-                  idBus: 0,
-                  ritaseKe: 0,
-                  idPayment: payment.id,
-                  idNasabah: cust.id,
-                  idCustomerBilling: data[0].id,
-                  total: 0,
-                  value: 0,
-                  billingValue: int.parse(data[0].value),
-                ),
-              );
+              busList = data;
             },
           );
-        }
-      }
 
-      emit(
-        state.copyWith(
-          status: SettlementStatus.success,
-          // totalSteps: paymentList.length + 2,
-          totalSteps: 3,
-          detail: details,
-          labelCustomer: labelCustomer,
-          document: documents,
-          documentPreview: documentsPreview,
-        ),
-      );
+          if (emit.isDone) return;
+        }
+
+        final koridorList = resultKoridor.fold((failure) {
+          emit(
+            state.copyWith(
+              status: SettlementStatus.error,
+              message: failure.message,
+            ),
+          );
+          return null;
+        }, (data) => data);
+
+        if (koridorList == null) return;
+
+        paymentList = resultPayment.fold((failure) {
+          emit(
+            state.copyWith(
+              status: SettlementStatus.error,
+              message: failure.message,
+            ),
+          );
+          return [];
+        }, (data) => data);
+
+        if (paymentList.isEmpty) return;
+
+        custList = resultCustType.fold((failure) {
+          emit(
+            state.copyWith(
+              status: SettlementStatus.error,
+              message: failure.message,
+            ),
+          );
+          return [];
+        }, (data) => data);
+
+        if (custList.isEmpty) return;
+
+        if (idKoridor != null) {
+          final koridor = koridorList.where((e) => e.id == idKoridor);
+
+          if (koridor.isNotEmpty) {
+            namaKoridor = koridor.first.name;
+          }
+        }
+
+        if (idBus != null) {
+          final bus = busList.where((e) => e.id == idBus);
+
+          if (bus.isNotEmpty) {
+            noUnit = bus.first.platNomor;
+          }
+        }
+
+        for (final payment in paymentList) {
+          for (final cust in custList) {
+            if (!labelCustomer.contains(cust.name)) {
+              labelCustomer.add(cust.name);
+            }
+
+            final resultCustBill = await settlementRepository
+                .fetchReferenceCustomerBilling(cust.id);
+
+            resultCustBill.fold(
+              (failure) {
+                emit(
+                  state.copyWith(
+                    status: SettlementStatus.error,
+                    message: failure.message,
+                  ),
+                );
+              },
+              (billingData) {
+                if (billingData.isEmpty) return;
+
+                final existing = existingDetails.where(
+                  (e) => e.idPayment == payment.id && e.idNasabah == cust.id,
+                );
+
+                final oldData = existing.isNotEmpty ? existing.first : null;
+
+                details.add(
+                  SettlementDetail(
+                    idBus: oldData?.idBus ?? idBus ?? 0,
+                    ritaseKe: oldData?.ritaseKe ?? ritaseKe ?? 0,
+
+                    idPayment: payment.id,
+                    idNasabah: cust.id,
+
+                    idCustomerBilling: billingData.first.id,
+
+                    billingValue: int.tryParse(billingData.first.value) ?? 0,
+
+                    total: oldData?.total ?? 0,
+                    value: oldData?.value ?? 0,
+                  ),
+                );
+              },
+            );
+
+            if (emit.isDone) return;
+          }
+        }
+
+        documents = List<SettlementDocument>.from(existingDocuments);
+
+        documentsPreview = existingDocuments
+            .where((e) => (e.urlDoc ?? '').isNotEmpty)
+            .map(
+              (e) => DocumentPreview(idDocument: e.idDocument, url: e.urlDoc!),
+            )
+            .toList();
+
+        emit(
+          state.copyWith(
+            auditTrailId: auditTrailId,
+            status: SettlementStatus.success,
+            idKoridor: idKoridor,
+            idBus: idBus,
+            ritase: ritaseKe,
+            namaKoridor: namaKoridor,
+            noUnit: noUnit,
+            referenceKoridor: koridorList,
+            referenceBus: busList,
+            referencePayment: paymentList,
+            referenceCustomer: custList,
+            totalSteps: 3,
+            detail: details,
+            labelCustomer: labelCustomer,
+            document: documents,
+            documentPreview: documentsPreview,
+          ),
+        );
+      } catch (e, s) {
+        debugPrint(e.toString());
+        debugPrint(s.toString());
+
+        emit(
+          state.copyWith(status: SettlementStatus.error, message: e.toString()),
+        );
+      }
     });
 
     on<PageDashboardLoad>((event, emit) async {
@@ -159,12 +270,7 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
     });
 
     on<SelectBus>((event, emit) async {
-      emit(
-        state.copyWith(
-          idBus: event.id,
-          noUnit: event.noUnit,
-        ),
-      );
+      emit(state.copyWith(idBus: event.id, noUnit: event.noUnit));
 
       final nextRitase = await settlementRepository.fetchNextRitase(
         state.idKoridor,
@@ -172,7 +278,7 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
       );
 
       nextRitase.fold(
-            (failure) {
+        (failure) {
           emit(
             state.copyWith(
               status: SettlementStatus.error,
@@ -180,20 +286,12 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
             ),
           );
         },
-            (ritaseValue) {
+        (ritaseValue) {
           final updatedDetails = state.detail.map((detail) {
-            return detail.copyWith(
-              idBus: event.id,
-              ritaseKe: ritaseValue,
-            );
+            return detail.copyWith(idBus: event.id, ritaseKe: ritaseValue);
           }).toList();
 
-          emit(
-            state.copyWith(
-              ritase: ritaseValue,
-              detail: updatedDetails,
-            ),
-          );
+          emit(state.copyWith(ritase: ritaseValue, detail: updatedDetails));
         },
       );
     });
@@ -231,8 +329,8 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
       final details = List<SettlementDetail>.from(state.detail);
 
       final index = details.indexWhere(
-            (e) =>
-        e.idPayment == event.detail.idPayment &&
+        (e) =>
+            e.idPayment == event.detail.idPayment &&
             e.idNasabah == event.detail.idNasabah,
       );
 
@@ -260,11 +358,7 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
         return detail;
       }).toList();
 
-      emit(
-        state.copyWith(
-          detail: updatedDetails,
-        ),
-      );
+      emit(state.copyWith(detail: updatedDetails));
     });
 
     on<AddDocument>((event, emit) {
@@ -340,7 +434,21 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
         document: state.document,
       );
 
+      final prettyDoc = const JsonEncoder.withIndent(
+        '  ',
+      ).convert(state.document);
+      debugPrint("prettyDoc");
+      debugPrint(prettyDoc);
+
+      final prettyJson = const JsonEncoder.withIndent(
+        '  ',
+      ).convert(request.toJson());
+      debugPrint(prettyJson);
+
       var result;
+
+      print("state.auditTrailId.toString()");
+      print(state.auditTrailId.toString());
 
       if (state.auditTrailId.toString() != '0') {
         if (kDebugMode) {

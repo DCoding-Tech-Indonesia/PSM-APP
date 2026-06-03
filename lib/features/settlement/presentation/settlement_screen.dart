@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:psm_mobile/core/helper/string_formatter.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_blur_dialog.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_state.dart';
+import 'package:psm_mobile/features/settlement/presentation/widgets/history_settlement_card.dart';
 import 'package:psm_mobile/features/settlement/presentation/widgets/settlement_header.dart';
 
 import 'bloc/settlement_bloc.dart';
@@ -240,14 +241,10 @@ class _SettlementScreenState extends State<SettlementScreen> {
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(20),
-                            border: Border.all(
-                              color: Colors.grey[300]!,
-                            ),
+                            border: Border.all(color: Colors.grey[300]!),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withValues(
-                                  alpha: 0.05,
-                                ),
+                                color: Colors.black.withValues(alpha: 0.05),
                                 blurRadius: 20,
                                 offset: const Offset(0, 10),
                               ),
@@ -397,15 +394,26 @@ class _SettlementScreenState extends State<SettlementScreen> {
                             ],
                           ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: ListView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: 5,
-                            itemBuilder: (context, index) =>
-                                _buildHistoryItem(),
-                          ),
+                        BlocBuilder<SettlementBloc, SettlementState>(
+                          builder: (context, state) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                              ),
+                              child: ListView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: state.listTaskAuditTrail.length,
+                                itemBuilder: (context, index) {
+                                  final taskAuditTrail = state.listTaskAuditTrail[index];
+
+                                  return HistorySettlementCard(
+                                    data: taskAuditTrail,
+                                  );
+                                },
+                              ),
+                            );
+                          },
                         ),
                       ],
                     ),
@@ -415,70 +423,6 @@ class _SettlementScreenState extends State<SettlementScreen> {
             );
           },
         ),
-      ),
-    );
-  }
-
-  Widget _buildHistoryItem() {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 5),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(
-              alpha: 0.05,
-            ),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            spacing: 10,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(7),
-                decoration: BoxDecoration(
-                  color: Colors.blue,
-                  borderRadius: BorderRadius.circular(999),
-                ),
-                child: Text("0.5", style: TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.w700)),
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Koridor A',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-                  ),
-                  DefaultTextStyle(
-                    style: const TextStyle(
-                      fontSize: 10,
-                      color: Colors.blueGrey,
-                    ),
-                    child: Row(
-                      spacing: 8,
-                      children: const [
-                        Text('BA 1945 AG'),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const Text(
-            '19.45',
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
-          ),
-        ],
       ),
     );
   }
