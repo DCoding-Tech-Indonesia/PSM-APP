@@ -54,9 +54,9 @@ class HistorySettlementCard extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
                         decoration: BoxDecoration(
-                            color: Colors.yellowAccent,
+                            color: data.status.code == "APR" ? Colors.greenAccent : Colors.yellowAccent,
                             borderRadius: BorderRadius.circular(99),
-                            border: Border.all(width: 1, color: Colors.yellow)
+                            border: Border.all(width: 1, color: data.status.code == "APR" ? Colors.green : Colors.yellow)
                         ),
                         child: Text(data.status.name, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600)),
                       ),
