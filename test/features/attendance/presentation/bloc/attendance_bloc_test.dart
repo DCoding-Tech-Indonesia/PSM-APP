@@ -101,12 +101,10 @@ void main() {
         canCheckIn: true,
         locationStatus: 'In Range',
         distanceFromOffice: '50m',
-        // stats: AttendanceStats(),
+        stats: AttendanceStats(),
         history: [],
-        shifts: [],
-        bus: [],
       ),
-      act: (bloc) => bloc.add(CheckInRequested(busId: 1, shiftId: 1)),
+      act: (bloc) => bloc.add(CheckInRequested()),
       expect: () => [
         isA<AttendanceLoaded>().having((s) => s.isLoading, 'isLoading', true),
         isA<AttendanceLoaded>().having(

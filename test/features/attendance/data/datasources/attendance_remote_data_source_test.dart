@@ -6,6 +6,7 @@ import 'package:psm_mobile/features/attendance/data/datasources/attendance_remot
 import 'package:psm_mobile/features/attendance/data/models/attendance_request.dart';
 
 class MockDioClient extends Mock implements DioClient {}
+
 class MockDio extends Mock implements Dio {}
 
 void main() {
@@ -20,16 +21,23 @@ void main() {
     dataSource = AttendanceRemoteDataSourceImpl(mockDioClient);
   });
 
-  final tRequest = AttendanceRequest(idUser: 6, lokasiLat: -6.228, lokasiLong: 106.833);
+  final tRequest = AttendanceRequest(
+    idUser: 6,
+    lokasiLat: -6.228,
+    lokasiLong: 106.833,
+    // idBus: 1,
+    // idShift: 1,
+  );
 
   test('should return true when the response status is true', () async {
     // arrange
-    when(() => mockDio.post(any(), data: any(named: 'data')))
-        .thenAnswer((_) async => Response(
-              data: {'status': true},
-              statusCode: 200,
-              requestOptions: RequestOptions(path: ''),
-            ));
+    when(() => mockDio.post(any(), data: any(named: 'data'))).thenAnswer(
+      (_) async => Response(
+        data: {'status': true},
+        statusCode: 200,
+        requestOptions: RequestOptions(path: ''),
+      ),
+    );
 
     // act
     final result = await dataSource.postAttendance(tRequest);
@@ -41,12 +49,13 @@ void main() {
 
   test('should return false when the response status is false', () async {
     // arrange
-    when(() => mockDio.post(any(), data: any(named: 'data')))
-        .thenAnswer((_) async => Response(
-              data: {'status': false},
-              statusCode: 200,
-              requestOptions: RequestOptions(path: ''),
-            ));
+    when(() => mockDio.post(any(), data: any(named: 'data'))).thenAnswer(
+      (_) async => Response(
+        data: {'status': false},
+        statusCode: 200,
+        requestOptions: RequestOptions(path: ''),
+      ),
+    );
 
     // act
     final result = await dataSource.postAttendance(tRequest);

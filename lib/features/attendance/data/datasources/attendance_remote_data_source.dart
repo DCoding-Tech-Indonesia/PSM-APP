@@ -27,8 +27,6 @@ abstract class AttendanceRemoteDataSource {
     required String startDate,
     required String endDate,
   });
-  Future<List<dynamic>> getShifts();
-  Future<List<dynamic>> getBus();
 }
 
 class AttendanceRemoteDataSourceImpl implements AttendanceRemoteDataSource {
@@ -84,26 +82,7 @@ class AttendanceRemoteDataSourceImpl implements AttendanceRemoteDataSource {
 
       if (response.data != null && response.data['status'] == true) {
         final List data = response.data['data'];
-        final List<AttendanceRecord> records = [];
-        
-        for (var dayData in data) {
-          final int parentId = dayData['id'] ?? 0;
-          final List logs = dayData['logs'] ?? [];
-          
-          for (var log in logs) {
-            final Map<String, dynamic> logData = Map<String, dynamic>.from(log);
-            logData['id'] = parentId;
-            records.add(AttendanceRecord.fromJson(logData));
-          }
-        }
-        
-        records.sort((a, b) {
-          if (a.checkIn == null) return 1;
-          if (b.checkIn == null) return -1;
-          return b.checkIn!.compareTo(a.checkIn!);
-        });
-
-        return records;
+        return data.map((json) => AttendanceRecord.fromJson(json)).toList();
       }
       return [];
     } catch (e) {
@@ -178,40 +157,6 @@ class AttendanceRemoteDataSourceImpl implements AttendanceRemoteDataSource {
       if (response.data != null && response.data['status'] == true) {
         final List data = response.data['data'] ?? [];
         return data.map((json) => ScheduleModel.fromJson(json)).toList();
-      }
-      return [];
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  @override
-  Future<List<dynamic>> getShifts() async {
-    try {
-      final response = await _dioClient.instance.get(
-        '/reference/shift-karyawan',
-        queryParameters: {'page': 1, 'perPage': 1000},
-      );
-
-      if (response.data != null && response.data['status'] == true) {
-        return response.data['data'] ?? [];
-      }
-      return [];
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  @override
-  Future<List<dynamic>> getBus() async {
-    try {
-      final response = await _dioClient.instance.get(
-        '/reference/bus',
-        queryParameters: {'page': 1, 'perPage': 1000},
-      );
-
-      if (response.data != null && response.data['status'] == true) {
-        return response.data['data'] ?? [];
       }
       return [];
     } catch (e) {

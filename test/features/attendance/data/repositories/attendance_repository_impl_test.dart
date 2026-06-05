@@ -18,15 +18,24 @@ void main() {
 
   setUp(() {
     mockRemoteDataSource = MockRemoteDataSource();
-    repository = AttendanceRepositoryImpl(remoteDataSource: mockRemoteDataSource);
+    repository = AttendanceRepositoryImpl(
+      remoteDataSource: mockRemoteDataSource,
+    );
   });
 
-  final tRequest = AttendanceRequest(idUser: 6, lokasiLat: -6.228, lokasiLong: 106.833);
+  final tRequest = AttendanceRequest(
+    idUser: 6,
+    lokasiLat: -6.228,
+    lokasiLong: 106.833,
+    // idBus: 1,
+    // idShift: 1,
+  );
 
   test('should call remote data source and return its result', () async {
     // arrange
-    when(() => mockRemoteDataSource.postAttendance(any()))
-        .thenAnswer((_) async => true);
+    when(
+      () => mockRemoteDataSource.postAttendance(any()),
+    ).thenAnswer((_) async => true);
 
     // act
     final result = await repository.submitAttendance(tRequest);

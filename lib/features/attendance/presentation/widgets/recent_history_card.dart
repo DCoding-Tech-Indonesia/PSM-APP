@@ -6,10 +6,7 @@ import 'package:psm_mobile/features/attendance/data/models/attendance_record.dar
 class RecentHistoryCard extends StatelessWidget {
   final AttendanceLoaded state;
 
-  const RecentHistoryCard({
-    super.key,
-    required this.state,
-  });
+  const RecentHistoryCard({super.key, required this.state});
 
   @override
   Widget build(BuildContext context) {
@@ -26,10 +23,7 @@ class RecentHistoryCard extends StatelessWidget {
               const Expanded(
                 child: Text(
                   'Riwayat Terakhir',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -79,9 +73,7 @@ class RecentHistoryCard extends StatelessWidget {
               ),
             )
           else
-            ...state.history.map(
-              (record) => _buildHistoryItem(record, size),
-            ),
+            ...state.history.map((record) => _buildHistoryItem(record, size)),
         ],
       ),
     );
@@ -129,8 +121,6 @@ class RecentHistoryCard extends StatelessWidget {
                   children: [
                     _buildMiniBadge('In: ${record.checkInTime}', Colors.green),
                     _buildMiniBadge('Out: ${record.checkOutTime}', Colors.red),
-                    if (record.shiftName != null && record.shiftName!.isNotEmpty)
-                      _buildMiniBadge(record.shiftName!, Colors.blue),
                   ],
                 ),
               ],

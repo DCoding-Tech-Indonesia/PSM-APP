@@ -20,7 +20,4 @@ abstract class AttendanceRepository {
     required String startDate,
     required String endDate,
   });
-
-  Future<List<dynamic>> getShifts();
-  Future<List<dynamic>> getBus();
 }

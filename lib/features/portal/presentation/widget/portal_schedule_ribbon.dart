@@ -83,9 +83,9 @@ class _PortalScheduleRibbonState extends State<PortalScheduleRibbon> {
     return BlocBuilder<AttendanceBloc, AttendanceState>(
       builder: (context, state) {
         List<ScheduleModel> schedules = [];
-        // if (state is AttendanceLoaded) {
-        //   schedules = state.schedules;
-        // }
+        if (state is AttendanceLoaded) {
+          schedules = state.schedules;
+        }
 
         // Find schedule for selected date
         ScheduleModel? currentSchedule;

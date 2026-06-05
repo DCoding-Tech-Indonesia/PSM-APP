@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:psm_mobile/features/attendance/data/models/attendance_record.dart';
-// import 'package:psm_mobile/features/attendance/data/models/schedule_model.dart';
+import 'package:psm_mobile/features/attendance/data/models/schedule_model.dart';
 
 abstract class AttendanceEvent extends Equatable {
   @override
@@ -19,15 +19,7 @@ class UpdateTime extends AttendanceEvent {}
 
 class RefreshLocation extends AttendanceEvent {}
 
-class CheckInRequested extends AttendanceEvent {
-  final int shiftId;
-  final int busId;
-
-  CheckInRequested({required this.shiftId, required this.busId});
-
-  @override
-  List<Object?> get props => [shiftId, busId];
-}
+class CheckInRequested extends AttendanceEvent {}
 
 class CheckOutRequested extends AttendanceEvent {}
 
@@ -55,13 +47,11 @@ class AttendanceLoaded extends AttendanceState {
   final String locationStatus;
   final String distanceFromOffice;
   final String? errorMessage;
+  final AttendanceStats stats;
   final List<AttendanceRecord> history;
-  // final AttendanceStats stats;
-  // final List<ScheduleModel> schedules;
+  final List<ScheduleModel> schedules;
   final String radiusInfo;
   final bool isCadangan;
-  final List<dynamic> shifts;
-  final List<dynamic> bus;
 
   AttendanceLoaded({
     required this.userId,
@@ -76,13 +66,11 @@ class AttendanceLoaded extends AttendanceState {
     required this.locationStatus,
     required this.distanceFromOffice,
     this.errorMessage,
+    required this.stats,
     required this.history,
-    // required this.stats,
-    // this.schedules = const [],
+    this.schedules = const [],
     this.radiusInfo = '100m',
     this.isCadangan = false,
-    required this.shifts,
-    required this.bus,
   });
 
   @override
@@ -99,13 +87,11 @@ class AttendanceLoaded extends AttendanceState {
     locationStatus,
     distanceFromOffice,
     errorMessage,
+    stats,
     history,
-    // stats,
-    // schedules,
+    schedules,
     radiusInfo,
     isCadangan,
-    shifts,
-    bus,
   ];
 
   AttendanceLoaded copyWith({
@@ -121,13 +107,11 @@ class AttendanceLoaded extends AttendanceState {
     String? locationStatus,
     String? distanceFromOffice,
     String? errorMessage,
+    AttendanceStats? stats,
     List<AttendanceRecord>? history,
-    // AttendanceStats? stats,
-    // List<ScheduleModel>? schedules,
+    List<ScheduleModel>? schedules,
     String? radiusInfo,
     bool? isCadangan,
-    List<dynamic>? shifts,
-    List<dynamic>? bus,
   }) {
     return AttendanceLoaded(
       userId: userId ?? this.userId,
@@ -142,13 +126,11 @@ class AttendanceLoaded extends AttendanceState {
       locationStatus: locationStatus ?? this.locationStatus,
       distanceFromOffice: distanceFromOffice ?? this.distanceFromOffice,
       errorMessage: errorMessage,
+      stats: stats ?? this.stats,
       history: history ?? this.history,
-      // stats: stats ?? this.stats,
-      // schedules: schedules ?? this.schedules,
+      schedules: schedules ?? this.schedules,
       radiusInfo: radiusInfo ?? this.radiusInfo,
       isCadangan: isCadangan ?? this.isCadangan,
-      shifts: shifts ?? this.shifts,
-      bus: bus ?? this.bus,
     );
   }
 }

@@ -161,7 +161,9 @@ class AttendanceStatusCard extends StatelessWidget {
             children: [
               Expanded(
                 child: InkWell(
-                  onTap: (state.isLoading || state.radiusInfo == '0m' || state.isCheckedIn)
+                  onTap: (state.isLoading || state.radiusInfo == '0m')
+                      ? null
+                      : state.isCheckedIn
                       ? null
                       : () {
                           if (state.isMocked) {
@@ -183,21 +185,9 @@ class AttendanceStatusCard extends StatelessWidget {
                               message:
                                   'Apakah Anda yakin ingin melakukan Check-in sekarang?',
                               color: Colors.green,
-                              onConfirm: () =>
-                                  context.read<AttendanceBloc>().add(
-                                    CheckInRequested(
-                                      shiftId:
-                                          int.tryParse(
-                                            state.shifts.first['id'].toString(),
-                                          ) ??
-                                          0,
-                                      busId:
-                                          int.tryParse(
-                                            state.bus.first['id'].toString(),
-                                          ) ??
-                                          0,
-                                    ),
-                                  ),
+                              onConfirm: () => context
+                                  .read<AttendanceBloc>()
+                                  .add(CheckInRequested()),
                             );
                           }
                         },
@@ -213,7 +203,9 @@ class AttendanceStatusCard extends StatelessWidget {
               const SizedBox(width: 16),
               Expanded(
                 child: InkWell(
-                  onTap: (state.isLoading || state.radiusInfo == '0m' || !state.isCheckedIn)
+                  onTap: (state.isLoading || state.radiusInfo == '0m')
+                      ? null
+                      : (state.checkOutTime.isNotEmpty || !state.isCheckedIn)
                       ? null
                       : () {
                           if (state.isMocked) {
@@ -235,10 +227,9 @@ class AttendanceStatusCard extends StatelessWidget {
                               message:
                                   'Apakah Anda yakin ingin melakukan Check-out sekarang?',
                               color: Colors.red,
-                              onConfirm: () =>
-                                  context.read<AttendanceBloc>().add(
-                                    CheckOutRequested(),
-                                  ),
+                              onConfirm: () => context
+                                  .read<AttendanceBloc>()
+                                  .add(CheckOutRequested()),
                             );
                           }
                         },

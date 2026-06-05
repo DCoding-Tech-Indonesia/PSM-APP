@@ -1,13 +1,11 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:psm_mobile/features/attendance/data/models/attendance_record.dart';
 import 'package:psm_mobile/features/attendance/data/models/attendance_request.dart';
-// import 'package:psm_mobile/features/attendance/data/models/schedule_model.dart';
+import 'package:psm_mobile/features/attendance/data/models/schedule_model.dart';
 import 'package:psm_mobile/features/attendance/domain/repositories/attendance_repository.dart';
 import 'package:psm_mobile/core/helper/location_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'attendance_state.dart';
 
 class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
@@ -49,11 +47,9 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
       canCheckIn: false,
       locationStatus: 'Mencari lokasi...',
       distanceFromOffice: '0m',
+      stats: AttendanceStats(),
       history: [],
-      // stats: AttendanceStats(),
-      // schedules: [],
-      shifts: [],
-      bus: [],
+      schedules: [],
     );
     emit(initialState);
 
@@ -84,46 +80,42 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
       final now = DateTime.now();
 
       // Calculate start and end date for 7 days schedule (Today in the middle)
-      // final startDate = DateFormat(
-      //   'yyyy-MM-dd',
-      // ).format(now.subtract(const Duration(days: 3)));
-      // final endDate = DateFormat(
-      //   'yyyy-MM-dd',
-      // ).format(now.add(const Duration(days: 3)));
+      final startDate = DateFormat(
+        'yyyy-MM-dd',
+      ).format(now.subtract(const Duration(days: 3)));
+      final endDate = DateFormat(
+        'yyyy-MM-dd',
+      ).format(now.add(const Duration(days: 3)));
 
       // Fetch History, Stats, and Schedules in parallel
       final results = await Future.wait([
         repository.getHistory(uId, 3),
-        // repository.getStats(userId: uId, month: now.month, year: now.year),
-        // repository.getSchedules(
-        //   userId: uId,
-        //   startDate: startDate,
-        //   endDate: endDate,
-        // ),
-        repository.getShifts(),
-        repository.getBus(),
+        repository.getStats(userId: uId, month: now.month, year: now.year),
+        repository.getSchedules(
+          userId: uId,
+          startDate: startDate,
+          endDate: endDate,
+        ),
       ]);
 
       final List<AttendanceRecord> history =
           results[0] as List<AttendanceRecord>;
-      // final Map<String, dynamic>? statsResponse =
-      //     results[1] as Map<String, dynamic>?;
-      // final List<ScheduleModel> schedules = results[2] as List<ScheduleModel>;
-      final List<dynamic> shifts = results[1] as List<dynamic>;
-      final List<dynamic> bus = results[2] as List<dynamic>;
+      final Map<String, dynamic>? statsResponse =
+          results[1] as Map<String, dynamic>?;
+      final List<ScheduleModel> schedules = results[2] as List<ScheduleModel>;
 
-      // AttendanceStats stats = currentState.stats;
-      // if (statsResponse != null &&
-      //     statsResponse['data'] is List &&
-      //     (statsResponse['data'] as List).isNotEmpty) {
-      //   final data = statsResponse['data'][0];
-      //   stats = AttendanceStats(
-      //     totalDays: data['totalJadwal'] ?? 0,
-      //     presentDays: data['totalHadir'] ?? 0,
-      //     lateDays: data['totalTerlambat'] ?? 0,
-      //     absentDays: data['totalAbsen'] ?? 0,
-      //   );
-      // }
+      AttendanceStats stats = currentState.stats;
+      if (statsResponse != null &&
+          statsResponse['data'] is List &&
+          (statsResponse['data'] as List).isNotEmpty) {
+        final data = statsResponse['data'][0];
+        stats = AttendanceStats(
+          totalDays: data['totalJadwal'] ?? 0,
+          presentDays: data['totalHadir'] ?? 0,
+          lateDays: data['totalTerlambat'] ?? 0,
+          absentDays: data['totalAbsen'] ?? 0,
+        );
+      }
 
       bool isCheckedIn = false;
       String checkInTime = '';
@@ -137,7 +129,7 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
             : '';
 
         if (todayStr == lastDateStr) {
-          isCheckedIn = last.checkIn != null && last.checkOut == null;
+          isCheckedIn = last.checkIn != null;
           checkInTime = last.checkInTime;
           checkOutTime = last.checkOut != null ? last.checkOutTime : '';
         }
@@ -147,20 +139,14 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
         currentState.copyWith(
           isLoading: false,
           history: history,
-          // stats: stats,
-          // schedules: schedules,
+          stats: stats,
+          schedules: schedules,
           isCheckedIn: isCheckedIn,
           checkInTime: checkInTime,
           checkOutTime: checkOutTime,
-          shifts: shifts,
-          bus: bus,
         ),
       );
-    } catch (e, stackTrace) {
-      if (kDebugMode) {
-        print('=== Error in _fetchHistoryAndEmit: $e ===');
-        print(stackTrace);
-      }
+    } catch (e) {
       emit(currentState.copyWith(isLoading: false));
     }
   }
@@ -221,8 +207,6 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
                       : namaLokasi,
                   radiusInfo: radiusStr,
                   isCadangan: isCadangan,
-                  shifts: s.shifts,
-                  bus: s.bus,
                 ),
               );
             } else {
@@ -245,8 +229,6 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
             distanceFromOffice: '0m',
             radiusInfo: '0m',
             isCadangan: false,
-            shifts: s.shifts,
-            bus: s.bus,
           ),
         );
       }
@@ -279,17 +261,11 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
           idUser: int.tryParse(s.userId) ?? 0,
           lokasiLat: position.latitude,
           lokasiLong: position.longitude,
-          idShift: event.shiftId,
-          idBus: event.busId,
         );
 
         final success = await repository.submitAttendance(request);
 
         if (success) {
-          final prefs = await SharedPreferences.getInstance();
-          await prefs.setInt('active_shift_id', event.shiftId);
-          await prefs.setInt('active_bus_id', event.busId);
-
           // Re-fetch everything to ensure stats and history are synchronized
           await _fetchHistoryAndEmit(s.userId, emit, s);
         } else {
@@ -320,16 +296,10 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
         final position = await locationService.getCurrentLocation();
         if (position == null) throw 'Gagal mendapatkan lokasi';
 
-        final prefs = await SharedPreferences.getInstance();
-        final shiftId = prefs.getInt('active_shift_id') ?? 0;
-        final busId = prefs.getInt('active_bus_id') ?? 0;
-
         final request = AttendanceRequest(
           idUser: int.tryParse(s.userId) ?? 0,
           lokasiLat: position.latitude,
           lokasiLong: position.longitude,
-          idShift: shiftId,
-          idBus: busId,
         );
 
         final success = await repository.submitAttendance(request);

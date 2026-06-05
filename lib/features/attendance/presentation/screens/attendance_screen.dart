@@ -9,6 +9,7 @@ import 'package:psm_mobile/features/portal/presentation/bloc/portal_bloc.dart';
 import 'package:psm_mobile/features/portal/presentation/bloc/portal_state.dart';
 import 'package:psm_mobile/core/network/dio_client.dart';
 import 'package:psm_mobile/core/helper/location_service.dart';
+import 'package:psm_mobile/features/portal/presentation/widget/portal_schedule_ribbon.dart';
 import 'package:psm_mobile/features/attendance/presentation/widgets/widgets.dart';
 
 class AttendanceScreen extends StatelessWidget {
@@ -83,26 +84,30 @@ class AttendanceViewContent extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             if (state.isLoading) ...[
-                              const Center(
-                                child: Column(
-                                  children: [
-                                    SizedBox(height: 50),
-                                    CircularProgressIndicator(),
-                                    SizedBox(height: 10),
-                                    Text('Memuat data...'),
-                                  ],
+                              SizedBox(
+                                height:
+                                    MediaQuery.of(context).size.height * 0.7,
+                                child: const Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      CircularProgressIndicator(),
+                                      SizedBox(height: 10),
+                                      Text('Memuat data...'),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ] else ...[
                               DateTimeCard(state: s),
                               LocationStatusCard(state: s),
                               const SizedBox(height: 16),
-                              // const PortalScheduleRibbon(),
+                              const PortalScheduleRibbon(),
                               AttendanceStatusCard(state: s),
                               const SizedBox(height: 20),
                               AttendanceActionButtons(state: s),
-                              // const SizedBox(height: 20),
-                              // MonthlyStatsCard(state: s),
+                              const SizedBox(height: 20),
+                              MonthlyStatsCard(state: s),
                               const SizedBox(height: 20),
                               RecentHistoryCard(state: s),
                               const SizedBox(height: 40),
