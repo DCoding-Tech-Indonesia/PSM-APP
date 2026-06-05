@@ -1,4 +1,4 @@
-package com.example.psm_mobile
+package com.dcode.psm_mobile
 
 import io.flutter.embedding.android.FlutterFragmentActivity
 
