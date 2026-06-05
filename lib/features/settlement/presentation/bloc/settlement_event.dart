@@ -84,3 +84,9 @@ class SubmitWorkflow extends SettlementEvent {
 
   SubmitWorkflow(this.reason);
 }
+
+class ChangeTabDetail extends SettlementEvent {
+  final int tabId;
+
+  ChangeTabDetail(this.tabId);
+}

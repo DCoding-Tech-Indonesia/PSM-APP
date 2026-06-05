@@ -5,7 +5,7 @@ import 'package:psm_mobile/core/presentations/widgets/widgets.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_bloc.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_event.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_state.dart';
-import 'package:psm_mobile/features/settlement/presentation/widgets/form/wizard_detail_step_new.dart';
+import 'package:psm_mobile/features/settlement/presentation/widgets/form/wizard_detail_step.dart';
 import 'package:psm_mobile/features/settlement/presentation/widgets/form/wizard_first_step.dart';
 import 'package:psm_mobile/features/settlement/presentation/widgets/form/wizard_last_step.dart';
 import 'package:step_progress/step_progress.dart';
@@ -257,7 +257,21 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
                                 } else if (state.steps >= 2 &&
                                     state.steps <= state.totalSteps - 1) {
                                   return Expanded(
-                                    child: WizardDetailStepNew(),
+                                    child: BlocListener<SettlementBloc, SettlementState>(
+                                      listenWhen: (prev, curr) =>
+                                      prev.detailValid != curr.detailValid,
+                                      listener: (context, state) {
+                                        if (state.detailValid == false) {
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            const SnackBar(
+                                              content: Text("Data belum lengkap, harap isi semua field"),
+                                              backgroundColor: Colors.red,
+                                            ),
+                                          );
+                                        }
+                                      },
+                                      child: WizardDetailStep(),
+                                    ),
                                   );
                                 } else {
                                   return Expanded(child: WizardLastStep());
@@ -277,13 +291,19 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
                             children: [
                               CoreButton(
                                 width: size.width * 0.24,
-                                onPressed: () => {
-                                  if (state.steps > 1)
-                                    {
+                                onPressed: () {
+                                  if (state.steps > 1) {
+                                    if (state.steps == 2 && state.activeTabIndex > 0) {
                                       context.read<SettlementBloc>().add(
-                                        MoveStepWizard(state.steps - 1),
-                                      ),
-                                    },
+                                        ChangeTabDetail(state.activeTabIndex - 1),
+                                      );
+                                      return;
+                                    }
+
+                                    context.read<SettlementBloc>().add(
+                                      MoveStepWizard(state.steps - 1),
+                                    );
+                                  }
                                 },
                                 borderRadius: 15,
                                 borderColor: state.steps > 1
@@ -304,7 +324,22 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
                                   }
 
                                   if (state.steps == 2) {
-                                    await _showStep2Confirmation(context);
+                                    final nextIndex = state.activeTabIndex + 1;
+
+                                    final hasNextTab =
+                                        nextIndex < state.referencePayment.length;
+
+                                    context.read<SettlementBloc>().add(
+                                      ChangeTabDetail(nextIndex),
+                                    );
+
+                                    if (hasNextTab) {
+                                      return;
+                                    }
+
+                                    if (state.detailValid) {
+                                      await _showStep2Confirmation(context);
+                                    }
                                     return;
                                   }
 

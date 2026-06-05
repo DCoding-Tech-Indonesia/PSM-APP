@@ -195,8 +195,8 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
 
                     billingValue: int.tryParse(billingData.first.value) ?? 0,
 
-                    total: oldData?.total ?? 0,
-                    value: oldData?.value ?? 0,
+                    total: oldData?.total,
+                    value: oldData?.value,
                   ),
                 );
               },
@@ -215,8 +215,15 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
             )
             .toList();
 
+        final activeTabId = paymentList[0].id;
+
+        final activeTabLabel = paymentList[0].name;
+
         emit(
           state.copyWith(
+            activeTabIndex: 0,
+            activeTabId: activeTabId,
+            activeTabLabel: activeTabLabel,
             auditTrailId: auditTrailId,
             status: SettlementStatus.success,
             idKoridor: idKoridor,
@@ -263,10 +270,49 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
           emit(state.copyWith(listTaskAuditTrail: data));
         },
       );
+
+      emit(state.copyWith(status: SettlementStatus.success));
+
     });
 
     on<MoveStepWizard>((event, emit) {
       emit(state.copyWith(steps: event.value));
+    });
+
+    on<ChangeTabDetail>((event, emit) {
+      emit(state.copyWith(detailValid: true));
+
+      final newTabIndex = event.tabId;
+
+      if (newTabIndex > state.activeTabIndex) {
+        final currPayment = state.referencePayment[state.activeTabIndex];
+
+        final hasInvalidData = state.detail.any(
+          (data) =>
+              data.idPayment == currPayment.id &&
+              (data.total == null || data.value == null),
+        );
+
+        if (hasInvalidData) {
+          emit(state.copyWith(detailValid: false));
+          return;
+        }
+      }
+
+      if (newTabIndex < state.totalSteps) {
+        final nextPayment = state.referencePayment[newTabIndex];
+
+        final activeTabId = nextPayment.id;
+        final activeTabLabel = nextPayment.name;
+
+        emit(
+          state.copyWith(
+            activeTabIndex: newTabIndex,
+            activeTabId: activeTabId,
+            activeTabLabel: activeTabLabel,
+          ),
+        );
+      }
     });
 
     on<SelectBus>((event, emit) async {

@@ -385,15 +385,15 @@ class _AuthScreenState extends State<AuthScreen> {
                                   },
                                 ),
                                 const SizedBox(height: 20),
-                                CoreButton(
-                                  text: "Demo Widget Global",
-                                  type: CoreButtonType.outline,
-                                  width: double.infinity,
-                                  borderRadius: 15,
-                                  onPressed: () {
-                                    context.push('/widget-demo');
-                                  },
-                                ),
+                                // CoreButton(
+                                //   text: "Demo Widget Global",
+                                //   type: CoreButtonType.outline,
+                                //   width: double.infinity,
+                                //   borderRadius: 15,
+                                //   onPressed: () {
+                                //     context.push('/widget-demo');
+                                //   },
+                                // ),
                                 const SizedBox(height: 20),
                               ],
                             ),

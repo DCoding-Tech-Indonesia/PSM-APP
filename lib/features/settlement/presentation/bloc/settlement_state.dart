@@ -14,6 +14,11 @@ class SettlementState extends Equatable {
 
   final int steps;
   final int totalSteps;
+  final int activeTabIndex;
+  final int activeTabId;
+  final String activeTabLabel;
+
+  final bool detailValid;
 
   final List<ReferenceBus> referenceBus;
   final List<ReferenceDetail> referenceKoridor;
@@ -45,6 +50,11 @@ class SettlementState extends Equatable {
 
     this.steps = 1,
     this.totalSteps = 1,
+    this.activeTabIndex = 1,
+    this.activeTabId = 0,
+    this.activeTabLabel = '',
+
+    this.detailValid = true,
 
     this.referenceBus = const [],
     this.referenceKoridor = const [],
@@ -73,6 +83,11 @@ class SettlementState extends Equatable {
 
     int? steps,
     int? totalSteps,
+    int? activeTabIndex,
+    int? activeTabId,
+    String? activeTabLabel,
+
+    bool? detailValid,
 
     List<ReferenceBus>? referenceBus,
     List<ReferenceDetail>? referenceKoridor,
@@ -101,6 +116,11 @@ class SettlementState extends Equatable {
 
       steps: steps ?? this.steps,
       totalSteps: totalSteps ?? this.totalSteps,
+      activeTabIndex: activeTabIndex ?? this.activeTabIndex,
+      activeTabId: activeTabId ?? this.activeTabId,
+      activeTabLabel: activeTabLabel ?? this.activeTabLabel,
+
+      detailValid: detailValid ?? this.detailValid,
 
       referenceBus: referenceBus ?? this.referenceBus,
       referenceKoridor: referenceKoridor ?? this.referenceKoridor,
@@ -131,6 +151,11 @@ class SettlementState extends Equatable {
 
     steps,
     totalSteps,
+    activeTabIndex,
+    activeTabId,
+    activeTabLabel,
+
+    detailValid,
 
     referenceBus,
     referenceKoridor,

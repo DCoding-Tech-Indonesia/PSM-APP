@@ -7,8 +7,8 @@ class SettlementDetail extends Equatable {
   final int idPayment;
   final int idNasabah;
   final int idCustomerBilling;
-  final int total;
-  final int value;
+  final int? total;
+  final int? value;
   final int? billingValue;
 
   const SettlementDetail({
@@ -31,8 +31,8 @@ class SettlementDetail extends Equatable {
       idPayment: json['idPayment'] ?? 0,
       idNasabah: json['idNasabah'] ?? 0,
       idCustomerBilling: json['idCustomerBilling'] ?? 0,
-      total: json['total'] ?? 0,
-      value: json['value'] ?? 0,
+      total: json['total'],
+      value: json['value'],
       billingValue: json['billingValue'],
     );
   }

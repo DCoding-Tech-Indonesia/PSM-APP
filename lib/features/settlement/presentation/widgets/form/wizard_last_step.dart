@@ -60,9 +60,10 @@ class _WizardLastStepState extends State<WizardLastStep> {
 
     final state = context.read<SettlementBloc>().state;
 
-    if (state.detail.isNotEmpty) {
-      _totalTransaction = state.detail.fold(0, (sum, item) => sum + item.value);
-    }
+    _totalTransaction = state.detail.fold<int>(
+      0,
+          (sum, item) => sum + (item.value ?? 0),
+    );
   }
 
   @override
