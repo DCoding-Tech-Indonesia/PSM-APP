@@ -1,6 +1,6 @@
 # psm_mobile
 
-A new Flutter project.
+PSM Mobile Application.
 
 ## RUNNING BUAT BUILD
 
