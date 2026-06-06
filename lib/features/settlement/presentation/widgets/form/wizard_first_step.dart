@@ -19,13 +19,6 @@ class WizardFirstStep extends StatelessWidget {
         horizontal: size.width * 0.05,
         vertical: size.height * 0.03,
       ),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border(
-          top: BorderSide(color: Color(0xFFB3B3B3), width: .65),
-          bottom: BorderSide(color: Color(0xFFB3B3B3), width: .65),
-        ),
-      ),
       child: Column(
         spacing: 10,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -36,18 +29,9 @@ class WizardFirstStep extends StatelessWidget {
               return Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    spacing: 12,
-                    children: [
-                      Icon(Icons.directions_bus, color: Color(0XFF003FC0)),
-                      Text(
-                        "Pilih Bus dan Koridor",
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ],
+                  Text(
+                    "Ritase",
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
                   ),
                   Container(
                     width: 40,

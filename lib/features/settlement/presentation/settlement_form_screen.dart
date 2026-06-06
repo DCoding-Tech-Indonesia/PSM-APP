@@ -73,9 +73,7 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
 
                 Navigator.pop(dialogContext);
 
-                context.read<SettlementBloc>().add(
-                  SubmitWorkflow(note),
-                );
+                context.read<SettlementBloc>().add(SubmitWorkflow(note));
 
                 showModalBottomSheet(
                   context: context,
@@ -207,6 +205,7 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
                       title: 'Submit Settlement',
                       subtitle: 'Settlement',
                       customBgColor: Colors.white,
+                      withBorder: true,
                     ),
                     Expanded(
                       child: Padding(
@@ -216,57 +215,58 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Container(
-                              width: double.infinity,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                border: Border(
-                                  top: BorderSide(
-                                    color: Color(0xFFB3B3B3),
-                                    width: .65,
-                                  ),
-                                  bottom: BorderSide(
-                                    color: Color(0xFFB3B3B3),
-                                    width: .65,
-                                  ),
-                                ),
+                            Padding(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: size.width * 0.05,
+                                vertical: size.height * 0.01,
                               ),
-                              child: Padding(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: size.width * 0.05,
-                                  vertical: size.height * 0.01,
-                                ),
-                                child:
-                                BlocBuilder<SettlementBloc, SettlementState>(
-                                  buildWhen: (previous, current) =>
-                                  previous.steps != current.steps ||
-                                      previous.totalSteps != current.totalSteps,
-                                  builder: (context, state) {
-                                    return Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Expanded(
-                                          child: StepProgress(
-                                            totalSteps: state.totalSteps,
-                                            currentStep: state.steps - 1,
-                                            padding: const EdgeInsets.all(10),
-                                            theme: const StepProgressThemeData(
-                                              activeForegroundColor: Colors.blueAccent,
-                                              stepLineSpacing: 28,
-                                              stepLineStyle: StepLineStyle(
-                                                lineThickness: 10,
-                                                isBreadcrumb: true,
-                                              ),
-                                            ),
+                              child: BlocBuilder<SettlementBloc, SettlementState>(
+                                buildWhen: (previous, current) =>
+                                    previous.steps != current.steps ||
+                                    previous.totalSteps != current.totalSteps,
+                                builder: (context, state) {
+                                  return Column(
+                                    spacing: 8,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "Langkah ${state.steps} dari ${state.totalSteps}",
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                      if (state.steps == 1)
+                                        Text(
+                                          "Pilih Bus dan Koridor",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 18,
                                           ),
                                         ),
-                                      ],
-                                    );
-                                  },
-                                ),
+                                      if (state.steps == 2)
+                                        Text(
+                                          "Detail Settlement",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 18,
+                                          ),
+                                        ),
+                                      if (state.steps == 3)
+                                        Text(
+                                          "Summary",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 18,
+                                          ),
+                                        ),
+                                    ],
+                                  );
+                                },
                               ),
                             ),
-                            SizedBox(height: 20),
                             BlocBuilder<SettlementBloc, SettlementState>(
                               buildWhen: (prev, curr) =>
                                   prev.steps != curr.steps,
@@ -276,21 +276,30 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
                                 } else if (state.steps >= 2 &&
                                     state.steps <= state.totalSteps - 1) {
                                   return Expanded(
-                                    child: BlocListener<SettlementBloc, SettlementState>(
-                                      listenWhen: (prev, curr) =>
-                                      prev.detailValid != curr.detailValid,
-                                      listener: (context, state) {
-                                        if (state.detailValid == false) {
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            const SnackBar(
-                                              content: Text("Data belum lengkap, harap isi semua field"),
-                                              backgroundColor: Colors.red,
-                                            ),
-                                          );
-                                        }
-                                      },
-                                      child: WizardDetailStep(),
-                                    ),
+                                    child:
+                                        BlocListener<
+                                          SettlementBloc,
+                                          SettlementState
+                                        >(
+                                          listenWhen: (prev, curr) =>
+                                              prev.detailValid !=
+                                              curr.detailValid,
+                                          listener: (context, state) {
+                                            if (state.detailValid == false) {
+                                              ScaffoldMessenger.of(
+                                                context,
+                                              ).showSnackBar(
+                                                const SnackBar(
+                                                  content: Text(
+                                                    "Data belum lengkap, harap isi semua field",
+                                                  ),
+                                                  backgroundColor: Colors.red,
+                                                ),
+                                              );
+                                            }
+                                          },
+                                          child: WizardDetailStep(),
+                                        ),
                                   );
                                 } else {
                                   return Expanded(child: WizardLastStep());
@@ -306,87 +315,108 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
                       child: BlocBuilder<SettlementBloc, SettlementState>(
                         builder: (context, state) {
                           return Row(
+                            spacing: 10,
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              CoreButton(
-                                width: size.width * 0.24,
-                                onPressed: () {
-                                  if (state.steps > 1) {
-                                    if (state.steps == 2 && state.activeTabIndex > 0) {
-                                      context.read<SettlementBloc>().add(
-                                        ChangeTabDetail(state.activeTabIndex - 1),
-                                      );
+                              if (state.steps != 1)
+                                Expanded(
+                                  child: CoreButton(
+                                    width: size.width * 0.24,
+                                    onPressed: () {
+                                      if (state.steps > 1) {
+                                        if (state.steps == 2 &&
+                                            state.activeTabIndex > 0) {
+                                          context.read<SettlementBloc>().add(
+                                            ChangeTabDetail(
+                                              state.activeTabIndex - 1,
+                                            ),
+                                          );
+                                          return;
+                                        }
+
+                                        context.read<SettlementBloc>().add(
+                                          MoveStepWizard(state.steps - 1),
+                                        );
+                                      }
+                                    },
+                                    borderRadius: 15,
+                                    borderColor: state.steps > 1
+                                        ? const Color(0xFF1E3C72)
+                                        : const Color.fromARGB(
+                                            255,
+                                            143,
+                                            141,
+                                            141,
+                                          ),
+                                    backgroundColor: state.steps > 1
+                                        ? Colors.transparent
+                                        : const Color.fromARGB(
+                                            255,
+                                            143,
+                                            141,
+                                            141,
+                                          ),
+                                    foregroundColor: state.steps > 1
+                                        ? const Color(0xFF1E3C72)
+                                        : Colors.white,
+                                    text: "Back",
+                                  ),
+                                ),
+                              Expanded(
+                                child: CoreButton(
+                                  onPressed: () async {
+                                    if (state.steps == 1 && state.ritase == 0) {
                                       return;
                                     }
 
-                                    context.read<SettlementBloc>().add(
-                                      MoveStepWizard(state.steps - 1),
-                                    );
-                                  }
-                                },
-                                borderRadius: 15,
-                                borderColor: state.steps > 1
-                                    ? const Color(0xFF1E3C72)
-                                    : const Color.fromARGB(255, 143, 141, 141),
-                                backgroundColor: state.steps > 1
-                                    ? Colors.transparent
-                                    : const Color.fromARGB(255, 143, 141, 141),
-                                foregroundColor: state.steps > 1
-                                    ? const Color(0xFF1E3C72)
-                                    : Colors.white,
-                                text: "Back",
-                              ),
-                              CoreButton(
-                                onPressed: () async {
-                                  if (state.steps == 1 && state.ritase == 0) {
-                                    return;
-                                  }
+                                    if (state.steps == 2) {
+                                      final nextIndex =
+                                          state.activeTabIndex + 1;
 
-                                  if (state.steps == 2) {
-                                    final nextIndex = state.activeTabIndex + 1;
+                                      final hasNextTab =
+                                          nextIndex <
+                                          state.referencePayment.length;
 
-                                    final hasNextTab =
-                                        nextIndex < state.referencePayment.length;
+                                      context.read<SettlementBloc>().add(
+                                        ChangeTabDetail(nextIndex),
+                                      );
 
-                                    context.read<SettlementBloc>().add(
-                                      ChangeTabDetail(nextIndex),
-                                    );
+                                      if (hasNextTab) {
+                                        return;
+                                      }
 
-                                    if (hasNextTab) {
+                                      if (state.detailValid) {
+                                        await _showStep2Confirmation(context);
+                                      }
                                       return;
                                     }
 
-                                    if (state.detailValid) {
-                                      await _showStep2Confirmation(context);
-                                    }
-                                    return;
-                                  }
-
-                                  if (state.steps < state.totalSteps) {
-                                    context.read<SettlementBloc>().add(
-                                      MoveStepWizard(state.steps + 1),
-                                    );
-                                  } else {
-                                    if (state.idBus != 0 ||
-                                        state.idKoridor != 0) {
+                                    if (state.steps < state.totalSteps) {
                                       context.read<SettlementBloc>().add(
-                                        SubmitSettlement(),
+                                        MoveStepWizard(state.steps + 1),
                                       );
+                                    } else {
+                                      if (state.idBus != 0 ||
+                                          state.idKoridor != 0) {
+                                        context.read<SettlementBloc>().add(
+                                          SubmitSettlement(),
+                                        );
+                                      }
                                     }
-                                  }
-                                },
-                                width: size.width * 0.24,
-                                borderRadius: 15,
-                                backgroundColor:
-                                    (state.steps == 1 && state.ritase == 0)
-                                    ? const Color(0xFF5E5E5E)
-                                    : state.steps == state.totalSteps
-                                    ? Colors.green
-                                    : const Color(0xFF1E3C72),
-                                foregroundColor: Colors.white,
-                                text: state.steps < state.totalSteps
-                                    ? "Next"
-                                    : "Save",
+                                  },
+                                  width: size.width * 0.24,
+                                  borderRadius: 15,
+                                  backgroundColor:
+                                      (state.steps == 1 && state.ritase == 0)
+                                      ? const Color(0xFF5E5E5E)
+                                      : state.steps == state.totalSteps
+                                      ? Colors.green
+                                      : const Color(0xFF1E3C72),
+                                  foregroundColor: Colors.white,
+                                  text: state.steps < state.totalSteps
+                                      ? "Next"
+                                      : "Save",
+                                ),
                               ),
                             ],
                           );

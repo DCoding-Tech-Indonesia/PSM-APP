@@ -36,6 +36,8 @@ class _SettlementScreenState extends State<SettlementScreen> {
               children: [
                 const SettlementHeader(),
 
+                SizedBox(height: 18),
+
                 Expanded(
                   child: RefreshIndicator(
                     onRefresh: () async {

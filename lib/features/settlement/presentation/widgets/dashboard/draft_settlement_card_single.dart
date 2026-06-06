@@ -31,6 +31,7 @@ class DraftSettlementCardSingle extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.lightBlue,
             borderRadius: BorderRadius.circular(20),
+            border: Border.all(width: 2, color: Colors.blue),
           ),
           child: Stack(
             children: [

@@ -52,67 +52,84 @@ class WizardDetailStep extends StatelessWidget {
                   },
                 ),
 
+                SizedBox(height: 10),
+
                 BlocBuilder<SettlementBloc, SettlementState>(
                   buildWhen: (prev, curr) =>
-                      prev.activeTabId != curr.activeTabIndex,
+                      prev.activeTabId != curr.activeTabId,
                   builder: (context, state) {
-                    return Row(
-                      children: [
-                        ...state.referencePayment.asMap().entries.map((entry) {
-                          final index = entry.key;
-                          final payment = entry.value;
+                    return LayoutBuilder(
+                      builder: (context, constraints) {
+                        final itemWidth = (constraints.maxWidth - 12) / 2;
 
-                          final isActive = payment.id == state.activeTabId;
+                        return Wrap(
+                          spacing: 12,
+                          runSpacing: 12,
+                          children: state.referencePayment.asMap().entries.map((
+                            entry,
+                          ) {
+                            final index = entry.key;
+                            final payment = entry.value;
 
-                          return Expanded(
-                            child: GestureDetector(
-                              onTap: () {
-                                context.read<SettlementBloc>().add(
-                                  ChangeTabDetail(index),
-                                );
-                              },
-                              child: AnimatedContainer(
-                                duration: const Duration(milliseconds: 250),
-                                curve: Curves.easeInOut,
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 14,
-                                ),
-                                decoration: BoxDecoration(
-                                  border: Border(
-                                    bottom: BorderSide(
+                            final isActive = payment.id == state.activeTabId;
+
+                            final logoMap = {
+                              'QRIS': 'assets/logo/qris.png',
+                              'BRIZI': 'assets/logo/brizzi.png',
+                              'DEBIT CARD': 'assets/logo/card.png',
+                            };
+
+                            return SizedBox(
+                              width: itemWidth,
+                              child: GestureDetector(
+                                onTap: () {
+                                  context.read<SettlementBloc>().add(
+                                    ChangeTabDetail(index),
+                                  );
+                                },
+                                child: AnimatedContainer(
+                                  duration: const Duration(milliseconds: 200),
+                                  padding: const EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      width: isActive ? 1.5 : 1,
                                       color: isActive
-                                          ? Colors.blueAccent
-                                          : Colors.transparent,
-                                      width: 3,
+                                          ? Colors.blue
+                                          : Colors.grey.shade200,
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.05),
+                                        blurRadius: 8,
+                                        offset: const Offset(0, 2),
+                                      ),
+                                    ],
+                                  ),
+                                  child: AspectRatio(
+                                    aspectRatio: 4.5,
+                                    child: Image.asset(
+                                      logoMap[payment.name.toUpperCase()] ??
+                                          "assets/logo/cash.png",
+                                      fit: BoxFit.contain,
                                     ),
                                   ),
-                                ),
-                                alignment: Alignment.center,
-                                child: AnimatedDefaultTextStyle(
-                                  duration: const Duration(milliseconds: 250),
-                                  style: TextStyle(
-                                    color: isActive
-                                        ? Colors.blueAccent
-                                        : Colors.grey,
-                                    fontWeight: isActive
-                                        ? FontWeight.w600
-                                        : FontWeight.w400,
-                                  ),
-                                  child: Text(payment.name),
-                                ),
+                                )
                               ),
-                            ),
-                          );
-                        }),
-                      ],
+                            );
+                          }).toList(),
+                        );
+                      },
                     );
                   },
                 ),
+
+                SizedBox(height: 10),
+
               ],
             ),
           ),
-
-          const SizedBox(height: 20),
 
           BlocBuilder<SettlementBloc, SettlementState>(
             buildWhen: (prev, curr) => prev.activeTabId != curr.activeTabIndex,
@@ -131,162 +148,6 @@ class WizardDetailStep extends StatelessWidget {
                 ),
                 child: Column(
                   children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        border: Border.all(width: .5, color: Colors.black87),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: BlocBuilder<SettlementBloc, SettlementState>(
-                        builder: (context, state) {
-                          final totalPenumpang = state.detail
-                              .where(
-                                (data) => data.idPayment == state.activeTabId,
-                              )
-                              .fold<int>(
-                                0,
-                                (sum, data) => sum + (data.total ?? 0),
-                              );
-
-                          final totalPerPayment = state.detail
-                              .where(
-                                (data) => data.idPayment == state.activeTabId,
-                              )
-                              .fold<int>(
-                                0,
-                                (sum, data) => sum + (data.value ?? 0),
-                              );
-
-                          final total = state.detail.fold<int>(
-                            0,
-                            (sum, data) => sum + (data.value ?? 0),
-                          );
-
-                          return Column(
-                            children: [
-                              SizedBox(
-                                height: 48,
-                                child: Row(
-                                  spacing: 15,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    if (state.activeTabLabel.toUpperCase() ==
-                                        "QRIS")
-                                      Image.asset(
-                                        "./assets/logo/qris.png",
-                                        width: 50,
-                                      ),
-                                    if (state.activeTabLabel.toUpperCase() ==
-                                        "BRIZI")
-                                      Image.asset(
-                                        "./assets/logo/brizzi.png",
-                                        width: 50,
-                                      ),
-                                    if (state.activeTabLabel.toUpperCase() ==
-                                        "DEBIT CARD")
-                                      Image.asset(
-                                        "./assets/logo/card.png",
-                                        width: 50,
-                                      ),
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          state.activeTabLabel.toString(),
-                                          style: TextStyle(
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                        Text(
-                                          StringFormatter().idrFormatter(
-                                            100000,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const Divider(
-                                thickness: 1,
-                                color: Colors.black26,
-                              ),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          "Total Penumpang",
-                                          style: TextStyle(fontSize: 10),
-                                        ),
-                                        Text(
-                                          totalPenumpang.toString(),
-                                          style: TextStyle(
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          "Total Pendapatan",
-                                          style: TextStyle(fontSize: 10),
-                                        ),
-                                        Text(
-                                          StringFormatter().idrFormatter(
-                                            totalPerPayment,
-                                          ),
-                                          style: TextStyle(
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          "Total",
-                                          style: TextStyle(fontSize: 10),
-                                        ),
-                                        Text(
-                                          StringFormatter().idrFormatter(total),
-                                          style: TextStyle(
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          );
-                        },
-                      ),
-                    ),
-
-                    const SizedBox(height: 18),
-
                     BlocBuilder<SettlementBloc, SettlementState>(
                       builder: (context, state) {
                         return Column(

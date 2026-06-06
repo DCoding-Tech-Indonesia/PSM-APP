@@ -8,6 +8,7 @@ class CoreHeader extends StatelessWidget {
   final VoidCallback? onBackPressed;
   final List<Widget>? actions;
   final Color? customBgColor;
+  final bool withBorder;
 
   const CoreHeader({
     super.key,
@@ -17,6 +18,7 @@ class CoreHeader extends StatelessWidget {
     this.onBackPressed,
     this.actions,
     this.customBgColor,
+    this.withBorder = false,
   });
 
   @override
@@ -24,8 +26,14 @@ class CoreHeader extends StatelessWidget {
     final size = MediaQuery.of(context).size;
 
     return Container(
-      padding: EdgeInsets.all(size.width * 0.045),
-      color: customBgColor ?? Colors.transparent,
+      padding: EdgeInsets.symmetric(horizontal: size.width * 0.045, vertical: size.height * 0.003),
+      decoration: BoxDecoration(
+        color: customBgColor ?? Colors.transparent,
+        border:
+        Border(
+          bottom: BorderSide(color: Color(0xFFB3B3B3), width: withBorder ? .65 : 0),
+        ),
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
