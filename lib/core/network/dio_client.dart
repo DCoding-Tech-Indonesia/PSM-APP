@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:psm_mobile/core/config/app_config.dart';
 import 'package:psm_mobile/core/storage/secure_storage.dart';
 
 class DioClient {
@@ -71,7 +72,11 @@ class DioClient {
             if (kDebugMode) debugPrint('[REFRESH] Memulai proses refresh token...');
             _isRefreshing = true;
             try {
-              final tokenDio = Dio(BaseOptions(baseUrl: dotenv.env['API_BASE_URL'] ?? ''));
+              final tokenDio = Dio(
+                BaseOptions(
+                  baseUrl: AppConfig.apiBaseUrl,
+                ),
+              );
               
               // Depending on the backend API, some require the old token in header, others require refresh_token in body.
               // Here we try to pass the expired token in the header just in case.

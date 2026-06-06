@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:psm_mobile/core/config/app_config.dart';
 import 'package:psm_mobile/core/network/dio_client.dart';
 import 'package:psm_mobile/core/notification/notification_service.dart';
 import 'package:psm_mobile/core/permission/permission_cubit.dart';
@@ -39,7 +40,7 @@ void main() async {
   final dioClient = DioClient();
   final secureStorage = SecureStorageService();
   dioClient.init(
-    baseUrl: dotenv.env['API_BASE_URL'],
+    baseUrl: AppConfig.apiBaseUrl,
     onUnauthorized: () {
       secureStorage.clearLogin();
       try {
