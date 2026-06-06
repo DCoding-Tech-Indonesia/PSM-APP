@@ -519,9 +519,7 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
         },
         (data) {
           emit(state.copyWith(status: SettlementStatus.successSave));
-          if (state.auditTrailId.toString() == '') {
-            emit(state.copyWith(auditTrailId: int.parse(data)));
-          }
+          emit(state.copyWith(auditTrailId: int.parse(data)));
         },
       );
     });

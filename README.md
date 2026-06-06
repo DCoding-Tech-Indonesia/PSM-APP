@@ -2,8 +2,8 @@
 
 A new Flutter project.
 
-## Getting Started
+## RUNNING BUAT BUILD
 
 ```shell
-flutter build apk --release --split-per-abi --tree-shake-icons
+flutter build apk --release --tree-shake-icons
 ```

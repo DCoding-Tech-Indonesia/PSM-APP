@@ -96,7 +96,7 @@ class _AuthScreenState extends State<AuthScreen> {
         });
 
         if (isSuccess) {
-          Future.delayed(const Duration(seconds: 3), () {
+          Future.delayed(const Duration(seconds: 2), () {
             if (context.mounted) {
               context.go('/portal');
             }

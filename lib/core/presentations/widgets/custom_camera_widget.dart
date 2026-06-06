@@ -237,10 +237,18 @@ class _CustomCameraWidgetState extends State<CustomCameraWidget> {
                             showModalBottomSheet(
                               context: parentContext,
                               enableDrag: false,
-                              builder: (_) => const CoreBottomModalAlert(
-                                success: true,
-                                message: "Foto berhasil disimpan",
-                              ),
+                              builder: (_) {
+                                Future.delayed(const Duration(seconds: 2), () {
+                                  if (Navigator.canPop(parentContext)) {
+                                    Navigator.pop(parentContext);
+                                  }
+                                });
+
+                                return const CoreBottomModalAlert(
+                                  success: true,
+                                  message: "Foto berhasil disimpan",
+                                );
+                              },
                             );
 
                             await Future.delayed(

@@ -68,12 +68,31 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
             ),
 
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 final note = controller.text;
 
                 Navigator.pop(dialogContext);
 
-                context.read<SettlementBloc>().add(SubmitWorkflow(note));
+                context.read<SettlementBloc>().add(
+                  SubmitWorkflow(note),
+                );
+
+                showModalBottomSheet(
+                  context: context,
+                  isDismissible: false,
+                  enableDrag: false,
+                  builder: (_) => const CoreBottomModalAlert(
+                    success: true,
+                    message: 'Berhasil submit data',
+                  ),
+                );
+
+                await Future.delayed(const Duration(seconds: 1));
+
+                if (context.mounted) {
+                  Navigator.pop(context); // tutup bottom sheet
+                  context.pop(); // kembali ke halaman sebelumnya
+                }
               },
               child: const Text("Submit"),
             ),
