@@ -264,7 +264,7 @@ class PortalQuickActionsGrid extends StatelessWidget {
                     mappedIcon,
                     mappedColor,
                     () {
-                      if (menu.route == "/rekap-settlement" || menu.title == "Settlement" || menu.route == "/settlement/dashboard") {
+                      if (menu.title.toUpperCase().contains("SETTELMENT")) {
                         context.push('/settlement/dashboard');
                       } else if (menu.title.toLowerCase().contains("absensi") || menu.route == "/attendance") {
                         context.push('/attendance');

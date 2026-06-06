@@ -4,9 +4,9 @@ PSM Mobile Application.
 
 ## RUNNING LOCAL
 
-### Development API
+### Development API (RUN USING ANDROID STUDIO BUTTON WILL USE THIS ENV)
 ```shell
-flutter run --dart-define=ENV=DEV
+flutter run --dart-define=ENV=DEV 
 ```
 
 ### Production API

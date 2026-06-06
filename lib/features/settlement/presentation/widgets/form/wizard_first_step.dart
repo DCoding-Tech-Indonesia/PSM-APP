@@ -34,19 +34,39 @@ class WizardFirstStep extends StatelessWidget {
             buildWhen: (prev, curr) => prev.ritase != curr.ritase,
             builder: (context, state) {
               return Row(
-                spacing: 12,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Icon(Icons.directions_bus, color: Color(0XFF003FC0)),
-                  if (state.ritase == 0)
-                    Text(
-                      "Pilih Bus dan Koridor",
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 16,
+                  Row(
+                    spacing: 12,
+                    children: [
+                      Icon(Icons.directions_bus, color: Color(0XFF003FC0)),
+                      Text(
+                        "Pilih Bus dan Koridor",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: Colors.greenAccent,
+                      borderRadius: BorderRadius.circular(999),
+                      border: Border.all(width: 1, color: Colors.green),
+                    ),
+                    child: Center(
+                      child: Text(
+                        state.ritase != 0 ? state.ritase.toString() : "RIT",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w800,
+                          fontSize: 16,
+                        ),
                       ),
                     ),
-                  if (state.ritase != 0)
-                    Text("Ritase ke ${state.ritase.toString()}"),
+                  ),
                 ],
               );
             },
@@ -76,6 +96,8 @@ class WizardFirstStep extends StatelessWidget {
                 isItemSelected: (item) => item.id == state.idKoridor,
                 onSelected: (value) {
                   if (value == null) return;
+                  print("value");
+                  print(value.id);
                   context.read<SettlementBloc>().add(
                     SelectKoridor(value.id, value.name),
                   );
@@ -87,10 +109,7 @@ class WizardFirstStep extends StatelessWidget {
           SizedBox(height: 8),
 
           BlocBuilder<SettlementBloc, SettlementState>(
-            buildWhen: (prev, curr) =>
-                curr.idBus != 0 ||
-                prev.idBus != curr.idBus ||
-                prev.referenceBus != curr.referenceBus,
+            buildWhen: (prev, curr) => prev.idKoridor != curr.idKoridor,
             builder: (context, state) {
               ReferenceBus? selectedBus;
 
