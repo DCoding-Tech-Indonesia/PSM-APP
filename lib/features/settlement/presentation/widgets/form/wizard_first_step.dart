@@ -31,7 +31,7 @@ class WizardFirstStep extends StatelessWidget {
                 children: [
                   Text(
                     "Ritase",
-                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 20),
                   ),
                   Container(
                     width: 40,
@@ -93,7 +93,7 @@ class WizardFirstStep extends StatelessWidget {
           SizedBox(height: 8),
 
           BlocBuilder<SettlementBloc, SettlementState>(
-            buildWhen: (prev, curr) => prev.idKoridor != curr.idKoridor,
+            buildWhen: (prev, curr) => prev.idKoridor != curr.idKoridor || prev.referenceBus != curr.referenceBus,
             builder: (context, state) {
               ReferenceBus? selectedBus;
 
@@ -104,7 +104,7 @@ class WizardFirstStep extends StatelessWidget {
                 if (matched.isNotEmpty) selectedBus = matched.first;
               }
 
-              if (state.referenceBus.isEmpty && state.idKoridor != 0) {
+              if (state.referenceBus.isEmpty && state.idKoridor != 0 && state.status != SettlementStatus.fetching) {
                 return const Text(
                   "Tidak terdapat bus terdata di koridor tersebut",
                   style: TextStyle(

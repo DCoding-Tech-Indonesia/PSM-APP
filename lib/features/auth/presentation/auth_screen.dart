@@ -6,6 +6,7 @@ import 'package:formz/formz.dart';
 import 'package:go_router/go_router.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:psm_mobile/core/helper/version_ui_helper.dart';
+import 'package:psm_mobile/core/presentations/widgets/core_snackbar.dart';
 import 'package:psm_mobile/core/presentations/widgets/widgets.dart';
 import 'package:psm_mobile/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:psm_mobile/features/auth/presentation/bloc/auth_event.dart';
@@ -85,18 +86,18 @@ class _AuthScreenState extends State<AuthScreen> {
 
         final isSuccess = state.loginSuccess;
 
-        showModalBottomSheet(
-          context: context,
-          builder: (_) => CoreBottomModalAlert(
-            success: isSuccess,
-            message: state.loginMessage,
-          ),
-        ).then((_) {
-          context.read<AuthBloc>().add(ResetState());
-        });
+        CoreSnackbar.show(
+          context,
+          message: state.loginMessage,
+          type: isSuccess
+              ? SnackbarType.success
+              : SnackbarType.failed,
+        );
+
+        context.read<AuthBloc>().add(ResetState());
 
         if (isSuccess) {
-          Future.delayed(const Duration(seconds: 2), () {
+          Future.delayed(const Duration(seconds: 1), () {
             if (context.mounted) {
               context.go('/portal');
             }
@@ -229,7 +230,8 @@ class _AuthScreenState extends State<AuthScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           "Selamat Datang,",
@@ -258,7 +260,8 @@ class _AuthScreenState extends State<AuthScreen> {
                                     BlocBuilder<AuthBloc, AuthState>(
                                       buildWhen: (prev, curr) =>
                                           prev.username != curr.username ||
-                                          prev.usernameError != curr.usernameError,
+                                          prev.usernameError !=
+                                              curr.usernameError,
                                       builder: (context, state) {
                                         return CoreInputFieldNew(
                                           label: "Username",
@@ -266,7 +269,11 @@ class _AuthScreenState extends State<AuthScreen> {
                                           isRequired: true,
                                           rule: InputRuleSuffixNew.text,
                                           initValue: state.username,
-                                          errorText: (state.usernameError?.isNotEmpty ?? false)
+                                          errorText:
+                                              (state
+                                                      .usernameError
+                                                      ?.isNotEmpty ??
+                                                  false)
                                               ? state.usernameError
                                               : null,
                                           onChanged: (value) => context
@@ -281,7 +288,8 @@ class _AuthScreenState extends State<AuthScreen> {
                                     BlocBuilder<AuthBloc, AuthState>(
                                       buildWhen: (prev, curr) =>
                                           prev.password != curr.password ||
-                                          prev.passwordError != curr.passwordError,
+                                          prev.passwordError !=
+                                              curr.passwordError,
                                       builder: (context, state) {
                                         return CoreInputFieldNew(
                                           label: "Password",
@@ -290,7 +298,11 @@ class _AuthScreenState extends State<AuthScreen> {
                                           isSecured: true,
                                           rule: InputRuleSuffixNew.text,
                                           initValue: state.password.value,
-                                          errorText: (state.passwordError?.isNotEmpty ?? false)
+                                          errorText:
+                                              (state
+                                                      .passwordError
+                                                      ?.isNotEmpty ??
+                                                  false)
                                               ? state.passwordError
                                               : null,
                                           onChanged: (value) => context
@@ -312,14 +324,18 @@ class _AuthScreenState extends State<AuthScreen> {
                                             return CoreCheckbox(
                                               value: state.rememberMe,
                                               label: "Ingat Saya",
-                                              activeColor: const Color(0xFF1E3C72),
+                                              activeColor: const Color(
+                                                0xFF1E3C72,
+                                              ),
                                               labelStyle: TextStyle(
                                                 color: Colors.grey[700],
                                                 fontSize: 14,
                                               ),
                                               onChanged: (value) {
                                                 context.read<AuthBloc>().add(
-                                                  RememberMeToggled(value ?? false),
+                                                  RememberMeToggled(
+                                                    value ?? false,
+                                                  ),
                                                 );
                                               },
                                             );
@@ -365,9 +381,12 @@ class _AuthScreenState extends State<AuthScreen> {
                                             const SizedBox(width: 15),
                                             CoreButton(
                                               onPressed: state.allowBiometric
-                                                  ? () => handleFingerprint(context)
+                                                  ? () => handleFingerprint(
+                                                      context,
+                                                    )
                                                   : null,
-                                              backgroundColor: state.allowBiometric
+                                              backgroundColor:
+                                                  state.allowBiometric
                                                   ? const Color(0xFFF1F4F9)
                                                   : Colors.grey[200],
                                               borderRadius: 15,

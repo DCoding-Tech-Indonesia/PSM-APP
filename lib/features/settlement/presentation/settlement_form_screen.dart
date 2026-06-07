@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:psm_mobile/core/presentations/widgets/core_bottom_modal_verification.dart';
+import 'package:psm_mobile/core/presentations/widgets/core_snackbar.dart';
 import 'package:psm_mobile/core/presentations/widgets/widgets.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_bloc.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_event.dart';
@@ -8,7 +10,6 @@ import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_stat
 import 'package:psm_mobile/features/settlement/presentation/widgets/form/wizard_detail_step.dart';
 import 'package:psm_mobile/features/settlement/presentation/widgets/form/wizard_first_step.dart';
 import 'package:psm_mobile/features/settlement/presentation/widgets/form/wizard_last_step.dart';
-import 'package:step_progress/step_progress.dart';
 
 class SettlementFormScreen extends StatefulWidget {
   const SettlementFormScreen({super.key, required this.idAuditTrail});
@@ -101,49 +102,37 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
   }
 
   Future<void> _showStep2Confirmation(BuildContext context) async {
-    final isConfirm = await showDialog<bool>(
+    final isConfirm = await showModalBottomSheet<bool>(
       context: context,
-      builder: (dialogContext) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          title: const Text("Konfirmasi"),
-          content: const Text(
-            "Apakah anda sudah melengkapi input detail settlement dengan benar?",
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(dialogContext, false);
-              },
-              child: const Text("Belum"),
-            ),
-            GestureDetector(
-              onTap: () {
-                Navigator.pop(dialogContext, true);
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 10,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: BoxBorder.all(width: .6, color: Colors.grey),
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.1),
-                      blurRadius: 4,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: const Text("Sudah"),
-              ),
-            ),
-          ],
+      isScrollControlled: true,
+      builder: (modalContext) {
+        return CoreBottomModalVerification(
+          title: 'Lanjut tahap berikutnya?',
+          desc: 'Pastikan data yang dimasukkan sudah benar',
+          onCancel: () => Navigator.pop(modalContext, false),
+          onConfirm: () => Navigator.pop(modalContext, true),
+        );
+      },
+    );
+
+    if (isConfirm == true) {
+      context.read<SettlementBloc>().add(MoveStepWizard(3));
+    }
+  }
+
+  Future<void> _showStep3Confirmation(BuildContext context) async {
+    final isConfirm = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      builder: (modalContext) {
+        return CoreBottomModalVerification(
+          title: 'Simpan data settlement?',
+          desc: 'Pastikan data yang dimasukkan sudah benar',
+          cancelText: 'Cek Kembali',
+          confirmText: 'Simpan',
+          onCancel: () => Navigator.pop(modalContext, false),
+          onConfirm: () =>
+              context.read<SettlementBloc>().add(SubmitSettlement()),
         );
       },
     );
@@ -176,38 +165,39 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
       },
       child: Scaffold(
         body: SafeArea(
-          child: BlocBuilder<SettlementBloc, SettlementState>(
-            builder: (context, state) {
-              if (state.status == SettlementStatus.loading) {
-                return Container(
-                  width: double.infinity,
-                  height: double.infinity,
-                  color: Colors.white,
-                  child: Center(child: CircularProgressIndicator()),
-                );
-              }
+          child: Container(
+            decoration: BoxDecoration(color: Colors.grey.shade50),
+            child: Column(
+              children: [
+                CoreHeader(
+                  title: 'Submit Settlement',
+                  customBgColor: Colors.white,
+                  withBorder: true,
+                ),
+                BlocBuilder<SettlementBloc, SettlementState>(
+                  builder: (context, state) {
+                    if (state.status == SettlementStatus.loading) {
+                      return Expanded(
+                        child: Container(
+                          width: double.infinity,
+                          height: double.infinity,
+                          color: Colors.white,
+                          child: Center(child: CircularProgressIndicator()),
+                        ),
+                      );
+                    }
 
-              if (state.status == SettlementStatus.error) {
-                return Container(
-                  width: double.infinity,
-                  height: double.infinity,
-                  color: Colors.white,
-                  child: Center(
-                    child: Text(state.message ?? "Terjadi kesalahan"),
-                  ),
-                );
-              }
-              return Container(
-                decoration: BoxDecoration(color: Colors.grey.shade50),
-                child: Column(
-                  children: [
-                    CoreHeader(
-                      title: 'Submit Settlement',
-                      subtitle: 'Settlement',
-                      customBgColor: Colors.white,
-                      withBorder: true,
-                    ),
-                    Expanded(
+                    if (state.status == SettlementStatus.error) {
+                      return Container(
+                        width: double.infinity,
+                        height: double.infinity,
+                        color: Colors.white,
+                        child: Center(
+                          child: Text(state.message ?? "Terjadi kesalahan"),
+                        ),
+                      );
+                    }
+                    return Expanded(
                       child: Padding(
                         padding: EdgeInsets.symmetric(
                           vertical: size.height * 0.005,
@@ -286,15 +276,11 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
                                               curr.detailValid,
                                           listener: (context, state) {
                                             if (state.detailValid == false) {
-                                              ScaffoldMessenger.of(
+                                              CoreSnackbar.show(
                                                 context,
-                                              ).showSnackBar(
-                                                const SnackBar(
-                                                  content: Text(
+                                                message:
                                                     "Data belum lengkap, harap isi semua field",
-                                                  ),
-                                                  backgroundColor: Colors.red,
-                                                ),
+                                                type: SnackbarType.warning,
                                               );
                                             }
                                           },
@@ -309,124 +295,110 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
                           ],
                         ),
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(23, 16, 23, 25),
-                      child: BlocBuilder<SettlementBloc, SettlementState>(
-                        builder: (context, state) {
-                          return Row(
-                            spacing: 10,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              if (state.steps != 1)
-                                Expanded(
-                                  child: CoreButton(
-                                    width: size.width * 0.24,
-                                    onPressed: () {
-                                      if (state.steps > 1) {
-                                        if (state.steps == 2 &&
-                                            state.activeTabIndex > 0) {
-                                          context.read<SettlementBloc>().add(
-                                            ChangeTabDetail(
-                                              state.activeTabIndex - 1,
-                                            ),
-                                          );
-                                          return;
-                                        }
-
-                                        context.read<SettlementBloc>().add(
-                                          MoveStepWizard(state.steps - 1),
-                                        );
-                                      }
-                                    },
-                                    borderRadius: 15,
-                                    borderColor: state.steps > 1
-                                        ? const Color(0xFF1E3C72)
-                                        : const Color.fromARGB(
-                                            255,
-                                            143,
-                                            141,
-                                            141,
-                                          ),
-                                    backgroundColor: state.steps > 1
-                                        ? Colors.transparent
-                                        : const Color.fromARGB(
-                                            255,
-                                            143,
-                                            141,
-                                            141,
-                                          ),
-                                    foregroundColor: state.steps > 1
-                                        ? const Color(0xFF1E3C72)
-                                        : Colors.white,
-                                    text: "Back",
-                                  ),
-                                ),
-                              Expanded(
-                                child: CoreButton(
-                                  onPressed: () async {
-                                    if (state.steps == 1 && state.ritase == 0) {
-                                      return;
-                                    }
-
-                                    if (state.steps == 2) {
-                                      final nextIndex =
-                                          state.activeTabIndex + 1;
-
-                                      final hasNextTab =
-                                          nextIndex <
-                                          state.referencePayment.length;
-
-                                      context.read<SettlementBloc>().add(
-                                        ChangeTabDetail(nextIndex),
-                                      );
-
-                                      if (hasNextTab) {
-                                        return;
-                                      }
-
-                                      if (state.detailValid) {
-                                        await _showStep2Confirmation(context);
-                                      }
-                                      return;
-                                    }
-
-                                    if (state.steps < state.totalSteps) {
-                                      context.read<SettlementBloc>().add(
-                                        MoveStepWizard(state.steps + 1),
-                                      );
-                                    } else {
-                                      if (state.idBus != 0 ||
-                                          state.idKoridor != 0) {
-                                        context.read<SettlementBloc>().add(
-                                          SubmitSettlement(),
-                                        );
-                                      }
-                                    }
-                                  },
-                                  width: size.width * 0.24,
-                                  borderRadius: 15,
-                                  backgroundColor:
-                                      (state.steps == 1 && state.ritase == 0)
-                                      ? const Color(0xFF5E5E5E)
-                                      : state.steps == state.totalSteps
-                                      ? Colors.green
-                                      : const Color(0xFF1E3C72),
-                                  foregroundColor: Colors.white,
-                                  text: state.steps < state.totalSteps
-                                      ? "Next"
-                                      : "Save",
-                                ),
-                              ),
-                            ],
-                          );
-                        },
-                      ),
-                    ),
-                  ],
+                    );
+                  },
                 ),
-              );
-            },
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(23, 16, 23, 25),
+                  child: BlocBuilder<SettlementBloc, SettlementState>(
+                    builder: (context, state) {
+                      return Row(
+                        spacing: 10,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          if (state.steps != 1)
+                            Expanded(
+                              child: CoreButton(
+                                width: size.width * 0.24,
+                                onPressed: () {
+                                  if (state.steps > 1) {
+                                    if (state.steps == 2 &&
+                                        state.activeTabIndex > 0) {
+                                      context.read<SettlementBloc>().add(
+                                        ChangeTabDetail(
+                                          state.activeTabIndex - 1,
+                                        ),
+                                      );
+                                      return;
+                                    }
+
+                                    context.read<SettlementBloc>().add(
+                                      MoveStepWizard(state.steps - 1),
+                                    );
+                                  }
+                                },
+                                borderRadius: 15,
+                                borderColor: state.steps > 1
+                                    ? const Color(0xFF1E3C72)
+                                    : const Color.fromARGB(255, 143, 141, 141),
+                                backgroundColor: state.steps > 1
+                                    ? Colors.transparent
+                                    : const Color.fromARGB(255, 143, 141, 141),
+                                foregroundColor: state.steps > 1
+                                    ? const Color(0xFF1E3C72)
+                                    : Colors.white,
+                                text: "Sebelumnya",
+                              ),
+                            ),
+                          Expanded(
+                            child: CoreButton(
+                              onPressed: () async {
+                                if (state.steps == 1 && state.ritase == 0) {
+                                  return;
+                                }
+
+                                if (state.steps == 2) {
+                                  final nextIndex = state.activeTabIndex + 1;
+
+                                  final hasNextTab =
+                                      nextIndex < state.referencePayment.length;
+
+                                  context.read<SettlementBloc>().add(
+                                    ChangeTabDetail(nextIndex),
+                                  );
+
+                                  if (hasNextTab) {
+                                    return;
+                                  }
+
+                                  if (state.detailValid) {
+                                    await _showStep2Confirmation(context);
+                                  }
+                                  return;
+                                }
+
+                                if (state.steps < state.totalSteps) {
+                                  context.read<SettlementBloc>().add(
+                                    MoveStepWizard(state.steps + 1),
+                                  );
+                                } else {
+                                  if (state.idBus != 0 ||
+                                      state.idKoridor != 0) {
+                                    _showStep3Confirmation(context);
+                                  }
+                                }
+                              },
+                              width: size.width * 0.24,
+                              borderRadius: 12,
+                              backgroundColor:
+                                  (state.steps == 1 && state.ritase == 0)
+                                  ? const Color(0xFF5E5E5E)
+                                  : const Color(0xFF1E3C72),
+                              foregroundColor: Colors.white,
+                              text: state.totalSteps == 1
+                                  ? "..."
+                                  : state.steps < state.totalSteps
+                                  ? "Selanjutnya"
+                                  : "Save",
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

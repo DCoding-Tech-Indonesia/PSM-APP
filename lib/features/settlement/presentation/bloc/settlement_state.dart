@@ -7,7 +7,7 @@ import 'package:psm_mobile/features/settlement/domain/entities/settlement_detail
 import 'package:psm_mobile/features/settlement/domain/entities/settlement_detail_input.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/settlement_document.dart';
 
-enum SettlementStatus { initial, loading, success, error, successSave, failedSave }
+enum SettlementStatus { initial, loading, success, error, successSave, failedSave, fetching }
 
 class SettlementState extends Equatable {
   final List<TaskAuditTrail> listTaskAuditTrail;

@@ -20,14 +20,6 @@ class WizardDetailStep extends StatelessWidget {
             padding: EdgeInsets.only(
               left: size.width * 0.05,
               right: size.width * 0.05,
-              top: size.height * 0.03,
-            ),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              border: Border(
-                top: BorderSide(color: Color(0xFFB3B3B3), width: .65),
-                bottom: BorderSide(color: Color(0xFFB3B3B3), width: .65),
-              ),
             ),
             child: Column(
               children: [
@@ -115,7 +107,7 @@ class WizardDetailStep extends StatelessWidget {
                                       fit: BoxFit.contain,
                                     ),
                                   ),
-                                )
+                                ),
                               ),
                             );
                           }).toList(),
@@ -126,7 +118,6 @@ class WizardDetailStep extends StatelessWidget {
                 ),
 
                 SizedBox(height: 10),
-
               ],
             ),
           ),
@@ -138,13 +129,6 @@ class WizardDetailStep extends StatelessWidget {
                 padding: EdgeInsets.symmetric(
                   horizontal: size.width * 0.05,
                   vertical: size.height * 0.03,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: Border(
-                    top: BorderSide(color: Color(0xFFB3B3B3), width: .65),
-                    bottom: BorderSide(color: Color(0xFFB3B3B3), width: .65),
-                  ),
                 ),
                 child: Column(
                   children: [

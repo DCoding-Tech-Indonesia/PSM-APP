@@ -285,13 +285,22 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
       final newTabIndex = event.tabId;
 
       if (newTabIndex > state.activeTabIndex) {
-        final currPayment = state.referencePayment[state.activeTabIndex];
+        bool hasInvalidData;
 
-        final hasInvalidData = state.detail.any(
-          (data) =>
-              data.idPayment == currPayment.id &&
-              (data.total == null || data.value == null),
-        );
+        if (newTabIndex == state.referencePayment.length) {
+          hasInvalidData = state.detail.any(
+                (data) => data.total == null || data.value == null,
+          );
+        } else {
+          final currPayment =
+          state.referencePayment[state.activeTabIndex];
+
+          hasInvalidData = state.detail.any(
+                (data) =>
+            data.idPayment == currPayment.id &&
+                (data.total == null || data.value == null),
+          );
+        }
 
         if (hasInvalidData) {
           emit(state.copyWith(detailValid: false));
@@ -302,14 +311,11 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
       if (newTabIndex < state.totalSteps) {
         final nextPayment = state.referencePayment[newTabIndex];
 
-        final activeTabId = nextPayment.id;
-        final activeTabLabel = nextPayment.name;
-
         emit(
           state.copyWith(
             activeTabIndex: newTabIndex,
-            activeTabId: activeTabId,
-            activeTabLabel: activeTabLabel,
+            activeTabId: nextPayment.id,
+            activeTabLabel: nextPayment.name,
           ),
         );
       }
@@ -345,6 +351,7 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
     on<SelectKoridor>((event, emit) async {
       emit(
         state.copyWith(
+          status: SettlementStatus.fetching,
           ritase: 0,
           idKoridor: event.id,
           namaKoridor: event.namaKoridor,
@@ -366,7 +373,9 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
           );
         },
         (data) {
-          emit(state.copyWith(referenceBus: data));
+          emit(state.copyWith(
+              status: SettlementStatus.success,
+              referenceBus: data));
         },
       );
     });

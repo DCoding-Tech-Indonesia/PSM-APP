@@ -26,13 +26,27 @@ class CoreHeader extends StatelessWidget {
     final size = MediaQuery.of(context).size;
 
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: size.width * 0.045, vertical: size.height * 0.003),
+      padding: EdgeInsets.symmetric(
+        horizontal: size.width * 0.045,
+        vertical: size.height * 0.003,
+      ),
       decoration: BoxDecoration(
         color: customBgColor ?? Colors.transparent,
-        border:
-        Border(
-          bottom: BorderSide(color: Color(0xFFB3B3B3), width: withBorder ? .65 : 0),
+        border: Border(
+          bottom: BorderSide(
+            color: Color(0xFFB3B3B3),
+            width: withBorder ? .2 : 0,
+          ),
         ),
+        boxShadow: [
+          if (withBorder)
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.1),
+              spreadRadius: 0,
+              blurRadius: 2,
+              offset: const Offset(0, 2),
+            ),
+        ],
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -75,10 +89,7 @@ class CoreHeader extends StatelessWidget {
             ),
           ),
           if (actions != null && actions!.isNotEmpty)
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: actions!,
-            ),
+            Row(mainAxisSize: MainAxisSize.min, children: actions!),
         ],
       ),
     );
