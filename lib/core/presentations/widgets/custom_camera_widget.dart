@@ -23,10 +23,9 @@ class CustomCameraWidget extends StatefulWidget {
 
 class _CustomCameraWidgetState extends State<CustomCameraWidget> {
   CameraController? _controller;
-
   List<CameraDescription>? cameras;
-
   bool _isCapturing = false;
+  bool _isCameraAvailable = true; // State untuk memantau ketersediaan kamera
 
   @override
   void initState() {
@@ -35,29 +34,47 @@ class _CustomCameraWidgetState extends State<CustomCameraWidget> {
   }
 
   Future<void> initCamera() async {
-    cameras = await availableCameras();
+    try {
+      cameras = await availableCameras();
 
-    _controller = CameraController(
-      cameras![0],
-      ResolutionPreset.high,
-      enableAudio: false,
-    );
+      // Cek apakah list kamera kosong (antisipasi lingkungan simulator/device tanpa kamera)
+      if (cameras == null || cameras!.isEmpty) {
+        if (mounted) {
+          setState(() {
+            _isCameraAvailable = false;
+          });
+        }
+        return;
+      }
 
-    await _controller!.initialize();
+      // Inisialisasi kamera pertama yang tersedia jika list aman
+      _controller = CameraController(
+        cameras![0],
+        ResolutionPreset.high,
+        enableAudio: false,
+      );
 
-    if (mounted) {
-      setState(() {});
+      await _controller!.initialize();
+
+      if (mounted) {
+        setState(() {});
+      }
+    } catch (e) {
+      debugPrint("Gagal menginisialisasi kamera: $e");
+      if (mounted) {
+        setState(() {
+          _isCameraAvailable = false;
+        });
+      }
     }
   }
 
   Future<File> _cropToRatio(File file) async {
     final bytes = await file.readAsBytes();
-
     final original = img.decodeImage(bytes)!;
 
     final w = original.width;
     final h = original.height;
-
     final targetRatio = widget.ratio;
 
     int cropW = w;
@@ -80,13 +97,10 @@ class _CustomCameraWidgetState extends State<CustomCameraWidget> {
     );
 
     final dir = await getTemporaryDirectory();
-
     final path = '${dir.path}/${DateTime.now().millisecondsSinceEpoch}.jpg';
-
     final newFile = File(path);
 
     await newFile.writeAsBytes(img.encodeJpg(cropped, quality: 90));
-
     return newFile;
   }
 
@@ -103,9 +117,7 @@ class _CustomCameraWidgetState extends State<CustomCameraWidget> {
       });
 
       final image = await _controller!.takePicture();
-
       final file = File(image.path);
-
       final cropped = await _cropToRatio(file);
 
       if (!mounted) return;
@@ -150,7 +162,6 @@ class _CustomCameraWidgetState extends State<CustomCameraWidget> {
                         ),
                       ),
                     ),
-
                     IconButton(
                       onPressed: () {
                         Navigator.pop(context);
@@ -159,9 +170,7 @@ class _CustomCameraWidgetState extends State<CustomCameraWidget> {
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 12),
-
                 ClipRRect(
                   borderRadius: BorderRadius.circular(16),
                   child: AspectRatio(
@@ -169,9 +178,7 @@ class _CustomCameraWidgetState extends State<CustomCameraWidget> {
                     child: Image.file(imageFile, fit: BoxFit.cover),
                   ),
                 ),
-
                 const SizedBox(height: 24),
-
                 Row(
                   children: [
                     Expanded(
@@ -190,18 +197,12 @@ class _CustomCameraWidgetState extends State<CustomCameraWidget> {
                         child: const Text("Batal"),
                       ),
                     ),
-
                     const SizedBox(width: 12),
-
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () async {
                           try {
-                            setState(() {
-                            });
-
                             final bloc = settlementBlocContext;
-
                             bloc.add(UploadDocument(imageFile));
 
                             final resultState = await bloc.stream.firstWhere((
@@ -213,7 +214,6 @@ class _CustomCameraWidgetState extends State<CustomCameraWidget> {
                             });
 
                             if (!mounted) return;
-
                             Navigator.pop(context);
 
                             if (resultState.status ==
@@ -226,12 +226,10 @@ class _CustomCameraWidgetState extends State<CustomCameraWidget> {
                                   message: "Gagal menyimpan foto",
                                 ),
                               );
-
                               return;
                             }
 
                             final previewContext = context;
-
                             Navigator.pop(previewContext);
 
                             showModalBottomSheet(
@@ -251,25 +249,16 @@ class _CustomCameraWidgetState extends State<CustomCameraWidget> {
                               },
                             );
 
-                            await Future.delayed(
-                              const Duration(seconds: 2),
-                            );
+                            await Future.delayed(const Duration(seconds: 2));
 
                             if (!mounted) return;
-
                             Navigator.of(
                               parentContext,
                               rootNavigator: true,
                             ).pop();
-
                             parentContext.pop();
                           } catch (e) {
                             debugPrint(e.toString());
-                          } finally {
-                            if (mounted) {
-                              setState(() {
-                              });
-                            }
                           }
                         },
                         style: ElevatedButton.styleFrom(
@@ -287,7 +276,6 @@ class _CustomCameraWidgetState extends State<CustomCameraWidget> {
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 10),
               ],
             ),
@@ -305,8 +293,59 @@ class _CustomCameraWidgetState extends State<CustomCameraWidget> {
 
   @override
   Widget build(BuildContext context) {
+    // Tampilan alternatif jika kamera tidak ditemukan (Menghindari crash di simulator)
+    if (!_isCameraAvailable) {
+      return Scaffold(
+        backgroundColor: Colors.black,
+        appBar: AppBar(
+          title: const Text("Ambil Gambar"),
+          backgroundColor: Colors.transparent,
+          foregroundColor: Colors.white,
+        ),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.videocam_off, color: Colors.white54, size: 64),
+                const SizedBox(height: 16),
+                const Text(
+                  "Kamera tidak tersedia",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  "Pastikan Anda mengizinkan akses kamera atau aktifkan Virtual Camera jika menggunakan Simulator iOS.",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.grey, fontSize: 14),
+                ),
+                const SizedBox(height: 24),
+                ElevatedButton(
+                  onPressed: () => context.pop(),
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+                  child: const Text(
+                    "Kembali",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    // Tampilan Loading saat menginisialisasi kamera
     if (_controller == null || !_controller!.value.isInitialized) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return const Scaffold(
+        backgroundColor: Colors.black,
+        body: Center(child: CircularProgressIndicator()),
+      );
     }
 
     return Scaffold(
@@ -315,13 +354,11 @@ class _CustomCameraWidgetState extends State<CustomCameraWidget> {
       body: Stack(
         children: [
           Positioned.fill(child: CameraPreview(_controller!)),
-
           Positioned.fill(
             child: IgnorePointer(
               child: Container(color: Colors.black.withOpacity(0.5)),
             ),
           ),
-
           Center(
             child: AspectRatio(
               aspectRatio: widget.ratio,
@@ -333,7 +370,6 @@ class _CustomCameraWidgetState extends State<CustomCameraWidget> {
               ),
             ),
           ),
-
           Positioned(
             bottom: 40,
             left: 0,
