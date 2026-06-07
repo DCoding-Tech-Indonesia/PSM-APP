@@ -18,6 +18,7 @@ import 'package:psm_mobile/features/settlement/presentation/cubit/settlement_ste
 import 'package:psm_mobile/features/settlement/presentation/cubit/settlement_tab_cubit.dart';
 import 'package:psm_mobile/features/settlement/presentation/settlement_form_screen.dart';
 import 'package:psm_mobile/features/attendance/presentation/screens/attendance_screen.dart';
+import 'package:psm_mobile/features/settlement/presentation/settlement_history_screen.dart';
 import 'package:psm_mobile/features/settlement/presentation/settlement_screen.dart';
 
 late final GoRouter appRouter;
@@ -106,6 +107,29 @@ void setupRouter(String initialLocation) {
               ),
             ],
             child: SettlementFormScreen(idAuditTrail: idAuditTrail),
+          );
+        },
+      ),
+      GoRoute(
+        path: '/settlement/history',
+        builder: (context, state) {
+          final dio = DioClient().instance;
+          final secureStorageService = SecureStorageService();
+
+          return MultiBlocProvider(
+            providers: [
+              BlocProvider(
+                create: (_) => SettlementBloc(
+                  SettlementRepositoryImpl(
+                    dataSource: SettlementDataSource(
+                      dio: dio,
+                      secureStorageService: secureStorageService,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+            child: SettlementHistoryScreen(),
           );
         },
       ),
