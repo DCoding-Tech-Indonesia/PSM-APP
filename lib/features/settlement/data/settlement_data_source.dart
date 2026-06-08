@@ -6,9 +6,6 @@ import 'package:flutter/foundation.dart';
 import 'package:psm_mobile/core/storage/secure_storage.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/task_audit_trail.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/document_preview.dart';
-import 'package:psm_mobile/features/settlement/domain/entities/reference_billing.dart';
-import 'package:psm_mobile/features/settlement/domain/entities/reference_bus.dart';
-import 'package:psm_mobile/features/settlement/domain/entities/reference_detail.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/settlement_create.dart';
 
 class SettlementDataSource {
@@ -16,28 +13,6 @@ class SettlementDataSource {
   final SecureStorageService secureStorageService;
 
   SettlementDataSource({required this.dio, required this.secureStorageService});
-
-  Future<List<ReferenceBus>> fetchReferenceBus(String keyword, int idKoridor) async {
-    final response = await dio.get(
-      '/reference/bus',
-      queryParameters: {'keyword': keyword, 'page': 1, 'perPage': 999, 'idKoridor': idKoridor},
-    );
-
-    final data = response.data['data'] as List;
-
-    return data.map((e) => ReferenceBus.fromJson(e)).toList();
-  }
-
-  Future<List<ReferenceDetail>> fetchReferenceKoridor(String keyword) async {
-    final response = await dio.get(
-      '/reference/koridor',
-      queryParameters: {'keyword': keyword, 'page': 1, 'perPage': 999},
-    );
-
-    final data = response.data['data'] as List;
-
-    return data.map((e) => ReferenceDetail.fromJson(e)).toList();
-  }
 
   Future<double> fetchNextRitase(int idKoridor, int idBus) async {
     final response = await dio.get(
@@ -48,46 +23,6 @@ class SettlementDataSource {
     final data = response.data['data'][0]['ritaseKe'] as double;
 
     return data;
-  }
-
-  Future<List<ReferenceDetail>> fetchReferencePayment(String keyword) async {
-    final response = await dio.get(
-      '/reference/payment',
-      queryParameters: {'keyword': keyword, 'page': 1, 'perPage': 999},
-    );
-
-    final data = response.data['data'] as List;
-
-    return data.map((e) => ReferenceDetail.fromJson(e)).toList();
-  }
-
-  Future<List<ReferenceDetail>> fetchReferenceCustType(String keyword) async {
-    final response = await dio.get(
-      '/reference/customer-type',
-      queryParameters: {'keyword': keyword, 'page': 1, 'perPage': 999},
-    );
-
-    final data = response.data['data'] as List;
-
-    return data.map((e) => ReferenceDetail.fromJson(e)).toList();
-  }
-
-  Future<List<ReferenceBilling>> fetchReferenceCustomerBilling(int idTypeNasabah) async {
-    final response = await dio.get(
-      '/reference/customer-billing',
-      queryParameters: {
-        'idTypeNasabah': idTypeNasabah,
-        'page': 1,
-        'perPage': 999,
-      },
-    );
-
-    final data = response.data["data"] as List;
-
-    print("INI BILLING");
-    print(data);
-
-    return data.map((e) => ReferenceBilling.fromJson(e)).toList();
   }
 
   Future<DocumentPreview> uploadDocument(File file) async {

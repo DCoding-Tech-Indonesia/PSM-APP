@@ -191,7 +191,7 @@ class _SettlementScreenState extends State<SettlementScreen> {
                           );
                         },
                         child: GestureDetector(
-                          onTap: () => context.go('/settlement/history'),
+                          onTap: () => context.push('/settlement/history'),
                           child: const Row(
                             children: [
                               Text(

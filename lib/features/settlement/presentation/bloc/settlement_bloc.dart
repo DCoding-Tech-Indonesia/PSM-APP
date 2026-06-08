@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/document_preview.dart';
-import 'package:psm_mobile/features/settlement/domain/entities/reference_bus.dart';
-import 'package:psm_mobile/features/settlement/domain/entities/reference_detail.dart';
+import 'package:psm_mobile/features/reference/domain/entities/reference_bus.dart';
+import 'package:psm_mobile/features/reference/domain/entities/reference_detail.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/settlement_create.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/settlement_detail.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/settlement_document.dart';
@@ -308,7 +308,7 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
         }
       }
 
-      if (newTabIndex < state.totalSteps) {
+      if (newTabIndex < state.referencePayment.length) {
         final nextPayment = state.referencePayment[newTabIndex];
 
         emit(
@@ -424,7 +424,7 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
     });
 
     on<UploadDocument>((event, emit) async {
-      emit(state.copyWith(status: SettlementStatus.loading));
+      emit(state.copyWith(uploadingDoc: true));
 
       final uploadDoc = await settlementRepository.uploadDocument(event.file);
 
@@ -459,6 +459,8 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
           );
         },
       );
+
+      emit(state.copyWith(uploadingDoc: false));
     });
 
     on<RemoveDocumentById>((event, emit) {

@@ -9,7 +9,13 @@ import 'package:psm_mobile/core/storage/shared_preferences.dart';
 import 'package:psm_mobile/features/auth/domain/repositories/auth_repository.dart';
 import 'package:psm_mobile/features/auth/presentation/auth_screen.dart';
 import 'package:psm_mobile/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:psm_mobile/features/kmbus/data/kmbus_data_source.dart';
+import 'package:psm_mobile/features/kmbus/data/kmbus_repository_impl.dart';
+import 'package:psm_mobile/features/kmbus/presentation/bloc/kmbus_bloc.dart';
+import 'package:psm_mobile/features/kmbus/presentation/kmbus_screen.dart';
+import 'package:psm_mobile/features/kmbus/presentation/kmbus_titik_awal_form_screen.dart';
 import 'package:psm_mobile/features/portal/presentation/portal_screen.dart';
+import 'package:psm_mobile/features/reference/reference_data_source.dart';
 import 'package:psm_mobile/features/settlement/data/settlement_data_source.dart';
 import 'package:psm_mobile/features/settlement/data/settlement_repository_impl.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_bloc.dart';
@@ -74,6 +80,10 @@ void setupRouter(String initialLocation) {
                       dio: dio,
                       secureStorageService: secureStorageService,
                     ),
+                    dataSourceReference: ReferenceDataSource(
+                      dio: dio,
+                      secureStorageService: secureStorageService,
+                    ),
                   ),
                 ),
               ),
@@ -102,6 +112,10 @@ void setupRouter(String initialLocation) {
                       dio: dio,
                       secureStorageService: secureStorageService,
                     ),
+                    dataSourceReference: ReferenceDataSource(
+                      dio: dio,
+                      secureStorageService: secureStorageService,
+                    ),
                   ),
                 ),
               ),
@@ -125,6 +139,10 @@ void setupRouter(String initialLocation) {
                       dio: dio,
                       secureStorageService: secureStorageService,
                     ),
+                    dataSourceReference: ReferenceDataSource(
+                      dio: dio,
+                      secureStorageService: secureStorageService,
+                    ),
                   ),
                 ),
               ),
@@ -134,19 +152,71 @@ void setupRouter(String initialLocation) {
         },
       ),
 
+      // KM BUS ROUTE
+      GoRoute(
+        path: '/kmbus/dashboard',
+        builder: (context, state) {
+          final dio = DioClient().instance;
+          final secureStorageService = SecureStorageService();
+
+          return MultiBlocProvider(
+            providers: [
+              BlocProvider(
+                create: (_) => KmbusBloc(
+                  KmbusRepositoryImpl(
+                    dataSource: KmbusDataSource(
+                      dio: dio,
+                      secureStorageService: secureStorageService,
+                    ),
+                    dataSourceReference: ReferenceDataSource(
+                      dio: dio,
+                      secureStorageService: secureStorageService,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+            child: KmbusScreen(),
+          );
+        },
+      ),
+      GoRoute(
+        path: '/kmbus/titik-awal/form',
+        builder: (context, state) {
+          final dio = DioClient().instance;
+          final secureStorageService = SecureStorageService();
+
+          return MultiBlocProvider(
+            providers: [
+              BlocProvider(
+                create: (_) => KmbusBloc(
+                  KmbusRepositoryImpl(
+                    dataSource: KmbusDataSource(
+                      dio: dio,
+                      secureStorageService: secureStorageService,
+                    ),
+                    dataSourceReference: ReferenceDataSource(
+                      dio: dio,
+                      secureStorageService: secureStorageService,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+            child: KmbusTitikAwalFormScreen(),
+          );
+        },
+      ),
+
       // CUSTOM ROUTE
       GoRoute(
         path: '/camera',
         builder: (context, state) {
-          final extra = state.extra as Map;
+          final extra = state.extra as Map?;
 
-          final ratio = extra['ratio'] as double;
-          final settlementBloc = extra['bloc'] as SettlementBloc;
+          final ratio = (extra?['ratio'] as double?) ?? (9 / 16);
 
-          return BlocProvider.value(
-            value: settlementBloc,
-            child: CustomCameraWidget(ratio: ratio),
-          );
+          return CustomCameraWidget(ratio: ratio);
         },
       ),
       GoRoute(

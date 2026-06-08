@@ -1,8 +1,8 @@
 import 'package:equatable/equatable.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/task_audit_trail.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/document_preview.dart';
-import 'package:psm_mobile/features/settlement/domain/entities/reference_bus.dart';
-import 'package:psm_mobile/features/settlement/domain/entities/reference_detail.dart';
+import 'package:psm_mobile/features/reference/domain/entities/reference_bus.dart';
+import 'package:psm_mobile/features/reference/domain/entities/reference_detail.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/settlement_detail.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/settlement_detail_input.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/settlement_document.dart';
@@ -30,6 +30,7 @@ class SettlementState extends Equatable {
   final String namaKoridor;
 
   final SettlementStatus status;
+  final bool uploadingDoc;
 
   final String processId;
   final int auditTrailId;
@@ -64,7 +65,10 @@ class SettlementState extends Equatable {
     this.labelCustomer = const [],
     this.noUnit = '',
     this.namaKoridor = '',
+
     this.status = SettlementStatus.initial,
+    this.uploadingDoc = true,
+
     this.processId = '',
     this.auditTrailId = 0,
     this.idBus = 0,
@@ -98,7 +102,10 @@ class SettlementState extends Equatable {
     List<String>? labelCustomer,
     String? noUnit,
     String? namaKoridor,
+
     SettlementStatus? status,
+    bool? uploadingDoc,
+
     String? processId,
     int? auditTrailId,
     int? idBus,
@@ -130,7 +137,10 @@ class SettlementState extends Equatable {
       labelCustomer: labelCustomer ?? this.labelCustomer,
       noUnit: noUnit ?? this.noUnit,
       namaKoridor: namaKoridor ?? this.namaKoridor,
+
       status: status ?? this.status,
+      uploadingDoc: uploadingDoc ?? this.uploadingDoc,
+
       processId: processId ?? this.processId,
       auditTrailId: auditTrailId ?? this.auditTrailId,
       idBus: idBus ?? this.idBus,

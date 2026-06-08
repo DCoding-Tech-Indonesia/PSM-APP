@@ -23,10 +23,6 @@ class AuthDataSource {
         },
       );
 
-      if (kDebugMode) {
-        print(response);
-      }
-
       final success = response.data["status"];
 
       if (success == true) {
@@ -53,9 +49,12 @@ class AuthDataSource {
         message: response.data["message"] ?? "Login gagal",
       );
     } catch (e) {
+      if (kDebugMode) {
+        print("Exception Error : ${e.toString()}");
+      }
       return LoginResponse(
         isSuccess: false,
-        message: "Terjadi kesalahan: ${e.toString()}",
+        message: "Terjadi kesalahan pada server",
       );
     }
   }

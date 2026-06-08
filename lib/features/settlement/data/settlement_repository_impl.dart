@@ -3,19 +3,21 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:psm_mobile/core/error/failure.dart';
+import 'package:psm_mobile/features/reference/reference_data_source.dart';
 import 'package:psm_mobile/features/settlement/data/settlement_data_source.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/task_audit_trail.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/document_preview.dart';
-import 'package:psm_mobile/features/settlement/domain/entities/reference_billing.dart';
-import 'package:psm_mobile/features/settlement/domain/entities/reference_bus.dart';
-import 'package:psm_mobile/features/settlement/domain/entities/reference_detail.dart';
+import 'package:psm_mobile/features/reference/domain/entities/reference_billing.dart';
+import 'package:psm_mobile/features/reference/domain/entities/reference_bus.dart';
+import 'package:psm_mobile/features/reference/domain/entities/reference_detail.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/settlement_create.dart';
 import 'package:psm_mobile/features/settlement/domain/repositories/settlement_repository.dart';
 
 class SettlementRepositoryImpl implements SettlementRepository {
   final SettlementDataSource dataSource;
+  final ReferenceDataSource dataSourceReference;
 
-  SettlementRepositoryImpl({required this.dataSource});
+  SettlementRepositoryImpl({required this.dataSource, required this.dataSourceReference});
 
   @override
   Future<Either<Failure, List<ReferenceBus>>> fetchReferenceBus(
@@ -23,7 +25,7 @@ class SettlementRepositoryImpl implements SettlementRepository {
     int idKoridor
   ) async {
     try {
-      final result = await dataSource.fetchReferenceBus(keyword, idKoridor);
+      final result = await dataSourceReference.fetchReferenceBus(keyword, idKoridor);
 
       return right(result);
     } on DioException catch (e) {
@@ -41,7 +43,7 @@ class SettlementRepositoryImpl implements SettlementRepository {
     String keyword,
   ) async {
     try {
-      final result = await dataSource.fetchReferenceKoridor(keyword);
+      final result = await dataSourceReference.fetchReferenceKoridor(keyword);
 
       return right(result);
     } on DioException catch (e) {
@@ -78,7 +80,7 @@ class SettlementRepositoryImpl implements SettlementRepository {
     String keyword,
   ) async {
     try {
-      final result = await dataSource.fetchReferencePayment(keyword);
+      final result = await dataSourceReference.fetchReferencePayment(keyword);
 
       return right(result);
     } on DioException catch (e) {
@@ -96,7 +98,7 @@ class SettlementRepositoryImpl implements SettlementRepository {
     String keyword,
   ) async {
     try {
-      final result = await dataSource.fetchReferenceCustType(keyword);
+      final result = await dataSourceReference.fetchReferenceCustType(keyword);
 
       return right(result);
     } on DioException catch (e) {
@@ -114,7 +116,7 @@ class SettlementRepositoryImpl implements SettlementRepository {
     int idTypeNasabah,
   ) async {
     try {
-      final result = await dataSource.fetchReferenceCustomerBilling(
+      final result = await dataSourceReference.fetchReferenceCustomerBilling(
         idTypeNasabah,
       );
 

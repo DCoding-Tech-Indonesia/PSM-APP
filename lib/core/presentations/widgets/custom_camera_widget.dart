@@ -2,20 +2,17 @@ import 'dart:io';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image/image.dart' as img;
 import 'package:path_provider/path_provider.dart';
-import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_bloc.dart';
-import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_event.dart';
-import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_state.dart';
-
-import 'core_bottom_modal_alert.dart';
 
 class CustomCameraWidget extends StatefulWidget {
   final double ratio;
 
-  const CustomCameraWidget({super.key, this.ratio = 1});
+  const CustomCameraWidget({
+    super.key,
+    this.ratio = 1,
+  });
 
   @override
   State<CustomCameraWidget> createState() => _CustomCameraWidgetState();
@@ -24,8 +21,9 @@ class CustomCameraWidget extends StatefulWidget {
 class _CustomCameraWidgetState extends State<CustomCameraWidget> {
   CameraController? _controller;
   List<CameraDescription>? cameras;
+
   bool _isCapturing = false;
-  bool _isCameraAvailable = true; // State untuk memantau ketersediaan kamera
+  bool _isCameraAvailable = true;
 
   @override
   void initState() {
@@ -37,7 +35,6 @@ class _CustomCameraWidgetState extends State<CustomCameraWidget> {
     try {
       cameras = await availableCameras();
 
-      // Cek apakah list kamera kosong (antisipasi lingkungan simulator/device tanpa kamera)
       if (cameras == null || cameras!.isEmpty) {
         if (mounted) {
           setState(() {
@@ -47,9 +44,8 @@ class _CustomCameraWidgetState extends State<CustomCameraWidget> {
         return;
       }
 
-      // Inisialisasi kamera pertama yang tersedia jika list aman
       _controller = CameraController(
-        cameras![0],
+        cameras!.first,
         ResolutionPreset.high,
         enableAudio: false,
       );
@@ -60,7 +56,8 @@ class _CustomCameraWidgetState extends State<CustomCameraWidget> {
         setState(() {});
       }
     } catch (e) {
-      debugPrint("Gagal menginisialisasi kamera: $e");
+      debugPrint('Gagal menginisialisasi kamera: $e');
+
       if (mounted) {
         setState(() {
           _isCameraAvailable = false;
@@ -75,6 +72,7 @@ class _CustomCameraWidgetState extends State<CustomCameraWidget> {
 
     final w = original.width;
     final h = original.height;
+
     final targetRatio = widget.ratio;
 
     int cropW = w;
@@ -97,10 +95,19 @@ class _CustomCameraWidgetState extends State<CustomCameraWidget> {
     );
 
     final dir = await getTemporaryDirectory();
-    final path = '${dir.path}/${DateTime.now().millisecondsSinceEpoch}.jpg';
+
+    final path =
+        '${dir.path}/${DateTime.now().millisecondsSinceEpoch}.jpg';
+
     final newFile = File(path);
 
-    await newFile.writeAsBytes(img.encodeJpg(cropped, quality: 90));
+    await newFile.writeAsBytes(
+      img.encodeJpg(
+        cropped,
+        quality: 90,
+      ),
+    );
+
     return newFile;
   }
 
@@ -117,7 +124,9 @@ class _CustomCameraWidgetState extends State<CustomCameraWidget> {
       });
 
       final image = await _controller!.takePicture();
+
       final file = File(image.path);
+
       final cropped = await _cropToRatio(file);
 
       if (!mounted) return;
@@ -135,15 +144,15 @@ class _CustomCameraWidgetState extends State<CustomCameraWidget> {
   }
 
   void _showPreviewModal(File imageFile) {
-    final parentContext = this.context;
-    final settlementBlocContext = context.read<SettlementBloc>();
+    final parentContext = context;
+
     showModalBottomSheet(
       context: context,
       isDismissible: false,
       enableDrag: false,
       isScrollControlled: true,
       backgroundColor: Colors.black,
-      builder: (context) {
+      builder: (modalContext) {
         return SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(16),
@@ -164,118 +173,89 @@ class _CustomCameraWidgetState extends State<CustomCameraWidget> {
                     ),
                     IconButton(
                       onPressed: () {
-                        Navigator.pop(context);
+                        Navigator.pop(modalContext);
                       },
-                      icon: const Icon(Icons.close, color: Colors.white),
+                      icon: const Icon(
+                        Icons.close,
+                        color: Colors.white,
+                      ),
                     ),
                   ],
                 ),
+
                 const SizedBox(height: 12),
+
                 ClipRRect(
                   borderRadius: BorderRadius.circular(16),
                   child: AspectRatio(
                     aspectRatio: widget.ratio,
-                    child: Image.file(imageFile, fit: BoxFit.cover),
+                    child: Image.file(
+                      imageFile,
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
+
                 const SizedBox(height: 24),
+
                 Row(
                   children: [
                     Expanded(
                       child: OutlinedButton(
                         onPressed: () {
-                          Navigator.pop(context);
+                          Navigator.pop(modalContext);
                         },
                         style: OutlinedButton.styleFrom(
                           foregroundColor: Colors.white,
-                          side: const BorderSide(color: Colors.white),
-                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          side: const BorderSide(
+                            color: Colors.white,
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 14,
+                          ),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius:
+                            BorderRadius.circular(12),
                           ),
                         ),
-                        child: const Text("Batal"),
+                        child: const Text(
+                          "Batal",
+                        ),
                       ),
                     ),
+
                     const SizedBox(width: 12),
+
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: () async {
-                          try {
-                            final bloc = settlementBlocContext;
-                            bloc.add(UploadDocument(imageFile));
+                        onPressed: () {
+                          Navigator.pop(modalContext);
 
-                            final resultState = await bloc.stream.firstWhere((
-                              state,
-                            ) {
-                              return state.status ==
-                                      SettlementStatus.failedSave ||
-                                  state.status == SettlementStatus.success;
-                            });
-
-                            if (!mounted) return;
-                            Navigator.pop(context);
-
-                            if (resultState.status ==
-                                SettlementStatus.failedSave) {
-                              showModalBottomSheet(
-                                context: context,
-                                enableDrag: false,
-                                builder: (_) => const CoreBottomModalAlert(
-                                  success: false,
-                                  message: "Gagal menyimpan foto",
-                                ),
-                              );
-                              return;
-                            }
-
-                            final previewContext = context;
-                            Navigator.pop(previewContext);
-
-                            showModalBottomSheet(
-                              context: parentContext,
-                              enableDrag: false,
-                              builder: (_) {
-                                Future.delayed(const Duration(seconds: 2), () {
-                                  if (Navigator.canPop(parentContext)) {
-                                    Navigator.pop(parentContext);
-                                  }
-                                });
-
-                                return const CoreBottomModalAlert(
-                                  success: true,
-                                  message: "Foto berhasil disimpan",
-                                );
-                              },
-                            );
-
-                            await Future.delayed(const Duration(seconds: 2));
-
-                            if (!mounted) return;
-                            Navigator.of(
-                              parentContext,
-                              rootNavigator: true,
-                            ).pop();
-                            parentContext.pop();
-                          } catch (e) {
-                            debugPrint(e.toString());
-                          }
+                          parentContext.pop<File>(
+                            imageFile,
+                          );
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 14,
+                          ),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius:
+                            BorderRadius.circular(12),
                           ),
                         ),
                         child: const Text(
                           "Simpan",
-                          style: TextStyle(color: Colors.white),
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ),
                   ],
                 ),
+
                 const SizedBox(height: 10),
               ],
             ),
@@ -293,7 +273,6 @@ class _CustomCameraWidgetState extends State<CustomCameraWidget> {
 
   @override
   Widget build(BuildContext context) {
-    // Tampilan alternatif jika kamera tidak ditemukan (Menghindari crash di simulator)
     if (!_isCameraAvailable) {
       return Scaffold(
         backgroundColor: Colors.black,
@@ -304,12 +283,18 @@ class _CustomCameraWidgetState extends State<CustomCameraWidget> {
         ),
         body: Center(
           child: Padding(
-            padding: const EdgeInsets.all(24.0),
+            padding: const EdgeInsets.all(24),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.videocam_off, color: Colors.white54, size: 64),
+                const Icon(
+                  Icons.videocam_off,
+                  color: Colors.white54,
+                  size: 64,
+                ),
+
                 const SizedBox(height: 16),
+
                 const Text(
                   "Kamera tidak tersedia",
                   style: TextStyle(
@@ -318,19 +303,24 @@ class _CustomCameraWidgetState extends State<CustomCameraWidget> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
+
                 const SizedBox(height: 8),
+
                 const Text(
-                  "Pastikan Anda mengizinkan akses kamera atau aktifkan Virtual Camera jika menggunakan Simulator iOS.",
+                  "Pastikan izin kamera diberikan atau aktifkan Virtual Camera pada simulator.",
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.grey, fontSize: 14),
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 14,
+                  ),
                 ),
+
                 const SizedBox(height: 24),
+
                 ElevatedButton(
                   onPressed: () => context.pop(),
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
                   child: const Text(
                     "Kembali",
-                    style: TextStyle(color: Colors.white),
                   ),
                 ),
               ],
@@ -340,56 +330,87 @@ class _CustomCameraWidgetState extends State<CustomCameraWidget> {
       );
     }
 
-    // Tampilan Loading saat menginisialisasi kamera
-    if (_controller == null || !_controller!.value.isInitialized) {
+    if (_controller == null ||
+        !_controller!.value.isInitialized) {
       return const Scaffold(
         backgroundColor: Colors.black,
-        body: Center(child: CircularProgressIndicator()),
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
       );
     }
 
     return Scaffold(
       backgroundColor: Colors.black,
-      appBar: AppBar(title: const Text("Ambil Gambar")),
+      appBar: AppBar(
+        title: const Text(
+          "Ambil Gambar",
+        ),
+      ),
       body: Stack(
         children: [
-          Positioned.fill(child: CameraPreview(_controller!)),
           Positioned.fill(
-            child: IgnorePointer(
-              child: Container(color: Colors.black.withOpacity(0.5)),
+            child: CameraPreview(
+              _controller!,
             ),
           ),
+
+          Positioned.fill(
+            child: IgnorePointer(
+              child: Container(
+                color: Colors.black.withValues(
+                  alpha: .5,
+                ),
+              ),
+            ),
+          ),
+
           Center(
             child: AspectRatio(
               aspectRatio: widget.ratio,
               child: Container(
                 decoration: BoxDecoration(
-                  border: Border.all(color: Colors.white, width: 3),
-                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: Colors.white,
+                    width: 3,
+                  ),
+                  borderRadius: BorderRadius.circular(
+                    16,
+                  ),
                 ),
               ),
             ),
           ),
+
           Positioned(
             bottom: 40,
             left: 0,
             right: 0,
             child: Center(
               child: GestureDetector(
-                onTap: _isCapturing ? null : takePicture,
+                onTap: _isCapturing
+                    ? null
+                    : takePicture,
                 child: Container(
                   width: 80,
                   height: 80,
                   decoration: BoxDecoration(
-                    color: _isCapturing ? Colors.grey : Colors.white,
+                    color: _isCapturing
+                        ? Colors.grey
+                        : Colors.white,
                     shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 4),
+                    border: Border.all(
+                      color: Colors.white,
+                      width: 4,
+                    ),
                   ),
                   child: _isCapturing
                       ? const Padding(
-                          padding: EdgeInsets.all(20),
-                          child: CircularProgressIndicator(strokeWidth: 3),
-                        )
+                    padding: EdgeInsets.all(20),
+                    child: CircularProgressIndicator(
+                      strokeWidth: 3,
+                    ),
+                  )
                       : null,
                 ),
               ),

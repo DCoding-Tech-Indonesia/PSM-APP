@@ -268,6 +268,8 @@ class PortalQuickActionsGrid extends StatelessWidget {
                         context.push('/settlement/dashboard');
                       } else if (menu.title.toLowerCase().contains("absensi") || menu.route == "/attendance") {
                         context.push('/attendance');
+                      } else if (menu.title.toUpperCase().contains("KM")) {
+                        context.push('/kmbus/dashboard');
                       } else {
                         PortalDialogs.showComingSoonDialog(context, menu.title, "Fitur ini masih dalam pengembangan.");
                       }

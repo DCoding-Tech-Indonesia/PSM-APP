@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:psm_mobile/core/presentations/widgets/widgets.dart';
-import 'package:psm_mobile/features/settlement/domain/entities/reference_bus.dart';
-import 'package:psm_mobile/features/settlement/domain/entities/reference_detail.dart';
+import 'package:psm_mobile/features/reference/domain/entities/reference_bus.dart';
+import 'package:psm_mobile/features/reference/domain/entities/reference_detail.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_bloc.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_event.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_state.dart';
@@ -71,6 +71,7 @@ class WizardFirstStep extends StatelessWidget {
 
               return CoreDropdownSearch<ReferenceDetail>(
                 label: 'Pilih Koridor',
+                hintText: 'Pilih Koridor',
                 popupTitle: 'Daftar Koridor',
                 items: state.referenceKoridor,
                 selectedItem: selectedKoridor,
@@ -80,8 +81,6 @@ class WizardFirstStep extends StatelessWidget {
                 isItemSelected: (item) => item.id == state.idKoridor,
                 onSelected: (value) {
                   if (value == null) return;
-                  print("value");
-                  print(value.id);
                   context.read<SettlementBloc>().add(
                     SelectKoridor(value.id, value.name),
                   );
@@ -120,6 +119,7 @@ class WizardFirstStep extends StatelessWidget {
 
               return CoreDropdownSearch<ReferenceBus>(
                 label: 'Pilih Bus',
+                hintText: 'Pilih Bus',
                 popupTitle: 'Daftar Bus',
                 items: state.referenceBus,
                 selectedItem: selectedBus,

@@ -69,137 +69,161 @@ class CoreDropdownSearch<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DropdownSearch<T>(
-      items: (filter, _) => items
-          .where(
-            (item) =>
-                itemAsString(item).toLowerCase().contains(filter.toLowerCase()),
-          )
-          .toList(),
-      selectedItem: selectedItem,
-      itemAsString: itemAsString,
-      compareFn: compareFn,
-      decoratorProps: DropDownDecoratorProps(
-        decoration: InputDecoration(
-          labelText: isRequired ? '$label *' : label,
-          hintText: hintText ?? label,
-          contentPadding: const EdgeInsets.symmetric(
-            vertical: 16,
-            horizontal: 12,
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.grey.withValues(alpha: 0.5)),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(
-              color: Theme.of(context).colorScheme.primary,
-              width: 1.5,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(
+              label,
+              style: const TextStyle(fontSize: 18),
             ),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+            if (isRequired)
+              const Text(
+                ' *',
+                style: TextStyle(
+                  color: Colors.redAccent,
+                  fontSize: 18,
+                ),
+              ),
+          ],
         ),
-      ),
-      popupProps: PopupProps.modalBottomSheet(
-        showSearchBox: true,
-        searchFieldProps: TextFieldProps(
-          decoration: InputDecoration(
-            hintText: 'Cari...',
-            hintStyle: TextStyle(color: Colors.grey.shade500),
-            prefixIcon: Icon(Icons.search, color: Colors.grey.shade600),
-            filled: true,
-            fillColor: Colors.grey.withValues(alpha: 0.1),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 12,
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
-                color: Theme.of(context).colorScheme.primary,
-                width: 1.5,
+
+        const SizedBox(height: 8),
+
+        DropdownSearch<T>(
+          items: (filter, _) => items
+              .where(
+                (item) => itemAsString(item)
+                .toLowerCase()
+                .contains(filter.toLowerCase()),
+          )
+              .toList(),
+          selectedItem: selectedItem,
+          itemAsString: itemAsString,
+          compareFn: compareFn,
+
+          decoratorProps: DropDownDecoratorProps(
+            decoration: InputDecoration(
+              hintText: hintText ?? '',
+              contentPadding: const EdgeInsets.symmetric(
+                vertical: 10,
+                horizontal: 12,
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderSide: const BorderSide(
+                  color: Colors.grey,
+                  width: .5,
+                ),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(4),
               ),
             ),
           ),
-        ),
-        searchDelay: const Duration(milliseconds: 300),
-        title: Container(
-          width: double.infinity,
-          decoration: BoxDecoration(
-            color: headerColor ?? Theme.of(context).primaryColor,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(
-                  top: 20,
-                  bottom: 20,
-                  left: 20,
-                  right: 20,
+
+          popupProps: PopupProps.modalBottomSheet(
+            showSearchBox: true,
+            searchFieldProps: TextFieldProps(
+              decoration: InputDecoration(
+                hintText: 'Cari...',
+                hintStyle: TextStyle(color: Colors.grey.shade500),
+                prefixIcon: Icon(Icons.search, color: Colors.grey.shade600),
+                filled: true,
+                fillColor: Colors.grey.withValues(alpha: 0.1),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
                 ),
-                child: Text(
-                  popupTitle,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                    letterSpacing: 0.5,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(
+                    color: Theme.of(context).colorScheme.primary,
+                    width: 1.5,
                   ),
                 ),
               ),
-            ],
-          ),
-        ),
-        modalBottomSheetProps: const ModalBottomSheetProps(
-          enableDrag: true,
-          barrierDismissible: true,
-          clipBehavior: Clip.antiAlias,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadiusGeometry.all(Radius.circular(24)),
-          )
-        ),
-        itemBuilder: (context, item, isSelected, _) {
-          final theme = Theme.of(context);
-
-          final selected = isItemSelected?.call(item) ?? isSelected;
-
-          return Container(
-            color: selected
-                ? theme.colorScheme.primary.withValues(alpha: 0.1)
-                : Colors.transparent,
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Text(
-                    itemAsString(item),
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: selected
-                          ? FontWeight.bold
-                          : FontWeight.normal,
-                      color: selected ? theme.colorScheme.primary : null,
+            ),
+            searchDelay: const Duration(milliseconds: 300),
+            title: Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: headerColor ?? Theme.of(context).primaryColor,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(
+                      top: 20,
+                      bottom: 20,
+                      left: 20,
+                      right: 20,
+                    ),
+                    child: Text(
+                      popupTitle,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                        letterSpacing: 0.5,
+                      ),
                     ),
                   ),
-                ),
-                CoreSelectedDropdownIndicator(active: selected),
-              ],
+                ],
+              ),
             ),
-          );
-        },
-      ),
-      onSelected: onSelected,
+            modalBottomSheetProps: const ModalBottomSheetProps(
+                enableDrag: true,
+                barrierDismissible: true,
+                clipBehavior: Clip.antiAlias,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadiusGeometry.all(Radius.circular(24)),
+                )
+            ),
+            itemBuilder: (context, item, isSelected, _) {
+              final theme = Theme.of(context);
+
+              final selected = isItemSelected?.call(item) ?? isSelected;
+
+              return Container(
+                color: selected
+                    ? theme.colorScheme.primary.withValues(alpha: 0.1)
+                    : Colors.transparent,
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        itemAsString(item),
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: selected
+                              ? FontWeight.bold
+                              : FontWeight.normal,
+                          color: selected ? theme.colorScheme.primary : null,
+                        ),
+                      ),
+                    ),
+                    CoreSelectedDropdownIndicator(active: selected),
+                  ],
+                ),
+              );
+            },
+          ),
+          onSelected: onSelected,
+        ),
+      ],
     );
   }
 }
