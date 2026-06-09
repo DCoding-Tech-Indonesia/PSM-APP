@@ -297,7 +297,6 @@ class _AuthScreenState extends State<AuthScreen> {
                                           isRequired: true,
                                           isSecured: true,
                                           rule: InputRuleSuffixNew.text,
-                                          initValue: state.password.value,
                                           errorText:
                                               (state
                                                       .passwordError

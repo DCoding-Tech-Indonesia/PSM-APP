@@ -16,7 +16,7 @@ class SettlementHistoryScreen extends StatefulWidget {
 }
 
 class _SettlementHistoryScreenState extends State<SettlementHistoryScreen> {
-  final String _activeTab = "Pending";
+  String _activeTab = "Pending";
 
   @override
   void initState() {
@@ -24,6 +24,14 @@ class _SettlementHistoryScreenState extends State<SettlementHistoryScreen> {
 
     Future.microtask(() {
       context.read<SettlementBloc>().add(PageDashboardLoad());
+    });
+  }
+
+  void _changeTab(String tab) {
+    if (_activeTab == tab) return;
+
+    setState(() {
+      _activeTab = tab;
     });
   }
 
@@ -38,8 +46,9 @@ class _SettlementHistoryScreenState extends State<SettlementHistoryScreen> {
               customBgColor: Colors.white,
               withBorder: true,
             ),
+
             DefaultTextStyle(
-              style: TextStyle(
+              style: const TextStyle(
                 fontWeight: FontWeight.w700,
                 color: Colors.black,
                 fontSize: 16,
@@ -47,50 +56,56 @@ class _SettlementHistoryScreenState extends State<SettlementHistoryScreen> {
               child: Row(
                 children: [
                   Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 15),
-                      decoration: BoxDecoration(
-                        border: Border(
-                          bottom: BorderSide(
-                            width: 2,
-                            color: _activeTab == "Pending"
-                                ? Colors.blue
-                                : Colors.transparent,
+                    child: InkWell(
+                      onTap: () => _changeTab("Pending"),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 15),
+                        decoration: BoxDecoration(
+                          border: Border(
+                            bottom: BorderSide(
+                              width: 2,
+                              color: _activeTab == "Pending"
+                                  ? Colors.blue
+                                  : Colors.transparent,
+                            ),
                           ),
                         ),
-                      ),
-                      child: Center(
-                        child: Text(
-                          "Pending",
-                          style: TextStyle(
-                            color: _activeTab == "Pending"
-                                ? Colors.blue
-                                : Colors.grey,
+                        child: Center(
+                          child: Text(
+                            "Pending",
+                            style: TextStyle(
+                              color: _activeTab == "Pending"
+                                  ? Colors.blue
+                                  : Colors.grey,
+                            ),
                           ),
                         ),
                       ),
                     ),
                   ),
                   Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 15),
-                      decoration: BoxDecoration(
-                        border: Border(
-                          bottom: BorderSide(
-                            width: 2,
-                            color: _activeTab == "Selesai"
-                                ? Colors.blue
-                                : Colors.transparent,
+                    child: InkWell(
+                      onTap: () => _changeTab("Selesai"),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 15),
+                        decoration: BoxDecoration(
+                          border: Border(
+                            bottom: BorderSide(
+                              width: 2,
+                              color: _activeTab == "Selesai"
+                                  ? Colors.blue
+                                  : Colors.transparent,
+                            ),
                           ),
                         ),
-                      ),
-                      child: Center(
-                        child: Text(
-                          "Selesai",
-                          style: TextStyle(
-                            color: _activeTab == "Selesai"
-                                ? Colors.blue
-                                : Colors.grey,
+                        child: Center(
+                          child: Text(
+                            "Selesai",
+                            style: TextStyle(
+                              color: _activeTab == "Selesai"
+                                  ? Colors.blue
+                                  : Colors.grey,
+                            ),
                           ),
                         ),
                       ),
@@ -99,49 +114,48 @@ class _SettlementHistoryScreenState extends State<SettlementHistoryScreen> {
                 ],
               ),
             ),
-            SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 26),
-                child: BlocBuilder<SettlementBloc, SettlementState>(
-                  buildWhen: (prev, curr) => prev.listTaskAuditTrail != curr.listTaskAuditTrail,
-                  builder: (context, state) {
-                    return Column(
+
+            Expanded(
+              child: BlocBuilder<SettlementBloc, SettlementState>(
+                builder: (context, state) {
+                  final filteredList = state.listTaskAuditTrail.where((item) {
+                    final statusCode = item.status.code;
+
+                    if (_activeTab == "Pending") {
+                      return statusCode != "APR";
+                    }
+
+                    return statusCode == "APR";
+                  }).toList();
+
+                  if (filteredList.isEmpty) {
+                    return const Center(
+                      child: Text(
+                        "Tidak ada data",
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    );
+                  }
+
+                  return SingleChildScrollView(
+                    padding: const EdgeInsets.symmetric(horizontal: 26),
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const SizedBox(height: 20),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              "08 Juni 2026",
-                              style: TextStyle(
-                                color: Colors.blue,
-                                fontWeight: FontWeight.w700,
-                              ),
+
+                        ...filteredList.map(
+                              (item) => Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: HistoryListCard(
+                              data: item,
                             ),
-                            Container(
-                              padding: const EdgeInsets.all(4),
-                              decoration: BoxDecoration(
-                                color: Colors.yellow,
-                                border: Border.all(
-                                  width: 2,
-                                  color: Colors.blueAccent,
-                                ),
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                              child: const Icon(
-                                Icons.calendar_month_outlined,
-                                color: Colors.blueAccent,
-                                size: 18,
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
-                        HistoryListCard(),
                       ],
-                    );
-                  },
-                ),
+                    ),
+                  );
+                },
               ),
             ),
           ],

@@ -6,7 +6,6 @@ import 'package:go_router/go_router.dart';
 import 'package:psm_mobile/core/helper/camera_access_helper.dart';
 import 'package:psm_mobile/core/helper/string_formatter.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_camera_widget.dart';
-import 'package:psm_mobile/features/settlement/domain/entities/document_preview.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/settlement_detail.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_bloc.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_event.dart';

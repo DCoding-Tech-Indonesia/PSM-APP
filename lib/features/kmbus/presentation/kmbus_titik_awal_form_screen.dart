@@ -194,7 +194,6 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
 
                       BlocBuilder<KmbusBloc, KmbusState>(
                         builder: (context, state) {
-                          final theme = Theme.of(context);
 
                           return CoreCameraWidget(
                             onTap: _openCamera,

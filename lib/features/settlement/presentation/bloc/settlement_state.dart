@@ -188,4 +188,6 @@ class SettlementState extends Equatable {
     documentPreview,
     message,
   ];
+
+  get checkDetailValid => null;
 }

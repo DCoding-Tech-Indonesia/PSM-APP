@@ -22,15 +22,19 @@ class CoreSnackbar {
         break;
     }
 
-    ScaffoldMessenger.of(context).showSnackBar(
+    final messenger = ScaffoldMessenger.of(context);
+
+    messenger.hideCurrentSnackBar();
+
+    messenger.showSnackBar(
       SnackBar(
         backgroundColor: backgroundColor,
         showCloseIcon: true,
         closeIconColor: Colors.white,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(20.0),
-            topRight: Radius.circular(20.0),
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
           ),
         ),
         content: Text(message),

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:psm_mobile/core/helper/string_formatter.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_button.dart';
+import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/task_audit_trail.dart';
 
 class HistoryListCard extends StatelessWidget {
-  const HistoryListCard({super.key});
+  const HistoryListCard({super.key, required this.data});
+
+  final TaskAuditTrail data;
 
   @override
   Widget build(BuildContext context) {
@@ -18,8 +21,18 @@ class HistoryListCard extends StatelessWidget {
             children: [
               Container(
                 padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(color: Colors.yellow, borderRadius: BorderRadius.circular(8), border: Border.all(width: 1, color: Colors.blueAccent)),
-                child: Text("RIT", style: TextStyle(fontWeight: FontWeight.w800, color: Colors.blueAccent),),
+                decoration: BoxDecoration(
+                  color: Colors.yellow,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(width: 1, color: Colors.blueAccent),
+                ),
+                child: Text(
+                  "RIT",
+                  style: TextStyle(
+                    fontWeight: FontWeight.w800,
+                    color: Colors.blueAccent,
+                  ),
+                ),
               ),
               Expanded(
                 child: Column(
@@ -53,25 +66,14 @@ class HistoryListCard extends StatelessWidget {
               Row(
                 spacing: 10,
                 children: [
-                  const Icon(
-                    Icons.people,
-                    size: 15,
-                    color: Colors.grey,
-                  ),
-                  Text(
-                    "10",
-                    style: TextStyle(color: Colors.grey),
-                  ),
+                  const Icon(Icons.people, size: 15, color: Colors.grey),
+                  Text("10", style: TextStyle(color: Colors.grey)),
                 ],
               ),
               Row(
                 spacing: 10,
                 children: [
-                  const Icon(
-                    Icons.money,
-                    size: 15,
-                    color: Colors.grey,
-                  ),
+                  const Icon(Icons.money, size: 15, color: Colors.grey),
                   Text(
                     StringFormatter().idrFormatter(123500),
                     style: TextStyle(color: Colors.grey),
@@ -98,20 +100,21 @@ class HistoryListCard extends StatelessWidget {
                   ),
                 ),
               ),
-              Expanded(
-                child: CoreButton(
-                  borderRadius: 12,
-                  backgroundColor: Colors.blue,
-                  onPressed: () {},
-                  child: Text(
-                    "Selesaikan",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w800,
+              if (data.status.code != "APR")
+                Expanded(
+                  child: CoreButton(
+                    borderRadius: 12,
+                    backgroundColor: Colors.blue,
+                    onPressed: () {},
+                    child: Text(
+                      "Selesaikan",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
                   ),
                 ),
-              ),
             ],
           ),
         ],

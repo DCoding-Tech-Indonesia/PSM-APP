@@ -309,7 +309,13 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
                                     return;
                                   }
 
-                                  if (state.detailValid) {
+                                  final bloc = context.read<SettlementBloc>();
+
+                                  final newState = await bloc.stream.firstWhere(
+                                        (s) => s.checkDetailValid == false,
+                                  );
+
+                                  if (newState.detailValid) {
                                     await _showStep2Confirmation(context);
                                   }
                                   return;

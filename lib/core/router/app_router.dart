@@ -28,6 +28,7 @@ import 'package:psm_mobile/features/attendance/presentation/screens/attendance_s
 import 'package:psm_mobile/features/settlement/presentation/settlement_history_screen.dart';
 import 'package:psm_mobile/features/settlement/presentation/settlement_screen.dart';
 import 'package:psm_mobile/features/settlement/presentation/settlement_success_submit_draft_screen.dart';
+import 'package:psm_mobile/features/timetable/presentation/timetable_screen.dart';
 
 late final GoRouter appRouter;
 
@@ -245,6 +246,36 @@ void setupRouter(String initialLocation) {
               ),
             ],
             child: KmbusTitikAwalFormScreen(),
+          );
+        },
+      ),
+
+      // TIMETABLE ROUTE
+      GoRoute(
+        path: '/timetable/dashboard',
+        builder: (context, state) {
+          final dio = DioClient().instance;
+          final secureStorageService = SecureStorageService();
+
+          return MultiBlocProvider(
+            providers: [
+              BlocProvider(create: (_) => CoreTabCubit()),
+              BlocProvider(
+                create: (_) => SettlementBloc(
+                  SettlementRepositoryImpl(
+                    dataSource: SettlementDataSource(
+                      dio: dio,
+                      secureStorageService: secureStorageService,
+                    ),
+                    dataSourceReference: ReferenceDataSource(
+                      dio: dio,
+                      secureStorageService: secureStorageService,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+            child: TimetableScreen(),
           );
         },
       ),
