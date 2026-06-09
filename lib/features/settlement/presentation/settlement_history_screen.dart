@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_header.dart';
+import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_state.dart';
 import 'package:psm_mobile/features/settlement/presentation/widgets/history/history_list_card.dart';
 
 import 'bloc/settlement_bloc.dart';
@@ -15,7 +16,7 @@ class SettlementHistoryScreen extends StatefulWidget {
 }
 
 class _SettlementHistoryScreenState extends State<SettlementHistoryScreen> {
-  late String _activeTab = "Pending";
+  final String _activeTab = "Pending";
 
   @override
   void initState() {
@@ -101,40 +102,45 @@ class _SettlementHistoryScreenState extends State<SettlementHistoryScreen> {
             SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 26),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                child: BlocBuilder<SettlementBloc, SettlementState>(
+                  buildWhen: (prev, curr) => prev.listTaskAuditTrail != curr.listTaskAuditTrail,
+                  builder: (context, state) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          "08 Juni 2026",
-                          style: TextStyle(
-                            color: Colors.blue,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            color: Colors.yellow,
-                            border: Border.all(
-                              width: 2,
-                              color: Colors.blueAccent,
+                        const SizedBox(height: 20),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              "08 Juni 2026",
+                              style: TextStyle(
+                                color: Colors.blue,
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                          child: const Icon(
-                            Icons.calendar_month_outlined,
-                            color: Colors.blueAccent,
-                            size: 18,
-                          ),
+                            Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: Colors.yellow,
+                                border: Border.all(
+                                  width: 2,
+                                  color: Colors.blueAccent,
+                                ),
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                              child: const Icon(
+                                Icons.calendar_month_outlined,
+                                color: Colors.blueAccent,
+                                size: 18,
+                              ),
+                            ),
+                          ],
                         ),
+                        HistoryListCard(),
                       ],
-                    ),
-                    HistoryListCard(),
-                  ],
+                    );
+                  },
                 ),
               ),
             ),

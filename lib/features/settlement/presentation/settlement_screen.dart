@@ -33,7 +33,7 @@ class _SettlementScreenState extends State<SettlementScreen> {
     bloc.add(PageDashboardLoad());
 
     await bloc.stream.firstWhere(
-          (state) => state.status != SettlementStatus.loading,
+      (state) => state.status != SettlementStatus.loading,
     );
   }
 
@@ -49,9 +49,40 @@ class _SettlementScreenState extends State<SettlementScreen> {
 
                 const SizedBox(height: 18),
 
-                DraftSettlementCardSingle(
-                  datas: state.listTaskAuditTrail,
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 18,
+                    horizontal: 16,
+                  ),
+                  margin: const EdgeInsets.symmetric(
+                    vertical: 10,
+                    horizontal: 20,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: Colors.grey[300]!),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.05),
+                        blurRadius: 20,
+                        offset: const Offset(0, 10),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [Text("Kamis, DD/MM 'YY"), Text("10:30")],
+                      ),
+                    ],
+                  ),
                 ),
+
+                const SizedBox(height: 18),
+
+                DraftSettlementCardSingle(datas: state.listTaskAuditTrail),
 
                 Container(
                   padding: const EdgeInsets.symmetric(
@@ -79,10 +110,7 @@ class _SettlementScreenState extends State<SettlementScreen> {
                     children: [
                       Row(
                         children: [
-                          Icon(
-                            Icons.analytics,
-                            color: Colors.purple,
-                          ),
+                          Icon(Icons.analytics, color: Colors.purple),
                           SizedBox(width: 12),
                           Expanded(
                             child: Text(
@@ -97,8 +125,7 @@ class _SettlementScreenState extends State<SettlementScreen> {
                         ],
                       ),
                       Row(
-                        mainAxisAlignment:
-                        MainAxisAlignment.spaceEvenly,
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           Column(
                             children: [
@@ -169,8 +196,7 @@ class _SettlementScreenState extends State<SettlementScreen> {
                     vertical: 5,
                   ),
                   child: Row(
-                    mainAxisAlignment:
-                    MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Expanded(
                         child: Text(
@@ -182,32 +208,20 @@ class _SettlementScreenState extends State<SettlementScreen> {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      TextButton(
-                        onPressed: () {
-                          showCoreInfoDialog(
-                            context,
-                            "TEST",
-                            "TEST",
-                          );
-                        },
-                        child: GestureDetector(
-                          onTap: () => context.push('/settlement/history'),
-                          child: const Row(
-                            children: [
-                              Text(
-                                'Lihat Semua',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13,
-                                ),
+                      GestureDetector(
+                        onTap: () => context.push('/settlement/history'),
+                        child: const Row(
+                          children: [
+                            Text(
+                              'Lihat Semua',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
                               ),
-                              SizedBox(width: 4),
-                              Icon(
-                                Icons.arrow_forward_ios,
-                                size: 12,
-                              ),
-                            ],
-                          ),
+                            ),
+                            SizedBox(width: 4),
+                            Icon(Icons.arrow_forward_ios, size: 12),
+                          ],
                         ),
                       ),
                     ],
@@ -221,17 +235,14 @@ class _SettlementScreenState extends State<SettlementScreen> {
                       physics: const AlwaysScrollableScrollPhysics(
                         parent: BouncingScrollPhysics(),
                       ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                      ),
-                      itemCount: state.listTaskAuditTrail.length <= 11 ? state.listTaskAuditTrail.length : 10,
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      itemCount: state.listTaskAuditTrail.length <= 11
+                          ? state.listTaskAuditTrail.length
+                          : 10,
                       itemBuilder: (context, index) {
-                        final taskAuditTrail =
-                        state.listTaskAuditTrail[index];
+                        final taskAuditTrail = state.listTaskAuditTrail[index];
 
-                        return HistorySettlementCard(
-                          data: taskAuditTrail,
-                        );
+                        return HistorySettlementCard(data: taskAuditTrail);
                       },
                     ),
                   ),

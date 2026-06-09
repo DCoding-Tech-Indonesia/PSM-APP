@@ -23,8 +23,6 @@ class WizardLastStep extends StatefulWidget {
 class _WizardLastStepState extends State<WizardLastStep> {
   int _totalTransaction = 0;
 
-  File? _image;
-
   Future<void> _openCamera() async {
     const ratio = 9 / 16;
 
@@ -37,10 +35,6 @@ class _WizardLastStepState extends State<WizardLastStep> {
         );
 
         if (file == null || !mounted) return;
-
-        setState(() {
-          _image = file;
-        });
 
         context.read<SettlementBloc>().add(UploadDocument(file));
       },
@@ -62,78 +56,6 @@ class _WizardLastStepState extends State<WizardLastStep> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
-
-    void showPreviewDialog(DocumentPreview doc) {
-      showDialog(
-        context: context,
-        barrierColor: Colors.black87,
-        builder: (_) {
-          return Dialog(
-            backgroundColor: Colors.transparent,
-            insetPadding: const EdgeInsets.all(16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
-                  child: InteractiveViewer(
-                    child: Image.network(doc.url, fit: BoxFit.contain),
-                  ),
-                ),
-
-                const SizedBox(height: 16),
-
-                Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                        ),
-                        onPressed: () {
-                          context.read<SettlementBloc>().add(
-                            RemoveDocumentById(doc.idDocument),
-                          );
-
-                          Navigator.pop(context);
-                        },
-                        icon: const Icon(Icons.delete_outline),
-                        label: const Text("Hapus"),
-                      ),
-                    ),
-
-                    const SizedBox(width: 12),
-
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: Colors.white,
-                          side: const BorderSide(color: Colors.white),
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                        ),
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        icon: const Icon(Icons.close),
-                        label: const Text("Tutup"),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          );
-        },
-      );
-    }
 
     return BlocBuilder<SettlementBloc, SettlementState>(
       builder: (context, state) {

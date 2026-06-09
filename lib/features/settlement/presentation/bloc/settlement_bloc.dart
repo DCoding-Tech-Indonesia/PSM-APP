@@ -272,7 +272,6 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
       );
 
       emit(state.copyWith(status: SettlementStatus.success));
-
     });
 
     on<MoveStepWizard>((event, emit) {
@@ -289,15 +288,14 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
 
         if (newTabIndex == state.referencePayment.length) {
           hasInvalidData = state.detail.any(
-                (data) => data.total == null || data.value == null,
+            (data) => data.total == null || data.value == null,
           );
         } else {
-          final currPayment =
-          state.referencePayment[state.activeTabIndex];
+          final currPayment = state.referencePayment[state.activeTabIndex];
 
           hasInvalidData = state.detail.any(
-                (data) =>
-            data.idPayment == currPayment.id &&
+            (data) =>
+                data.idPayment == currPayment.id &&
                 (data.total == null || data.value == null),
           );
         }
@@ -373,9 +371,12 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
           );
         },
         (data) {
-          emit(state.copyWith(
+          emit(
+            state.copyWith(
               status: SettlementStatus.success,
-              referenceBus: data));
+              referenceBus: data,
+            ),
+          );
         },
       );
     });
@@ -504,9 +505,6 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
 
       var result;
 
-      print("state.auditTrailId.toString()");
-      print(state.auditTrailId.toString());
-
       if (state.auditTrailId.toString() != '0') {
         if (kDebugMode) {
           print("UPDATE SETTLEMENT");
@@ -529,16 +527,26 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
           );
         },
         (data) {
-          emit(state.copyWith(status: SettlementStatus.successSave));
-          emit(state.copyWith(auditTrailId: int.parse(data)));
+          final newAuditTrailId = state.auditTrailId == 0
+              ? int.parse(data)
+              : state.auditTrailId;
+
+          emit(
+            state.copyWith(
+              status: SettlementStatus.successSave,
+              auditTrailId: newAuditTrailId,
+            ),
+          );
         },
       );
     });
 
     on<SubmitWorkflow>((event, emit) async {
+      emit(state.copyWith(status: SettlementStatus.loading));
+
       final result = await settlementRepository.submitWorkflow(
-        state.auditTrailId,
-        event.reason,
+        event.idAuditTrail,
+        event.reason != '' ? event.reason : 'Done',
       );
 
       result.fold(

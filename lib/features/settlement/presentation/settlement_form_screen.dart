@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_bottom_modal_verification.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_snackbar.dart';
 import 'package:psm_mobile/core/presentations/widgets/widgets.dart';
+import 'package:psm_mobile/features/settlement/domain/entities/successDraftScreen/settlement_success_args.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_bloc.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_event.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_state.dart';
@@ -27,78 +28,6 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
     Future.microtask(() {
       context.read<SettlementBloc>().add(PageInputLoad(widget.idAuditTrail));
     });
-  }
-
-  void _showSubmitDialog(BuildContext context) {
-    final TextEditingController controller = TextEditingController();
-
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (dialogContext) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          title: const Text("Konfirmasi Submit"),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text(
-                "Apakah anda ingin melakukan submit untuk data yang sudah dimasukkan?",
-              ),
-              const SizedBox(height: 12),
-
-              TextField(
-                controller: controller,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: "Reason",
-                ),
-              ),
-            ],
-          ),
-
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(dialogContext);
-                context.pop();
-              },
-              child: const Text("Tidak"),
-            ),
-
-            ElevatedButton(
-              onPressed: () async {
-                final note = controller.text;
-
-                Navigator.pop(dialogContext);
-
-                context.read<SettlementBloc>().add(SubmitWorkflow(note));
-
-                showModalBottomSheet(
-                  context: context,
-                  isDismissible: false,
-                  enableDrag: false,
-                  builder: (_) => const CoreBottomModalAlert(
-                    success: true,
-                    message: 'Berhasil submit data',
-                  ),
-                );
-
-                await Future.delayed(const Duration(seconds: 1));
-
-                if (context.mounted) {
-                  Navigator.pop(context); // tutup bottom sheet
-                  context.pop(); // kembali ke halaman sebelumnya
-                }
-              },
-              child: const Text("Submit"),
-            ),
-          ],
-        );
-      },
-    );
   }
 
   Future<void> _showStep2Confirmation(BuildContext context) async {
@@ -131,14 +60,13 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
           cancelText: 'Cek Kembali',
           confirmText: 'Simpan',
           onCancel: () => Navigator.pop(modalContext, false),
-          onConfirm: () =>
-              context.read<SettlementBloc>().add(SubmitSettlement()),
+          onConfirm: () => Navigator.pop(modalContext, true),
         );
       },
     );
 
     if (isConfirm == true) {
-      context.read<SettlementBloc>().add(MoveStepWizard(3));
+      context.read<SettlementBloc>().add(SubmitSettlement());
     }
   }
 
@@ -151,7 +79,27 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
 
       listener: (context, state) {
         if (state.status == SettlementStatus.successSave) {
-          _showSubmitDialog(context);
+          final totalCust = state.detail.fold<int>(
+            0,
+            (sum, item) => sum + (item.total ?? 0),
+          );
+
+          final totalPayment = state.detail.fold<int>(
+            0,
+            (sum, item) => sum + (item.value ?? 0),
+          );
+
+          context.replace(
+            '/settlement/success-draft',
+            extra: SettlementSuccessArgs(
+              idAuditTrail: state.auditTrailId,
+              totalCust: totalCust,
+              totalPayment: totalPayment,
+              koridorName: state.namaKoridor,
+              noPol: state.noUnit,
+              ritase: state.ritase.toString(),
+            ),
+          );
         }
 
         if (state.status == SettlementStatus.failedSave) {

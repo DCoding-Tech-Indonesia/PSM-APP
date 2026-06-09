@@ -18,8 +18,8 @@ class HistoryListCard extends StatelessWidget {
             children: [
               Container(
                 padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(color: Colors.yellow, borderRadius: BorderRadius.circular(8), border: Border.all(width: 1, color: Colors.yellowAccent)),
-                child: Text("RIT", style: TextStyle(fontWeight: FontWeight.w800, color: Colors.redAccent),),
+                decoration: BoxDecoration(color: Colors.yellow, borderRadius: BorderRadius.circular(8), border: Border.all(width: 1, color: Colors.blueAccent)),
+                child: Text("RIT", style: TextStyle(fontWeight: FontWeight.w800, color: Colors.blueAccent),),
               ),
               Expanded(
                 child: Column(
@@ -32,7 +32,7 @@ class HistoryListCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w900,
-                        color: Colors.redAccent,
+                        color: Colors.blueAccent,
                       ),
                     ),
                     Text(
