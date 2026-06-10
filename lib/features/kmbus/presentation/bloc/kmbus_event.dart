@@ -25,3 +25,9 @@ class SelectBus extends KmbusEvent {
 
   SelectBus(this.id, this.noUnit);
 }
+
+class EditOdometer extends KmbusEvent {
+  final int odometerVal;
+
+  EditOdometer(this.odometerVal);
+}

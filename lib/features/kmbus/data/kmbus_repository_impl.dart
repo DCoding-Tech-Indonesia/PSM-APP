@@ -9,6 +9,7 @@ import 'package:psm_mobile/features/kmbus/domain/repositories/kmbus_repository.d
 import 'package:psm_mobile/features/reference/domain/entities/reference_bus.dart';
 import 'package:psm_mobile/features/reference/domain/entities/reference_detail.dart';
 import 'package:psm_mobile/features/reference/reference_data_source.dart';
+import 'package:psm_mobile/features/reference/domain/entities/document_preview.dart';
 
 class KmbusRepositoryImpl implements KmbusRepository {
   final KmbusDataSource dataSource;
@@ -55,6 +56,22 @@ class KmbusRepositoryImpl implements KmbusRepository {
     }
   }
 
+  @override
+  Future<Either<Failure, DocumentPreview>> uploadDocument(File file) async {
+    try {
+      final response = await dataSourceReference.uploadDocument(file);
+
+      return right(response);
+    } on DioException catch (e) {
+      final message =
+          e.response?.data?['message'] ?? 'Terjadi kesalahan server';
+
+      return left(ServerFailure(message));
+    } catch (_) {
+      return left(const ServerFailure('Unexpected error'));
+    }
+  }
+
   // FETCHING REFERENCE
   @override
   Future<Either<Failure, List<ReferenceDetail>>> fetchReferenceKoridor(
@@ -76,11 +93,14 @@ class KmbusRepositoryImpl implements KmbusRepository {
 
   @override
   Future<Either<Failure, List<ReferenceBus>>> fetchReferenceBus(
-      String keyword,
-      int idKoridor
-      ) async {
+    String keyword,
+    int idKoridor,
+  ) async {
     try {
-      final result = await dataSourceReference.fetchReferenceBus(keyword, idKoridor);
+      final result = await dataSourceReference.fetchReferenceBus(
+        keyword,
+        idKoridor,
+      );
 
       return right(result);
     } on DioException catch (e) {

@@ -1,11 +1,8 @@
 import 'dart:convert';
-import 'dart:io';
-
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:psm_mobile/core/storage/secure_storage.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/task_audit_trail.dart';
-import 'package:psm_mobile/features/settlement/domain/entities/document_preview.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/settlement_create.dart';
 
 class SettlementDataSource {
@@ -25,32 +22,6 @@ class SettlementDataSource {
     return data;
   }
 
-  Future<DocumentPreview> uploadDocument(File file) async {
-    try {
-      final fileName = file.path.split('/').last;
-
-      final formData = FormData.fromMap({
-        'doc': await MultipartFile.fromFile(file.path, filename: fileName),
-      });
-
-      final response = await dio.post(
-        '/reference/upload-document/additional',
-        data: formData,
-      );
-
-      final imageId = response.data['data'][0]['id'];
-      final host = response.data['data'][0]['server'];
-      final url = response.data['data'][0]['url'];
-
-      return DocumentPreview(idDocument: imageId, url: '$host/$url');
-    } on DioException catch (e) {
-      print(e.response?.data);
-      rethrow;
-    } catch (e) {
-      throw Exception(e.toString());
-    }
-  }
-
   Future<String> createSettlement(SettlementCreate request) async {
     try {
       final response = await dio.post(
@@ -68,16 +39,10 @@ class SettlementDataSource {
         print(response.statusCode);
 
         print("HEADERS:");
-        print(
-          const JsonEncoder.withIndent('  ')
-              .convert(response.headers.map),
-        );
+        print(const JsonEncoder.withIndent('  ').convert(response.headers.map));
 
         print("DATA:");
-        print(
-          const JsonEncoder.withIndent('  ')
-              .convert(response.data),
-        );
+        print(const JsonEncoder.withIndent('  ').convert(response.data));
 
         print("================================");
       }

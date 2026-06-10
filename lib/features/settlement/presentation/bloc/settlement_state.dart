@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/task_audit_trail.dart';
-import 'package:psm_mobile/features/settlement/domain/entities/document_preview.dart';
+import 'package:psm_mobile/features/reference/domain/entities/document_preview.dart';
 import 'package:psm_mobile/features/reference/domain/entities/reference_bus.dart';
 import 'package:psm_mobile/features/reference/domain/entities/reference_detail.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/settlement_detail.dart';

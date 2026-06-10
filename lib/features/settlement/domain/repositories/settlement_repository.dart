@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:fpdart/fpdart.dart';
 import 'package:psm_mobile/core/error/failure.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/task_audit_trail.dart';
-import 'package:psm_mobile/features/settlement/domain/entities/document_preview.dart';
+import 'package:psm_mobile/features/reference/domain/entities/document_preview.dart';
 import 'package:psm_mobile/features/reference/domain/entities/reference_billing.dart';
 import 'package:psm_mobile/features/reference/domain/entities/reference_bus.dart';
 import 'package:psm_mobile/features/reference/domain/entities/reference_detail.dart';

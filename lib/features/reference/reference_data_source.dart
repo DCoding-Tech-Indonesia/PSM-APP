@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:psm_mobile/core/storage/secure_storage.dart';
 
+import 'domain/entities/document_preview.dart';
 import 'domain/entities/reference_billing.dart';
 import 'domain/entities/reference_bus.dart';
 import 'domain/entities/reference_detail.dart';
@@ -68,5 +71,31 @@ class ReferenceDataSource {
     final data = response.data['data'] as List;
 
     return data.map((e) => ReferenceDetail.fromJson(e)).toList();
+  }
+
+  Future<DocumentPreview> uploadDocument(File file) async {
+    try {
+      final fileName = file.path.split('/').last;
+
+      final formData = FormData.fromMap({
+        'doc': await MultipartFile.fromFile(file.path, filename: fileName),
+      });
+
+      final response = await dio.post(
+        '/reference/upload-document/additional',
+        data: formData,
+      );
+
+      final imageId = response.data['data'][0]['id'];
+      final host = response.data['data'][0]['server'];
+      final url = response.data['data'][0]['url'];
+
+      return DocumentPreview(idDocument: imageId, url: '$host/$url');
+    } on DioException catch (e) {
+      print(e.response?.data);
+      rethrow;
+    } catch (e) {
+      throw Exception(e.toString());
+    }
   }
 }

@@ -182,6 +182,48 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
 
                       const SizedBox(height: 12),
 
+                      BlocBuilder<KmbusBloc, KmbusState>(
+                        buildWhen: (prev, curr) =>
+                            prev.ocrResult != curr.ocrResult,
+                        builder: (context, state) {
+                          if (state.ocrResult != null) {
+                            return Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  "Odometer : ${state.ocrResult}",
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                GestureDetector(
+                                  onTap: () {},
+                                  child: Container(
+                                    padding: const EdgeInsets.all(1),
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                        width: 1,
+                                        color: Colors.blue,
+                                      ),
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: Icon(
+                                      Icons.edit_note,
+                                      color: Colors.blue,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            );
+                          } else {
+                            return SizedBox();
+                          }
+                        },
+                      ),
+
+                      const SizedBox(height: 12),
+
                       const Text(
                         "Foto Speedometer",
                         style: TextStyle(
@@ -194,11 +236,11 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
 
                       BlocBuilder<KmbusBloc, KmbusState>(
                         builder: (context, state) {
-
                           return CoreCameraWidget(
                             onTap: _openCamera,
                             title: "Ambil Foto Speedometer",
-                            isLoading: state.uploadStatus == UploadStatus.uploading,
+                            isLoading:
+                                state.uploadStatus == UploadStatus.uploading,
                             instructions: const [
                               "Pastikan foto tidak buram",
                               "Pastikan odometer yang didapatkan sesuai dengan yang di foto",
@@ -211,11 +253,16 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
                 ),
               ),
               BlocBuilder<KmbusBloc, KmbusState>(
-                buildWhen: (prev, curr) => prev.uploadStatus != curr.uploadStatus || prev.status != curr.status,
+                buildWhen: (prev, curr) =>
+                    prev.uploadStatus != curr.uploadStatus ||
+                    prev.status != curr.status,
                 builder: (context, state) {
-                  final isLoading = state.status == KmbusStatus.fetching || state.uploadStatus == UploadStatus.uploading;
+                  final isLoading =
+                      state.status == KmbusStatus.fetching ||
+                      state.uploadStatus == UploadStatus.uploading;
 
-                  final isSubmitable = !isLoading && state.idKoridor != 0 && state.idBus != 0;
+                  final isSubmitable =
+                      !isLoading && state.idKoridor != 0 && state.idBus != 0;
 
                   return Padding(
                     padding: const EdgeInsets.symmetric(
@@ -225,9 +272,11 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
                     child: CoreButton(
                       width: double.infinity,
                       onPressed: () {
-                        if(!isSubmitable) return;
+                        if (!isSubmitable) return;
                       },
-                      backgroundColor: isSubmitable ? theme.colorScheme.primary : Colors.grey,
+                      backgroundColor: isSubmitable
+                          ? theme.colorScheme.primary
+                          : Colors.grey,
                       child: Text(
                         "Submit",
                         style: TextStyle(
@@ -238,7 +287,7 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
                       ),
                     ),
                   );
-                }
+                },
               ),
             ],
           ),

@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:psm_mobile/features/settlement/domain/entities/document_preview.dart';
+import 'package:psm_mobile/features/reference/domain/entities/document_preview.dart';
 import 'package:psm_mobile/features/reference/domain/entities/reference_bus.dart';
 import 'package:psm_mobile/features/reference/domain/entities/reference_detail.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/settlement_create.dart';
