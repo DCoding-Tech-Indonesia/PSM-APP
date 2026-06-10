@@ -10,6 +10,7 @@ import 'package:psm_mobile/core/presentations/widgets/widgets.dart';
 import 'package:psm_mobile/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:psm_mobile/features/auth/presentation/bloc/auth_event.dart';
 import 'package:psm_mobile/features/auth/presentation/bloc/auth_state.dart';
+import 'package:psm_mobile/core/presentations/widgets/core_snackbar.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
