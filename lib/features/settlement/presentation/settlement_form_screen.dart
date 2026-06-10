@@ -113,7 +113,7 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
           );
         }
 
-        if (state.allowLastStep) {
+        if (state.allowLastStep && state.steps == 2) {
           await _showStep2Confirmation(context);
         }
       },

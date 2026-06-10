@@ -47,9 +47,7 @@ class _SettlementScreenState extends State<SettlementScreen> {
               children: [
                 const SettlementHeader(),
 
-                const SizedBox(height: 18),
-
-                CoreDateTimeWidget(),
+                const CoreDateTimeWidget(),
 
                 const SizedBox(height: 10),
 
@@ -188,10 +186,15 @@ class _SettlementScreenState extends State<SettlementScreen> {
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 13,
+                                color: Colors.blue,
                               ),
                             ),
                             SizedBox(width: 4),
-                            Icon(Icons.arrow_forward_ios, size: 12),
+                            Icon(
+                              Icons.arrow_forward_ios,
+                              size: 12,
+                              color: Colors.blue,
+                            ),
                           ],
                         ),
                       ),

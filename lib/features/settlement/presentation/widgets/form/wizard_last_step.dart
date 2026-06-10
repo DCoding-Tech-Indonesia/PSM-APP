@@ -52,13 +52,38 @@ class _WizardLastStepState extends State<WizardLastStep> {
     );
   }
 
+  int _calculatePaymentTotal(
+    List<SettlementDetail> details,
+    List customerType,
+  ) {
+    int total = 0;
+
+    for (final customer in customerType) {
+      final detail = details.firstWhere((e) => e.idNasabah == customer.id);
+
+      final qty = detail.total ?? 0;
+      final value = detail.billingValue ?? 0;
+
+      total += qty * value;
+    }
+
+    return total;
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
 
+    final logoMap = {
+      'QRIS': 'assets/logo/qris.png',
+      'BRIZI': 'assets/logo/brizzi.png',
+      'DEBIT CARD': 'assets/logo/card.png',
+    };
+
     return BlocBuilder<SettlementBloc, SettlementState>(
       builder: (context, state) {
         final paymentMethods = state.referencePayment;
+        final customerType = state.referenceCustomer.toList();
 
         return SingleChildScrollView(
           child: Column(
@@ -79,165 +104,204 @@ class _WizardLastStepState extends State<WizardLastStep> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          state.namaKoridor != '' ? state.namaKoridor : '-',
-                          softWrap: true,
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        Text(
-                          state.noUnit != '' ? state.noUnit : '-',
-                          style: const TextStyle(
-                            color: Color(0xFF222222),
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                      ],
+                    Text(
+                      state.namaKoridor != '' ? state.namaKoridor : '-',
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    Text(
+                      state.noUnit != '' ? state.noUnit : '-',
+                      style: const TextStyle(
+                        color: Color(0xFF222222),
+                        fontWeight: FontWeight.w400,
+                      ),
                     ),
 
                     const SizedBox(height: 16),
 
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              StringFormatter().idrFormatter(_totalTransaction),
-                              style: const TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                            Container(
-                              width: 36,
-                              height: 36,
-                              decoration: BoxDecoration(
-                                color: Colors.yellowAccent,
-                                border: Border.all(
-                                  width: 2,
-                                  color: Colors.yellow,
-                                ),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  state.ritase.toString(),
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 15,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
+                        Text(
+                          StringFormatter().idrFormatter(_totalTransaction),
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.w800,
+                          ),
                         ),
-                        const SizedBox(height: 6),
-                        WizardLastStepDateTime(),
+                        Container(
+                          width: 36,
+                          height: 36,
+                          decoration: BoxDecoration(
+                            color: Colors.yellowAccent,
+                            border: Border.all(width: 2, color: Colors.yellow),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Center(
+                            child: Text(
+                              state.ritase.toString(),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 15,
+                              ),
+                            ),
+                          ),
+                        ),
                       ],
                     ),
+
+                    const SizedBox(height: 6),
+                    WizardLastStepDateTime(),
                   ],
                 ),
               ),
 
               const SizedBox(height: 20),
 
-              BlocBuilder<SettlementBloc, SettlementState>(
-                builder: (context, state) {
-                  final customerType = state.referenceCustomer.toList();
+              ...paymentMethods.map((payment) {
+                final details = state.detail
+                    .where((e) => e.idPayment == payment.id)
+                    .toList();
 
-                  return Column(
-                    children: paymentMethods.map((payment) {
-                      final details = state.detail
-                          .where((e) => e.idPayment == payment.id)
-                          .toList();
+                final totalValue = _calculatePaymentTotal(
+                  details,
+                  customerType,
+                );
 
-                      var totalValue = 0;
-
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 16),
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                            color: Colors.grey.withValues(alpha: .15),
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 14),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 5,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: Colors.grey.withValues(alpha: 0.12),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.03),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            width: 34,
+                            height: 34,
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: Colors.grey.withValues(alpha: 0.08),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Image.asset(
+                              logoMap[payment.name] ?? 'assets/logo/card.png',
+                              fit: BoxFit.contain,
+                            ),
                           ),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              payment.name,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w800,
+                          const SizedBox(width: 10),
+                          Text(
+                            payment.name,
+                            style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 14),
+
+                      ...customerType.map((customer) {
+                        final detail = details
+                            .cast<SettlementDetail?>()
+                            .firstWhere(
+                              (e) => e?.idNasabah == customer.id,
+                              orElse: () => null,
+                            );
+
+                        final total = detail?.total ?? 0;
+                        final value = detail?.billingValue ?? 0;
+                        final subtotal = total * value;
+
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                customer.name,
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
-                            ),
-
-                            const SizedBox(height: 16),
-
-                            ...customerType.map((customer) {
-                              final detail = details
-                                  .cast<SettlementDetail?>()
-                                  .firstWhere(
-                                    (e) => e?.idNasabah == customer.id,
-                                    orElse: () => null,
-                                  );
-
-                              final total = detail?.total ?? 0;
-                              final value = detail?.billingValue ?? 0;
-
-                              totalValue += total * value;
-
-                              return Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 6,
-                                ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(customer.name),
-                                    Text(
-                                      '$total x ${StringFormatter().idrFormatter(value)}',
+                              const SizedBox(height: 4),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    '$total x ${StringFormatter().idrFormatter(value)}',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey.shade600,
                                     ),
-                                  ],
-                                ),
-                              );
-                            }),
+                                  ),
+                                  Text(
+                                    StringFormatter().idrFormatter(subtotal),
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        );
+                      }),
 
-                            const Divider(),
+                      Divider(color: Colors.grey.withValues(alpha: 0.8)),
 
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const Text('Total'),
-                                Text(
-                                  StringFormatter().idrFormatter(totalValue),
-                                ),
-                              ],
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Total',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.grey.shade700,
+                              fontWeight: FontWeight.w600,
                             ),
-                          ],
-                        ),
-                      );
-                    }).toList(),
-                  );
-                },
-              ),
-
-              const SizedBox(height: 30),
+                          ),
+                          Text(
+                            StringFormatter().idrFormatter(totalValue),
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+              }),
 
               Container(
                 padding: EdgeInsets.symmetric(
                   horizontal: size.width * 0.05,
-                  vertical: size.height * 0.03,
+                  vertical: size.height * 0.01,
                 ),
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -256,7 +320,6 @@ class _WizardLastStepState extends State<WizardLastStep> {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-
                     const SizedBox(height: 12),
 
                     BlocBuilder<SettlementBloc, SettlementState>(
@@ -277,7 +340,6 @@ class _WizardLastStepState extends State<WizardLastStep> {
                                   context.read<SettlementBloc>().add(
                                     RemoveDocumentById(doc.idDocument),
                                   );
-
                                   Navigator.pop(context);
                                 },
                               );

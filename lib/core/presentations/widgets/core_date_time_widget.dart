@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:psm_mobile/core/helper/date_time_helper.dart';
+import 'package:psm_mobile/core/presentations/widgets/core_shift_progress_widget.dart';
 
 class CoreDateTimeWidget extends StatefulWidget {
   const CoreDateTimeWidget({super.key});
@@ -18,11 +19,11 @@ class _CoreDateTimeWidgetState extends State<CoreDateTimeWidget> {
   void initState() {
     super.initState();
 
-    _now = DateTime.now().toUtc().add(const Duration(hours: 7));
+    _now = DateTime.now();
 
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
       setState(() {
-        _now = DateTime.now().toUtc().add(const Duration(hours: 7));
+        _now = DateTime.now();
       });
     });
   }
@@ -36,10 +37,10 @@ class _CoreDateTimeWidgetState extends State<CoreDateTimeWidget> {
   String get _timeString {
     final hour = _now.hour.toString().padLeft(2, '0');
     final minute = _now.minute.toString().padLeft(2, '0');
-    // final second = _now.second.toString().padLeft(2, '0');
+    final second = _now.second.toString().padLeft(2, '0');
 
-    return '$hour:$minute WIB';
-    // return '$hour:$minute:$second WIB';
+    // return '$hour:$minute WIB';
+    return '$hour:$minute:$second WIB';
   }
 
   @override
@@ -78,6 +79,7 @@ class _CoreDateTimeWidgetState extends State<CoreDateTimeWidget> {
               ),
             ],
           ),
+          CoreShiftProgressWidget(now: _now),
         ],
       ),
     );
