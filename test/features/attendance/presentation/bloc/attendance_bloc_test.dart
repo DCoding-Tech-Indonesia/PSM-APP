@@ -103,8 +103,9 @@ void main() {
         distanceFromOffice: '50m',
         stats: AttendanceStats(),
         history: [],
+        bus: [],
       ),
-      act: (bloc) => bloc.add(CheckInRequested()),
+      act: (bloc) => bloc.add(CheckInRequested(busId: 1)),
       expect: () => [
         isA<AttendanceLoaded>().having((s) => s.isLoading, 'isLoading', true),
         isA<AttendanceLoaded>().having(

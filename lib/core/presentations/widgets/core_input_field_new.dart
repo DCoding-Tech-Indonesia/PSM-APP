@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 enum InputRuleSuffixNew { text, number, positiveNumber }
 
 class CoreInputFieldNew extends StatefulWidget {
-  final String label;
+  final String? label;
   final dynamic widgetSuffix;
   final TextEditingController? controller;
   final String? hintText;
@@ -17,7 +17,7 @@ class CoreInputFieldNew extends StatefulWidget {
 
   const CoreInputFieldNew({
     super.key,
-    required this.label,
+    this.label,
     this.widgetSuffix,
     this.controller,
     this.hintText,
@@ -74,19 +74,23 @@ class _CoreInputFieldNewState extends State<CoreInputFieldNew> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Text(
-              widget.label,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-            ),
-            if (widget.isRequired)
-              const Text(
-                " *",
-                style: TextStyle(color: Colors.redAccent, fontSize: 18),
+        if (widget.label != null)
+          Row(
+            children: [
+              Text(
+                widget.label!,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-          ],
-        ),
+              if (widget.isRequired)
+                const Text(
+                  " *",
+                  style: TextStyle(color: Colors.redAccent, fontSize: 18),
+                ),
+            ],
+          ),
 
         const SizedBox(height: 8),
 
@@ -99,18 +103,18 @@ class _CoreInputFieldNewState extends State<CoreInputFieldNew> {
               color: widget.errorText != null
                   ? Colors.redAccent
                   : isFocused
-                      ? primaryColor
-                      : Colors.grey.shade400,
+                  ? primaryColor
+                  : Colors.grey.shade400,
               width: 1.5,
             ),
-            color: Colors.white,
+            // color: Colors.white,
             boxShadow: [
               BoxShadow(
                 color: widget.errorText != null
                     ? Colors.redAccent.withValues(alpha: 0.1)
                     : isFocused
-                        ? primaryColor.withValues(alpha: 0.15)
-                        : Colors.black.withValues(alpha: 0.04),
+                    ? primaryColor.withValues(alpha: 0.15)
+                    : Colors.black.withValues(alpha: 0.04),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -128,7 +132,9 @@ class _CoreInputFieldNewState extends State<CoreInputFieldNew> {
                   inputFormatters: _getInputFormatters(),
                   onChanged: (value) {
                     final processedValue = _processValue(value);
-                    debugPrint("CoreInputFieldNew [${widget.label}] onChanged: $processedValue");
+                    debugPrint(
+                      "CoreInputFieldNew [${widget.label}] onChanged: $processedValue",
+                    );
                     widget.onChanged?.call(processedValue);
                   },
                   decoration: InputDecoration(
@@ -205,10 +211,7 @@ class _CoreInputFieldNewState extends State<CoreInputFieldNew> {
             padding: const EdgeInsets.only(top: 6, left: 4),
             child: Text(
               widget.errorText!,
-              style: const TextStyle(
-                color: Colors.redAccent,
-                fontSize: 12,
-              ),
+              style: const TextStyle(color: Colors.redAccent, fontSize: 12),
             ),
           ),
       ],

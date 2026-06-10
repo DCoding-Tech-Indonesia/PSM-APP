@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:psm_mobile/core/presentations/widgets/widgets.dart';
-import 'package:psm_mobile/features/attendance/presentation/bloc/attendance_bloc.dart';
-import 'package:psm_mobile/features/attendance/presentation/bloc/attendance_state.dart';
 
 class AttendanceHeader extends StatelessWidget {
   const AttendanceHeader({super.key});
@@ -14,11 +12,17 @@ class AttendanceHeader extends StatelessWidget {
       subtitle: 'Check-in & Check-out',
       actions: [
         IconButton(
-          icon: const Icon(Icons.refresh),
+          icon: const Icon(Icons.checklist),
           onPressed: () {
-            context.read<AttendanceBloc>().add(RefreshLocation());
+            context.push('/approval');
           },
         ),
+        // IconButton(
+        //   icon: const Icon(Icons.refresh),
+        //   onPressed: () {
+        //     context.read<AttendanceBloc>().add(RefreshLocation());
+        //   },
+        // ),
       ],
     );
   }

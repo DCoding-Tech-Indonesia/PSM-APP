@@ -6,6 +6,7 @@ import 'package:psm_mobile/features/attendance/data/models/attendance_request.da
 import 'package:psm_mobile/features/attendance/data/models/schedule_model.dart';
 import 'package:psm_mobile/features/attendance/domain/repositories/attendance_repository.dart';
 import 'package:psm_mobile/core/helper/location_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'attendance_state.dart';
 
 class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
@@ -50,11 +51,15 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
       stats: AttendanceStats(),
       history: [],
       schedules: [],
+      bus: [],
+      replacementSchedules: [],
     );
+    if (isClosed) return;
     emit(initialState);
 
     await _fetchHistoryAndEmit(event.userId, emit, initialState);
 
+    if (isClosed) return;
     add(RefreshLocation());
   }
 
@@ -89,13 +94,14 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
 
       // Fetch History, Stats, and Schedules in parallel
       final results = await Future.wait([
-        repository.getHistory(uId, 3),
+        repository.getHistory(uId, 7),
         repository.getStats(userId: uId, month: now.month, year: now.year),
         repository.getSchedules(
           userId: uId,
           startDate: startDate,
           endDate: endDate,
         ),
+        repository.getBus(),
       ]);
 
       final List<AttendanceRecord> history =
@@ -103,6 +109,8 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
       final Map<String, dynamic>? statsResponse =
           results[1] as Map<String, dynamic>?;
       final List<ScheduleModel> schedules = results[2] as List<ScheduleModel>;
+      final List<dynamic> bus = results[3] as List<dynamic>;
+      final List<dynamic> replacementSchedules = [];
 
       AttendanceStats stats = currentState.stats;
       if (statsResponse != null &&
@@ -144,10 +152,14 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
           isCheckedIn: isCheckedIn,
           checkInTime: checkInTime,
           checkOutTime: checkOutTime,
+          bus: bus,
+          replacementSchedules: replacementSchedules,
         ),
       );
     } catch (e) {
-      emit(currentState.copyWith(isLoading: false));
+      if (!isClosed) {
+        emit(currentState.copyWith(isLoading: false));
+      }
     }
   }
 
@@ -207,6 +219,8 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
                       : namaLokasi,
                   radiusInfo: radiusStr,
                   isCadangan: isCadangan,
+                  bus: s.bus,
+                  replacementSchedules: s.replacementSchedules,
                 ),
               );
             } else {
@@ -229,6 +243,8 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
             distanceFromOffice: '0m',
             radiusInfo: '0m',
             isCadangan: false,
+            bus: s.bus,
+            replacementSchedules: s.replacementSchedules,
           ),
         );
       }
@@ -261,11 +277,15 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
           idUser: int.tryParse(s.userId) ?? 0,
           lokasiLat: position.latitude,
           lokasiLong: position.longitude,
+          idBus: event.busId,
         );
 
         final success = await repository.submitAttendance(request);
 
         if (success) {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setInt('active_bus_id', event.busId);
+
           // Re-fetch everything to ensure stats and history are synchronized
           await _fetchHistoryAndEmit(s.userId, emit, s);
         } else {
@@ -296,10 +316,14 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
         final position = await locationService.getCurrentLocation();
         if (position == null) throw 'Gagal mendapatkan lokasi';
 
+        final prefs = await SharedPreferences.getInstance();
+        final busId = prefs.getInt('active_bus_id') ?? 0;
+
         final request = AttendanceRequest(
           idUser: int.tryParse(s.userId) ?? 0,
           lokasiLat: position.latitude,
           lokasiLong: position.longitude,
+          idBus: busId,
         );
 
         final success = await repository.submitAttendance(request);

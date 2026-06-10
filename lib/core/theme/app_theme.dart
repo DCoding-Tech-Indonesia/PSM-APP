@@ -1,11 +1,41 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'app_colors.dart';
 
 class AppTheme {
   AppTheme._();
 
+  static final ValueNotifier<ThemeMode> themeNotifier = ValueNotifier(
+    ThemeMode.system,
+  );
+
+  static Future<void> loadTheme() async {
+    final prefs = await SharedPreferences.getInstance();
+    final themeString = prefs.getString('theme_preference');
+    if (themeString == 'light') {
+      themeNotifier.value = ThemeMode.light;
+    } else if (themeString == 'dark') {
+      themeNotifier.value = ThemeMode.dark;
+    } else {
+      themeNotifier.value = ThemeMode.system;
+    }
+  }
+
+  static Future<void> setTheme(ThemeMode mode) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (mode == ThemeMode.light) {
+      await prefs.setString('theme_preference', 'light');
+    } else if (mode == ThemeMode.dark) {
+      await prefs.setString('theme_preference', 'dark');
+    } else {
+      await prefs.setString('theme_preference', 'system');
+    }
+    themeNotifier.value = mode;
+  }
+
   static ThemeData lightTheme = ThemeData(
     useMaterial3: true,
+    fontFamily: 'Nunito',
     brightness: Brightness.light,
     scaffoldBackgroundColor: AppColorsLight.background,
 
@@ -50,6 +80,7 @@ class AppTheme {
 
   static ThemeData darkTheme = ThemeData(
     useMaterial3: true,
+    fontFamily: 'Nunito',
     brightness: Brightness.dark,
     scaffoldBackgroundColor: AppColorsDark.background,
 

@@ -6,7 +6,6 @@ import 'package:formz/formz.dart';
 import 'package:go_router/go_router.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:psm_mobile/core/helper/version_ui_helper.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_snackbar.dart';
 import 'package:psm_mobile/core/presentations/widgets/widgets.dart';
 import 'package:psm_mobile/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:psm_mobile/features/auth/presentation/bloc/auth_event.dart';
@@ -86,18 +85,18 @@ class _AuthScreenState extends State<AuthScreen> {
 
         final isSuccess = state.loginSuccess;
 
-        CoreSnackbar.show(
-          context,
-          message: state.loginMessage,
-          type: isSuccess
-              ? SnackbarType.success
-              : SnackbarType.failed,
-        );
-
-        context.read<AuthBloc>().add(ResetState());
+        showModalBottomSheet(
+          context: context,
+          builder: (_) => CoreBottomModalAlert(
+            success: isSuccess,
+            message: state.loginMessage,
+          ),
+        ).then((_) {
+          context.read<AuthBloc>().add(ResetState());
+        });
 
         if (isSuccess) {
-          Future.delayed(const Duration(seconds: 1), () {
+          Future.delayed(const Duration(seconds: 3), () {
             if (context.mounted) {
               context.go('/portal');
             }
@@ -297,6 +296,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                           isRequired: true,
                                           isSecured: true,
                                           rule: InputRuleSuffixNew.text,
+                                          initValue: state.password.value,
                                           errorText:
                                               (state
                                                       .passwordError
@@ -422,10 +422,10 @@ class _AuthScreenState extends State<AuthScreen> {
                                   future: VersionUiHelper().getAppVersion(),
                                   builder: (context, snapshot) {
                                     if (!snapshot.hasData) {
-                                      return const Text("V ...");
+                                      return const Text("Versi ...");
                                     }
 
-                                    return Text("V ${snapshot.data}");
+                                    return Text("Versi ${snapshot.data}");
                                   },
                                 ),
                               ],

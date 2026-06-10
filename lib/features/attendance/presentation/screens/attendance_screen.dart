@@ -87,11 +87,13 @@ class AttendanceViewContent extends StatelessWidget {
                               SizedBox(
                                 height:
                                     MediaQuery.of(context).size.height * 0.7,
-                                child: const Center(
+                                child: Center(
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      CircularProgressIndicator(),
+                                      CircularProgressIndicator(
+                                        color: theme.colorScheme.primary,
+                                      ),
                                       SizedBox(height: 10),
                                       Text('Memuat data...'),
                                     ],
@@ -100,7 +102,32 @@ class AttendanceViewContent extends StatelessWidget {
                               ),
                             ] else ...[
                               DateTimeCard(state: s),
-                              LocationStatusCard(state: s),
+                              LocationStatusCard(
+                                state: s,
+                                onFetchReplacementSchedules: (jadwalId) {
+                                  final repo = context
+                                      .read<AttendanceBloc>()
+                                      .repository;
+                                  return repo.getReplacementSchedules(jadwalId);
+                                },
+                                onRequestShiftReplacement:
+                                    ({
+                                      required int requesterId,
+                                      required int replacementId,
+                                      required int jadwalId,
+                                      required String alasan,
+                                    }) async {
+                                      final repo = context
+                                          .read<AttendanceBloc>()
+                                          .repository;
+                                      return await repo.requestShiftReplacement(
+                                        requesterId: requesterId,
+                                        replacementId: replacementId,
+                                        jadwalId: jadwalId,
+                                        alasan: alasan,
+                                      );
+                                    },
+                              ),
                               const SizedBox(height: 16),
                               const PortalScheduleRibbon(),
                               AttendanceStatusCard(state: s),

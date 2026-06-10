@@ -6,6 +6,8 @@ import 'package:psm_mobile/core/presentations/widgets/widgets.dart';
 import 'package:psm_mobile/core/router/route_observer.dart';
 import 'package:psm_mobile/core/storage/secure_storage.dart';
 import 'package:psm_mobile/core/storage/shared_preferences.dart';
+import 'package:psm_mobile/features/attendance/presentation/screens/approval_detail_screen.dart';
+import 'package:psm_mobile/features/attendance/presentation/screens/approval_screen.dart';
 import 'package:psm_mobile/features/auth/domain/repositories/auth_repository.dart';
 import 'package:psm_mobile/features/auth/presentation/auth_screen.dart';
 import 'package:psm_mobile/features/auth/presentation/bloc/auth_bloc.dart';
@@ -28,6 +30,7 @@ import 'package:psm_mobile/features/attendance/presentation/screens/attendance_s
 import 'package:psm_mobile/features/settlement/presentation/settlement_history_screen.dart';
 import 'package:psm_mobile/features/settlement/presentation/settlement_screen.dart';
 import 'package:psm_mobile/features/settlement/presentation/settlement_success_submit_draft_screen.dart';
+import 'package:psm_mobile/features/splash/presentation/splash_screen.dart';
 import 'package:psm_mobile/features/timetable/presentation/timetable_screen.dart';
 
 late final GoRouter appRouter;
@@ -38,6 +41,12 @@ void setupRouter(String initialLocation) {
     observers: [routeObserver],
 
     routes: [
+      // SPLASH ROUTE
+      GoRoute(
+        path: '/splash',
+        builder: (context, state) => const SplashScreen(),
+      ),
+
       // AUTH ROUTE
       GoRoute(
         path: '/login',
@@ -291,10 +300,25 @@ void setupRouter(String initialLocation) {
           return CustomCameraWidget(ratio: ratio);
         },
       ),
+
+      // ATTENDANCE & APPROVAL ROUTE
       GoRoute(
         path: '/attendance',
         builder: (context, state) => const AttendanceScreen(),
       ),
+      GoRoute(
+        path: '/approval',
+        builder: (context, state) => const ApprovalScreen(),
+      ),
+      GoRoute(
+        path: '/approval-detail',
+        builder: (context, state) {
+          final idStr = state.extra?.toString();
+          return ApprovalDetailScreen(id: idStr);
+        },
+      ),
+
+      // WIDGET DEMO ROUTE
       GoRoute(
         path: '/widget-demo',
         builder: (context, state) => const WidgetDemoScreen(),

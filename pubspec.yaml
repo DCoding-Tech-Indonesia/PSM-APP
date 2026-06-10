@@ -2,7 +2,7 @@ name: psm_mobile
 description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -58,11 +58,12 @@ dependencies:
   cupertino_icons: ^1.0.8
   geolocator: ^14.0.2
   intl: ^0.20.2
+  firebase_core: ^4.10.0
+  firebase_messaging: ^16.3.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -78,7 +79,6 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
-
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
@@ -93,6 +93,24 @@ flutter:
     - assets/
   #   - images/a_dot_ham.jpeg
 
+  fonts:
+    - family: Nunito
+      fonts:
+        - asset: assets/fonts/Nunito-Bold.ttf
+          weight: 800
+        - asset: assets/fonts/Nunito-Medium.ttf
+          weight: 600
+        - asset: assets/fonts/Nunito-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Nunito-BoldItalic.ttf
+          style: italic
+          weight: 800
+        - asset: assets/fonts/Nunito-MediumItalic.ttf
+          style: italic
+          weight: 600
+        - asset: assets/fonts/Nunito-Italic.ttf
+          style: italic
+          weight: 400
 
 flutter_icons:
   android: true
