@@ -26,18 +26,12 @@ class CoreHeader extends StatelessWidget {
     final size = MediaQuery.of(context).size;
 
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: size.width * 0.045,
-        vertical: size.height * 0.003,
-      ),
+      padding: EdgeInsets.all(size.width * 0.045),
       decoration: BoxDecoration(
         color: customBgColor ?? Colors.transparent,
-        border: Border(
-          bottom: BorderSide(
-            color: Color(0xFFB3B3B3),
-            width: withBorder ? .2 : 0,
-          ),
-        ),
+        border: withBorder
+            ? Border(bottom: BorderSide(color: Color(0xFFB3B3B3), width: .2))
+            : null,
         boxShadow: [
           if (withBorder)
             BoxShadow(

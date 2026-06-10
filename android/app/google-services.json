@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "546500845819",
+    "project_id": "psm-app-661de",
+    "storage_bucket": "psm-app-661de.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:546500845819:android:9e67a062fe9e1c028d905e",
+        "android_client_info": {
+          "package_name": "com.dcode.psm_mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBfZZu_A1C_2x_g9mprx7MF33ti1Qti3nU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

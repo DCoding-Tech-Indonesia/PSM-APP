@@ -27,6 +27,14 @@ abstract class AttendanceRemoteDataSource {
     required String startDate,
     required String endDate,
   });
+  Future<List<dynamic>> getBus();
+  Future<List<dynamic>> getReplacementSchedules(int jadwalId);
+  Future<bool> requestShiftReplacement({
+    required int requesterId,
+    required int replacementId,
+    required int jadwalId,
+    required String alasan,
+  });
 }
 
 class AttendanceRemoteDataSourceImpl implements AttendanceRemoteDataSource {
@@ -159,6 +167,85 @@ class AttendanceRemoteDataSourceImpl implements AttendanceRemoteDataSource {
         return data.map((json) => ScheduleModel.fromJson(json)).toList();
       }
       return [];
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<List<dynamic>> getBus() async {
+    try {
+      final response = await _dioClient.instance.get(
+        '/reference/bus',
+        queryParameters: {'page': 1, 'perPage': 1000},
+      );
+
+      if (response.data != null && response.data['status'] == true) {
+        return response.data['data'] ?? [];
+      }
+      return [];
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<List<dynamic>> getReplacementSchedules(int jadwalId) async {
+    try {
+      final response = await _dioClient.instance.get(
+        '/jadwal/list-jadwal-pengganti',
+        queryParameters: {'jadwalId': jadwalId, 'page': 1, 'perPage': 1000},
+      );
+
+      if (response.data != null) {
+        if (response.data['status'] == true) {
+          // data adalah List<List<dynamic>>, perlu di-flatten
+          final raw = response.data['data'] as List? ?? [];
+          return raw.expand((e) => e as List).toList();
+        } else {
+          throw response.data['message'] ??
+              'Gagal mendapatkan list jadwal pengganti';
+        }
+      }
+      return [];
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<bool> requestShiftReplacement({
+    required int requesterId,
+    required int replacementId,
+    required int jadwalId,
+    required String alasan,
+  }) async {
+    try {
+      final response = await _dioClient.instance.post(
+        '/pergantian-shift',
+        data: {
+          'requesterId': requesterId,
+          'replacementId': replacementId,
+          'jadwalId': jadwalId,
+          'alasan': alasan,
+        },
+      );
+
+      if (response.data != null) {
+        if (response.data['status'] == true) {
+          return true;
+        } else {
+          throw response.data['message'] ?? 'Gagal mengajukan pergantian shift';
+        }
+      }
+      return false;
+    } on DioException catch (e) {
+      if (e.response?.data != null &&
+          e.response!.data is Map &&
+          e.response!.data['message'] != null) {
+        throw e.response!.data['message'];
+      }
+      throw 'Terjadi kesalahan pada jaringan atau server.';
     } catch (e) {
       rethrow;
     }

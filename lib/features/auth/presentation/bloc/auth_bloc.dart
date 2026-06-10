@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:formz/formz.dart';
 import 'package:psm_mobile/core/network/dio_client.dart';
@@ -65,13 +66,25 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<UsernameChanged>((event, emit) {
       final username = event.value;
       print("AuthBloc UsernameChanged: $username");
-      emit(state.copyWith(username: username, usernameError: '', clearErrors: false));
+      emit(
+        state.copyWith(
+          username: username,
+          usernameError: '',
+          clearErrors: false,
+        ),
+      );
     });
 
     on<PasswordChanged>((event, emit) {
       final password = Password.dirty(event.value);
       print("AuthBloc PasswordChanged: ${password.value}");
-      emit(state.copyWith(password: password, passwordError: '', clearErrors: false));
+      emit(
+        state.copyWith(
+          password: password,
+          passwordError: '',
+          clearErrors: false,
+        ),
+      );
     });
 
     on<RememberMeToggled>((event, emit) {
@@ -82,10 +95,16 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final username = state.username;
       final password = Password.dirty(state.password.value);
 
-      final usernameErr = username.isEmpty ? 'Username tidak boleh kosong' : null;
-      final passwordErr = password.value.isEmpty ? 'Password tidak boleh kosong' : null;
+      final usernameErr = username.isEmpty
+          ? 'Username tidak boleh kosong'
+          : null;
+      final passwordErr = password.value.isEmpty
+          ? 'Password tidak boleh kosong'
+          : null;
 
-      print("AuthBloc AuthSubmitted: username='$username', password='${password.value}', usernameErr=$usernameErr, passwordErr=$passwordErr");
+      print(
+        "AuthBloc AuthSubmitted: username='$username', password='${password.value}', usernameErr=$usernameErr, passwordErr=$passwordErr",
+      );
 
       if (usernameErr != null || passwordErr != null) {
         emit(
@@ -106,9 +125,17 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
       emit(state.copyWith(submissionStatus: FormzSubmissionStatus.inProgress));
 
+      String? fcmToken;
+      try {
+        fcmToken = await FirebaseMessaging.instance.getToken();
+      } catch (e) {
+        print("Error getting FCM token: $e");
+      }
+
       final result = await authRepository.login(
         state.username,
         state.password.value,
+        fcmToken ?? '',
       );
 
       result.match(
@@ -161,9 +188,17 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
       emit(state.copyWith(submissionStatus: FormzSubmissionStatus.inProgress));
 
+      String? fcmToken;
+      try {
+        fcmToken = await FirebaseMessaging.instance.getToken();
+      } catch (e) {
+        print("Error getting FCM token: $e");
+      }
+
       final result = await authRepository.login(
         state.username,
         state.password.value,
+        fcmToken ?? '',
       );
 
       result.match(
@@ -184,7 +219,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
                   ? FormzSubmissionStatus.success
                   : FormzSubmissionStatus.failure,
               loginSuccess: response.isSuccess,
-              loginMessage: response.message.toLowerCase() == 'login berhasil' ? 'Welcome Back!' : response.message,
+              loginMessage: response.message.toLowerCase() == 'login berhasil'
+                  ? 'Welcome Back!'
+                  : response.message,
               popup: true,
             ),
           );

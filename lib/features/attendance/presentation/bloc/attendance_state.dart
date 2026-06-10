@@ -19,7 +19,14 @@ class UpdateTime extends AttendanceEvent {}
 
 class RefreshLocation extends AttendanceEvent {}
 
-class CheckInRequested extends AttendanceEvent {}
+class CheckInRequested extends AttendanceEvent {
+  final int busId;
+
+  CheckInRequested({required this.busId});
+
+  @override
+  List<Object?> get props => [busId];
+}
 
 class CheckOutRequested extends AttendanceEvent {}
 
@@ -52,6 +59,8 @@ class AttendanceLoaded extends AttendanceState {
   final List<ScheduleModel> schedules;
   final String radiusInfo;
   final bool isCadangan;
+  final List<dynamic> bus;
+  final List<dynamic> replacementSchedules;
 
   AttendanceLoaded({
     required this.userId,
@@ -71,6 +80,8 @@ class AttendanceLoaded extends AttendanceState {
     this.schedules = const [],
     this.radiusInfo = '100m',
     this.isCadangan = false,
+    required this.bus,
+    this.replacementSchedules = const [],
   });
 
   @override
@@ -92,6 +103,8 @@ class AttendanceLoaded extends AttendanceState {
     schedules,
     radiusInfo,
     isCadangan,
+    bus,
+    replacementSchedules,
   ];
 
   AttendanceLoaded copyWith({
@@ -112,6 +125,8 @@ class AttendanceLoaded extends AttendanceState {
     List<ScheduleModel>? schedules,
     String? radiusInfo,
     bool? isCadangan,
+    List<dynamic>? bus,
+    List<dynamic>? replacementSchedules,
   }) {
     return AttendanceLoaded(
       userId: userId ?? this.userId,
@@ -131,6 +146,8 @@ class AttendanceLoaded extends AttendanceState {
       schedules: schedules ?? this.schedules,
       radiusInfo: radiusInfo ?? this.radiusInfo,
       isCadangan: isCadangan ?? this.isCadangan,
+      bus: bus ?? this.bus,
+      replacementSchedules: replacementSchedules ?? this.replacementSchedules,
     );
   }
 }

@@ -27,7 +27,7 @@ void main() {
     idUser: 6,
     lokasiLat: -6.228,
     lokasiLong: 106.833,
-    // idBus: 1,
+    idBus: 1,
     // idShift: 1,
   );
 

@@ -20,4 +20,12 @@ abstract class AttendanceRepository {
     required String startDate,
     required String endDate,
   });
+  Future<List<dynamic>> getBus();
+  Future<List<dynamic>> getReplacementSchedules(int jadwalId);
+  Future<bool> requestShiftReplacement({
+    required int requesterId,
+    required int replacementId,
+    required int jadwalId,
+    required String alasan,
+  });
 }

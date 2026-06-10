@@ -1,14 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:psm_mobile/features/attendance/presentation/bloc/attendance_bloc.dart';
+import 'package:psm_mobile/core/presentations/widgets/core_blur_dialog.dart';
+import 'package:psm_mobile/core/presentations/widgets/core_dropdown_search.dart';
+import 'package:psm_mobile/core/presentations/widgets/core_input_field_new.dart';
+import 'package:psm_mobile/features/attendance/data/models/schedule_model.dart';
 import 'package:psm_mobile/features/attendance/presentation/bloc/attendance_state.dart';
 
 class LocationStatusCard extends StatelessWidget {
   final AttendanceLoaded state;
+  final Future<List<dynamic>> Function(int jadwalId)
+  onFetchReplacementSchedules;
+  final Future<bool> Function({
+    required int requesterId,
+    required int replacementId,
+    required int jadwalId,
+    required String alasan,
+  })
+  onRequestShiftReplacement;
 
   const LocationStatusCard({
     super.key,
     required this.state,
+    required this.onFetchReplacementSchedules,
+    required this.onRequestShiftReplacement,
   });
 
   @override
@@ -77,10 +90,160 @@ class LocationStatusCard extends StatelessWidget {
                       ],
                     ),
                   ),
+                  // IconButton(
+                  //   onPressed: () =>
+                  //       context.read<AttendanceBloc>().add(RefreshLocation()),
+                  //   icon: const Icon(Icons.refresh, color: Colors.white),
+                  // ),
                   IconButton(
-                    onPressed: () =>
-                        context.read<AttendanceBloc>().add(RefreshLocation()),
-                    icon: const Icon(Icons.refresh, color: Colors.white),
+                    onPressed: () {
+                      int replacementId = 0;
+                      int jadwalId = 0;
+                      String reason = '';
+                      bool isLoadingPengganti = false;
+                      List<dynamic> listPengganti = [];
+
+                      // Ambil repo dari outer context SEBELUM dialog dibuka
+                      // karena context di dalam StatefulBuilder (dialog) tidak punya akses ke provider
+                      showCoreConfirmDialog(
+                        context: context,
+                        title: 'Ganti Jadwal',
+                        message: 'Anda yakin ingin mengganti jadwal?',
+                        contentWidget: StatefulBuilder(
+                          builder: (dialogContext, setState) {
+                            return Column(
+                              children: [
+                                CoreDropdownSearch<ScheduleModel>(
+                                  label: 'Jadwal',
+                                  popupTitle: 'Pilih Jadwal',
+                                  isRequired: true,
+                                  isItemSelected: (s) => s.id == jadwalId,
+                                  items: state.schedules,
+                                  itemAsString: (s) =>
+                                      '${s.tanggal} - ${s.shift.name} - ${s.lokasi.namaLokasi}',
+                                  compareFn: (a, b) => a.id == b.id,
+                                  onSelected: (selected) async {
+                                    if (selected != null) {
+                                      final selectedId =
+                                          int.tryParse(
+                                            selected.id.toString(),
+                                          ) ??
+                                          0;
+
+                                      setState(() {
+                                        jadwalId = selectedId;
+                                        isLoadingPengganti = true;
+                                        listPengganti = [];
+                                      });
+
+                                      try {
+                                        final result =
+                                            await onFetchReplacementSchedules(
+                                              selectedId,
+                                            );
+                                        setState(() {
+                                          listPengganti = result;
+                                          isLoadingPengganti = false;
+                                        });
+                                      } catch (e) {
+                                        setState(() {
+                                          isLoadingPengganti = false;
+                                        });
+                                      }
+                                    }
+                                  },
+                                ),
+                                if (jadwalId > 0) ...[
+                                  const SizedBox(height: 16),
+                                  if (isLoadingPengganti)
+                                    const Padding(
+                                      padding: EdgeInsets.symmetric(
+                                        vertical: 20,
+                                      ),
+                                      child: Center(
+                                        child: CircularProgressIndicator(),
+                                      ),
+                                    )
+                                  else
+                                    CoreDropdownSearch<dynamic>(
+                                      label: 'Pengganti',
+                                      popupTitle: 'Pilih Pengganti',
+                                      items: listPengganti,
+                                      itemAsString: (s) =>
+                                          '${s['fullName']?.toString()} - ${s['shiftName']?.toString()} - ${s['tanggal']?.toString()}',
+                                      compareFn: (a, b) =>
+                                          a['userId'] == b['userId'],
+                                      onSelected: (selected) {
+                                        if (selected != null) {
+                                          setState(() {
+                                            replacementId =
+                                                int.tryParse(
+                                                  selected['userId'].toString(),
+                                                ) ??
+                                                0;
+                                          });
+                                        }
+                                      },
+                                    ),
+                                  const SizedBox(height: 16),
+                                  CoreInputFieldNew(
+                                    hintText: 'Alasan',
+                                    onChanged: (v) {
+                                      reason = v;
+                                    },
+                                  ),
+                                ],
+                              ],
+                            );
+                          },
+                        ),
+                        onConfirm: () async {
+                          if (jadwalId == 0 || replacementId == 0) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Pilih jadwal dan pengganti!'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                            return;
+                          }
+
+                          try {
+                            final success = await onRequestShiftReplacement(
+                              requesterId: int.tryParse(state.userId) ?? 0,
+                              replacementId: replacementId,
+                              jadwalId: jadwalId,
+                              alasan: reason,
+                            );
+
+                            if (!context.mounted) return;
+
+                            if (success) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'Berhasil mengajukan ganti jadwal!',
+                                  ),
+                                  backgroundColor: Colors.green,
+                                ),
+                              );
+                            }
+                          } catch (e) {
+                            if (!context.mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(e.toString()),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
+                        },
+                      );
+                    },
+                    icon: const Icon(
+                      Icons.change_circle_outlined,
+                      color: Colors.white,
+                    ),
                   ),
                 ],
               ),

@@ -185,9 +185,16 @@ class AttendanceStatusCard extends StatelessWidget {
                               message:
                                   'Apakah Anda yakin ingin melakukan Check-in sekarang?',
                               color: Colors.green,
-                              onConfirm: () => context
-                                  .read<AttendanceBloc>()
-                                  .add(CheckInRequested()),
+                              onConfirm: () =>
+                                  context.read<AttendanceBloc>().add(
+                                    CheckInRequested(
+                                      busId:
+                                          int.tryParse(
+                                            state.bus.first['id'].toString(),
+                                          ) ??
+                                          0,
+                                    ),
+                                  ),
                             );
                           }
                         },

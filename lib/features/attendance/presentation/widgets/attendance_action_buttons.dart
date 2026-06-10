@@ -39,6 +39,8 @@ class AttendanceActionButtons extends StatelessWidget {
                           'Anda berada di luar radius kantor (${state.distanceFromOffice}). Silakan mendekat ke area kantor untuk melakukan absensi.',
                         );
                       } else {
+                        int selectedBusId = 0;
+
                         showCoreConfirmDialog(
                           context: context,
                           title: 'Konfirmasi Check-in',
@@ -46,7 +48,32 @@ class AttendanceActionButtons extends StatelessWidget {
                               'Apakah Anda yakin ingin melakukan Check-in sekarang?',
                           color: Colors.green,
                           onConfirm: () => context.read<AttendanceBloc>().add(
-                            CheckInRequested(),
+                            CheckInRequested(busId: selectedBusId),
+                          ),
+                          contentWidget: StatefulBuilder(
+                            builder: (context, setState) {
+                              return Column(
+                                children: [
+                                  CoreDropdownSearch<dynamic>(
+                                    label: 'Bus',
+                                    popupTitle: 'Pilih Bus',
+                                    items: state.bus,
+                                    itemAsString: (s) =>
+                                        s['name']?.toString() ?? '',
+                                    compareFn: (a, b) => a['id'] == b['id'],
+                                    onSelected: (selected) {
+                                      if (selected != null) {
+                                        selectedBusId =
+                                            int.tryParse(
+                                              selected['id'].toString(),
+                                            ) ??
+                                            0;
+                                      }
+                                    },
+                                  ),
+                                ],
+                              );
+                            },
                           ),
                         );
                       }

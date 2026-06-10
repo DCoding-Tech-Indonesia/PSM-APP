@@ -40,12 +40,16 @@ class PortalHeader extends StatelessWidget {
                       width: 48,
                       height: 48,
                       decoration: BoxDecoration(
-                        color: isDark ? Colors.white : theme.colorScheme.primary,
+                        color: isDark
+                            ? Colors.white
+                            : theme.colorScheme.primary,
                         borderRadius: BorderRadius.circular(24),
                       ),
                       child: Icon(
                         Icons.person,
-                        color: theme.colorScheme.onPrimary,
+                        color: isDark
+                            ? theme.colorScheme.onPrimary
+                            : Colors.white,
                         size: 24,
                       ),
                     ),

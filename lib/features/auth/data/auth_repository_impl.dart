@@ -8,15 +8,16 @@ import 'package:psm_mobile/features/auth/domain/repositories/auth_repository.dar
 class AuthRepositoryImpl implements AuthRepository {
   final AuthDataSource dataSource;
 
-  AuthRepositoryImpl({
-    required this.dataSource,
-  });
+  AuthRepositoryImpl({required this.dataSource});
 
   @override
-  Future<Either<Failure, LoginResponse>> login(String username,
-      String password,) async {
+  Future<Either<Failure, LoginResponse>> login(
+    String username,
+    String password,
+    String fcm,
+  ) async {
     try {
-      final response = await dataSource.login(username, password);
+      final response = await dataSource.login(username, password, fcm);
 
       return right(response);
     } on DioException catch (e) {
@@ -25,9 +26,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
       return left(ServerFailure(message));
     } catch (_) {
-      return left(
-        const ServerFailure('Unexpected error'),
-      );
+      return left(const ServerFailure('Unexpected error'));
     }
   }
 
@@ -39,9 +38,7 @@ class AuthRepositoryImpl implements AuthRepository {
     } on DioException catch (_) {
       return left(ServerFailure("GAGAL"));
     } catch (_) {
-      return left(
-        const ServerFailure('Unexpected error'),
-      );
+      return left(const ServerFailure('Unexpected error'));
     }
   }
 
@@ -53,9 +50,7 @@ class AuthRepositoryImpl implements AuthRepository {
     } on DioException catch (_) {
       return left(ServerFailure("GAGAL"));
     } catch (_) {
-      return Left(
-        const ServerFailure('Unexpected error'),
-      );
+      return Left(const ServerFailure('Unexpected error'));
     }
   }
 }

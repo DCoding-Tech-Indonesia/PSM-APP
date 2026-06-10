@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -18,9 +19,20 @@ import 'package:psm_mobile/features/portal/data/datasources/portal_data_source.d
 import 'package:psm_mobile/features/portal/data/repositories/portal_repository_impl.dart';
 import 'package:psm_mobile/features/portal/domain/repositories/portal_repository.dart';
 import 'package:psm_mobile/features/portal/presentation/bloc/portal_bloc.dart';
+import 'package:psm_mobile/firebase_options.dart';
+import 'notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Inisialisasi Firebase dengan opsi otomatis dari CLI
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  // Jalankan fungsi notifikasi
+  await NotificationService().initNotification();
+
+  // Load tema
+  await AppTheme.loadTheme();
 
   // Request permissions at the very start
   await [
@@ -51,38 +63,9 @@ void main() async {
     },
   );
 
-  // Tentukan rute awal dengan validasi token ke server
-  String initialRoute = '/login';
-  final token = await secureStorage.readAccessToken();
-
-  if (token != null && token.isNotEmpty) {
-    dioClient.setAuthToken(token);
-    try {
-      // Hit API check-token untuk memastikan sesi masih valid di server
-      // Jika token expired, interceptor akan otomatis mencoba refresh terlebih dahulu
-      final response = await dioClient.instance.post('/auth/check-token');
-
-      if (response.statusCode == 200 && response.data['status'] == true) {
-        // Jika valid, simpan token baru (jika ada pembaruan) dan masuk ke portal
-        final newData = response.data['data'];
-        if (newData is List &&
-            newData.isNotEmpty &&
-            newData[0]['token'] != null) {
-          final newToken = newData[0]['token'];
-          await secureStorage.saveAccessToken(newToken);
-          dioClient.setAuthToken(newToken);
-        }
-        initialRoute = '/portal';
-      } else {
-        await secureStorage.clearLogin();
-        initialRoute = '/login';
-      }
-    } catch (e) {
-      // Jika gagal (misal: 401 dan refresh gagal), arahkan ke login
-      initialRoute = '/login';
-    }
-  }
-
+  // Arahkan rute pertama kali ke SplashScreen
+  // Pengecekan token sekarang dipindahkan ke dalam SplashScreen agar user bisa melihat animasi
+  const String initialRoute = '/splash';
   setupRouter(initialRoute);
 
   runApp(

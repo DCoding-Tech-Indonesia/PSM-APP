@@ -1,8 +1,10 @@
+import 'package:psm_mobile/features/attendance/data/models/general_model.dart';
+
 class ScheduleModel {
   final int id;
   final bool isCadangan;
   final ScheduleLocation lokasi;
-  final ScheduleShift shift;
+  final GeneralModel shift;
   final String tanggal;
 
   ScheduleModel({
@@ -18,7 +20,7 @@ class ScheduleModel {
       id: json['id'] ?? 0,
       isCadangan: json['isCadangan'] ?? false,
       lokasi: ScheduleLocation.fromJson(json['lokasi'] ?? {}),
-      shift: ScheduleShift.fromJson(json['shift'] ?? {}),
+      shift: GeneralModel.fromJson(json['shift'] ?? {}),
       tanggal: json['tanggal'] ?? '',
     );
   }
@@ -40,26 +42,6 @@ class ScheduleLocation {
       id: json['id'] ?? 0,
       code: json['code'] ?? '',
       namaLokasi: json['namaLokasi'] ?? '',
-    );
-  }
-}
-
-class ScheduleShift {
-  final int id;
-  final String code;
-  final String name;
-
-  ScheduleShift({
-    required this.id,
-    required this.code,
-    required this.name,
-  });
-
-  factory ScheduleShift.fromJson(Map<String, dynamic> json) {
-    return ScheduleShift(
-      id: json['id'] ?? 0,
-      code: json['code'] ?? '',
-      name: json['name'] ?? '',
     );
   }
 }
