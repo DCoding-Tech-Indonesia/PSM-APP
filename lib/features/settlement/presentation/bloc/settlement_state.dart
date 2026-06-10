@@ -19,6 +19,7 @@ class SettlementState extends Equatable {
   final String activeTabLabel;
 
   final bool detailValid;
+  final bool allowLastStep;
 
   final List<ReferenceBus> referenceBus;
   final List<ReferenceDetail> referenceKoridor;
@@ -56,6 +57,7 @@ class SettlementState extends Equatable {
     this.activeTabLabel = '',
 
     this.detailValid = true,
+    this.allowLastStep = false,
 
     this.referenceBus = const [],
     this.referenceKoridor = const [],
@@ -92,6 +94,7 @@ class SettlementState extends Equatable {
     String? activeTabLabel,
 
     bool? detailValid,
+    bool? allowLastStep,
 
     List<ReferenceBus>? referenceBus,
     List<ReferenceDetail>? referenceKoridor,
@@ -128,6 +131,7 @@ class SettlementState extends Equatable {
       activeTabLabel: activeTabLabel ?? this.activeTabLabel,
 
       detailValid: detailValid ?? this.detailValid,
+      allowLastStep: allowLastStep ?? this.allowLastStep,
 
       referenceBus: referenceBus ?? this.referenceBus,
       referenceKoridor: referenceKoridor ?? this.referenceKoridor,
@@ -166,6 +170,7 @@ class SettlementState extends Equatable {
     activeTabLabel,
 
     detailValid,
+    allowLastStep,
 
     referenceBus,
     referenceKoridor,
@@ -188,6 +193,4 @@ class SettlementState extends Equatable {
     documentPreview,
     message,
   ];
-
-  get checkDetailValid => null;
 }

@@ -279,18 +279,18 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
     });
 
     on<ChangeTabDetail>((event, emit) {
-      emit(state.copyWith(detailValid: true));
-
       final newTabIndex = event.tabId;
 
       if (newTabIndex > state.activeTabIndex) {
         bool hasInvalidData;
+        bool isLastPeymentMethod = newTabIndex == state.referencePayment.length;
 
-        if (newTabIndex == state.referencePayment.length) {
+        if (isLastPeymentMethod) {
           hasInvalidData = state.detail.any(
             (data) => data.total == null || data.value == null,
           );
         } else {
+          emit(state.copyWith(detailValid: true));
           final currPayment = state.referencePayment[state.activeTabIndex];
 
           hasInvalidData = state.detail.any(
@@ -303,6 +303,8 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
         if (hasInvalidData) {
           emit(state.copyWith(detailValid: false));
           return;
+        } else if (!hasInvalidData && isLastPeymentMethod) {
+          emit(state.copyWith(allowLastStep: true));
         }
       }
 

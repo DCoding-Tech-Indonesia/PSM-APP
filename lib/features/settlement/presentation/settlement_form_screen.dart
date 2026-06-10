@@ -75,9 +75,11 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
     final size = MediaQuery.sizeOf(context);
 
     return BlocListener<SettlementBloc, SettlementState>(
-      listenWhen: (previous, current) => previous.status != current.status,
+      listenWhen: (previous, current) =>
+          previous.status != current.status ||
+          previous.allowLastStep != current.allowLastStep,
 
-      listener: (context, state) {
+      listener: (context, state) async {
         if (state.status == SettlementStatus.successSave) {
           final totalCust = state.detail.fold<int>(
             0,
@@ -109,6 +111,10 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
               backgroundColor: Colors.red,
             ),
           );
+        }
+
+        if (state.allowLastStep) {
+          await _showStep2Confirmation(context);
         }
       },
       child: Scaffold(
@@ -296,29 +302,18 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
                                 }
 
                                 if (state.steps == 2) {
-                                  final nextIndex = state.activeTabIndex + 1;
+                                  if (!state.allowLastStep) {
+                                    final nextIndex = state.activeTabIndex + 1;
 
-                                  final hasNextTab =
-                                      nextIndex < state.referencePayment.length;
+                                    context.read<SettlementBloc>().add(
+                                      ChangeTabDetail(nextIndex),
+                                    );
 
-                                  context.read<SettlementBloc>().add(
-                                    ChangeTabDetail(nextIndex),
-                                  );
-
-                                  if (hasNextTab) {
+                                    return;
+                                  } else {
+                                    await _showStep2Confirmation(context);
                                     return;
                                   }
-
-                                  final bloc = context.read<SettlementBloc>();
-
-                                  final newState = await bloc.stream.firstWhere(
-                                        (s) => s.checkDetailValid == false,
-                                  );
-
-                                  if (newState.detailValid) {
-                                    await _showStep2Confirmation(context);
-                                  }
-                                  return;
                                 }
 
                                 if (state.steps < state.totalSteps) {

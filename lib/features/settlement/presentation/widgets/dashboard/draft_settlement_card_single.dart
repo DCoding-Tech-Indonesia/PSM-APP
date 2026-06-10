@@ -44,9 +44,11 @@ class DraftSettlementCardSingle extends StatelessWidget {
                   child: Column(
                     children: [
                       Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Row(
+                            spacing: 10,
                             children: [
                               Container(
                                 padding: const EdgeInsets.all(8),
@@ -59,9 +61,9 @@ class DraftSettlementCardSingle extends StatelessWidget {
                                   color: Colors.white,
                                 ),
                               ),
-                              const SizedBox(width: 10),
                               Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                                crossAxisAlignment:
+                                    CrossAxisAlignment.start,
                                 children: [
                                   Text(
                                     "Nama Koridor",
@@ -80,6 +82,15 @@ class DraftSettlementCardSingle extends StatelessWidget {
                                 ],
                               ),
                             ],
+                          ),
+                          GestureDetector(
+                            onTap: () async {
+                              await context.push(
+                                '/settlement/form',
+                                extra: draftDatas[0].id,
+                              );
+                            },
+                            child: Icon(Icons.edit, color: Colors.white, size: 20),
                           ),
                         ],
                       ),
@@ -112,7 +123,9 @@ class DraftSettlementCardSingle extends StatelessWidget {
                               ],
                             ),
                             Text(
-                              "13.40",
+                              StringFormatter().formatHourMinute(
+                                draftDatas[0].createdDate,
+                              ),
                               style: const TextStyle(color: Colors.white),
                             ),
                           ],
@@ -130,9 +143,7 @@ class DraftSettlementCardSingle extends StatelessWidget {
               await context.push('/settlement/form');
 
               if (context.mounted) {
-                context.read<SettlementBloc>().add(
-                  PageDashboardLoad(),
-                );
+                context.read<SettlementBloc>().add(PageDashboardLoad());
               }
             },
             child: Container(
