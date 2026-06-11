@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:psm_mobile/core/helper/string_formatter.dart';
+import 'package:psm_mobile/core/presentations/widgets/core_bottom_modal_verification.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/task_audit_trail.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_bloc.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_event.dart';
@@ -10,6 +11,22 @@ class DraftSettlementCardSingle extends StatelessWidget {
   const DraftSettlementCardSingle({super.key, required this.datas});
 
   final List<TaskAuditTrail> datas;
+
+  Future<bool> _showDirectToEditVerification(BuildContext context) async {
+    final isConfirm = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      builder: (modalContext) {
+        return CoreBottomModalVerification(
+          title: 'Apakah ingin melakukan edit draft berikut?',
+          onCancel: () => Navigator.pop(modalContext, false),
+          onConfirm: () => Navigator.pop(modalContext, true),
+        );
+      },
+    );
+
+    return isConfirm!;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,8 +79,7 @@ class DraftSettlementCardSingle extends StatelessWidget {
                                 ),
                               ),
                               Column(
-                                crossAxisAlignment:
-                                    CrossAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
                                     "Nama Koridor",
@@ -85,12 +101,28 @@ class DraftSettlementCardSingle extends StatelessWidget {
                           ),
                           GestureDetector(
                             onTap: () async {
-                              await context.push(
-                                '/settlement/form',
-                                extra: draftDatas[0].id,
+                              final direct = _showDirectToEditVerification(
+                                context,
                               );
+
+                              if (await direct) {
+                                await context.push(
+                                  '/settlement/form',
+                                  extra: draftDatas[0].id,
+                                );
+
+                                if (context.mounted) {
+                                  context.read<SettlementBloc>().add(
+                                    PageDashboardLoad(),
+                                  );
+                                }
+                              }
                             },
-                            child: Icon(Icons.edit, color: Colors.white, size: 20),
+                            child: Icon(
+                              Icons.edit,
+                              color: Colors.white,
+                              size: 20,
+                            ),
                           ),
                         ],
                       ),

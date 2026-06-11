@@ -32,14 +32,17 @@ class WizardDetailStep extends StatelessWidget {
                         prev.noUnit != curr.noUnit,
                     builder: (context, state) {
                       return Row(
-                        crossAxisAlignment: CrossAxisAlignment.end,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            state.namaKoridor,
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w600,
+                          Expanded(
+                            child: Text(
+                              state.namaKoridor,
+                              softWrap: true,
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ),
                           Container(

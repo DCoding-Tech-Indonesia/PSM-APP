@@ -178,7 +178,13 @@ class _SettlementScreenState extends State<SettlementScreen> {
                         ),
                       ),
                       GestureDetector(
-                        onTap: () => context.push('/settlement/history'),
+                        onTap: () async {
+                          await context.push('/settlement/history');
+
+                          if (context.mounted) {
+                            context.read<SettlementBloc>().add(PageDashboardLoad());
+                          }
+                        },
                         child: const Row(
                           children: [
                             Text(

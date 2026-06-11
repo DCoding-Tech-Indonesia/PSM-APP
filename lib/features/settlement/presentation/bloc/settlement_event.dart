@@ -91,3 +91,9 @@ class ChangeTabDetail extends SettlementEvent {
 
   ChangeTabDetail(this.tabId);
 }
+
+class PageHistoryLoad extends SettlementEvent {
+  final int? idAuditTrail;
+
+  PageHistoryLoad(this.idAuditTrail);
+}

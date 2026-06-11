@@ -565,5 +565,103 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
         },
       );
     });
+
+    on<PageHistoryLoad>((event, emit) async {
+      emit(state.copyWith(status: SettlementStatus.loading));
+
+      try {
+        final detailResult = await settlementRepository
+            .fetchTaskAuditTrailDetail(event.idAuditTrail!);
+
+        final detailData = detailResult.fold(
+              (failure) {
+            throw Exception(failure.message);
+          },
+              (data) => data,
+        );
+
+        final idKoridor = detailData.idKoridor;
+        final idBus = detailData.detail.first.idBus;
+        final ritase = detailData.detail.first.ritaseKe;
+
+        final results = await Future.wait([
+          settlementRepository.fetchReferenceKoridor(''),
+          settlementRepository.fetchReferencePayment(''),
+          settlementRepository.fetchReferenceCustType(''),
+          settlementRepository.fetchReferenceBus('', idKoridor),
+        ]);
+
+        final koridorList = results[0].fold(
+              (f) => throw Exception(f.message),
+              (d) => d,
+        ) as List<ReferenceDetail>;
+
+        final busList = results[3].fold(
+              (f) => throw Exception(f.message),
+              (d) => d,
+        ) as List<ReferenceBus>;
+
+        final namaKoridor = koridorList
+            .firstWhere((e) => e.id == idKoridor)
+            .name;
+
+        final noUnit = busList
+            .firstWhere((e) => e.id == idBus)
+            .platNomor;
+
+        final documents =
+        List<SettlementDocument>.from(detailData.document);
+
+        final documentPreview = detailData.document
+            .where((e) => (e.urlDoc ?? '').isNotEmpty)
+            .map(
+              (e) => DocumentPreview(
+            idDocument: e.idDocument,
+            url: e.urlDoc!,
+          ),
+        )
+            .toList();
+
+        final paymentList = results[1].fold(
+              (f) => throw Exception(f.message),
+              (d) => d,
+        ) as List<ReferenceDetail>;
+
+        final customerList = results[2].fold(
+              (f) => throw Exception(f.message),
+              (d) => d,
+        ) as List<ReferenceDetail>;
+
+        emit(
+          state.copyWith(
+            status: SettlementStatus.success,
+            auditTrailId: event.idAuditTrail,
+            idKoridor: idKoridor,
+            idBus: idBus,
+            ritase: ritase,
+            namaKoridor: namaKoridor,
+            noUnit: noUnit,
+
+            referenceKoridor: koridorList,
+            referenceBus: busList,
+            referencePayment: paymentList,
+            referenceCustomer: customerList,
+
+            detail: detailData.detail,
+
+            document: documents,
+            documentPreview: documentPreview,
+          ),
+        );
+      } catch (e) {
+        emit(
+          state.copyWith(
+            status: SettlementStatus.error,
+            message: e.toString(),
+          ),
+        );
+      }
+    });
+
   }
 }
