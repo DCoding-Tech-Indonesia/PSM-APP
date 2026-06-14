@@ -18,69 +18,101 @@ class HistorySettlementCard extends StatelessWidget {
         border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(
-              alpha: 0.05,
-            ),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
         ],
       ),
+
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Row(
-            spacing: 10,
+          Container(
+            padding: const EdgeInsets.all(7),
+            decoration: BoxDecoration(
+              color: Colors.blue,
+              borderRadius: BorderRadius.circular(999),
+            ),
+            child: Text(
+              data.ritase.toString(),
+              style: const TextStyle(
+                fontSize: 12,
+                color: Colors.white,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+
+          const SizedBox(width: 10),
+
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  data.namaKoridor!,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  softWrap: false,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  data.noPolisi ?? '-',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 10,
+                    color: Colors.blueGrey,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(width: 10),
+
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                padding: const EdgeInsets.all(7),
+                padding:
+                const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
                 decoration: BoxDecoration(
-                  color: Colors.blue,
-                  borderRadius: BorderRadius.circular(999),
+                  color: data.status.code == "APR"
+                      ? Colors.greenAccent
+                      : Colors.yellowAccent,
+                  borderRadius: BorderRadius.circular(99),
+                  border: Border.all(
+                    width: 1,
+                    color: data.status.code == "APR"
+                        ? Colors.green
+                        : Colors.yellow,
+                  ),
                 ),
-                child: Text("0.5", style: TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.w700)),
+                child: Text(
+                  data.status.name,
+                  style: const TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    spacing: 10,
-                    children: [
-                      const Text(
-                        'Koridor A',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
-                        decoration: BoxDecoration(
-                            color: data.status.code == "APR" ? Colors.greenAccent : Colors.yellowAccent,
-                            borderRadius: BorderRadius.circular(99),
-                            border: Border.all(width: 1, color: data.status.code == "APR" ? Colors.green : Colors.yellow)
-                        ),
-                        child: Text(data.status.name, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600)),
-                      ),
-                    ],
-                  ),
-                  DefaultTextStyle(
-                    style: const TextStyle(
-                      fontSize: 10,
-                      color: Colors.blueGrey,
-                    ),
-                    child: Row(
-                      spacing: 8,
-                      children: const [
-                        Text('BA 1945 AG'),
-                      ],
-                    ),
-                  ),
-                ],
+              const SizedBox(height: 4),
+              Text(
+                StringFormatter().formatHourMinute(data.createdDate),
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ],
-          ),
-          Text(
-            StringFormatter().formatHourMinute(data.createdDate),
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
           ),
         ],
       ),

@@ -55,7 +55,7 @@ class HistoryListCard extends StatelessWidget {
                   border: Border.all(width: 1, color: Colors.blueAccent),
                 ),
                 child: Text(
-                  "RIT",
+                  data.ritase.toString(),
                   style: TextStyle(
                     fontWeight: FontWeight.w800,
                     color: Colors.blueAccent,
@@ -67,7 +67,7 @@ class HistoryListCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Koridor Haji Agus Salim (TESTING OVERFLOW UI)",
+                      data.namaKoridor!,
                       overflow: TextOverflow.fade,
                       softWrap: false,
                       style: TextStyle(
@@ -77,7 +77,7 @@ class HistoryListCard extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      "BA 1945 AG",
+                      data.noPolisi!,
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w400,
@@ -95,7 +95,7 @@ class HistoryListCard extends StatelessWidget {
                 spacing: 10,
                 children: [
                   const Icon(Icons.people, size: 15, color: Colors.grey),
-                  Text("10", style: TextStyle(color: Colors.grey)),
+                  Text(data.totalPenumpangKeseluruhan.toString(), style: TextStyle(color: Colors.grey)),
                 ],
               ),
               Row(
@@ -103,7 +103,7 @@ class HistoryListCard extends StatelessWidget {
                 children: [
                   const Icon(Icons.money, size: 15, color: Colors.grey),
                   Text(
-                    StringFormatter().idrFormatter(123500),
+                    StringFormatter().idrFormatter(data.totalPendapatanPertitase!),
                     style: TextStyle(color: Colors.grey),
                   ),
                 ],
