@@ -51,6 +51,7 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
       stats: AttendanceStats(),
       history: [],
       schedules: [],
+      schedulePerMonth: [],
       bus: [],
       replacementSchedules: [],
     );
@@ -92,6 +93,13 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
         'yyyy-MM-dd',
       ).format(now.add(const Duration(days: 3)));
 
+      final startDateMonth = DateFormat(
+        'yyyy-MM-dd',
+      ).format(DateTime(now.year, now.month, 1));
+      final endDateMonth = DateFormat(
+        'yyyy-MM-dd',
+      ).format(DateTime(now.year, now.month + 11, 0));
+
       // Fetch History, Stats, and Schedules in parallel
       final results = await Future.wait([
         repository.getHistory(uId, 7),
@@ -101,6 +109,11 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
           startDate: startDate,
           endDate: endDate,
         ),
+        repository.getSchedules(
+          userId: uId,
+          startDate: startDateMonth,
+          endDate: endDateMonth,
+        ),
         repository.getBus(),
       ]);
 
@@ -109,7 +122,9 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
       final Map<String, dynamic>? statsResponse =
           results[1] as Map<String, dynamic>?;
       final List<ScheduleModel> schedules = results[2] as List<ScheduleModel>;
-      final List<dynamic> bus = results[3] as List<dynamic>;
+      final List<ScheduleModel> schedulePerMonth =
+          results[3] as List<ScheduleModel>;
+      final List<dynamic> bus = results[4] as List<dynamic>;
       final List<dynamic> replacementSchedules = [];
 
       AttendanceStats stats = currentState.stats;
@@ -149,6 +164,7 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
           history: history,
           stats: stats,
           schedules: schedules,
+          schedulePerMonth: schedulePerMonth,
           isCheckedIn: isCheckedIn,
           checkInTime: checkInTime,
           checkOutTime: checkOutTime,

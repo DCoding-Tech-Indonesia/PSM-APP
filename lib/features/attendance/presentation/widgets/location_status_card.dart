@@ -41,14 +41,14 @@ class LocationStatusCard extends StatelessWidget {
               end: Alignment.bottomRight,
             ),
             borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: (state.canCheckIn ? Colors.green : Colors.red)
-                    .withValues(alpha: 0.3),
-                blurRadius: 12,
-                offset: const Offset(0, 6),
-              ),
-            ],
+            // boxShadow: [
+            //   BoxShadow(
+            //     color: (state.canCheckIn ? Colors.green : Colors.red)
+            //         .withValues(alpha: 0.3),
+            //     blurRadius: 12,
+            //     offset: const Offset(0, 6),
+            //   ),
+            // ],
           ),
           child: Column(
             children: [
@@ -95,156 +95,156 @@ class LocationStatusCard extends StatelessWidget {
                   //       context.read<AttendanceBloc>().add(RefreshLocation()),
                   //   icon: const Icon(Icons.refresh, color: Colors.white),
                   // ),
-                  IconButton(
-                    onPressed: () {
-                      int replacementId = 0;
-                      int jadwalId = 0;
-                      String reason = '';
-                      bool isLoadingPengganti = false;
-                      List<dynamic> listPengganti = [];
+                  // IconButton(
+                  //   onPressed: () {
+                  //     int replacementId = 0;
+                  //     int jadwalId = 0;
+                  //     String reason = '';
+                  //     bool isLoadingPengganti = false;
+                  //     List<dynamic> listPengganti = [];
 
-                      // Ambil repo dari outer context SEBELUM dialog dibuka
-                      // karena context di dalam StatefulBuilder (dialog) tidak punya akses ke provider
-                      showCoreConfirmDialog(
-                        context: context,
-                        title: 'Ganti Jadwal',
-                        message: 'Anda yakin ingin mengganti jadwal?',
-                        contentWidget: StatefulBuilder(
-                          builder: (dialogContext, setState) {
-                            return Column(
-                              children: [
-                                CoreDropdownSearch<ScheduleModel>(
-                                  label: 'Jadwal',
-                                  popupTitle: 'Pilih Jadwal',
-                                  isRequired: true,
-                                  isItemSelected: (s) => s.id == jadwalId,
-                                  items: state.schedules,
-                                  itemAsString: (s) =>
-                                      '${s.tanggal} - ${s.shift.name} - ${s.lokasi.namaLokasi}',
-                                  compareFn: (a, b) => a.id == b.id,
-                                  onSelected: (selected) async {
-                                    if (selected != null) {
-                                      final selectedId =
-                                          int.tryParse(
-                                            selected.id.toString(),
-                                          ) ??
-                                          0;
+                  //     // Ambil repo dari outer context SEBELUM dialog dibuka
+                  //     // karena context di dalam StatefulBuilder (dialog) tidak punya akses ke provider
+                  //     showCoreConfirmDialog(
+                  //       context: context,
+                  //       title: 'Ganti Jadwal',
+                  //       message: 'Anda yakin ingin mengganti jadwal?',
+                  //       contentWidget: StatefulBuilder(
+                  //         builder: (dialogContext, setState) {
+                  //           return Column(
+                  //             children: [
+                  //               CoreDropdownSearch<ScheduleModel>(
+                  //                 label: 'Jadwal',
+                  //                 popupTitle: 'Pilih Jadwal',
+                  //                 isRequired: true,
+                  //                 isItemSelected: (s) => s.id == jadwalId,
+                  //                 items: state.schedules,
+                  //                 itemAsString: (s) =>
+                  //                     '${s.tanggal} - ${s.shift.name} - ${s.lokasi.namaLokasi}',
+                  //                 compareFn: (a, b) => a.id == b.id,
+                  //                 onSelected: (selected) async {
+                  //                   if (selected != null) {
+                  //                     final selectedId =
+                  //                         int.tryParse(
+                  //                           selected.id.toString(),
+                  //                         ) ??
+                  //                         0;
 
-                                      setState(() {
-                                        jadwalId = selectedId;
-                                        isLoadingPengganti = true;
-                                        listPengganti = [];
-                                      });
+                  //                     setState(() {
+                  //                       jadwalId = selectedId;
+                  //                       isLoadingPengganti = true;
+                  //                       listPengganti = [];
+                  //                     });
 
-                                      try {
-                                        final result =
-                                            await onFetchReplacementSchedules(
-                                              selectedId,
-                                            );
-                                        setState(() {
-                                          listPengganti = result;
-                                          isLoadingPengganti = false;
-                                        });
-                                      } catch (e) {
-                                        setState(() {
-                                          isLoadingPengganti = false;
-                                        });
-                                      }
-                                    }
-                                  },
-                                ),
-                                if (jadwalId > 0) ...[
-                                  const SizedBox(height: 16),
-                                  if (isLoadingPengganti)
-                                    const Padding(
-                                      padding: EdgeInsets.symmetric(
-                                        vertical: 20,
-                                      ),
-                                      child: Center(
-                                        child: CircularProgressIndicator(),
-                                      ),
-                                    )
-                                  else
-                                    CoreDropdownSearch<dynamic>(
-                                      label: 'Pengganti',
-                                      popupTitle: 'Pilih Pengganti',
-                                      items: listPengganti,
-                                      itemAsString: (s) =>
-                                          '${s['fullName']?.toString()} - ${s['shiftName']?.toString()} - ${s['tanggal']?.toString()}',
-                                      compareFn: (a, b) =>
-                                          a['userId'] == b['userId'],
-                                      onSelected: (selected) {
-                                        if (selected != null) {
-                                          setState(() {
-                                            replacementId =
-                                                int.tryParse(
-                                                  selected['userId'].toString(),
-                                                ) ??
-                                                0;
-                                          });
-                                        }
-                                      },
-                                    ),
-                                  const SizedBox(height: 16),
-                                  CoreInputFieldNew(
-                                    hintText: 'Alasan',
-                                    onChanged: (v) {
-                                      reason = v;
-                                    },
-                                  ),
-                                ],
-                              ],
-                            );
-                          },
-                        ),
-                        onConfirm: () async {
-                          if (jadwalId == 0 || replacementId == 0) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Pilih jadwal dan pengganti!'),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
-                            return;
-                          }
+                  //                     try {
+                  //                       final result =
+                  //                           await onFetchReplacementSchedules(
+                  //                             selectedId,
+                  //                           );
+                  //                       setState(() {
+                  //                         listPengganti = result;
+                  //                         isLoadingPengganti = false;
+                  //                       });
+                  //                     } catch (e) {
+                  //                       setState(() {
+                  //                         isLoadingPengganti = false;
+                  //                       });
+                  //                     }
+                  //                   }
+                  //                 },
+                  //               ),
+                  //               if (jadwalId > 0) ...[
+                  //                 const SizedBox(height: 16),
+                  //                 if (isLoadingPengganti)
+                  //                   const Padding(
+                  //                     padding: EdgeInsets.symmetric(
+                  //                       vertical: 20,
+                  //                     ),
+                  //                     child: Center(
+                  //                       child: CircularProgressIndicator(),
+                  //                     ),
+                  //                   )
+                  //                 else
+                  //                   CoreDropdownSearch<dynamic>(
+                  //                     label: 'Pengganti',
+                  //                     popupTitle: 'Pilih Pengganti',
+                  //                     items: listPengganti,
+                  //                     itemAsString: (s) =>
+                  //                         '${s['fullName']?.toString()} - ${s['shiftName']?.toString()} - ${s['tanggal']?.toString()}',
+                  //                     compareFn: (a, b) =>
+                  //                         a['userId'] == b['userId'],
+                  //                     onSelected: (selected) {
+                  //                       if (selected != null) {
+                  //                         setState(() {
+                  //                           replacementId =
+                  //                               int.tryParse(
+                  //                                 selected['userId'].toString(),
+                  //                               ) ??
+                  //                               0;
+                  //                         });
+                  //                       }
+                  //                     },
+                  //                   ),
+                  //                 const SizedBox(height: 16),
+                  //                 CoreInputFieldNew(
+                  //                   hintText: 'Alasan',
+                  //                   onChanged: (v) {
+                  //                     reason = v;
+                  //                   },
+                  //                 ),
+                  //               ],
+                  //             ],
+                  //           );
+                  //         },
+                  //       ),
+                  //       onConfirm: () async {
+                  //         if (jadwalId == 0 || replacementId == 0) {
+                  //           ScaffoldMessenger.of(context).showSnackBar(
+                  //             const SnackBar(
+                  //               content: Text('Pilih jadwal dan pengganti!'),
+                  //               backgroundColor: Colors.red,
+                  //             ),
+                  //           );
+                  //           return;
+                  //         }
 
-                          try {
-                            final success = await onRequestShiftReplacement(
-                              requesterId: int.tryParse(state.userId) ?? 0,
-                              replacementId: replacementId,
-                              jadwalId: jadwalId,
-                              alasan: reason,
-                            );
+                  //         try {
+                  //           final success = await onRequestShiftReplacement(
+                  //             requesterId: int.tryParse(state.userId) ?? 0,
+                  //             replacementId: replacementId,
+                  //             jadwalId: jadwalId,
+                  //             alasan: reason,
+                  //           );
 
-                            if (!context.mounted) return;
+                  //           if (!context.mounted) return;
 
-                            if (success) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'Berhasil mengajukan ganti jadwal!',
-                                  ),
-                                  backgroundColor: Colors.green,
-                                ),
-                              );
-                            }
-                          } catch (e) {
-                            if (!context.mounted) return;
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(e.toString()),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
-                          }
-                        },
-                      );
-                    },
-                    icon: const Icon(
-                      Icons.change_circle_outlined,
-                      color: Colors.white,
-                    ),
-                  ),
+                  //           if (success) {
+                  //             ScaffoldMessenger.of(context).showSnackBar(
+                  //               const SnackBar(
+                  //                 content: Text(
+                  //                   'Berhasil mengajukan ganti jadwal!',
+                  //                 ),
+                  //                 backgroundColor: Colors.green,
+                  //               ),
+                  //             );
+                  //           }
+                  //         } catch (e) {
+                  //           if (!context.mounted) return;
+                  //           ScaffoldMessenger.of(context).showSnackBar(
+                  //             SnackBar(
+                  //               content: Text(e.toString()),
+                  //               backgroundColor: Colors.red,
+                  //             ),
+                  //           );
+                  //         }
+                  //       },
+                  //     );
+                  //   },
+                  //   icon: const Icon(
+                  //     Icons.change_circle_outlined,
+                  //     color: Colors.white,
+                  //   ),
+                  // ),
                 ],
               ),
               if (state.radiusInfo != '0m') ...[

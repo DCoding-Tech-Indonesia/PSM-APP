@@ -11,6 +11,8 @@ import 'package:psm_mobile/features/attendance/data/repositories/approval_reposi
 import 'package:psm_mobile/features/attendance/presentation/bloc/approval_bloc.dart';
 import 'package:psm_mobile/features/attendance/presentation/bloc/approval_state.dart';
 import 'package:psm_mobile/features/attendance/presentation/widgets/widgets.dart';
+import 'package:psm_mobile/features/portal/presentation/bloc/portal_bloc.dart';
+import 'package:psm_mobile/features/portal/presentation/bloc/portal_state.dart';
 
 class ApprovalScreen extends StatelessWidget {
   const ApprovalScreen({super.key});

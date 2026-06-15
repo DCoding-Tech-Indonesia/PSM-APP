@@ -56,13 +56,19 @@ class ApprovalDetailModel {
 class UserApprovalModel {
   final int id;
   final String userName;
+  final String fullName;
 
-  UserApprovalModel({required this.id, required this.userName});
+  UserApprovalModel({
+    required this.id,
+    required this.userName,
+    required this.fullName,
+  });
 
   factory UserApprovalModel.fromJson(Map<String, dynamic> json) {
     return UserApprovalModel(
       id: json['id'] ?? 0,
       userName: json['userName'] ?? '',
+      fullName: json['fullName'] ?? '',
     );
   }
 }

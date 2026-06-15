@@ -5,11 +5,12 @@ import 'package:psm_mobile/features/attendance/presentation/bloc/attendance_bloc
 import 'package:psm_mobile/features/attendance/presentation/bloc/attendance_state.dart';
 import 'package:psm_mobile/features/attendance/data/repositories/attendance_repository_impl.dart';
 import 'package:psm_mobile/features/attendance/data/datasources/attendance_remote_data_source.dart';
+import 'package:psm_mobile/features/attendance/presentation/widgets/attendance_menu_grid.dart';
 import 'package:psm_mobile/features/portal/presentation/bloc/portal_bloc.dart';
 import 'package:psm_mobile/features/portal/presentation/bloc/portal_state.dart';
 import 'package:psm_mobile/core/network/dio_client.dart';
 import 'package:psm_mobile/core/helper/location_service.dart';
-import 'package:psm_mobile/features/portal/presentation/widget/portal_schedule_ribbon.dart';
+// import 'package:psm_mobile/features/portal/presentation/widget/portal_schedule_ribbon.dart';
 import 'package:psm_mobile/features/attendance/presentation/widgets/widgets.dart';
 
 class AttendanceScreen extends StatelessWidget {
@@ -108,7 +109,10 @@ class AttendanceViewContent extends StatelessWidget {
                                   final repo = context
                                       .read<AttendanceBloc>()
                                       .repository;
-                                  return repo.getReplacementSchedules(jadwalId);
+                                  return repo.getReplacementSchedules(
+                                    jadwalId,
+                                    int.parse(s.userId.toString()),
+                                  );
                                 },
                                 onRequestShiftReplacement:
                                     ({
@@ -129,15 +133,44 @@ class AttendanceViewContent extends StatelessWidget {
                                     },
                               ),
                               const SizedBox(height: 16),
-                              const PortalScheduleRibbon(),
+                              AttendanceMenuGrid(
+                                state: s,
+                                onFetchReplacementSchedules: (jadwalId) {
+                                  final repo = context
+                                      .read<AttendanceBloc>()
+                                      .repository;
+                                  return repo.getReplacementSchedules(
+                                    jadwalId,
+                                    int.parse(s.userId.toString()),
+                                  );
+                                },
+                                onRequestShiftReplacement:
+                                    ({
+                                      required int requesterId,
+                                      required int replacementId,
+                                      required int jadwalId,
+                                      required String alasan,
+                                    }) async {
+                                      final repo = context
+                                          .read<AttendanceBloc>()
+                                          .repository;
+                                      return await repo.requestShiftReplacement(
+                                        requesterId: requesterId,
+                                        replacementId: replacementId,
+                                        jadwalId: jadwalId,
+                                        alasan: alasan,
+                                      );
+                                    },
+                              ),
+                              // const PortalScheduleRibbon(),
                               AttendanceStatusCard(state: s),
                               const SizedBox(height: 20),
                               AttendanceActionButtons(state: s),
                               const SizedBox(height: 20),
                               MonthlyStatsCard(state: s),
-                              const SizedBox(height: 20),
-                              RecentHistoryCard(state: s),
-                              const SizedBox(height: 40),
+                              // const SizedBox(height: 20),
+                              // RecentHistoryCard(state: s),
+                              const SizedBox(height: 100),
                             ],
                           ],
                         ),

@@ -15,36 +15,38 @@ class DateTimeCard extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
     final size = MediaQuery.of(context).size;
 
+    final double screenWidth = size.width;
+
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: size.width * 0.05,
+        horizontal: (screenWidth * 0.04).clamp(12.0, 16.0),
         vertical: size.height * 0.005,
       ),
       child: Wrap(
         alignment: WrapAlignment.spaceBetween,
         crossAxisAlignment: WrapCrossAlignment.center,
-        spacing: 12,
+        spacing: (screenWidth * 0.02).clamp(8.0, 12.0),
         runSpacing: 8,
         children: [
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: EdgeInsets.all((screenWidth * 0.02).clamp(6.0, 8.0)),
                 decoration: BoxDecoration(
                   color: isDark
                       ? Colors.white10
                       : Colors.black.withValues(alpha: 0.05),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular((screenWidth * 0.03).clamp(8.0, 12.0)),
                 ),
-                child: const Icon(Icons.calendar_today_outlined, size: 20),
+                child: Icon(Icons.calendar_today_outlined, size: (screenWidth * 0.045).clamp(16.0, 20.0)),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: (screenWidth * 0.02).clamp(6.0, 10.0)),
               Flexible(
                 child: Text(
                   state.currentDate,
-                  style: const TextStyle(
-                    fontSize: 16,
+                  style: TextStyle(
+                    fontSize: (screenWidth * 0.035).clamp(13.0, 15.0),
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -52,28 +54,28 @@ class DateTimeCard extends StatelessWidget {
             ],
           ),
           Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 8,
+            padding: EdgeInsets.symmetric(
+              horizontal: (screenWidth * 0.03).clamp(8.0, 12.0),
+              vertical: (screenWidth * 0.02).clamp(6.0, 8.0),
             ),
             decoration: BoxDecoration(
               color: isDark
                   ? Colors.black26
                   : Colors.grey.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular((screenWidth * 0.03).clamp(8.0, 12.0)),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.access_time, size: 18),
-                const SizedBox(width: 8),
+                Icon(Icons.access_time, size: (screenWidth * 0.04).clamp(14.0, 18.0)),
+                SizedBox(width: (screenWidth * 0.02).clamp(4.0, 8.0)),
                 Text(
                   state.currentTime,
-                  style: const TextStyle(
-                    fontSize: 20,
+                  style: TextStyle(
+                    fontSize: (screenWidth * 0.045).clamp(16.0, 18.0),
                     fontWeight: FontWeight.bold,
                     letterSpacing: 1,
-                    fontFeatures: [FontFeature.tabularFigures()],
+                    fontFeatures: const [FontFeature.tabularFigures()],
                   ),
                 ),
               ],
