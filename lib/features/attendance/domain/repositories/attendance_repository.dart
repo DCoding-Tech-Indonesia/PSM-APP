@@ -21,7 +21,7 @@ abstract class AttendanceRepository {
     required String endDate,
   });
   Future<List<dynamic>> getBus();
-  Future<List<dynamic>> getReplacementSchedules(int jadwalId);
+  Future<List<dynamic>> getReplacementSchedules(int jadwalId, int userId);
   Future<bool> requestShiftReplacement({
     required int requesterId,
     required int replacementId,

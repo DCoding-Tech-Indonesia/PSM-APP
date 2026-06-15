@@ -8,6 +8,8 @@ import 'package:psm_mobile/core/storage/secure_storage.dart';
 import 'package:psm_mobile/core/storage/shared_preferences.dart';
 import 'package:psm_mobile/features/attendance/presentation/screens/approval_detail_screen.dart';
 import 'package:psm_mobile/features/attendance/presentation/screens/approval_screen.dart';
+import 'package:psm_mobile/features/attendance/presentation/screens/schedule_calendar_screen.dart';
+import 'package:psm_mobile/features/attendance/data/models/schedule_model.dart';
 import 'package:psm_mobile/features/auth/domain/repositories/auth_repository.dart';
 import 'package:psm_mobile/features/auth/presentation/auth_screen.dart';
 import 'package:psm_mobile/features/auth/presentation/bloc/auth_bloc.dart';
@@ -315,6 +317,15 @@ void setupRouter(String initialLocation) {
         builder: (context, state) {
           final idStr = state.extra?.toString();
           return ApprovalDetailScreen(id: idStr);
+        },
+      ),
+      GoRoute(
+        path: '/schedule-calendar',
+        builder: (context, state) {
+          final schedules = (state.extra as List<dynamic>?)
+                  ?.cast<ScheduleModel>() ??
+              [];
+          return ScheduleCalendarScreen(schedules: schedules);
         },
       ),
 

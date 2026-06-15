@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:psm_mobile/core/network/dio_client.dart';
 import 'package:psm_mobile/core/notification/approval_refresh_notifier.dart';
 import 'package:psm_mobile/core/presentations/widgets/widgets.dart';
@@ -9,6 +10,8 @@ import 'package:psm_mobile/features/attendance/data/repositories/approval_reposi
 import 'package:psm_mobile/features/attendance/presentation/bloc/approval_bloc.dart';
 import 'package:psm_mobile/features/attendance/presentation/bloc/approval_state.dart';
 import 'package:psm_mobile/features/attendance/presentation/widgets/widgets.dart';
+import 'package:psm_mobile/features/portal/presentation/bloc/portal_bloc.dart';
+import 'package:psm_mobile/features/portal/presentation/bloc/portal_state.dart';
 
 class ApprovalDetailScreen extends StatelessWidget {
   final String? id;
@@ -37,6 +40,12 @@ class ApprovalDetailView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final portalState = context.read<PortalBloc>().state;
+    String role = '';
+    if (portalState is PortalLoaded) {
+      role = portalState.profile.role;
+    }
+
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -55,9 +64,10 @@ class ApprovalDetailView extends StatelessWidget {
                   ),
                 );
                 ApprovalRefreshNotifier.instance.notifyRefresh();
-                Navigator.of(
-                  context,
-                ).pop(true); // Pop with true to indicate success
+                context.pop(true);
+                // Navigator.of(
+                //   context,
+                // ).pop(true); // Pop with true to indicate success
               }
             }
           },
@@ -76,10 +86,10 @@ class ApprovalDetailView extends StatelessWidget {
               final detail = s.detail as ApprovalDetailModel?;
               final showActions =
                   !s.isLoading &&
-                  // s.errorMessage == null &&
                   detail != null &&
                   (detail.status == 'PENDING_REPL' ||
-                      detail.status == 'PENDING');
+                      detail.status == 'PENDING') &&
+                  role.toLowerCase().contains('korlap');
 
               return Column(
                 children: [
@@ -217,7 +227,7 @@ class ApprovalDetailView extends StatelessWidget {
             rows: [
               ApprovalDetailInfoRow(
                 label: 'Nama',
-                value: detail.requester.userName,
+                value: detail.requester.fullName,
                 icon: Icons.person_outline,
               ),
             ],
@@ -261,7 +271,7 @@ class ApprovalDetailView extends StatelessWidget {
             rows: [
               ApprovalDetailInfoRow(
                 label: 'Nama',
-                value: detail.replacement.userName,
+                value: detail.replacement.fullName,
                 icon: Icons.person_add_alt_1_outlined,
               ),
             ],

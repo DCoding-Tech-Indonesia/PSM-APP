@@ -5,6 +5,7 @@ class UserProfile {
   final String username;
   final String email;
   final String name;
+  final String role;
   final List<PortalMenu> menu;
   final List<PortalMenu> children;
 
@@ -13,6 +14,7 @@ class UserProfile {
     required this.username,
     required this.email,
     required this.name,
+    required this.role,
     required this.menu,
     required this.children,
   });
@@ -23,11 +25,14 @@ class UserProfile {
       username: json['username'] ?? '',
       email: json['email'] ?? '',
       name: json['name'] ?? '',
+      role: json['role'] ?? '',
       menu: json['menu'] != null
           ? (json['menu'] as List).map((i) => PortalMenu.fromJson(i)).toList()
           : [],
       children: json['children'] != null
-          ? (json['children'] as List).map((i) => PortalMenu.fromJson(i)).toList()
+          ? (json['children'] as List)
+                .map((i) => PortalMenu.fromJson(i))
+                .toList()
           : [],
     );
   }
