@@ -22,11 +22,13 @@ import 'package:psm_mobile/features/portal/presentation/portal_screen.dart';
 import 'package:psm_mobile/features/reference/reference_data_source.dart';
 import 'package:psm_mobile/features/settlement/data/settlement_data_source.dart';
 import 'package:psm_mobile/features/settlement/data/settlement_repository_impl.dart';
+import 'package:psm_mobile/features/settlement/domain/entities/detailSettlementScreen/detail_screen_args.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/successDraftScreen/settlement_success_args.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_bloc.dart';
 import 'package:psm_mobile/features/settlement/presentation/cubit/settlement_category_cubit.dart';
 import 'package:psm_mobile/features/settlement/presentation/cubit/settlement_step_cubit.dart';
 import 'package:psm_mobile/features/settlement/presentation/cubit/settlement_tab_cubit.dart';
+import 'package:psm_mobile/features/settlement/presentation/settlement_detail_screen.dart';
 import 'package:psm_mobile/features/settlement/presentation/settlement_form_screen.dart';
 import 'package:psm_mobile/features/attendance/presentation/screens/attendance_screen.dart';
 import 'package:psm_mobile/features/settlement/presentation/settlement_history_screen.dart';
@@ -201,6 +203,38 @@ void setupRouter(String initialLocation) {
               ),
             ],
             child: SettlementHistoryScreen(),
+          );
+        },
+      ),
+      GoRoute(
+        path: '/settlement/detail',
+        builder: (context, state) {
+          final dio = DioClient().instance;
+          final secureStorageService = SecureStorageService();
+
+          final args = state.extra as DetailScreenArgs;
+
+          return MultiBlocProvider(
+            providers: [
+              BlocProvider(create: (_) => SettlementTabCubit()),
+              BlocProvider(create: (_) => SettlementCategoryCubit()),
+              BlocProvider(create: (_) => SettlementStepCubit()),
+              BlocProvider(
+                create: (_) => SettlementBloc(
+                  SettlementRepositoryImpl(
+                    dataSource: SettlementDataSource(
+                      dio: dio,
+                      secureStorageService: secureStorageService,
+                    ),
+                    dataSourceReference: ReferenceDataSource(
+                      dio: dio,
+                      secureStorageService: secureStorageService,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+            child: SettlementDetailScreen(idAuditTrail: args.idAuditTrail!, isDraft: args.isDraft!),
           );
         },
       ),

@@ -10,6 +10,7 @@ import 'package:psm_mobile/core/presentations/widgets/widgets.dart';
 import 'package:psm_mobile/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:psm_mobile/features/auth/presentation/bloc/auth_event.dart';
 import 'package:psm_mobile/features/auth/presentation/bloc/auth_state.dart';
+import 'package:psm_mobile/core/presentations/widgets/core_snackbar.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -85,18 +86,16 @@ class _AuthScreenState extends State<AuthScreen> {
 
         final isSuccess = state.loginSuccess;
 
-        showModalBottomSheet(
-          context: context,
-          builder: (_) => CoreBottomModalAlert(
-            success: isSuccess,
-            message: state.loginMessage,
-          ),
-        ).then((_) {
-          context.read<AuthBloc>().add(ResetState());
-        });
+        CoreSnackbar.show(
+          context,
+          message: state.loginMessage,
+          type: isSuccess ? SnackbarType.success : SnackbarType.failed,
+        );
+
+        context.read<AuthBloc>().add(ResetState());
 
         if (isSuccess) {
-          Future.delayed(const Duration(seconds: 3), () {
+          Future.delayed(const Duration(seconds: 1), () {
             if (context.mounted) {
               context.go('/portal');
             }
@@ -296,7 +295,6 @@ class _AuthScreenState extends State<AuthScreen> {
                                           isRequired: true,
                                           isSecured: true,
                                           rule: InputRuleSuffixNew.text,
-                                          initValue: state.password.value,
                                           errorText:
                                               (state
                                                       .passwordError

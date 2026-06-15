@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:psm_mobile/core/helper/string_formatter.dart';
+import 'package:psm_mobile/core/presentations/widgets/core_bottom_modal_verification.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/task_audit_trail.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_bloc.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_event.dart';
@@ -10,6 +11,22 @@ class DraftSettlementCardSingle extends StatelessWidget {
   const DraftSettlementCardSingle({super.key, required this.datas});
 
   final List<TaskAuditTrail> datas;
+
+  Future<bool> _showDirectToEditVerification(BuildContext context) async {
+    final isConfirm = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      builder: (modalContext) {
+        return CoreBottomModalVerification(
+          title: 'Apakah ingin melakukan edit draft berikut?',
+          onCancel: () => Navigator.pop(modalContext, false),
+          onConfirm: () => Navigator.pop(modalContext, true),
+        );
+      },
+    );
+
+    return isConfirm!;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,9 +61,11 @@ class DraftSettlementCardSingle extends StatelessWidget {
                   child: Column(
                     children: [
                       Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Row(
+                            spacing: 10,
                             children: [
                               Container(
                                 padding: const EdgeInsets.all(8),
@@ -59,7 +78,6 @@ class DraftSettlementCardSingle extends StatelessWidget {
                                   color: Colors.white,
                                 ),
                               ),
-                              const SizedBox(width: 10),
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -80,6 +98,31 @@ class DraftSettlementCardSingle extends StatelessWidget {
                                 ],
                               ),
                             ],
+                          ),
+                          GestureDetector(
+                            onTap: () async {
+                              final direct = _showDirectToEditVerification(
+                                context,
+                              );
+
+                              if (await direct) {
+                                await context.push(
+                                  '/settlement/form',
+                                  extra: draftDatas[0].id,
+                                );
+
+                                if (context.mounted) {
+                                  context.read<SettlementBloc>().add(
+                                    PageDashboardLoad(),
+                                  );
+                                }
+                              }
+                            },
+                            child: Icon(
+                              Icons.edit,
+                              color: Colors.white,
+                              size: 20,
+                            ),
                           ),
                         ],
                       ),
@@ -112,7 +155,9 @@ class DraftSettlementCardSingle extends StatelessWidget {
                               ],
                             ),
                             Text(
-                              "13.40",
+                              StringFormatter().formatHourMinute(
+                                draftDatas[0].createdDate,
+                              ),
                               style: const TextStyle(color: Colors.white),
                             ),
                           ],
@@ -130,9 +175,7 @@ class DraftSettlementCardSingle extends StatelessWidget {
               await context.push('/settlement/form');
 
               if (context.mounted) {
-                context.read<SettlementBloc>().add(
-                  PageDashboardLoad(),
-                );
+                context.read<SettlementBloc>().add(PageDashboardLoad());
               }
             },
             child: Container(

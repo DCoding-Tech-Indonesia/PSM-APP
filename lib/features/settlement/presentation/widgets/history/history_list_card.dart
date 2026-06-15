@@ -1,12 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:psm_mobile/core/helper/string_formatter.dart';
+import 'package:psm_mobile/core/presentations/widgets/core_bottom_modal_verification.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_button.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/task_audit_trail.dart';
+import 'package:psm_mobile/features/settlement/domain/entities/detailSettlementScreen/detail_screen_args.dart';
+import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_bloc.dart';
+import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_event.dart';
 
 class HistoryListCard extends StatelessWidget {
   const HistoryListCard({super.key, required this.data});
 
   final TaskAuditTrail data;
+
+  Future<void> _showSubmitDraftVerification(
+    BuildContext context,
+    int id,
+  ) async {
+    final isConfirm = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      builder: (modalContext) {
+        return CoreBottomModalVerification(
+          title: 'Apakah ingin melakukan submit draft?',
+          desc: 'Pastikan data yang dimasukkan sudah benar',
+          onCancel: () => Navigator.pop(modalContext, false),
+          onConfirm: () => Navigator.pop(modalContext, true),
+        );
+      },
+    );
+
+    if (isConfirm == true) {
+      context.read<SettlementBloc>().add(SubmitWorkflow("Done", id));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +55,7 @@ class HistoryListCard extends StatelessWidget {
                   border: Border.all(width: 1, color: Colors.blueAccent),
                 ),
                 child: Text(
-                  "RIT",
+                  data.ritase.toString(),
                   style: TextStyle(
                     fontWeight: FontWeight.w800,
                     color: Colors.blueAccent,
@@ -39,7 +67,7 @@ class HistoryListCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Koridor Haji Agus Salim (TESTING OVERFLOW UI)",
+                      data.namaKoridor!,
                       overflow: TextOverflow.fade,
                       softWrap: false,
                       style: TextStyle(
@@ -49,7 +77,7 @@ class HistoryListCard extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      "BA 1945 AG",
+                      data.noPolisi!,
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w400,
@@ -67,7 +95,7 @@ class HistoryListCard extends StatelessWidget {
                 spacing: 10,
                 children: [
                   const Icon(Icons.people, size: 15, color: Colors.grey),
-                  Text("10", style: TextStyle(color: Colors.grey)),
+                  Text(data.totalPenumpangKeseluruhan.toString(), style: TextStyle(color: Colors.grey)),
                 ],
               ),
               Row(
@@ -75,7 +103,7 @@ class HistoryListCard extends StatelessWidget {
                 children: [
                   const Icon(Icons.money, size: 15, color: Colors.grey),
                   Text(
-                    StringFormatter().idrFormatter(123500),
+                    StringFormatter().idrFormatter(data.totalPendapatanPertitase!),
                     style: TextStyle(color: Colors.grey),
                   ),
                 ],
@@ -90,7 +118,19 @@ class HistoryListCard extends StatelessWidget {
                   borderRadius: 12,
                   backgroundColor: Colors.white,
                   borderColor: Colors.blue,
-                  onPressed: () {},
+                  onPressed: () async {
+                    await context.push(
+                      '/settlement/detail',
+                      extra: DetailScreenArgs(
+                        idAuditTrail: data.id,
+                        isDraft: data.status.code != "APR",
+                      ),
+                    );
+
+                    if (context.mounted) {
+                      context.read<SettlementBloc>().add(PageDashboardLoad());
+                    }
+                  },
                   child: Text(
                     "Lihat Detail",
                     style: TextStyle(
@@ -105,7 +145,9 @@ class HistoryListCard extends StatelessWidget {
                   child: CoreButton(
                     borderRadius: 12,
                     backgroundColor: Colors.blue,
-                    onPressed: () {},
+                    onPressed: () async {
+                      await _showSubmitDraftVerification(context, data.id);
+                    },
                     child: Text(
                       "Selesaikan",
                       style: TextStyle(

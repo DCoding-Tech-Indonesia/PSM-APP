@@ -121,43 +121,114 @@ class _SettlementSuccessSubmitDraftScreenState
                           ),
                           Container(
                             width: size.width * .65,
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 10,
-                              horizontal: 8,
-                            ),
+                            padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
-                              border: Border.all(
-                                width: 1.5,
-                                color: Colors.black,
-                              ),
-                              borderRadius: BorderRadius.circular(10),
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.05),
+                                  blurRadius: 12,
+                                  offset: const Offset(0, 6),
+                                ),
+                              ],
                             ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  "Ritase ke : ${widget.ritase!.toString()}",
-                                ),
-                                const Divider(),
-                                Text(widget.koridorName!),
-                                Text(widget.noPol!),
+                                // HEADER
                                 Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      "Ritase #${widget.ritase}",
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                    const Icon(Icons.directions_bus, size: 18),
+                                  ],
+                                ),
+
+                                const SizedBox(height: 10),
+
+                                // KORIDOR + UNIT
+                                Text(
+                                  widget.koridorName ?? '-',
+                                  style: const TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  widget.noPol ?? '-',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.grey.shade600,
+                                  ),
+                                ),
+
+                                const SizedBox(height: 14),
+
+                                // DIVIDER SOFT
+                                Container(
+                                  height: 1,
+                                  color: Colors.grey.withValues(alpha: 0.15),
+                                ),
+
+                                const SizedBox(height: 14),
+
+                                // PASSENGER ROW
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Row(
                                       children: [
-                                        Text(widget.totalCust!.toString()),
-                                        Text(" Total Penumpang"),
+                                        Icon(Icons.people_outline, size: 18, color: Colors.grey.shade700),
+                                        const SizedBox(width: 6),
+                                        Text(
+                                          "${widget.totalCust}",
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w800,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          "penumpang",
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.grey.shade600,
+                                          ),
+                                        ),
                                       ],
                                     ),
-                                    Icon(Icons.people, size: 20),
                                   ],
                                 ),
-                                Text(StringFormatter().idrFormatter(132500)),
+
+                                const SizedBox(height: 10),
+
+                                // VALUE / REVENUE
+                                Row(
+                                  children: [
+                                    Icon(Icons.payments_outlined,
+                                        size: 18, color: Colors.green.shade700),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      StringFormatter().idrFormatter(widget.totalPayment ?? 0),
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w800,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ],
                             ),
-                          ),
+                          )
                         ],
                       ),
                     ),

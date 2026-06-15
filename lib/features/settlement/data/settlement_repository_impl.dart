@@ -6,7 +6,7 @@ import 'package:psm_mobile/core/error/failure.dart';
 import 'package:psm_mobile/features/reference/reference_data_source.dart';
 import 'package:psm_mobile/features/settlement/data/settlement_data_source.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/task_audit_trail.dart';
-import 'package:psm_mobile/features/settlement/domain/entities/document_preview.dart';
+import 'package:psm_mobile/features/reference/domain/entities/document_preview.dart';
 import 'package:psm_mobile/features/reference/domain/entities/reference_billing.dart';
 import 'package:psm_mobile/features/reference/domain/entities/reference_bus.dart';
 import 'package:psm_mobile/features/reference/domain/entities/reference_detail.dart';
@@ -134,7 +134,7 @@ class SettlementRepositoryImpl implements SettlementRepository {
   @override
   Future<Either<Failure, DocumentPreview>> uploadDocument(File file) async {
     try {
-      final response = await dataSource.uploadDocument(file);
+      final response = await dataSourceReference.uploadDocument(file);
 
       return right(response);
     } on DioException catch (e) {

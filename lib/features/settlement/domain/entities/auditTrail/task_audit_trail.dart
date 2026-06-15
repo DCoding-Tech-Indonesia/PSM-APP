@@ -13,6 +13,12 @@ class TaskAuditTrail {
   final UserAuditTrail? updatedBy;
   final String? updatedDate;
 
+  final String? namaKoridor;
+  final String? noPolisi;
+  final double? ritase;
+  final int? totalPenumpangKeseluruhan;
+  final int? totalPendapatanPertitase;
+
   TaskAuditTrail({
     required this.id,
     required this.createdBy,
@@ -23,6 +29,12 @@ class TaskAuditTrail {
     this.approvedDate,
     this.updatedBy,
     this.updatedDate,
+
+    this.namaKoridor,
+    this.noPolisi,
+    this.ritase,
+    this.totalPenumpangKeseluruhan,
+    this.totalPendapatanPertitase,
   });
 
   factory TaskAuditTrail.fromJson(Map<String, dynamic> json) {
@@ -43,6 +55,12 @@ class TaskAuditTrail {
       updatedBy: json['updatedBy'] != null
           ? UserAuditTrail.fromJson(json['updatedBy'])
           : null,
+
+      namaKoridor: json['namaKoridor'],
+      noPolisi: json['noPolisi'],
+      ritase: json['ritase'],
+      totalPenumpangKeseluruhan: json['totalPenumpangKeseluruhan'],
+      totalPendapatanPertitase: json['totalPendapatanPertitase'],
     );
   }
 }

@@ -46,12 +46,18 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
             state.copyWith(
               uploadStatus: UploadStatus.errorOcr,
               message: failure.message,
+              ocrResult: "-",
             ),
           );
         },
         (ocrValue) {
           if (ocrValue.isEmpty) {
-            emit(state.copyWith(uploadStatus: UploadStatus.errorOcr));
+            emit(
+              state.copyWith(
+                uploadStatus: UploadStatus.errorOcr,
+                ocrResult: "-",
+              ),
+            );
             return;
           }
 
@@ -62,6 +68,7 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
               state.copyWith(
                 uploadStatus: UploadStatus.errorOcr,
                 message: 'OCR bukan angka valid',
+                ocrResult: "-",
               ),
             );
             return;
@@ -79,6 +86,17 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
       );
     });
 
+    on<EditOdometer>((event, emit) async {
+      emit(
+        state.copyWith(
+          ocrResult: event.odometerVal.toString(),
+          titikAwalCreate: state.titikAwalCreate?.copyWith(
+            titikAwal: event.odometerVal,
+          ),
+        ),
+      );
+    });
+
     // REFERENCE HANDLER
     on<SelectKoridor>((event, emit) async {
       emit(state.copyWith(status: KmbusStatus.fetching, idKoridor: event.id));
@@ -90,8 +108,24 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
           );
         },
         (data) {
-          emit(state.copyWith(status: KmbusStatus.success, referenceBus: data));
+          emit(
+            state.copyWith(
+              status: KmbusStatus.success,
+              referenceBus: data,
+              titikAwalCreate: state.titikAwalCreate?.copyWith(
+                idKoridor: event.id,
+              ),
+            ),
+          );
         },
+      );
+    });
+
+    on<SelectBus>((event, emit) {
+      emit(
+        state.copyWith(
+          titikAwalCreate: state.titikAwalCreate?.copyWith(idBus: event.id),
+        ),
       );
     });
   }
