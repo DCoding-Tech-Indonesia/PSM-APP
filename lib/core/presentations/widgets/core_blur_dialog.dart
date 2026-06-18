@@ -37,7 +37,9 @@ class CoreBlurDialog extends StatelessWidget {
           margin: const EdgeInsets.symmetric(horizontal: 10),
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: theme.cardTheme.color?.withValues(alpha: 0.8) ?? Colors.white.withValues(alpha: 0.8),
+            color:
+                theme.cardTheme.color?.withValues(alpha: 0.8) ??
+                Colors.white.withValues(alpha: 0.8),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
               color: Colors.white.withValues(alpha: 0.2),
@@ -56,7 +58,10 @@ class CoreBlurDialog extends StatelessWidget {
             children: [
               // Badge Section
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [badgeColor, badgeColor.withValues(alpha: 0.7)],
@@ -103,7 +108,9 @@ class CoreBlurDialog extends StatelessWidget {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 14,
-                    color: theme.textTheme.bodyMedium?.color?.withValues(alpha: 0.7),
+                    color: theme.textTheme.bodyMedium?.color?.withValues(
+                      alpha: 0.7,
+                    ),
                     height: 1.5,
                   ),
                 ),
@@ -132,10 +139,19 @@ class CoreBlurDialog extends StatelessWidget {
                         onPressed: () => Navigator.pop(context),
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          side: BorderSide(color: theme.dividerColor.withValues(alpha: 0.2)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          side: BorderSide(
+                            color: theme.dividerColor.withValues(alpha: 0.2),
+                          ),
                         ),
-                        child: Text('Batal', style: TextStyle(color: theme.textTheme.bodyMedium?.color)),
+                        child: Text(
+                          'Batal',
+                          style: TextStyle(
+                            color: theme.textTheme.bodyMedium?.color,
+                          ),
+                        ),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -144,7 +160,10 @@ class CoreBlurDialog extends StatelessWidget {
                         height: 48,
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
-                            colors: [buttonColor, buttonColor.withValues(alpha: 0.7)],
+                            colors: [
+                              buttonColor,
+                              buttonColor.withValues(alpha: 0.7),
+                            ],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
@@ -168,7 +187,10 @@ class CoreBlurDialog extends StatelessWidget {
                             child: Center(
                               child: Text(
                                 confirmText ?? 'Ya',
-                                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                           ),
@@ -224,7 +246,32 @@ class CoreBlurDialog extends StatelessWidget {
   }
 }
 
-void showCoreErrorDialog(BuildContext context, String title, String message, {Widget? contentWidget}) {
+void showCoreSuccessDialog(
+  BuildContext context,
+  String title,
+  String message, {
+  Widget? contentWidget,
+}) {
+  showDialog(
+    context: context,
+    builder: (context) => CoreBlurDialog(
+      title: title,
+      message: message,
+      badgeColor: Colors.green,
+      badgeText: 'SUCCESS',
+      badgeIcon: Icons.check_circle_outline,
+      buttonColor: Colors.green[600]!,
+      contentWidget: contentWidget,
+    ),
+  );
+}
+
+void showCoreErrorDialog(
+  BuildContext context,
+  String title,
+  String message, {
+  Widget? contentWidget,
+}) {
   showDialog(
     context: context,
     builder: (context) => CoreBlurDialog(
@@ -239,7 +286,12 @@ void showCoreErrorDialog(BuildContext context, String title, String message, {Wi
   );
 }
 
-void showCoreInfoDialog(BuildContext context, String title, String message, {Widget? contentWidget}) {
+void showCoreInfoDialog(
+  BuildContext context,
+  String title,
+  String message, {
+  Widget? contentWidget,
+}) {
   showDialog(
     context: context,
     builder: (context) => CoreBlurDialog(

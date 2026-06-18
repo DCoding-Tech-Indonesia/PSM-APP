@@ -3,7 +3,7 @@ import 'package:psm_mobile/features/attendance/data/models/approval_detail_model
 import 'package:psm_mobile/features/attendance/data/models/approval_model.dart';
 
 abstract class ApprovalRemoteDataSource {
-  Future<List<ApprovalModel>> getApprovalList();
+  Future<List<ApprovalModel>> getApprovalList(String type);
   Future<List<ApprovalDetailModel>> getApprovalDetail(int id);
   Future<bool> approveShift({
     required int pergantianShiftId,
@@ -19,11 +19,11 @@ class ApprovalRemoteDataSourceImpl implements ApprovalRemoteDataSource {
   ApprovalRemoteDataSourceImpl(this._dioClient);
 
   @override
-  Future<List<ApprovalModel>> getApprovalList() async {
+  Future<List<ApprovalModel>> getApprovalList(String type) async {
     try {
       final response = await _dioClient.instance.get(
         '/pergantian-shift/list',
-        queryParameters: {'page': 1, 'perPage': 1000},
+        queryParameters: {'page': 1, 'perPage': 1000, 'type': type},
       );
 
       if (response.data != null && response.data['status'] == true) {
@@ -81,7 +81,7 @@ class ApprovalRemoteDataSourceImpl implements ApprovalRemoteDataSource {
           "pergantianShiftId": pergantianShiftId,
           "userId": userId,
           "approved": approved,
-          if (rejectReason != null) "rejectReason": rejectReason,
+          "rejectReason": ?rejectReason,
         },
       );
 

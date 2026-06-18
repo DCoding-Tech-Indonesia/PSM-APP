@@ -31,7 +31,9 @@ class ApprovalBloc extends Bloc<ApprovalEvent, ApprovalState> {
     LoadApprovalData event,
   ) async {
     try {
-      final results = await Future.wait([repository.getApprovalList()]);
+      final results = await Future.wait([
+        repository.getApprovalList(event.type),
+      ]);
 
       final List<ApprovalModel> approvalList = results[0];
 

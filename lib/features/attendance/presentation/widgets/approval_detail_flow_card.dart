@@ -46,7 +46,7 @@ class ApprovalDetailFlowCard extends StatelessWidget {
               Expanded(
                 child: _buildFlowNode(
                   label: 'Pemohon',
-                  value: detail.requester.userName,
+                  value: detail.requester.fullName,
                   icon: Icons.person_outline,
                   color: Colors.blue,
                 ),
@@ -62,7 +62,7 @@ class ApprovalDetailFlowCard extends StatelessWidget {
               Expanded(
                 child: _buildFlowNode(
                   label: 'Pengganti',
-                  value: detail.replacement.userName,
+                  value: detail.replacement.fullName,
                   icon: Icons.person_add_alt_1_outlined,
                   color: Colors.green,
                 ),
