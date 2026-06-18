@@ -19,202 +19,320 @@ class SettlementHistoryScreen extends StatefulWidget {
 class _SettlementHistoryScreenState extends State<SettlementHistoryScreen> {
   String _activeTab = "Pending";
 
+  static const List<String> _tabs = [
+    "Pending",
+    "Cancel",
+    "Selesai",
+  ];
+
+  late final PageController _pageController;
+
   @override
   void initState() {
     super.initState();
+
+    _pageController = PageController();
 
     Future.microtask(() {
       context.read<SettlementBloc>().add(PageDashboardLoad());
     });
   }
 
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+
+  Future<void> _onRefresh() async {
+    final bloc = context.read<SettlementBloc>();
+
+    bloc.add(PageDashboardLoad());
+
+    await bloc.stream.firstWhere(
+          (state) => state.status != SettlementStatus.loading,
+    );
+  }
+
+
   void _changeTab(String tab) {
+    final index = _tabs.indexOf(tab);
+
     if (_activeTab == tab) return;
 
     setState(() {
       _activeTab = tab;
     });
+
+    _pageController.animateToPage(
+      index,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOutCubic,
+    );
   }
+
+
+  List filterData(
+      List data,
+      String tab,
+      ) {
+    return data.where((item) {
+      final code = item.status.code;
+
+      switch (tab) {
+        case "Pending":
+          return code == "DFT";
+
+        case "Cancel":
+          return code == "CNC";
+
+        case "Selesai":
+          return code == "APR";
+
+        default:
+          return false;
+      }
+    }).toList();
+  }
+
 
   @override
   Widget build(BuildContext context) {
     return BlocListener<SettlementBloc, SettlementState>(
-      listenWhen: (prev, curr) => prev.status != curr.status,
+      listenWhen: (prev, curr) =>
+      prev.status != curr.status,
+
       listener: (context, state) {
+
         if (state.status == SettlementStatus.failedSave) {
           CoreSnackbar.show(
             context,
-            message:
-            "Gagal melakukan submit draft",
+            message: "Gagal melakukan submit draft",
             type: SnackbarType.warning,
           );
         }
+
+
         if (state.status == SettlementStatus.successSave) {
           CoreSnackbar.show(
             context,
-            message:
-            "Draft berhasil di submit",
+            message: "Draft berhasil di submit",
             type: SnackbarType.success,
           );
-          context.read<SettlementBloc>().add(PageDashboardLoad());
+
+          context
+              .read<SettlementBloc>()
+              .add(PageDashboardLoad());
         }
       },
+
+
       child: Scaffold(
         body: SafeArea(
           child: BlocBuilder<SettlementBloc, SettlementState>(
-            buildWhen: (prev, curr) => prev.status != curr.status,
             builder: (context, state) {
+
               return Stack(
                 children: [
+
                   Column(
                     children: [
+
                       CoreHeader(
-                        title: 'History Settlement',
+                        title: "History Settlement",
                         customBgColor: Colors.white,
                         withBorder: true,
                       ),
 
-                      DefaultTextStyle(
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w700,
-                          color: Colors.black,
-                          fontSize: 16,
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: InkWell(
-                                onTap: () => _changeTab("Pending"),
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(vertical: 15),
-                                  decoration: BoxDecoration(
-                                    border: Border(
-                                      bottom: BorderSide(
-                                        width: 2,
-                                        color: _activeTab == "Pending"
-                                            ? Colors.blue
-                                            : Colors.transparent,
-                                      ),
+
+
+                      Row(
+                        children: _tabs.map((tab) {
+
+                          final active =
+                              _activeTab == tab;
+
+
+                          return Expanded(
+                            child: InkWell(
+                              onTap: () {
+                                _changeTab(tab);
+                              },
+
+
+                              child: AnimatedContainer(
+                                duration:
+                                const Duration(milliseconds: 250),
+
+                                padding:
+                                const EdgeInsets.symmetric(
+                                  vertical: 15,
+                                ),
+
+
+                                decoration:
+                                BoxDecoration(
+                                  border: Border(
+                                    bottom:
+                                    BorderSide(
+                                      width: 3,
+                                      color: active
+                                          ? Colors.blue
+                                          : Colors.transparent,
                                     ),
                                   ),
-                                  child: Center(
-                                    child: Text(
-                                      "Pending",
-                                      style: TextStyle(
-                                        color: _activeTab == "Pending"
-                                            ? Colors.blue
-                                            : Colors.grey,
-                                      ),
+                                ),
+
+
+                                child: Center(
+                                  child:
+                                  AnimatedDefaultTextStyle(
+                                    duration:
+                                    const Duration(
+                                      milliseconds: 250,
                                     ),
+
+                                    style: TextStyle(
+                                      color: active
+                                          ? Colors.blue
+                                          : Colors.grey,
+                                      fontWeight:
+                                      FontWeight.w700,
+                                      fontSize: 16,
+                                    ),
+
+                                    child: Text(tab),
                                   ),
                                 ),
                               ),
                             ),
-                            Expanded(
-                              child: InkWell(
-                                onTap: () => _changeTab("Selesai"),
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(vertical: 15),
-                                  decoration: BoxDecoration(
-                                    border: Border(
-                                      bottom: BorderSide(
-                                        width: 2,
-                                        color: _activeTab == "Selesai"
-                                            ? Colors.blue
-                                            : Colors.transparent,
-                                      ),
-                                    ),
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      "Selesai",
-                                      style: TextStyle(
-                                        color: _activeTab == "Selesai"
-                                            ? Colors.blue
-                                            : Colors.grey,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
+                          );
+
+                        }).toList(),
                       ),
 
+
+
+
                       Expanded(
-                        child: GestureDetector(
-                          onHorizontalDragEnd: (details) {
-                            final velocity = details.primaryVelocity ?? 0;
+                        child: PageView.builder(
+                          controller: _pageController,
 
-                            if (velocity < -100) {
-                              _changeTab("Selesai");
-                            } else if (velocity > 100) {
-                              _changeTab("Pending");
-                            }
+                          onPageChanged: (index) {
+                            setState(() {
+                              _activeTab =
+                              _tabs[index];
+                            });
                           },
-                          child: BlocBuilder<SettlementBloc, SettlementState>(
-                            builder: (context, state) {
-                              final filteredList = state.listTaskAuditTrail.where((item) {
-                                final statusCode = item.status.code;
 
-                                if (_activeTab == "Pending") {
-                                  return statusCode != "APR";
-                                }
 
-                                return statusCode == "APR";
-                              }).toList();
+                          itemCount: _tabs.length,
 
-                              if (filteredList.isEmpty) {
-                                return const Center(
-                                  child: Text(
-                                    "Tidak ada data",
-                                    style: TextStyle(color: Colors.grey),
+
+                          itemBuilder: (context, index) {
+
+                            final tab =
+                            _tabs[index];
+
+
+                            final filtered =
+                            filterData(
+                              state.listTaskAuditTrail,
+                              tab,
+                            );
+
+
+                            return RefreshIndicator(
+                              onRefresh: _onRefresh,
+
+                              child: filtered.isEmpty
+
+                                  ? ListView(
+                                physics:
+                                const AlwaysScrollableScrollPhysics(),
+
+                                children: const [
+
+                                  SizedBox(
+                                    height: 200,
                                   ),
-                                );
-                              }
 
-                              return SingleChildScrollView(
-                                padding: const EdgeInsets.symmetric(horizontal: 26),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const SizedBox(height: 20),
-
-                                    ...filteredList.map(
-                                          (item) => Padding(
-                                        padding: const EdgeInsets.only(bottom: 12),
-                                        child: HistoryListCard(
-                                          data: item,
-                                        ),
+                                  Center(
+                                    child: Text(
+                                      "Tidak ada data",
+                                      style:
+                                      TextStyle(
+                                        color:
+                                        Colors.grey,
                                       ),
                                     ),
-                                  ],
+                                  ),
+                                ],
+                              )
+
+
+                                  : ListView.separated(
+                                physics:
+                                const AlwaysScrollableScrollPhysics(),
+
+                                padding:
+                                const EdgeInsets.fromLTRB(
+                                  26,
+                                  20,
+                                  26,
+                                  20,
                                 ),
-                              );
-                            },
-                          ),
+
+                                itemCount:
+                                filtered.length,
+
+
+                                separatorBuilder:
+                                    (_, __) =>
+                                const SizedBox(
+                                  height: 12,
+                                ),
+
+
+                                itemBuilder:
+                                    (context, i) {
+
+                                  return HistoryListCard(
+                                    data:
+                                    filtered[i],
+                                  );
+                                },
+                              ),
+                            );
+                          },
                         ),
                       ),
                     ],
                   ),
-                  if (state.status == SettlementStatus.loading)
+
+
+
+
+                  if (state.status ==
+                      SettlementStatus.loading)
+
                     Positioned.fill(
                       child: Container(
-                        color: Colors.black.withValues(alpha: .15),
+                        color:
+                        Colors.black.withValues(
+                          alpha: .15,
+                        ),
+
                         child: const Center(
-                          child: SizedBox(
-                            width: 40,
-                            height: 40,
-                            child: CircularProgressIndicator(),
-                          ),
+                          child:
+                          CircularProgressIndicator(),
                         ),
                       ),
                     ),
-
                 ],
               );
-            }
+            },
           ),
         ),
       ),

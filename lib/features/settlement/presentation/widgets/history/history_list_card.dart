@@ -50,7 +50,7 @@ class HistoryListCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: Colors.yellow,
+                  color: data.status.code == "APR" ? Colors.green : data.status.code == "DFT" ? Colors.yellow : Colors.red,
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(width: 1, color: Colors.blueAccent),
                 ),
@@ -58,7 +58,7 @@ class HistoryListCard extends StatelessWidget {
                   data.ritase.toString(),
                   style: TextStyle(
                     fontWeight: FontWeight.w800,
-                    color: Colors.blueAccent,
+                    color: data.status.code != "DFT" ? Colors.white : Colors.blueAccent,
                   ),
                 ),
               ),
@@ -140,7 +140,7 @@ class HistoryListCard extends StatelessWidget {
                   ),
                 ),
               ),
-              if (data.status.code != "APR")
+              if (data.status.code == "DFT")
                 Expanded(
                   child: CoreButton(
                     borderRadius: 12,

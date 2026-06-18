@@ -566,6 +566,26 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
       );
     });
 
+    on<CancelTaskDraft>((event, emit) async {
+      emit(state.copyWith(status: SettlementStatus.loading));
+
+      final result = await settlementRepository.cancelTaskDraft(event.idAuditTrail);
+
+      result.fold(
+        (failure) {
+          emit(
+            state.copyWith(
+              status: SettlementStatus.failedSave,
+              message: failure.message,
+            ),
+          );
+        },
+        (data) {
+          emit(state.copyWith(status: SettlementStatus.successSave));
+        },
+      );
+    });
+
     on<PageHistoryLoad>((event, emit) async {
       emit(state.copyWith(status: SettlementStatus.loading));
 

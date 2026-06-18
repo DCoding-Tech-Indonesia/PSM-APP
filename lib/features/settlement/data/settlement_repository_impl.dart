@@ -237,4 +237,20 @@ class SettlementRepositoryImpl implements SettlementRepository {
       return left(const ServerFailure('Unexpected error'));
     }
   }
+
+  @override
+  Future<Either<Failure, String>> cancelTaskDraft(int idAuditTrail) async {
+    try {
+      final response = await dataSource.cancelTaskDraft(idAuditTrail);
+
+      return right(response);
+    } on DioException catch (e) {
+      final message =
+          e.response?.data?['message'] ?? 'Terjadi kesalahan server';
+
+      return left(ServerFailure(message));
+    } catch (_) {
+      return left(const ServerFailure('Unexpected error'));
+    }
+  }
 }

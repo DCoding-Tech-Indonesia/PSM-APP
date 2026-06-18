@@ -86,6 +86,12 @@ class SubmitWorkflow extends SettlementEvent {
   SubmitWorkflow(this.reason, this.idAuditTrail);
 }
 
+class CancelTaskDraft extends SettlementEvent {
+  final int idAuditTrail;
+
+  CancelTaskDraft(this.idAuditTrail);
+}
+
 class ChangeTabDetail extends SettlementEvent {
   final int tabId;
 

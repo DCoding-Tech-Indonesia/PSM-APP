@@ -82,7 +82,7 @@ class DraftSettlementCardSingle extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    "Nama Koridor",
+                                    draftDatas[0].namaKoridor!,
                                     style: const TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.w700,
@@ -90,7 +90,7 @@ class DraftSettlementCardSingle extends StatelessWidget {
                                     ),
                                   ),
                                   Text(
-                                    "No. Polisi Unit",
+                                    draftDatas[0].noPolisi!,
                                     style: const TextStyle(
                                       color: Colors.white70,
                                     ),
@@ -146,7 +146,7 @@ class DraftSettlementCardSingle extends StatelessWidget {
                                   style: TextStyle(color: Colors.white70),
                                 ),
                                 Text(
-                                  StringFormatter().idrFormatter(450000),
+                                  StringFormatter().idrFormatter(draftDatas[0].totalPendapatanPertitase!),
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.w600,

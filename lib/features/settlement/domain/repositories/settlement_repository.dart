@@ -22,4 +22,5 @@ abstract class SettlementRepository {
   Future<Either<Failure, SettlementCreate>> fetchTaskAuditTrailDetail(int idAuditTrail);
   Future<Either<Failure, String>> updateSettlement(SettlementCreate request);
   Future<Either<Failure, String>> submitWorkflow(int idAuditTrail, String reason);
+  Future<Either<Failure, String>> cancelTaskDraft(int idAuditTrail);
 }

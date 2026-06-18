@@ -133,4 +133,20 @@ class SettlementDataSource {
       return e.toString();
     }
   }
+
+  Future<String> cancelTaskDraft(int idAuditTrail) async {
+    try {
+      await dio.post(
+        '/audittrail/task/draft/cancel',
+        data: {
+          "idAuditTrail": idAuditTrail,
+        },
+      );
+
+      return "Berhasil";
+    } catch (e) {
+      print(e);
+      return e.toString();
+    }
+  }
 }

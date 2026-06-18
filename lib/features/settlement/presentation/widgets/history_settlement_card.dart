@@ -66,10 +66,7 @@ class HistorySettlementCard extends StatelessWidget {
                   data.noPolisi ?? '-',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 10,
-                    color: Colors.blueGrey,
-                  ),
+                  style: const TextStyle(fontSize: 10, color: Colors.blueGrey),
                 ),
               ],
             ),
@@ -82,18 +79,21 @@ class HistorySettlementCard extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                padding:
-                const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
+                padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
                 decoration: BoxDecoration(
                   color: data.status.code == "APR"
                       ? Colors.greenAccent
-                      : Colors.yellowAccent,
+                      : data.status.code == "DFT"
+                      ? Colors.yellowAccent
+                      : Colors.redAccent,
                   borderRadius: BorderRadius.circular(99),
                   border: Border.all(
                     width: 1,
                     color: data.status.code == "APR"
                         ? Colors.green
-                        : Colors.yellow,
+                        : data.status.code == "DFT"
+                        ? Colors.yellow
+                        : Colors.red,
                   ),
                 ),
                 child: Text(
