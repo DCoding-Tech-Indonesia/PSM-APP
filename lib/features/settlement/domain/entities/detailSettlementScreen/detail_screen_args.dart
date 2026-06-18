@@ -1,6 +1,6 @@
 class DetailScreenArgs {
   final int? idAuditTrail;
-  final bool? isDraft;
+  final String? statusName;
 
-  DetailScreenArgs({this.idAuditTrail, this.isDraft});
+  DetailScreenArgs({this.idAuditTrail, this.statusName});
 }

@@ -234,7 +234,7 @@ void setupRouter(String initialLocation) {
                 ),
               ),
             ],
-            child: SettlementDetailScreen(idAuditTrail: args.idAuditTrail!, isDraft: args.isDraft!),
+            child: SettlementDetailScreen(idAuditTrail: args.idAuditTrail!, statusName: args.statusName!),
           );
         },
       ),

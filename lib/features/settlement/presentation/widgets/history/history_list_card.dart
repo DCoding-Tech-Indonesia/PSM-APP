@@ -123,7 +123,7 @@ class HistoryListCard extends StatelessWidget {
                       '/settlement/detail',
                       extra: DetailScreenArgs(
                         idAuditTrail: data.id,
-                        isDraft: data.status.code != "APR",
+                        statusName: data.status.name,
                       ),
                     );
 

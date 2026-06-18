@@ -15,22 +15,21 @@ class SettlementDetailScreen extends StatefulWidget {
   const SettlementDetailScreen({
     super.key,
     required this.idAuditTrail,
-    required this.isDraft,
+    required this.statusName,
   });
 
   final int idAuditTrail;
-  final bool isDraft;
+  final String statusName;
 
   @override
   State<SettlementDetailScreen> createState() => _SettlementDetailScreenState();
 }
 
 class _SettlementDetailScreenState extends State<SettlementDetailScreen> {
-
   Future<void> _showCancelDraftVerification(
-      BuildContext context,
-      int id,
-      ) async {
+    BuildContext context,
+    int id,
+  ) async {
     final isConfirm = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
@@ -93,7 +92,9 @@ class _SettlementDetailScreenState extends State<SettlementDetailScreen> {
               }
 
               if (state.status == SettlementStatus.error) {
-                return Center(child: Text(state.message ?? 'Terjadi kesalahan'));
+                return Center(
+                  child: Text(state.message ?? 'Terjadi kesalahan'),
+                );
               }
 
               return Column(
@@ -146,14 +147,18 @@ class _SettlementDetailScreenState extends State<SettlementDetailScreen> {
                                 decoration: BoxDecoration(
                                   color: Colors.white,
                                   borderRadius: BorderRadius.circular(16),
-                                  border: Border.all(color: Colors.grey.shade300),
+                                  border: Border.all(
+                                    color: Colors.grey.shade300,
+                                  ),
                                 ),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Row(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
                                         Expanded(
                                           child: Text(
@@ -168,13 +173,51 @@ class _SettlementDetailScreenState extends State<SettlementDetailScreen> {
                                           ),
                                         ),
                                         Container(
-                                          padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
-                                          decoration: BoxDecoration(
-                                              color: !widget.isDraft ? Colors.greenAccent : Colors.yellowAccent,
-                                              borderRadius: BorderRadius.circular(99),
-                                              border: Border.all(width: 1, color: !widget.isDraft ? Colors.green : Colors.yellow)
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 2,
+                                            horizontal: 8,
                                           ),
-                                          child: Text(!widget.isDraft ? "Approved" : "Draft", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                                          decoration: BoxDecoration(
+                                            color:
+                                                widget.statusName
+                                                        .toUpperCase() ==
+                                                    "APPROVED"
+                                                ? Colors.green
+                                                : widget.statusName
+                                                          .toUpperCase() ==
+                                                      "DRAFT"
+                                                ? Colors.yellowAccent
+                                                : Colors.redAccent,
+                                            borderRadius: BorderRadius.circular(
+                                              99,
+                                            ),
+                                            border: Border.all(
+                                              width: 1,
+                                              color:
+                                                  widget.statusName
+                                                          .toUpperCase() ==
+                                                      "APPROVED"
+                                                  ? Colors.greenAccent
+                                                  : widget.statusName
+                                                            .toUpperCase() ==
+                                                        "DRAFT"
+                                                  ? Colors.yellow
+                                                  : Colors.red,
+                                            ),
+                                          ),
+                                          child: Text(
+                                            widget.statusName.toUpperCase(),
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w600,
+                                              color:
+                                                  widget.statusName
+                                                          .toUpperCase() ==
+                                                      "DRAFT"
+                                                  ? Colors.black
+                                                  : Colors.white,
+                                            ),
+                                          ),
                                         ),
                                       ],
                                     ),
@@ -185,7 +228,9 @@ class _SettlementDetailScreenState extends State<SettlementDetailScreen> {
                                       state.noUnit.isNotEmpty
                                           ? state.noUnit
                                           : '-',
-                                      style: const TextStyle(color: Colors.grey),
+                                      style: const TextStyle(
+                                        color: Colors.grey,
+                                      ),
                                     ),
 
                                     const SizedBox(height: 16),
@@ -208,7 +253,16 @@ class _SettlementDetailScreenState extends State<SettlementDetailScreen> {
                                           width: 40,
                                           height: 40,
                                           decoration: BoxDecoration(
-                                            color: Colors.yellowAccent,
+                                            color:
+                                                widget.statusName
+                                                        .toUpperCase() ==
+                                                    "APPROVED"
+                                                ? Colors.green
+                                                : widget.statusName
+                                                          .toUpperCase() ==
+                                                      "DRAFT"
+                                                ? Colors.yellowAccent
+                                                : Colors.redAccent,
                                             borderRadius: BorderRadius.circular(
                                               8,
                                             ),
@@ -216,8 +270,14 @@ class _SettlementDetailScreenState extends State<SettlementDetailScreen> {
                                           child: Center(
                                             child: Text(
                                               state.ritase.toString(),
-                                              style: const TextStyle(
+                                              style: TextStyle(
                                                 fontWeight: FontWeight.bold,
+                                                color:
+                                                    widget.statusName
+                                                            .toUpperCase() ==
+                                                        "DRAFT"
+                                                    ? Colors.black
+                                                    : Colors.white,
                                               ),
                                             ),
                                           ),
@@ -235,7 +295,9 @@ class _SettlementDetailScreenState extends State<SettlementDetailScreen> {
                                     .where((e) => e.idPayment == payment.id)
                                     .toList();
 
-                                final totalValue = calculatePaymentTotal(details);
+                                final totalValue = calculatePaymentTotal(
+                                  details,
+                                );
 
                                 return Container(
                                   margin: const EdgeInsets.only(bottom: 16),
@@ -248,7 +310,8 @@ class _SettlementDetailScreenState extends State<SettlementDetailScreen> {
                                     ),
                                   ),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Row(
                                         children: [
@@ -258,9 +321,8 @@ class _SettlementDetailScreenState extends State<SettlementDetailScreen> {
                                             padding: const EdgeInsets.all(6),
                                             decoration: BoxDecoration(
                                               color: Colors.grey.shade100,
-                                              borderRadius: BorderRadius.circular(
-                                                8,
-                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
                                             ),
                                             child: Image.asset(
                                               logoMap[payment.name] ??
@@ -286,7 +348,8 @@ class _SettlementDetailScreenState extends State<SettlementDetailScreen> {
                                         final detail = details
                                             .cast<SettlementDetail?>()
                                             .firstWhere(
-                                              (e) => e?.idNasabah == customer.id,
+                                              (e) =>
+                                                  e?.idNasabah == customer.id,
                                               orElse: () => null,
                                             );
 
@@ -321,7 +384,8 @@ class _SettlementDetailScreenState extends State<SettlementDetailScreen> {
                                                   Text(
                                                     '$qty x ${StringFormatter().idrFormatter(value)}',
                                                     style: TextStyle(
-                                                      color: Colors.grey.shade600,
+                                                      color:
+                                                          Colors.grey.shade600,
                                                       fontSize: 12,
                                                     ),
                                                   ),
@@ -329,7 +393,8 @@ class _SettlementDetailScreenState extends State<SettlementDetailScreen> {
                                                     StringFormatter()
                                                         .idrFormatter(subtotal),
                                                     style: const TextStyle(
-                                                      fontWeight: FontWeight.w700,
+                                                      fontWeight:
+                                                          FontWeight.w700,
                                                     ),
                                                   ),
                                                 ],
@@ -389,7 +454,8 @@ class _SettlementDetailScreenState extends State<SettlementDetailScreen> {
                                     if (state.documentPreview.isNotEmpty)
                                       InkWell(
                                         onTap: () {
-                                          final doc = state.documentPreview.first;
+                                          final doc =
+                                              state.documentPreview.first;
 
                                           showDialog(
                                             context: context,
@@ -401,7 +467,8 @@ class _SettlementDetailScreenState extends State<SettlementDetailScreen> {
                                                 insetPadding:
                                                     const EdgeInsets.all(16),
                                                 child: Column(
-                                                  mainAxisSize: MainAxisSize.min,
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
                                                   children: [
                                                     ClipRRect(
                                                       borderRadius:
@@ -424,9 +491,11 @@ class _SettlementDetailScreenState extends State<SettlementDetailScreen> {
                                                         style: OutlinedButton.styleFrom(
                                                           foregroundColor:
                                                               Colors.white,
-                                                          side: const BorderSide(
-                                                            color: Colors.white,
-                                                          ),
+                                                          side:
+                                                              const BorderSide(
+                                                                color: Colors
+                                                                    .white,
+                                                              ),
                                                           padding:
                                                               const EdgeInsets.symmetric(
                                                                 vertical: 14,
@@ -476,10 +545,17 @@ class _SettlementDetailScreenState extends State<SettlementDetailScreen> {
                                                 borderRadius:
                                                     BorderRadius.circular(16),
                                                 child: Image.network(
-                                                  state.documentPreview.first.url,
+                                                  state
+                                                      .documentPreview
+                                                      .first
+                                                      .url,
                                                   fit: BoxFit.cover,
                                                   loadingBuilder:
-                                                      (context, child, progress) {
+                                                      (
+                                                        context,
+                                                        child,
+                                                        progress,
+                                                      ) {
                                                         if (progress == null)
                                                           return child;
 
@@ -504,10 +580,14 @@ class _SettlementDetailScreenState extends State<SettlementDetailScreen> {
                                                 child: Container(
                                                   decoration: BoxDecoration(
                                                     borderRadius:
-                                                        BorderRadius.circular(16),
+                                                        BorderRadius.circular(
+                                                          16,
+                                                        ),
                                                     gradient: LinearGradient(
-                                                      begin: Alignment.topCenter,
-                                                      end: Alignment.bottomCenter,
+                                                      begin:
+                                                          Alignment.topCenter,
+                                                      end: Alignment
+                                                          .bottomCenter,
                                                       colors: [
                                                         Colors.transparent,
                                                         Colors.black.withValues(
@@ -534,7 +614,8 @@ class _SettlementDetailScreenState extends State<SettlementDetailScreen> {
                                                         ),
                                                   ),
                                                   child: const Icon(
-                                                    Icons.remove_red_eye_outlined,
+                                                    Icons
+                                                        .remove_red_eye_outlined,
                                                     color: Colors.white,
                                                   ),
                                                 ),
@@ -548,7 +629,9 @@ class _SettlementDetailScreenState extends State<SettlementDetailScreen> {
                                         height: 220,
                                         width: double.infinity,
                                         decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(16),
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
                                           border: Border.all(
                                             color: Colors.grey.shade300,
                                           ),
@@ -556,7 +639,9 @@ class _SettlementDetailScreenState extends State<SettlementDetailScreen> {
                                         child: const Center(
                                           child: Text(
                                             'Tidak ada foto bukti',
-                                            style: TextStyle(color: Colors.grey),
+                                            style: TextStyle(
+                                              color: Colors.grey,
+                                            ),
                                           ),
                                         ),
                                       ),
@@ -566,10 +651,13 @@ class _SettlementDetailScreenState extends State<SettlementDetailScreen> {
 
                               const SizedBox(height: 15),
 
-                              if (widget.isDraft)
+                              if (widget.statusName.toUpperCase() == "DRAFT")
                                 CoreButton(
                                   onPressed: () async {
-                                    await _showCancelDraftVerification(context, widget.idAuditTrail);
+                                    await _showCancelDraftVerification(
+                                      context,
+                                      widget.idAuditTrail,
+                                    );
                                   },
                                   backgroundColor: Colors.white,
                                   child: Text(
