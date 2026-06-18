@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:psm_mobile/features/attendance/data/models/leave_request_model.dart';
 import 'package:intl/intl.dart';
-import 'package:psm_mobile/features/attendance/data/models/approval_model.dart';
 
-class ApprovalListCard extends StatelessWidget {
-  final ApprovalModel approval;
+class LeaveRequestListCard extends StatelessWidget {
+  final LeaveRequestModel leaveRequest;
 
-  const ApprovalListCard({super.key, required this.approval});
+  const LeaveRequestListCard({super.key, required this.leaveRequest});
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final statusStyle = _resolveStatusStyle(approval.status);
+    final statusStyle = _resolveStatusStyle(leaveRequest.status);
 
     return Material(
       color: Colors.transparent,
@@ -22,15 +21,12 @@ class ApprovalListCard extends StatelessWidget {
           horizontal: size.width * 0.045,
           vertical: 8,
         ),
-        // padding: EdgeInsets.all(size.width * 0.045),
         child: InkWell(
-          onTap: () => context.push('/approval-detail', extra: approval.id),
+          onTap: () {
+            // Context push for detail if needed later
+          },
           borderRadius: BorderRadius.circular(16),
           child: Container(
-            // padding: EdgeInsets.symmetric(
-            //   horizontal: size.width * 0.045,
-            //   vertical: 6,
-            // ),
             padding: EdgeInsets.all(size.width * 0.045),
             decoration: BoxDecoration(
               color: theme.cardTheme.color,
@@ -74,7 +70,9 @@ class ApprovalListCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            approval.requester.fullName,
+                            leaveRequest.type.name.isNotEmpty
+                                ? leaveRequest.type.name
+                                : 'CUTI',
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -84,7 +82,7 @@ class ApprovalListCard extends StatelessWidget {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'Pengganti: ${approval.replacement.fullName}',
+                            'Karyawan: ${leaveRequest.user.fullName}',
                             style: TextStyle(
                               fontSize: 13,
                               color: theme.textTheme.bodySmall?.color,
@@ -102,57 +100,33 @@ class ApprovalListCard extends StatelessWidget {
                 const SizedBox(height: 14),
                 _buildInfoRow(
                   icon: Icons.calendar_today_outlined,
-                  label: 'Tanggal Shift',
-                  value: approval.tanggal,
+                  label: 'Tanggal',
+                  value:
+                      (_formatDateStr(leaveRequest.tanggalMulai) ==
+                          _formatDateStr(leaveRequest.tanggalSelesai))
+                      ? _formatDateStr(leaveRequest.tanggalMulai)
+                      : '${_formatDateStr(leaveRequest.tanggalMulai)} - ${_formatDateStr(leaveRequest.tanggalSelesai)}',
                   color: Colors.deepPurple,
                 ),
                 const SizedBox(height: 8),
                 _buildInfoRow(
-                  icon: Icons.schedule_outlined,
-                  label: 'Shift',
-                  value: approval.shift.name,
+                  icon: Icons.notes_outlined,
+                  label: 'Alasan',
+                  value: leaveRequest.alasan.isNotEmpty
+                      ? leaveRequest.alasan
+                      : '-',
                   color: Colors.blue,
                 ),
-                const SizedBox(height: 8),
-                _buildInfoRow(
-                  icon: Icons.location_on_outlined,
-                  label: 'Lokasi',
-                  value: approval.lokasi.namaLokasi,
-                  color: Colors.green,
-                ),
-                // if (approval.alasan.isNotEmpty) ...[
-                //   const SizedBox(height: 12),
-                //   Container(
-                //     width: double.infinity,
-                //     padding: const EdgeInsets.all(12),
-                //     decoration: BoxDecoration(
-                //       color: theme.colorScheme.surfaceContainerHighest.withValues(
-                //         alpha: isDark ? 0.35 : 0.5,
-                //       ),
-                //       borderRadius: BorderRadius.circular(12),
-                //     ),
-                //     child: Column(
-                //       crossAxisAlignment: CrossAxisAlignment.start,
-                //       children: [
-                //         Text(
-                //           'Alasan',
-                //           style: TextStyle(
-                //             fontSize: 12,
-                //             fontWeight: FontWeight.bold,
-                //             color: theme.colorScheme.primary,
-                //           ),
-                //         ),
-                //         const SizedBox(height: 4),
-                //         Text(
-                //           approval.alasan,
-                //           style: theme.textTheme.bodyMedium,
-                //           maxLines: 2,
-                //           overflow: TextOverflow.ellipsis,
-                //         ),
-                //       ],
-                //     ),
-                //   ),
-                // ],
+                if (leaveRequest.rejectReason != null &&
+                    leaveRequest.rejectReason!.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  _buildInfoRow(
+                    icon: Icons.error_outline,
+                    label: 'Alasan Tolak',
+                    value: leaveRequest.rejectReason!,
+                    color: Colors.red,
+                  ),
+                ],
                 const SizedBox(height: 12),
                 Row(
                   children: [
@@ -164,15 +138,11 @@ class ApprovalListCard extends StatelessWidget {
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(
-                        'Diajukan ${_formatDate(approval.createdAt)}',
+                        'Diajukan ${_formatDateTime(leaveRequest.createdAt)}',
                         style: theme.textTheme.bodySmall,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                    Icon(
-                      Icons.chevron_right_rounded,
-                      color: theme.colorScheme.primary,
                     ),
                   ],
                 ),
@@ -184,7 +154,7 @@ class ApprovalListCard extends StatelessWidget {
     );
   }
 
-  Widget _buildStatusBadge(_ApprovalStatusStyle style) {
+  Widget _buildStatusBadge(_LeaveStatusStyle style) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
@@ -210,6 +180,7 @@ class ApprovalListCard extends StatelessWidget {
     required Color color,
   }) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Icon(icon, size: 16, color: color),
         const SizedBox(width: 8),
@@ -225,7 +196,7 @@ class ApprovalListCard extends StatelessWidget {
           child: Text(
             value,
             style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
-            maxLines: 1,
+            maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
         ),
@@ -233,7 +204,17 @@ class ApprovalListCard extends StatelessWidget {
     );
   }
 
-  String _formatDate(String raw) {
+  String _formatDateStr(String? dateStr) {
+    if (dateStr == null || dateStr.isEmpty) return '-';
+    try {
+      final date = DateTime.parse(dateStr);
+      return DateFormat('dd MMM yyyy').format(date);
+    } catch (e) {
+      return dateStr;
+    }
+  }
+
+  String _formatDateTime(String raw) {
     if (raw.isEmpty) return '-';
     try {
       final dt = DateTime.parse(raw);
@@ -243,41 +224,34 @@ class ApprovalListCard extends StatelessWidget {
     }
   }
 
-  _ApprovalStatusStyle _resolveStatusStyle(String status) {
+  _LeaveStatusStyle _resolveStatusStyle(String status) {
     switch (status.toUpperCase()) {
       case 'APPROVED':
-        return const _ApprovalStatusStyle(
+        return const _LeaveStatusStyle(
           'Disetujui',
           Colors.green,
           Icons.check_circle_outline_rounded,
         );
       case 'REJECTED':
-        return const _ApprovalStatusStyle(
+        return const _LeaveStatusStyle(
           'Ditolak',
           Colors.red,
           Icons.cancel_outlined,
         );
-      case 'PENDING_REPL':
       case 'PENDING':
-        return const _ApprovalStatusStyle(
-          'Menunggu Pengganti',
+        return const _LeaveStatusStyle(
+          'Menunggu',
           Colors.orange,
           Icons.hourglass_top_rounded,
         );
-      // case 'PENDING':
-      //   return const _ApprovalStatusStyle(
-      //     'Menunggu',
-      //     Colors.amber,
-      //     Icons.swap_horiz_rounded,
-      //   );
       case 'CANCELLED':
-        return const _ApprovalStatusStyle(
+        return const _LeaveStatusStyle(
           'Dibatalkan',
           Colors.grey,
           Icons.remove_circle_outline_rounded,
         );
       default:
-        return _ApprovalStatusStyle(
+        return _LeaveStatusStyle(
           status.isEmpty ? 'Pending' : status,
           Colors.blueGrey,
           Icons.help_outline_rounded,
@@ -286,10 +260,10 @@ class ApprovalListCard extends StatelessWidget {
   }
 }
 
-class _ApprovalStatusStyle {
+class _LeaveStatusStyle {
   final String label;
   final Color color;
   final IconData icon;
 
-  const _ApprovalStatusStyle(this.label, this.color, this.icon);
+  const _LeaveStatusStyle(this.label, this.color, this.icon);
 }

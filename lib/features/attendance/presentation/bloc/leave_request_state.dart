@@ -1,0 +1,49 @@
+import 'package:psm_mobile/features/attendance/data/models/leave_request_model.dart';
+
+abstract class LeaveRequestState {}
+
+class LeaveRequestInitial extends LeaveRequestState {}
+
+class LeaveRequestLoading extends LeaveRequestState {}
+
+class LeaveRequestLoaded extends LeaveRequestState {
+  final List<LeaveRequestModel> leaveRequests;
+  final String? errorMessage;
+  final bool isLoading;
+  final bool isSubmitting;
+  final bool submitSuccess;
+  final String? submitError;
+
+  LeaveRequestLoaded({
+    required this.leaveRequests,
+    this.errorMessage,
+    this.isLoading = false,
+    this.isSubmitting = false,
+    this.submitSuccess = false,
+    this.submitError,
+  });
+
+  LeaveRequestLoaded copyWith({
+    List<LeaveRequestModel>? leaveRequests,
+    String? errorMessage,
+    bool? isLoading,
+    bool? isSubmitting,
+    bool? submitSuccess,
+    String? submitError,
+  }) {
+    return LeaveRequestLoaded(
+      leaveRequests: leaveRequests ?? this.leaveRequests,
+      errorMessage: errorMessage,
+      isLoading: isLoading ?? this.isLoading,
+      isSubmitting: isSubmitting ?? this.isSubmitting,
+      submitSuccess: submitSuccess ?? this.submitSuccess,
+      submitError: submitError,
+    );
+  }
+}
+
+class LeaveRequestError extends LeaveRequestState {
+  final String message;
+
+  LeaveRequestError({required this.message});
+}

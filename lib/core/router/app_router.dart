@@ -6,6 +6,7 @@ import 'package:psm_mobile/core/presentations/widgets/widgets.dart';
 import 'package:psm_mobile/core/router/route_observer.dart';
 import 'package:psm_mobile/core/storage/secure_storage.dart';
 import 'package:psm_mobile/core/storage/shared_preferences.dart';
+import 'package:psm_mobile/features/attendance/presentation/bloc/leave_request_event.dart';
 import 'package:psm_mobile/features/attendance/presentation/screens/approval_detail_screen.dart';
 import 'package:psm_mobile/features/attendance/presentation/screens/approval_screen.dart';
 import 'package:psm_mobile/features/attendance/presentation/screens/schedule_calendar_screen.dart';
@@ -18,6 +19,8 @@ import 'package:psm_mobile/features/kmbus/data/kmbus_repository_impl.dart';
 import 'package:psm_mobile/features/kmbus/presentation/bloc/kmbus_bloc.dart';
 import 'package:psm_mobile/features/kmbus/presentation/kmbus_screen.dart';
 import 'package:psm_mobile/features/kmbus/presentation/kmbus_titik_awal_form_screen.dart';
+import 'package:psm_mobile/features/portal/presentation/bloc/portal_bloc.dart';
+import 'package:psm_mobile/features/portal/presentation/bloc/portal_state.dart';
 import 'package:psm_mobile/features/portal/presentation/portal_screen.dart';
 import 'package:psm_mobile/features/reference/reference_data_source.dart';
 import 'package:psm_mobile/features/settlement/data/settlement_data_source.dart';
@@ -31,6 +34,13 @@ import 'package:psm_mobile/features/settlement/presentation/cubit/settlement_tab
 import 'package:psm_mobile/features/settlement/presentation/settlement_detail_screen.dart';
 import 'package:psm_mobile/features/settlement/presentation/settlement_form_screen.dart';
 import 'package:psm_mobile/features/attendance/presentation/screens/attendance_screen.dart';
+import 'package:psm_mobile/features/attendance/presentation/screens/leave_request_screen.dart';
+import 'package:psm_mobile/features/attendance/presentation/screens/shift_replacement_screen.dart';
+import 'package:psm_mobile/features/attendance/data/datasources/leave_request_remote_data_source.dart';
+import 'package:psm_mobile/features/attendance/data/repositories/leave_request_repository_impl.dart';
+import 'package:psm_mobile/features/attendance/presentation/screens/history_screen.dart';
+import 'package:psm_mobile/features/attendance/data/models/attendance_record.dart';
+import 'package:psm_mobile/features/attendance/presentation/bloc/leave_request_bloc.dart';
 import 'package:psm_mobile/features/settlement/presentation/settlement_history_screen.dart';
 import 'package:psm_mobile/features/settlement/presentation/settlement_screen.dart';
 import 'package:psm_mobile/features/settlement/presentation/settlement_success_submit_draft_screen.dart';
@@ -234,7 +244,10 @@ void setupRouter(String initialLocation) {
                 ),
               ),
             ],
-            child: SettlementDetailScreen(idAuditTrail: args.idAuditTrail!, isDraft: args.isDraft!),
+            child: SettlementDetailScreen(
+              idAuditTrail: args.idAuditTrail!,
+              isDraft: args.isDraft!,
+            ),
           );
         },
       ),
@@ -339,6 +352,25 @@ void setupRouter(String initialLocation) {
 
       // ATTENDANCE & APPROVAL ROUTE
       GoRoute(
+        path: '/leave-request',
+        builder: (context, state) {
+          final portalState = context.read<PortalBloc>().state;
+          int userId = 0;
+          if (portalState is PortalLoaded) {
+            userId = int.tryParse(portalState.profile.id) ?? 0;
+          }
+
+          return BlocProvider(
+            create: (context) => LeaveRequestBloc(
+              repository: LeaveRequestRepositoryImpl(
+                remoteDataSource: LeaveRequestRemoteDataSourceImpl(DioClient()),
+              ),
+            )..add(LoadLeaveRequestList(userId: userId)),
+            child: const LeaveRequestScreen(),
+          );
+        },
+      ),
+      GoRoute(
         path: '/attendance',
         builder: (context, state) => const AttendanceScreen(),
       ),
@@ -356,10 +388,40 @@ void setupRouter(String initialLocation) {
       GoRoute(
         path: '/schedule-calendar',
         builder: (context, state) {
-          final schedules = (state.extra as List<dynamic>?)
-                  ?.cast<ScheduleModel>() ??
+          final userId = state.extra as String? ?? '';
+          return ScheduleCalendarScreen(userId: userId);
+        },
+      ),
+      GoRoute(
+        path: '/history',
+        builder: (context, state) {
+          final args = state.extra as Map<String, dynamic>? ?? {};
+          final history =
+              (args['history'] as List<dynamic>?)?.cast<AttendanceRecord>() ??
               [];
-          return ScheduleCalendarScreen(schedules: schedules);
+          final userId = args['userId'] as String? ?? '';
+          return HistoryScreen(initialHistory: history, userId: userId);
+        },
+      ),
+      GoRoute(
+        path: '/shift-replacement',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return ShiftReplacementScreen(
+            schedules: extra['schedules'] as List<ScheduleModel>,
+            requesterId: extra['requesterId'] as int,
+            onFetchReplacementSchedules:
+                extra['onFetchReplacementSchedules']
+                    as Future<List<dynamic>> Function(int),
+            onRequestShiftReplacement:
+                extra['onRequestShiftReplacement']
+                    as Future<bool> Function({
+                      required int requesterId,
+                      required int replacementId,
+                      required int jadwalId,
+                      required String alasan,
+                    }),
+          );
         },
       ),
 

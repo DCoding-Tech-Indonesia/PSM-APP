@@ -1,8 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_blur_dialog.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_dropdown_search.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_input_field_new.dart';
-import 'package:psm_mobile/features/attendance/data/models/schedule_model.dart';
 import 'package:psm_mobile/features/attendance/presentation/bloc/attendance_state.dart';
 
 class LocationStatusCard extends StatelessWidget {

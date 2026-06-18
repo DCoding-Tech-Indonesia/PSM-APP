@@ -6,10 +6,12 @@ abstract class ApprovalEvent extends Equatable {
 }
 
 class LoadApprovalData extends ApprovalEvent {
-  LoadApprovalData();
+  final String type;
+
+  LoadApprovalData({required this.type});
 
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [type];
 }
 
 class LoadApprovalDetail extends ApprovalEvent {

@@ -32,8 +32,8 @@ class PortalQuickActionsGrid extends StatelessWidget {
               color: isDark
                   ? theme.cardTheme.color
                   : isAvailable
-                    ? color.withValues(alpha: 0.05)
-                    : Colors.grey.withValues(alpha: 0.05),
+                  ? color.withValues(alpha: 0.05)
+                  : Colors.grey.withValues(alpha: 0.05),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: isAvailable
@@ -46,7 +46,11 @@ class PortalQuickActionsGrid extends StatelessWidget {
               onTap: isAvailable
                   ? onTap
                   : () {
-                      PortalDialogs.showComingSoonDialog(context, title, description);
+                      PortalDialogs.showComingSoonDialog(
+                        context,
+                        title,
+                        description,
+                      );
                     },
               borderRadius: BorderRadius.circular(16),
               child: Padding(
@@ -78,7 +82,9 @@ class PortalQuickActionsGrid extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                         color: isAvailable
                             ? theme.textTheme.titleMedium?.color
-                            : theme.textTheme.titleMedium?.color?.withValues(alpha: 0.5),
+                            : theme.textTheme.titleMedium?.color?.withValues(
+                                alpha: 0.5,
+                              ),
                       ),
                       textAlign: TextAlign.center,
                       maxLines: 2,
@@ -89,8 +95,12 @@ class PortalQuickActionsGrid extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 12,
                         color: isAvailable
-                            ? theme.textTheme.bodySmall?.color?.withValues(alpha: 0.7)
-                            : theme.textTheme.bodySmall?.color?.withValues(alpha: 0.4),
+                            ? theme.textTheme.bodySmall?.color?.withValues(
+                                alpha: 0.7,
+                              )
+                            : theme.textTheme.bodySmall?.color?.withValues(
+                                alpha: 0.4,
+                              ),
                       ),
                       textAlign: TextAlign.center,
                       maxLines: 1,
@@ -99,14 +109,21 @@ class PortalQuickActionsGrid extends StatelessWidget {
                     if (!isAvailable) ...[
                       const SizedBox(height: 4),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.orange.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: const Text(
                           'Coming Soon',
-                          style: TextStyle(fontSize: 10, color: Colors.orange, fontWeight: FontWeight.w600),
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: Colors.orange,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                     ],
@@ -135,11 +152,7 @@ class PortalQuickActionsGrid extends StatelessWidget {
                 color: Colors.blue.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(
-                Icons.dashboard,
-                color: Colors.blue,
-                size: 20,
-              ),
+              child: const Icon(Icons.dashboard, color: Colors.blue, size: 20),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -172,29 +185,43 @@ class PortalQuickActionsGrid extends StatelessWidget {
         Builder(
           builder: (context) {
             if (state is PortalLoading) {
-              return const Center(child: Padding(
-                padding: EdgeInsets.all(32.0),
-                child: CircularProgressIndicator(),
-              ));
-            } else if (state is PortalError) {
-              return Center(child: Padding(
-                padding: const EdgeInsets.all(32.0),
-                child: Column(
-                  children: [
-                    const Icon(Icons.error, color: Colors.red, size: 48),
-                    const SizedBox(height: 16),
-                    const Text("Gagal mengambil data profil", style: TextStyle(color: Colors.red)),
-                    Text((state as PortalError).message, style: const TextStyle(color: Colors.red, fontSize: 12)),
-                  ],
+              return const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(32.0),
+                  child: CircularProgressIndicator(),
                 ),
-              ));
+              );
+            } else if (state is PortalError) {
+              return Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(32.0),
+                  child: Column(
+                    children: [
+                      const Icon(Icons.error, color: Colors.red, size: 48),
+                      const SizedBox(height: 16),
+                      const Text(
+                        "Gagal mengambil data profil",
+                        style: TextStyle(color: Colors.red),
+                      ),
+                      Text(
+                        (state as PortalError).message,
+                        style: const TextStyle(color: Colors.red, fontSize: 12),
+                      ),
+                    ],
+                  ),
+                ),
+              );
             } else if (state is PortalLoaded) {
               final loadedState = state as PortalLoaded;
 
               if (kDebugMode) {
-                print("DEBUG: Total menu mentah dari API: ${loadedState.profile.menu.length}");
+                print(
+                  "DEBUG: Total menu mentah dari API: ${loadedState.profile.menu.length}",
+                );
                 for (var m in loadedState.profile.menu) {
-                  print("DEBUG: Raw Menu -> Title: ${m.title}, Type: '${m.typeMenu}'");
+                  print(
+                    "DEBUG: Raw Menu -> Title: ${m.title}, Type: '${m.typeMenu}'",
+                  );
                 }
               }
 
@@ -203,12 +230,65 @@ class PortalQuickActionsGrid extends StatelessWidget {
               final filteredMenus = loadedState.profile.menu
                   .where((menu) => menu.typeMenu.isEmpty)
                   .toList();
-              
+
               if (kDebugMode) {
-                print("DEBUG: Total menu setelah difilter (typeMenu == ''): ${filteredMenus.length}");
+                print(
+                  "DEBUG: Total menu setelah difilter (typeMenu == ''): ${filteredMenus.length}",
+                );
               }
 
-              filteredMenus.sort((a, b) => a.orderIndex.compareTo(b.orderIndex));
+              filteredMenus.sort(
+                (a, b) => a.orderIndex.compareTo(b.orderIndex),
+              );
+
+              if (filteredMenus.isEmpty) {
+                return Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 48,
+                    horizontal: 16,
+                  ),
+                  decoration: BoxDecoration(
+                    color: theme.cardTheme.color ?? Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: Colors.grey.withValues(alpha: 0.2),
+                    ),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.grid_off_outlined,
+                        size: 64,
+                        color: theme.textTheme.bodySmall?.color?.withValues(
+                          alpha: 0.5,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Belum Ada Menu',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: theme.textTheme.titleMedium?.color,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Belum ada akses menu yang diberikan untuk Anda.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: theme.textTheme.bodyMedium?.color?.withValues(
+                            alpha: 0.7,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }
 
               return GridView.builder(
                 shrinkWrap: true,
@@ -223,15 +303,19 @@ class PortalQuickActionsGrid extends StatelessWidget {
                   final menu = filteredMenus[index];
 
                   if (kDebugMode) {
-                    print("[MENU FILTERED][$index] ${filteredMenus[index].title}");
-                    print("[CHILDREN][${filteredMenus[index].title}] ${menu.children.map((e) => e.title).toList()}");
+                    print(
+                      "[MENU FILTERED][$index] ${filteredMenus[index].title}",
+                    );
+                    print(
+                      "[CHILDREN][${filteredMenus[index].title}] ${menu.children.map((e) => e.title).toList()}",
+                    );
                   }
 
                   // Dynamic icon mapping based on menu string
                   IconData mappedIcon = Icons.dashboard;
                   Color mappedColor = theme.primaryColor;
 
-                  if (menu.title.toLowerCase().contains("settlement")) {
+                  if (menu.title.toLowerCase().contains("settelment")) {
                     mappedIcon = Icons.account_balance_wallet;
                     mappedColor = Colors.orange;
                   } else if (menu.icon == "mdi-view-dashboard") {
@@ -244,8 +328,6 @@ class PortalQuickActionsGrid extends StatelessWidget {
                     mappedIcon = Icons.payments;
                   } else if (menu.icon == "mdi-bus-clock") {
                     mappedIcon = Icons.directions_bus;
-                  } else if (menu.icon == "mdi-clipboard-account") {
-                    mappedIcon = Icons.assignment_ind;
                   } else if (menu.icon == "mdi-poll") {
                     mappedIcon = Icons.poll;
                   } else if (menu.title.toLowerCase().contains("absensi")) {
@@ -266,14 +348,21 @@ class PortalQuickActionsGrid extends StatelessWidget {
                     () {
                       if (menu.title.toUpperCase().contains("SETTELMENT")) {
                         context.push('/settlement/dashboard');
-                      } else if (menu.title.toLowerCase().contains("absensi") || menu.route == "/attendance") {
+                      } else if (menu.title.toLowerCase().contains("absensi") ||
+                          menu.route == "/attendance") {
                         context.push('/attendance');
                       } else if (menu.title.toUpperCase().contains("KM")) {
                         context.push('/kmbus/dashboard');
-                      } else if (menu.title.toUpperCase().contains("TIME TABLE")) {
+                      } else if (menu.title.toUpperCase().contains(
+                        "TIME TABLE",
+                      )) {
                         context.push('/timetable/dashboard');
                       } else {
-                        PortalDialogs.showComingSoonDialog(context, menu.title, "Fitur ini masih dalam pengembangan.");
+                        PortalDialogs.showComingSoonDialog(
+                          context,
+                          menu.title,
+                          "Fitur ini masih dalam pengembangan.",
+                        );
                       }
                     },
                     theme,
@@ -284,8 +373,8 @@ class PortalQuickActionsGrid extends StatelessWidget {
             }
 
             return const SizedBox.shrink();
-          }
-        )
+          },
+        ),
       ],
     );
   }

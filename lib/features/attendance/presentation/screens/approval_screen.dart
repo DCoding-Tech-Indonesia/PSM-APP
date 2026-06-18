@@ -11,8 +11,6 @@ import 'package:psm_mobile/features/attendance/data/repositories/approval_reposi
 import 'package:psm_mobile/features/attendance/presentation/bloc/approval_bloc.dart';
 import 'package:psm_mobile/features/attendance/presentation/bloc/approval_state.dart';
 import 'package:psm_mobile/features/attendance/presentation/widgets/widgets.dart';
-import 'package:psm_mobile/features/portal/presentation/bloc/portal_bloc.dart';
-import 'package:psm_mobile/features/portal/presentation/bloc/portal_state.dart';
 
 class ApprovalScreen extends StatelessWidget {
   const ApprovalScreen({super.key});
@@ -24,7 +22,7 @@ class ApprovalScreen extends StatelessWidget {
         repository: ApprovalRepositoryImpl(
           remoteDataSource: ApprovalRemoteDataSourceImpl(DioClient()),
         ),
-      )..add(LoadApprovalData()),
+      )..add(LoadApprovalData(type: "APPROVER")),
       child: const ApprovalView(),
     );
   }
@@ -46,7 +44,7 @@ class _ApprovalViewState extends State<ApprovalView> {
     _approvalRefreshSubscription = ApprovalRefreshNotifier.instance.stream
         .listen((_) {
           if (!mounted) return;
-          context.read<ApprovalBloc>().add(LoadApprovalData());
+          context.read<ApprovalBloc>().add(LoadApprovalData(type: "APPROVER"));
         });
   }
 
@@ -67,7 +65,7 @@ class _ApprovalViewState extends State<ApprovalView> {
   }
 
   void _refreshApprovalList() {
-    context.read<ApprovalBloc>().add(LoadApprovalData());
+    context.read<ApprovalBloc>().add(LoadApprovalData(type: "APPROVER"));
   }
 
   @override

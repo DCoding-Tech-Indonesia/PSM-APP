@@ -3,8 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:psm_mobile/core/presentations/widgets/widgets.dart';
-import 'package:psm_mobile/features/attendance/data/models/schedule_model.dart';
 import 'package:psm_mobile/features/attendance/presentation/bloc/attendance_state.dart';
 import 'package:psm_mobile/features/portal/presentation/bloc/portal_bloc.dart';
 import 'package:psm_mobile/features/portal/presentation/bloc/portal_state.dart';
@@ -31,6 +29,11 @@ class AttendanceMenuGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final portalState = context.read<PortalBloc>().state;
+    String role = '';
+    if (portalState is PortalLoaded) {
+      role = portalState.profile.role;
+    }
     final theme = Theme.of(context);
 
     final size = MediaQuery.of(context).size;
@@ -38,173 +41,50 @@ class AttendanceMenuGrid extends StatelessWidget {
     final itemHeight = itemWidth * 0.9; // Sesuaikan dengan childAspectRatio
 
     final List<_MenuItem> items = [
-      _MenuItem(
-        title: 'Approval',
-        icon: Icons.check_circle_outlined,
-        color: theme.primaryColor,
-        route: '/approval',
-        onTap: null,
-      ),
-      _MenuItem(
-        title: 'Pergantian Jadwal',
-        icon: Icons.swap_horiz_outlined,
-        color: theme.primaryColor,
-        route: null,
-        onTap: () {
-          int replacementId = 0;
-          int jadwalId = 0;
-          String reason = '';
-          bool isLoadingPengganti = false;
-          List<dynamic> listPengganti = [];
-
-          // Ambil repo dari outer context SEBELUM dialog dibuka
-          // karena context di dalam StatefulBuilder (dialog) tidak punya akses ke provider
-          showCoreConfirmDialog(
-            context: context,
-            title: 'Ganti Jadwal',
-            message: 'Anda yakin ingin mengganti jadwal?',
-            contentWidget: StatefulBuilder(
-              builder: (dialogContext, setState) {
-                return Column(
-                  children: [
-                    CoreDropdownSearch<ScheduleModel>(
-                      label: 'Jadwal',
-                      hintText: 'Pilih jadwal',
-                      popupTitle: 'Pilih Jadwal',
-                      isRequired: true,
-                      isItemSelected: (s) => s.id == jadwalId,
-                      items: state.schedules,
-                      itemAsString: (s) =>
-                          '${s.tanggal} - ${s.shift.name} - ${s.lokasi.namaLokasi}',
-                      compareFn: (a, b) => a.id == b.id,
-                      onSelected: (selected) async {
-                        if (selected != null) {
-                          final selectedId =
-                              int.tryParse(selected.id.toString()) ?? 0;
-
-                          setState(() {
-                            jadwalId = selectedId;
-                            isLoadingPengganti = true;
-                            listPengganti = [];
-                          });
-
-                          try {
-                            final result = await onFetchReplacementSchedules(
-                              selectedId,
-                            );
-                            setState(() {
-                              listPengganti = result;
-                              isLoadingPengganti = false;
-                            });
-                          } catch (e) {
-                            setState(() {
-                              isLoadingPengganti = false;
-                            });
-                          }
-                        }
-                      },
-                    ),
-                    if (jadwalId > 0) ...[
-                      const SizedBox(height: 16),
-                      if (isLoadingPengganti)
-                        const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 20),
-                          child: Center(child: CircularProgressIndicator()),
-                        )
-                      else
-                        Column(
-                          children: [
-                            CoreDropdownSearch<dynamic>(
-                              label: 'Pengganti',
-                              hintText: 'Pilih pengganti',
-                              popupTitle: 'Pilih Pengganti',
-                              items: listPengganti,
-                              itemAsString: (s) =>
-                                  '${s['fullName']?.toString()} - ${s['shiftName']?.toString()} - ${s['tanggal']?.toString()}',
-                              compareFn: (a, b) => a['userId'] == b['userId'],
-                              onSelected: (selected) {
-                                if (selected != null) {
-                                  setState(() {
-                                    replacementId =
-                                        int.tryParse(
-                                          selected['userId'].toString(),
-                                        ) ??
-                                        0;
-                                  });
-                                }
-                              },
-                            ),
-                            const SizedBox(height: 16),
-                            CoreInputFieldNew(
-                              label: 'Alasan',
-                              hintText: 'Alasan',
-                              onChanged: (v) {
-                                reason = v;
-                              },
-                            ),
-                          ],
-                        ),
-                    ],
-                  ],
-                );
+      if (role.toLowerCase().contains('korlap'))
+        _MenuItem(
+          title: 'Approval Jadwal',
+          icon: Icons.check_circle_outlined,
+          color: theme.primaryColor,
+          route: '/approval',
+          onTap: null,
+        ),
+      if (role.toLowerCase().contains('korlap') ||
+          role.toLowerCase().contains('prmg'))
+        _MenuItem(
+          title: 'Pergantian Jadwal',
+          icon: Icons.swap_horiz_outlined,
+          color: theme.primaryColor,
+          route: null,
+          onTap: () {
+            context.push(
+              '/shift-replacement',
+              extra: {
+                'schedules': state.schedules,
+                'requesterId': int.tryParse(state.userId) ?? 0,
+                'onFetchReplacementSchedules': onFetchReplacementSchedules,
+                'onRequestShiftReplacement': onRequestShiftReplacement,
               },
-            ),
-            onConfirm: () async {
-              if (jadwalId == 0 || replacementId == 0) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Pilih jadwal dan pengganti!'),
-                    backgroundColor: Colors.red,
-                  ),
-                );
-                return;
-              }
-
-              try {
-                final success = await onRequestShiftReplacement(
-                  requesterId: int.tryParse(state.userId) ?? 0,
-                  replacementId: replacementId,
-                  jadwalId: jadwalId,
-                  alasan: reason,
-                );
-
-                if (!context.mounted) return;
-
-                if (success) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Berhasil mengajukan ganti jadwal!'),
-                      backgroundColor: Colors.green,
-                    ),
-                  );
-                }
-              } catch (e) {
-                if (!context.mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(e.toString()),
-                    backgroundColor: Colors.red,
-                  ),
-                );
-              }
-            },
-          );
-        },
-      ),
-      _MenuItem(
-        title: 'Pengajuan Cuti',
-        icon: Icons.event_note_outlined,
-        color: theme.primaryColor,
-        route: null,
-        onTap: null,
-      ),
+            );
+          },
+        ),
+      if (role.toLowerCase().contains('pegawai'))
+        _MenuItem(
+          title: role.toLowerCase().contains('pegawai')
+              ? 'Pengajuan Cuti'
+              : 'Verifikasi Cuti',
+          icon: Icons.event_note_outlined,
+          color: theme.primaryColor,
+          route: '/leave-request',
+          onTap: null,
+        ),
       _MenuItem(
         title: 'Jadwal',
         icon: Icons.calendar_month_outlined,
         color: theme.primaryColor,
         route: null,
         onTap: () {
-          context.push('/schedule-calendar', extra: state.schedulePerMonth);
+          context.push('/schedule-calendar', extra: state.userId);
         },
       ),
       _MenuItem(
@@ -212,7 +92,12 @@ class AttendanceMenuGrid extends StatelessWidget {
         icon: Icons.history_outlined,
         color: theme.primaryColor,
         route: null,
-        onTap: null,
+        onTap: () {
+          context.push('/history', extra: {
+            'history': state.history,
+            'userId': state.userId,
+          });
+        },
       ),
       _MenuItem(
         title: 'Lainnya',

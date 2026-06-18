@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:psm_mobile/core/presentations/widgets/widgets.dart';
+import 'package:go_router/go_router.dart';
 import 'package:psm_mobile/features/attendance/presentation/bloc/attendance_state.dart';
 import 'package:psm_mobile/features/attendance/data/models/attendance_record.dart';
 
@@ -30,7 +30,7 @@ class RecentHistoryCard extends StatelessWidget {
               const SizedBox(width: 8),
               TextButton(
                 onPressed: () {
-                  showCoreInfoDialog(context, "TEST", "TEST"); // TESTING
+                  context.push('/history');
                 },
                 style: TextButton.styleFrom(
                   foregroundColor: Colors.blue[700],
