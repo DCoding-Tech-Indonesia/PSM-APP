@@ -11,14 +11,17 @@ class PortalBloc extends Bloc<PortalEvent, PortalState> {
   final SecureStorageService secureStorageService;
   final PortalRepository portalRepository;
 
-  PortalBloc(this.authRepository, this.secureStorageService, this.portalRepository)
-      : super(const PortalState()) {
+  PortalBloc(
+    this.authRepository,
+    this.secureStorageService,
+    this.portalRepository,
+  ) : super(const PortalState()) {
     on<FetchProfile>((event, emit) async {
       emit(PortalLoading());
       final result = await portalRepository.getProfile();
       result.fold(
-            (failure) => emit(PortalError(message: failure.message)),
-            (profile) => emit(PortalLoaded(profile: profile)),
+        (failure) => emit(PortalError(message: failure.message)),
+        (profile) => emit(PortalLoaded(profile: profile)),
       );
     });
 
@@ -47,15 +50,16 @@ class PortalBloc extends Bloc<PortalEvent, PortalState> {
 
     on<Logout>((event, emit) async {
       final userId = await secureStorageService.readUserId() ?? state.userId;
-      final username = await secureStorageService.readUsername() ?? state.username;
-      
+      final username =
+          await secureStorageService.readUsername() ?? state.username;
+
       final result = await authRepository.logout(userId, username);
 
       result.match(
-            (failure) {
+        (failure) {
           state.copyWith(logoutSuccess: false);
         },
-            (response) {
+        (response) {
           emit(state.copyWith(logoutSuccess: true));
         },
       );

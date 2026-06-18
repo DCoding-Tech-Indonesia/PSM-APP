@@ -9,8 +9,8 @@ class ApprovalRepositoryImpl implements ApprovalRepository {
   ApprovalRepositoryImpl({required this.remoteDataSource});
 
   @override
-  Future<List<ApprovalModel>> getApprovalList() async {
-    return await remoteDataSource.getApprovalList();
+  Future<List<ApprovalModel>> getApprovalList(String type) async {
+    return await remoteDataSource.getApprovalList(type);
   }
 
   @override

@@ -86,19 +86,20 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
       final now = DateTime.now();
 
       // Calculate start and end date for 7 days schedule (Today in the middle)
-      final startDate = DateFormat(
-        'yyyy-MM-dd',
-      ).format(now.subtract(const Duration(days: 3)));
+      // final startDate = DateFormat(
+      //   'yyyy-MM-dd',
+      // ).format(now.subtract(const Duration(days: 0)));
+      // final endDate = DateFormat(
+      //   'yyyy-MM-dd',
+      // ).format(now.add(const Duration(days: 100)));
+
+      final startDate = DateFormat('yyyy-MM-dd').format(now);
+      // Mengambil endDate 30 hari dari hari ini
       final endDate = DateFormat(
         'yyyy-MM-dd',
-      ).format(now.add(const Duration(days: 3)));
+      ).format(now.add(const Duration(days: 30)));
 
-      final startDateMonth = DateFormat(
-        'yyyy-MM-dd',
-      ).format(DateTime(now.year, now.month, 1));
-      final endDateMonth = DateFormat(
-        'yyyy-MM-dd',
-      ).format(DateTime(now.year, now.month + 11, 0));
+      // Removed heavy 11-month fetch for schedulePerMonth
 
       // Fetch History, Stats, and Schedules in parallel
       final results = await Future.wait([
@@ -109,11 +110,6 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
           startDate: startDate,
           endDate: endDate,
         ),
-        repository.getSchedules(
-          userId: uId,
-          startDate: startDateMonth,
-          endDate: endDateMonth,
-        ),
         repository.getBus(),
       ]);
 
@@ -122,9 +118,8 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
       final Map<String, dynamic>? statsResponse =
           results[1] as Map<String, dynamic>?;
       final List<ScheduleModel> schedules = results[2] as List<ScheduleModel>;
-      final List<ScheduleModel> schedulePerMonth =
-          results[3] as List<ScheduleModel>;
-      final List<dynamic> bus = results[4] as List<dynamic>;
+      final List<dynamic> bus = results[3] as List<dynamic>;
+      final List<ScheduleModel> schedulePerMonth = [];
       final List<dynamic> replacementSchedules = [];
 
       AttendanceStats stats = currentState.stats;

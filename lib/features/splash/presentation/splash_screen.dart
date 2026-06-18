@@ -64,8 +64,9 @@ class _SplashScreenState extends State<SplashScreen>
       debugPrint(
         '[SPLASH] Token dari storage: ${token != null ? 'ADA' : 'KOSONG'}',
       );
-      if (token != null)
+      if (token != null) {
         debugPrint('[SPLASH] Status: ${JwtHelper.tokenStatus(token)}');
+      }
     }
 
     // --- PRIORITAS 1: Cek apakah user sudah login ---
@@ -73,16 +74,19 @@ class _SplashScreenState extends State<SplashScreen>
       // Cek status token secara LOKAL tanpa internet
       if (JwtHelper.isExpired(token)) {
         // Token sudah mati total → tidak bisa ditolong, langsung ke login
-        if (kDebugMode)
+        if (kDebugMode) {
           debugPrint('[SPLASH] Token EXPIRED → clearLogin → /login');
+        }
         await secureStorage.clearLogin();
       } else if (JwtHelper.isExpiringSoon(token)) {
         // Token hampir mati (< 5 menit) → refresh dulu sebelum masuk portal
-        if (kDebugMode)
+        if (kDebugMode) {
           debugPrint('[SPLASH] Token EXPIRING_SOON → coba refresh dulu...');
+        }
         final refreshed = await _tryRefreshToken(secureStorage, dioClient);
-        if (refreshed)
+        if (refreshed) {
           return; // _tryRefreshToken sudah handle navigate ke /portal
+        }
         // Jika refresh gagal, lanjut ke login
       } else {
         // Token masih valid → verifikasi ke server sekali, lalu masuk portal
@@ -120,8 +124,9 @@ class _SplashScreenState extends State<SplashScreen>
             await secureStorage.clearLogin();
           }
         } catch (e) {
-          if (kDebugMode)
+          if (kDebugMode) {
             debugPrint('[SPLASH] Exception check-token: $e → coba refresh...');
+          }
           final refreshed = await _tryRefreshToken(secureStorage, dioClient);
           if (refreshed) return;
           await secureStorage.clearLogin();
@@ -156,8 +161,9 @@ class _SplashScreenState extends State<SplashScreen>
 
       // Decode refresh token: jika sudah expired, tidak perlu hit server
       if (JwtHelper.isExpired(storedRefreshToken)) {
-        if (kDebugMode)
+        if (kDebugMode) {
           debugPrint('[SPLASH] Refresh token juga EXPIRED → /login');
+        }
         await secureStorage.clearLogin();
         return false;
       }
