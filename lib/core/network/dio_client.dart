@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:psm_mobile/core/helper/auth_token_helper.dart';
+import 'package:psm_mobile/core/config/app_config.dart';
 import 'package:psm_mobile/core/helper/jwt_helper.dart';
 import 'package:psm_mobile/core/storage/secure_storage.dart';
 
@@ -18,7 +18,7 @@ class DioClient {
 
   void init({String? baseUrl, String? token, VoidCallback? onUnauthorized}) {
     this.onUnauthorized = onUnauthorized;
-    final resolvedBaseUrl = baseUrl ?? dotenv.env['API_BASE_URL'] ?? '';
+    final resolvedBaseUrl = baseUrl ?? AppConfig.apiBaseUrl;
 
     _dio = Dio(
       BaseOptions(
@@ -107,9 +107,7 @@ class DioClient {
       }
 
       // Gunakan token Dio baru agar tidak terganggu interceptor
-      final tokenDio = Dio(
-        BaseOptions(baseUrl: dotenv.env['API_BASE_URL'] ?? ''),
-      );
+      final tokenDio = Dio(BaseOptions(baseUrl: AppConfig.apiBaseUrl));
 
       final response = await tokenDio.post(
         '/auth/refresh',
@@ -254,7 +252,7 @@ class DioClient {
                 }
 
                 final tokenDio = Dio(
-                  BaseOptions(baseUrl: dotenv.env['API_BASE_URL'] ?? ''),
+                  BaseOptions(baseUrl: AppConfig.apiBaseUrl),
                 );
 
                 if (kDebugMode) {

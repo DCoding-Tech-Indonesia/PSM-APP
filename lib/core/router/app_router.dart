@@ -39,12 +39,14 @@ import 'package:psm_mobile/features/attendance/presentation/screens/shift_replac
 import 'package:psm_mobile/features/attendance/data/datasources/leave_request_remote_data_source.dart';
 import 'package:psm_mobile/features/attendance/data/repositories/leave_request_repository_impl.dart';
 import 'package:psm_mobile/features/attendance/presentation/screens/history_screen.dart';
-import 'package:psm_mobile/features/attendance/data/models/attendance_record.dart';
 import 'package:psm_mobile/features/attendance/presentation/bloc/leave_request_bloc.dart';
 import 'package:psm_mobile/features/settlement/presentation/settlement_history_screen.dart';
 import 'package:psm_mobile/features/settlement/presentation/settlement_screen.dart';
 import 'package:psm_mobile/features/settlement/presentation/settlement_success_submit_draft_screen.dart';
 import 'package:psm_mobile/features/splash/presentation/splash_screen.dart';
+import 'package:psm_mobile/features/spm/presentation/screens/spm_screen.dart';
+import 'package:psm_mobile/features/spm/presentation/screens/spm_input_screen.dart';
+import 'package:psm_mobile/features/spm/presentation/screens/spm_detail_screen.dart';
 import 'package:psm_mobile/features/timetable/presentation/timetable_screen.dart';
 
 late final GoRouter appRouter;
@@ -352,6 +354,10 @@ void setupRouter(String initialLocation) {
 
       // ATTENDANCE & APPROVAL ROUTE
       GoRoute(
+        path: '/attendance',
+        builder: (context, state) => const AttendanceScreen(),
+      ),
+      GoRoute(
         path: '/leave-request',
         builder: (context, state) {
           final portalState = context.read<PortalBloc>().state;
@@ -369,10 +375,6 @@ void setupRouter(String initialLocation) {
             child: const LeaveRequestScreen(),
           );
         },
-      ),
-      GoRoute(
-        path: '/attendance',
-        builder: (context, state) => const AttendanceScreen(),
       ),
       GoRoute(
         path: '/approval',
@@ -396,11 +398,8 @@ void setupRouter(String initialLocation) {
         path: '/history',
         builder: (context, state) {
           final args = state.extra as Map<String, dynamic>? ?? {};
-          final history =
-              (args['history'] as List<dynamic>?)?.cast<AttendanceRecord>() ??
-              [];
           final userId = args['userId'] as String? ?? '';
-          return HistoryScreen(initialHistory: history, userId: userId);
+          return HistoryScreen(userId: userId);
         },
       ),
       GoRoute(
@@ -422,6 +421,20 @@ void setupRouter(String initialLocation) {
                       required String alasan,
                     }),
           );
+        },
+      ),
+
+      // SPM ROUTE
+      GoRoute(path: '/spm', builder: (context, state) => const SpmScreen()),
+      GoRoute(
+        path: '/spm/input',
+        builder: (context, state) => const SpmInputScreen(),
+      ),
+      GoRoute(
+        path: '/spm/detail',
+        builder: (context, state) {
+          final taskId = state.extra as int;
+          return SpmDetailScreen(taskId: taskId);
         },
       ),
 

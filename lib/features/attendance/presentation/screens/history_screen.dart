@@ -6,12 +6,10 @@ import 'package:psm_mobile/features/attendance/data/datasources/attendance_remot
 import 'package:psm_mobile/features/attendance/data/repositories/attendance_repository_impl.dart';
 
 class HistoryScreen extends StatefulWidget {
-  final List<AttendanceRecord> initialHistory;
   final String userId;
 
   const HistoryScreen({
     super.key,
-    required this.initialHistory,
     required this.userId,
   });
 
@@ -20,16 +18,16 @@ class HistoryScreen extends StatefulWidget {
 }
 
 class _HistoryScreenState extends State<HistoryScreen> {
-  late List<AttendanceRecord> _history;
-  bool _isLoading = false;
+  List<AttendanceRecord> _history = [];
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _history = widget.initialHistory;
+    _fetchHistory();
   }
 
-  Future<void> _onRefresh() async {
+  Future<void> _fetchHistory() async {
     setState(() {
       _isLoading = true;
     });
@@ -39,7 +37,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
         remoteDataSource: AttendanceRemoteDataSourceImpl(DioClient()),
       );
 
-      // Ambil riwayat selama 30 hari ke belakang agar riwayat utuh
       final newHistory = await repository.getHistory(
         int.tryParse(widget.userId) ?? 0,
         30,
@@ -56,9 +53,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
         setState(() {
           _isLoading = false;
         });
-        showCoreErrorDialog(context, 'Kesalahan', 'Gagal memperbarui riwayat');
       }
     }
+  }
+
+  Future<void> _onRefresh() async {
+    await _fetchHistory();
   }
 
   @override

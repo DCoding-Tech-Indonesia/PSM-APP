@@ -4,10 +4,7 @@ import 'package:psm_mobile/features/attendance/presentation/bloc/attendance_stat
 class DateTimeCard extends StatelessWidget {
   final AttendanceLoaded state;
 
-  const DateTimeCard({
-    super.key,
-    required this.state,
-  });
+  const DateTimeCard({super.key, required this.state});
 
   @override
   Widget build(BuildContext context) {
@@ -37,9 +34,14 @@ class DateTimeCard extends StatelessWidget {
                   color: isDark
                       ? Colors.white10
                       : Colors.black.withValues(alpha: 0.05),
-                  borderRadius: BorderRadius.circular((screenWidth * 0.03).clamp(8.0, 12.0)),
+                  borderRadius: BorderRadius.circular(
+                    (screenWidth * 0.03).clamp(8.0, 12.0),
+                  ),
                 ),
-                child: Icon(Icons.calendar_today_outlined, size: (screenWidth * 0.045).clamp(16.0, 20.0)),
+                child: Icon(
+                  Icons.calendar_today_outlined,
+                  size: (screenWidth * 0.045).clamp(16.0, 20.0),
+                ),
               ),
               SizedBox(width: (screenWidth * 0.02).clamp(6.0, 10.0)),
               Flexible(
@@ -62,12 +64,17 @@ class DateTimeCard extends StatelessWidget {
               color: isDark
                   ? Colors.black26
                   : Colors.grey.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular((screenWidth * 0.03).clamp(8.0, 12.0)),
+              borderRadius: BorderRadius.circular(
+                (screenWidth * 0.03).clamp(8.0, 12.0),
+              ),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.access_time, size: (screenWidth * 0.04).clamp(14.0, 18.0)),
+                Icon(
+                  Icons.access_time,
+                  size: (screenWidth * 0.04).clamp(14.0, 18.0),
+                ),
                 SizedBox(width: (screenWidth * 0.02).clamp(4.0, 8.0)),
                 Text(
                   state.currentTime,

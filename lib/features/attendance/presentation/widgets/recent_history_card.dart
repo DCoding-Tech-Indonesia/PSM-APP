@@ -30,7 +30,7 @@ class RecentHistoryCard extends StatelessWidget {
               const SizedBox(width: 8),
               TextButton(
                 onPressed: () {
-                  context.push('/history');
+                  context.push('/history', extra: {'userId': state.userId});
                 },
                 style: TextButton.styleFrom(
                   foregroundColor: Colors.blue[700],

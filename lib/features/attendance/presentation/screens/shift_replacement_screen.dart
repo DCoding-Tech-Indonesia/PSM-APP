@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:psm_mobile/core/network/dio_client.dart';
 import 'package:psm_mobile/core/presentations/widgets/widgets.dart';
 import 'package:psm_mobile/features/attendance/data/datasources/approval_remote_data_source.dart';
@@ -73,6 +74,8 @@ class _ShiftReplacementView extends StatelessWidget {
   void _openForm(BuildContext context) {
     showModalBottomSheet(
       context: context,
+      isDismissible: false,
+      enableDrag: false,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => _ShiftReplacementFormSheet(
@@ -353,6 +356,16 @@ class _ShiftReplacementFormSheetState
     }
   }
 
+  String _formatDateStr(String? dateStr) {
+    if (dateStr == null || dateStr.isEmpty) return '-';
+    try {
+      final date = DateTime.parse(dateStr);
+      return DateFormat('dd MMM yyyy').format(date);
+    } catch (e) {
+      return dateStr;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -396,7 +409,7 @@ class _ShiftReplacementFormSheetState
                 isItemSelected: (s) => s.id == _jadwalId,
                 items: widget.schedules,
                 itemAsString: (s) =>
-                    '${s.tanggal} - ${s.shift.name} - ${s.lokasi.namaLokasi}',
+                    '${_formatDateStr(s.tanggal)} - ${s.shift.name} - ${s.lokasi.namaLokasi}',
                 compareFn: (a, b) => a.id == b.id,
                 onSelected: _onJadwalSelected,
               ),
@@ -415,8 +428,7 @@ class _ShiftReplacementFormSheetState
                     hintText: 'Pilih karyawan pengganti',
                     popupTitle: 'Pilih Pengganti',
                     items: _listPengganti,
-                    itemAsString: (s) =>
-                        '${s['fullName']?.toString()} - ${s['shiftName']?.toString()} - ${s['tanggal']?.toString()}',
+                    itemAsString: (s) => '${s['fullName']?.toString()}',
                     compareFn: (a, b) => a['userId'] == b['userId'],
                     onSelected: (selected) {
                       if (selected != null) {

@@ -11,9 +11,9 @@ class ReferenceDetail {
 
   factory ReferenceDetail.fromJson(Map<String, dynamic> json) {
     return ReferenceDetail(
-      id: json['id'],
-      code: json['code'],
-      name: json['name'],
+      id: json['id'] ?? 0,
+      code: json['code'] ?? '',
+      name: json['name'] ?? json['namaLokasi'] ?? '',
     );
   }
 }
