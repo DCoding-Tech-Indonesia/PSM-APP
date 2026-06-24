@@ -56,6 +56,7 @@ class AttendanceActionButtons extends StatelessWidget {
                                 children: [
                                   CoreDropdownSearch<dynamic>(
                                     label: 'Bus',
+                                    hintText: 'Pilih bus',
                                     popupTitle: 'Pilih Bus',
                                     items: state.bus,
                                     itemAsString: (s) =>

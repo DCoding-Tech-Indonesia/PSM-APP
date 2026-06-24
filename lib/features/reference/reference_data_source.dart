@@ -14,10 +14,18 @@ class ReferenceDataSource {
 
   ReferenceDataSource({required this.dio, required this.secureStorageService});
 
-  Future<List<ReferenceBus>> fetchReferenceBus(String keyword, int idKoridor) async {
+  Future<List<ReferenceBus>> fetchReferenceBus(
+    String keyword,
+    int idKoridor,
+  ) async {
     final response = await dio.get(
       '/reference/bus',
-      queryParameters: {'keyword': keyword, 'page': 1, 'perPage': 999, 'idKoridor': idKoridor},
+      queryParameters: {
+        'keyword': keyword,
+        'page': 1,
+        'perPage': 999,
+        'idKoridor': idKoridor,
+      },
     );
 
     final data = response.data['data'] as List;
@@ -36,7 +44,9 @@ class ReferenceDataSource {
     return data.map((e) => ReferenceDetail.fromJson(e)).toList();
   }
 
-  Future<List<ReferenceBilling>> fetchReferenceCustomerBilling(int idTypeNasabah) async {
+  Future<List<ReferenceBilling>> fetchReferenceCustomerBilling(
+    int idTypeNasabah,
+  ) async {
     final response = await dio.get(
       '/reference/customer-billing',
       queryParameters: {
@@ -66,6 +76,51 @@ class ReferenceDataSource {
     final response = await dio.get(
       '/reference/customer-type',
       queryParameters: {'keyword': keyword, 'page': 1, 'perPage': 999},
+    );
+
+    final data = response.data['data'] as List;
+
+    return data.map((e) => ReferenceDetail.fromJson(e)).toList();
+  }
+
+  Future<List<ReferenceDetail>> fetchReferenceObjectTypeSpm(
+    String keyword,
+  ) async {
+    final response = await dio.get(
+      '/reference/object-type-spm',
+      queryParameters: {'keyword': keyword, 'page': 1, 'perPage': 999},
+    );
+
+    final data = response.data['data'] as List;
+
+    return data.map((e) => ReferenceDetail.fromJson(e)).toList();
+  }
+
+  Future<List<ReferenceDetail>> fetchReferenceCategorySpm(
+    String keyword,
+  ) async {
+    final response = await dio.get(
+      '/reference/category-spm',
+      queryParameters: {'keyword': keyword, 'page': 1, 'perPage': 999},
+    );
+
+    final data = response.data['data'] as List;
+
+    return data.map((e) => ReferenceDetail.fromJson(e)).toList();
+  }
+
+  Future<List<ReferenceDetail>> fetchReferenceLokasiHalte(
+    String keyword,
+    int idKoridor,
+  ) async {
+    final response = await dio.get(
+      '/reference/lokasi-halte',
+      queryParameters: {
+        'keyword': keyword,
+        'page': 1,
+        'perPage': 999,
+        'idKoridor': idKoridor,
+      },
     );
 
     final data = response.data['data'] as List;

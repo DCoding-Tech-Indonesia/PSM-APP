@@ -49,8 +49,16 @@ class AttendanceViewContent extends StatelessWidget {
       body: SafeArea(
         child: BlocListener<AttendanceBloc, AttendanceState>(
           listener: (context, state) {
-            if (state is AttendanceLoaded && state.errorMessage != null) {
-              showCoreErrorDialog(context, 'Kesalahan', state.errorMessage!);
+            if (state is AttendanceLoaded) {
+              if (state.successMessage != null) {
+                showCoreSuccessDialog(
+                  context,
+                  'Berhasil',
+                  state.successMessage!,
+                );
+              } else if (state.errorMessage != null) {
+                showCoreErrorDialog(context, 'Kesalahan', state.errorMessage!);
+              }
             }
           },
           child: BlocBuilder<AttendanceBloc, AttendanceState>(

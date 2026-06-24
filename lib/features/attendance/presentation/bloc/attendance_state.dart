@@ -54,6 +54,7 @@ class AttendanceLoaded extends AttendanceState {
   final String locationStatus;
   final String distanceFromOffice;
   final String? errorMessage;
+  final String? successMessage;
   final AttendanceStats stats;
   final List<AttendanceRecord> history;
   final List<ScheduleModel> schedules;
@@ -76,6 +77,7 @@ class AttendanceLoaded extends AttendanceState {
     required this.locationStatus,
     required this.distanceFromOffice,
     this.errorMessage,
+    this.successMessage,
     required this.stats,
     required this.history,
     this.schedules = const [],
@@ -100,6 +102,7 @@ class AttendanceLoaded extends AttendanceState {
     locationStatus,
     distanceFromOffice,
     errorMessage,
+    successMessage,
     stats,
     history,
     schedules,
@@ -123,6 +126,7 @@ class AttendanceLoaded extends AttendanceState {
     String? locationStatus,
     String? distanceFromOffice,
     String? errorMessage,
+    String? successMessage,
     AttendanceStats? stats,
     List<AttendanceRecord>? history,
     List<ScheduleModel>? schedules,
@@ -145,6 +149,7 @@ class AttendanceLoaded extends AttendanceState {
       locationStatus: locationStatus ?? this.locationStatus,
       distanceFromOffice: distanceFromOffice ?? this.distanceFromOffice,
       errorMessage: errorMessage,
+      successMessage: successMessage,
       stats: stats ?? this.stats,
       history: history ?? this.history,
       schedules: schedules ?? this.schedules,

@@ -333,6 +333,9 @@ class PortalQuickActionsGrid extends StatelessWidget {
                   } else if (menu.title.toLowerCase().contains("absensi")) {
                     mappedIcon = Icons.fingerprint;
                     mappedColor = Colors.blue;
+                  } else if (menu.title.toLowerCase().contains("spm")) {
+                    mappedIcon = Icons.receipt;
+                    mappedColor = Colors.green;
                   } else {
                     mappedIcon = Icons.menu;
                   }
@@ -348,9 +351,10 @@ class PortalQuickActionsGrid extends StatelessWidget {
                     () {
                       if (menu.title.toUpperCase().contains("SETTELMENT")) {
                         context.push('/settlement/dashboard');
-                      } else if (menu.title.toLowerCase().contains("absensi") ||
-                          menu.route == "/attendance") {
+                      } else if (menu.title.toLowerCase().contains("absensi")) {
                         context.push('/attendance');
+                      } else if (menu.title.toLowerCase().contains("spm")) {
+                        context.push('/spm');
                       } else if (menu.title.toUpperCase().contains("KM")) {
                         context.push('/kmbus/dashboard');
                       } else if (menu.title.toUpperCase().contains(

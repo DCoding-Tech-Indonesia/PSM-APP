@@ -79,8 +79,9 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
   Future<void> _fetchHistoryAndEmit(
     String userId,
     Emitter<AttendanceState> emit,
-    AttendanceLoaded currentState,
-  ) async {
+    AttendanceLoaded currentState, {
+    String? successMessage,
+  }) async {
     try {
       final uId = int.tryParse(userId) ?? 0;
       final now = DateTime.now();
@@ -165,6 +166,7 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
           checkOutTime: checkOutTime,
           bus: bus,
           replacementSchedules: replacementSchedules,
+          successMessage: successMessage,
         ),
       );
     } catch (e) {
@@ -298,7 +300,7 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
           await prefs.setInt('active_bus_id', event.busId);
 
           // Re-fetch everything to ensure stats and history are synchronized
-          await _fetchHistoryAndEmit(s.userId, emit, s);
+          await _fetchHistoryAndEmit(s.userId, emit, s, successMessage: 'Check-in berhasil!');
         } else {
           emit(
             s.copyWith(
@@ -341,7 +343,7 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
 
         if (success) {
           // Re-fetch everything to ensure stats and history are synchronized
-          await _fetchHistoryAndEmit(s.userId, emit, s);
+          await _fetchHistoryAndEmit(s.userId, emit, s, successMessage: 'Check-out berhasil!');
         } else {
           emit(
             s.copyWith(

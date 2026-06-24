@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
+import 'package:psm_mobile/core/config/app_config.dart';
 import 'package:psm_mobile/core/helper/auth_token_helper.dart';
 import 'package:psm_mobile/core/helper/jwt_helper.dart';
 import 'package:psm_mobile/core/network/dio_client.dart';
@@ -168,9 +168,7 @@ class _SplashScreenState extends State<SplashScreen>
         return false;
       }
 
-      final tokenDio = Dio(
-        BaseOptions(baseUrl: dotenv.env['API_BASE_URL'] ?? ''),
-      );
+      final tokenDio = Dio(BaseOptions(baseUrl: AppConfig.apiBaseUrl));
 
       if (kDebugMode) debugPrint('[SPLASH] Hit /auth/refresh...');
       final response = await tokenDio.post(
@@ -224,52 +222,6 @@ class _SplashScreenState extends State<SplashScreen>
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Logo Container
-                    // Container(
-                    //   width: 120,
-                    //   height: 120,
-                    //   decoration: BoxDecoration(
-                    //     gradient: LinearGradient(
-                    //       colors: [
-                    //         theme.colorScheme.primary,
-                    //         theme.colorScheme.primary.withValues(alpha: 0.8),
-                    //       ],
-                    //       begin: Alignment.topLeft,
-                    //       end: Alignment.bottomRight,
-                    //     ),
-                    //     borderRadius: BorderRadius.circular(30),
-                    //     boxShadow: [
-                    //       BoxShadow(
-                    //         color: theme.colorScheme.primary.withValues(
-                    //           alpha: 0.3,
-                    //         ),
-                    //         blurRadius: 30,
-                    //         offset: const Offset(0, 15),
-                    //       ),
-                    //     ],
-                    //   ),
-                    //   child: const Text(
-                    //     "PSM",
-                    //     style: TextStyle(
-                    //       fontSize: 48,
-                    //       fontWeight: FontWeight.w900,
-                    //       color: Color(0xFF1E3C72),
-                    //       letterSpacing: -2,
-                    //     ),
-                    //   ),
-                    // ),
-
-                    // const SizedBox(height: 32),
-
-                    // // App Name
-                    // Text(
-                    //   'Padang Sejahtera Mandiri',
-                    //   style: theme.textTheme.headlineLarge?.copyWith(
-                    //     fontWeight: FontWeight.bold,
-                    //     color: theme.colorScheme.onSurface,
-                    //     fontSize: 32,
-                    //   ),
-                    // ),
                     TweenAnimationBuilder(
                       duration: const Duration(milliseconds: 800),
                       tween: Tween<double>(begin: 0, end: 1),
@@ -303,7 +255,6 @@ class _SplashScreenState extends State<SplashScreen>
                               style: TextStyle(
                                 fontSize: 48,
                                 fontWeight: FontWeight.w900,
-                                // color: Color(0xFF1E3C72),
                                 color: Colors.white,
                                 letterSpacing: -2,
                               ),
@@ -336,18 +287,6 @@ class _SplashScreenState extends State<SplashScreen>
                       ),
                     ),
 
-                    // const SizedBox(height: 8),
-
-                    // // Tagline
-                    // Text(
-                    //   'Portal System Management',
-                    //   style: theme.textTheme.bodyLarge?.copyWith(
-                    //     color: theme.colorScheme.onSurface.withValues(
-                    //       alpha: 0.7,
-                    //     ),
-                    //     fontSize: 16,
-                    //   ),
-                    // ),
                     const SizedBox(height: 48),
 
                     // Loading Indicator
