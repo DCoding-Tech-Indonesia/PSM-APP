@@ -19,22 +19,19 @@ class SettlementHistoryScreen extends StatefulWidget {
 class _SettlementHistoryScreenState extends State<SettlementHistoryScreen> {
   String _activeTab = "Pending";
 
-  static const List<String> _tabs = [
-    "Pending",
-    "Cancel",
-    "Selesai",
-  ];
+  static const List<String> _tabs = ["Pending", "Cancel", "Selesai"];
 
   late final PageController _pageController;
 
   @override
   void initState() {
     super.initState();
-
     _pageController = PageController();
 
     Future.microtask(() {
-      context.read<SettlementBloc>().add(PageDashboardLoad());
+      if (mounted) {
+        context.read<SettlementBloc>().add(PageDashboardLoad());
+      }
     });
   }
 
@@ -44,23 +41,19 @@ class _SettlementHistoryScreenState extends State<SettlementHistoryScreen> {
     super.dispose();
   }
 
-
   Future<void> _onRefresh() async {
     final bloc = context.read<SettlementBloc>();
-
     bloc.add(PageDashboardLoad());
 
     await bloc.stream.firstWhere(
-          (state) => state.status != SettlementStatus.loading,
+      (state) => state.status != SettlementStatus.loading,
     );
   }
 
-
   void _changeTab(String tab) {
-    final index = _tabs.indexOf(tab);
-
     if (_activeTab == tab) return;
 
+    final index = _tabs.indexOf(tab);
     setState(() {
       _activeTab = tab;
     });
@@ -72,39 +65,29 @@ class _SettlementHistoryScreenState extends State<SettlementHistoryScreen> {
     );
   }
 
+  List<dynamic> _filterData(List<dynamic> data, String tab) {
+    if (data.isEmpty) return const [];
 
-  List filterData(
-      List data,
-      String tab,
-      ) {
     return data.where((item) {
       final code = item.status.code;
-
       switch (tab) {
         case "Pending":
           return code == "DFT";
-
         case "Cancel":
           return code == "CNC";
-
         case "Selesai":
           return code == "APR";
-
         default:
           return false;
       }
     }).toList();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return BlocListener<SettlementBloc, SettlementState>(
-      listenWhen: (prev, curr) =>
-      prev.status != curr.status,
-
+      listenWhen: (prev, curr) => prev.status != curr.status,
       listener: (context, state) {
-
         if (state.status == SettlementStatus.failedSave) {
           CoreSnackbar.show(
             context,
@@ -113,226 +96,139 @@ class _SettlementHistoryScreenState extends State<SettlementHistoryScreen> {
           );
         }
 
-
         if (state.status == SettlementStatus.successSave) {
           CoreSnackbar.show(
             context,
             message: "Draft berhasil di submit",
             type: SnackbarType.success,
           );
-
-          context
-              .read<SettlementBloc>()
-              .add(PageDashboardLoad());
+          context.read<SettlementBloc>().add(PageDashboardLoad());
         }
       },
-
-
       child: Scaffold(
+        backgroundColor: Colors.white,
         body: SafeArea(
-          child: BlocBuilder<SettlementBloc, SettlementState>(
-            builder: (context, state) {
+          child: Column(
+            children: [
+              const CoreHeader(
+                title: "History Settlement",
+                customBgColor: Colors.white,
+                withBorder: true,
+              ),
 
-              return Stack(
-                children: [
+              Row(
+                children: _tabs.map((tab) {
+                  final active = _activeTab == tab;
 
-                  Column(
-                    children: [
-
-                      CoreHeader(
-                        title: "History Settlement",
-                        customBgColor: Colors.white,
-                        withBorder: true,
-                      ),
-
-
-
-                      Row(
-                        children: _tabs.map((tab) {
-
-                          final active =
-                              _activeTab == tab;
-
-
-                          return Expanded(
-                            child: InkWell(
-                              onTap: () {
-                                _changeTab(tab);
-                              },
-
-
-                              child: AnimatedContainer(
-                                duration:
-                                const Duration(milliseconds: 250),
-
-                                padding:
-                                const EdgeInsets.symmetric(
-                                  vertical: 15,
-                                ),
-
-
-                                decoration:
-                                BoxDecoration(
-                                  border: Border(
-                                    bottom:
-                                    BorderSide(
-                                      width: 3,
-                                      color: active
-                                          ? Colors.blue
-                                          : Colors.transparent,
-                                    ),
-                                  ),
-                                ),
-
-
-                                child: Center(
-                                  child:
-                                  AnimatedDefaultTextStyle(
-                                    duration:
-                                    const Duration(
-                                      milliseconds: 250,
-                                    ),
-
-                                    style: TextStyle(
-                                      color: active
-                                          ? Colors.blue
-                                          : Colors.grey,
-                                      fontWeight:
-                                      FontWeight.w700,
-                                      fontSize: 16,
-                                    ),
-
-                                    child: Text(tab),
-                                  ),
-                                ),
-                              ),
+                  return Expanded(
+                    child: InkWell(
+                      onTap: () => _changeTab(tab),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 250),
+                        padding: const EdgeInsets.symmetric(vertical: 15),
+                        decoration: BoxDecoration(
+                          border: Border(
+                            bottom: BorderSide(
+                              width: 3,
+                              color: active ? Colors.blue : Colors.transparent,
                             ),
-                          );
-
-                        }).toList(),
+                          ),
+                        ),
+                        child: Center(
+                          child: AnimatedDefaultTextStyle(
+                            duration: const Duration(milliseconds: 250),
+                            style: TextStyle(
+                              color: active ? Colors.blue : Colors.grey,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 16,
+                            ),
+                            child: Text(tab),
+                          ),
+                        ),
                       ),
+                    ),
+                  );
+                }).toList(),
+              ),
 
-
-
-
-                      Expanded(
-                        child: PageView.builder(
+              Expanded(
+                child: BlocBuilder<SettlementBloc, SettlementState>(
+                  buildWhen: (prev, curr) =>
+                      prev.listTaskAuditTrail != curr.listTaskAuditTrail ||
+                      prev.status != curr.status,
+                  builder: (context, state) {
+                    return Stack(
+                      children: [
+                        PageView.builder(
                           controller: _pageController,
-
                           onPageChanged: (index) {
                             setState(() {
-                              _activeTab =
-                              _tabs[index];
+                              _activeTab = _tabs[index];
                             });
                           },
-
-
                           itemCount: _tabs.length,
-
-
                           itemBuilder: (context, index) {
-
-                            final tab =
-                            _tabs[index];
-
-
-                            final filtered =
-                            filterData(
+                            final tab = _tabs[index];
+                            final filtered = _filterData(
                               state.listTaskAuditTrail,
                               tab,
                             );
 
-
                             return RefreshIndicator(
                               onRefresh: _onRefresh,
-
                               child: filtered.isEmpty
-
                                   ? ListView(
-                                physics:
-                                const AlwaysScrollableScrollPhysics(),
-
-                                children: const [
-
-                                  SizedBox(
-                                    height: 200,
-                                  ),
-
-                                  Center(
-                                    child: Text(
-                                      "Tidak ada data",
-                                      style:
-                                      TextStyle(
-                                        color:
-                                        Colors.grey,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              )
-
-
+                                      physics:
+                                          const AlwaysScrollableScrollPhysics(),
+                                      children: const [
+                                        SizedBox(height: 200),
+                                        Center(
+                                          child: Text(
+                                            "Tidak ada data",
+                                            style: TextStyle(
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    )
                                   : ListView.separated(
-                                physics:
-                                const AlwaysScrollableScrollPhysics(),
-
-                                padding:
-                                const EdgeInsets.fromLTRB(
-                                  26,
-                                  20,
-                                  26,
-                                  20,
-                                ),
-
-                                itemCount:
-                                filtered.length,
-
-
-                                separatorBuilder:
-                                    (_, __) =>
-                                const SizedBox(
-                                  height: 12,
-                                ),
-
-
-                                itemBuilder:
-                                    (context, i) {
-
-                                  return HistoryListCard(
-                                    data:
-                                    filtered[i],
-                                  );
-                                },
-                              ),
+                                      physics:
+                                          const AlwaysScrollableScrollPhysics(),
+                                      padding: const EdgeInsets.fromLTRB(
+                                        26,
+                                        20,
+                                        26,
+                                        20,
+                                      ),
+                                      itemCount: filtered.length,
+                                      separatorBuilder: (_, __) =>
+                                          const SizedBox(height: 12),
+                                      itemBuilder: (context, i) {
+                                        return HistoryListCard(
+                                          data: filtered[i],
+                                        );
+                                      },
+                                    ),
                             );
                           },
                         ),
-                      ),
-                    ],
-                  ),
 
-
-
-
-                  if (state.status ==
-                      SettlementStatus.loading)
-
-                    Positioned.fill(
-                      child: Container(
-                        color:
-                        Colors.black.withValues(
-                          alpha: .15,
-                        ),
-
-                        child: const Center(
-                          child:
-                          CircularProgressIndicator(),
-                        ),
-                      ),
-                    ),
-                ],
-              );
-            },
+                        if (state.status == SettlementStatus.loading)
+                          Positioned.fill(
+                            child: Container(
+                              color: Colors.black.withValues(alpha: .15),
+                              child: const Center(
+                                child: CircularProgressIndicator(),
+                              ),
+                            ),
+                          ),
+                      ],
+                    );
+                  },
+                ),
+              ),
+            ],
           ),
         ),
       ),

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:psm_mobile/features/kmbus/domain/entities/kmbus_data.dart';
 import 'package:psm_mobile/features/kmbus/domain/entities/titik_awal_create.dart';
 import 'package:psm_mobile/features/reference/domain/entities/reference_detail.dart';
 
@@ -8,7 +9,11 @@ enum KmbusStatus {
   loading,
   success,
   error,
+  successSave,
+  failedSave,
   fetching,
+  onSubmit,
+  inValid,
 }
 
 enum UploadStatus {
@@ -33,6 +38,9 @@ class KmbusState {
   final int idBus;
   final List<ReferenceDetail> referenceBus;
 
+  final List<KmbusData> listKmbus;
+
+
   const KmbusState({
     this.status = KmbusStatus.initial,
     this.message,
@@ -45,6 +53,8 @@ class KmbusState {
     this.referenceKoridor = const [],
     this.idBus = 0,
     this.referenceBus = const [],
+
+    this.listKmbus = const [],
   });
 
   KmbusState copyWith({
@@ -59,6 +69,8 @@ class KmbusState {
     List<ReferenceDetail>? referenceKoridor,
     int? idBus,
     List<ReferenceDetail>? referenceBus,
+
+    List<KmbusData>? listKmbus,
   }) {
     return KmbusState(
       status: status ?? this.status,
@@ -72,6 +84,8 @@ class KmbusState {
       referenceKoridor: referenceKoridor ?? this.referenceKoridor,
       idBus: idBus ?? this.idBus,
       referenceBus: referenceBus ?? this.referenceBus,
+
+      listKmbus: listKmbus ?? this.listKmbus,
     );
   }
 }

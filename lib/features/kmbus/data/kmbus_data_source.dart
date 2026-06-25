@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:psm_mobile/core/storage/secure_storage.dart';
+import 'package:psm_mobile/features/kmbus/domain/entities/kmbus_data.dart';
 import 'package:psm_mobile/features/kmbus/domain/entities/titik_awal_create.dart';
 
 class KmbusDataSource {
@@ -11,6 +12,30 @@ class KmbusDataSource {
   final SecureStorageService secureStorageService;
 
   KmbusDataSource({required this.dio, required this.secureStorageService});
+
+  Future<List<KmbusData>> fetchKmbusDataList(String keyword) async {
+    try {
+      final response = await dio.get(
+          '/km/list',
+          queryParameters: {
+            'keyword': keyword,
+            'page': 1,
+            'perPage': 99,
+          }
+      );
+
+      final List data = response.data['data'] ?? [];
+
+      final result = data
+          .map<KmbusData>((e) => KmbusData.fromJson(e))
+          .toList();
+
+      return result;
+    } catch (e) {
+      debugPrint(e.toString());
+      rethrow;
+    }
+  }
 
   Future<String> createTitikAwal(TitikAwalCreate request) async {
     try {

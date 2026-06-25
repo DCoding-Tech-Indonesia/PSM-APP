@@ -2,6 +2,8 @@ import 'dart:io';
 
 abstract class KmbusEvent {}
 
+class PageDashboardLoad extends KmbusEvent {}
+
 class KmbusTitikAwalInputLoad extends KmbusEvent {
   KmbusTitikAwalInputLoad();
 }

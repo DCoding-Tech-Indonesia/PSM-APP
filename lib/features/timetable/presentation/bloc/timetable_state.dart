@@ -3,7 +3,17 @@ import 'package:psm_mobile/features/reference/domain/entities/reference_detail.d
 import 'package:psm_mobile/features/timetable/domain/timetable_checkin.dart';
 import 'package:psm_mobile/features/timetable/domain/timetable_data.dart';
 
-enum TimetableStatus { initial, loading, success, error, successSave, failedSave, fetching, onSubmit, inValid }
+enum TimetableStatus {
+  initial,
+  loading,
+  success,
+  error,
+  successSave,
+  failedSave,
+  fetching,
+  onSubmit,
+  inValid,
+}
 
 class TimetableState extends Equatable {
   final TimetableStatus status;

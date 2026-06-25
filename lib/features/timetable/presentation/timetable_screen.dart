@@ -111,7 +111,7 @@ class _TimetableScreenState extends State<TimetableScreen> {
     }
   }
 
-  void _showCheckinModal(BuildContext screenContext) {
+  void _showCheckInOutModal(BuildContext screenContext, bool isCheckin) {
     showDialog(
       context: screenContext,
       barrierDismissible: true,
@@ -119,188 +119,216 @@ class _TimetableScreenState extends State<TimetableScreen> {
         return BlocProvider.value(
           value: screenContext.read<TimetableBloc>(),
           child: Dialog(
+            backgroundColor: Colors.transparent,
+            surfaceTintColor: Colors.transparent,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20),
             ),
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Colors.blueAccent, Colors.blueAccent, Colors.blue],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(28.0),
+              ),
+              child: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
-                  spacing: 10,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          "Check-in",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            spacing: 10,
+                            children: [
+                              Icon(isCheckin ? Icons.login : Icons.logout, color: Colors.white, size: 20),
+                              Text(
+                                isCheckin ? "Check-in" : "Check-out",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.close),
-                          onPressed: () => Navigator.pop(screenContext),
-                        ),
-                      ],
+                          IconButton(
+                            icon: const Icon(Icons.close, color: Colors.white),
+                            onPressed: () => Navigator.pop(screenContext),
+                          ),
+                        ],
+                      ),
                     ),
-                    const Divider(),
-
-                    BlocBuilder<TimetableBloc, TimetableState>(
-                      buildWhen: (prev, curr) =>
-                          prev.checkinData?.ritaseKe !=
-                          curr.checkinData?.ritaseKe,
-                      builder: (context, state) {
-                        final ritaseValue = state.checkinData?.ritaseKe;
-                        return Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              "Ritase Berikutnya",
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 16,
-                              ),
-                            ),
-                            Container(
-                              width: 50,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                color: Colors.greenAccent.withAlpha(100),
-                                borderRadius: BorderRadius.circular(10),
-                                border: Border.all(
-                                  width: 1,
-                                  color: Colors.green,
-                                ),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  ritaseValue != null && ritaseValue != 0
-                                      ? ritaseValue.toString()
-                                      : "RIT",
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.w800,
-                                    fontSize: 16,
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        color: Colors.white,
+                      ),
+                      child: Column(
+                        spacing: 10,
+                        children: [
+                          BlocBuilder<TimetableBloc, TimetableState>(
+                            buildWhen: (prev, curr) =>
+                            prev.checkinData?.ritaseKe !=
+                                curr.checkinData?.ritaseKe,
+                            builder: (context, state) {
+                              final ritaseValue = state.checkinData?.ritaseKe;
+                              return Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  const Text(
+                                    "Ritase Berikutnya",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 16,
+                                    ),
                                   ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        );
-                      },
-                    ),
+                                  Container(
+                                    width: 50,
+                                    height: 40,
+                                    decoration: BoxDecoration(
+                                      color: Colors.greenAccent.withAlpha(100),
+                                      borderRadius: BorderRadius.circular(10),
+                                      border: Border.all(
+                                        width: 1,
+                                        color: Colors.green,
+                                      ),
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        ritaseValue != null && ritaseValue != 0
+                                            ? ritaseValue.toString()
+                                            : "RIT",
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w800,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
+                          ),
 
-                    BlocBuilder<TimetableBloc, TimetableState>(
-                      buildWhen: (prev, curr) =>
-                          prev.idKoridor != curr.idKoridor ||
-                          prev.referenceKoridor != curr.referenceKoridor,
-                      builder: (context, state) {
-                        ReferenceDetail? selectedKoridor;
+                          BlocBuilder<TimetableBloc, TimetableState>(
+                            buildWhen: (prev, curr) =>
+                            prev.idKoridor != curr.idKoridor ||
+                                prev.referenceKoridor != curr.referenceKoridor,
+                            builder: (context, state) {
+                              ReferenceDetail? selectedKoridor;
 
-                        if (state.referenceKoridor.isNotEmpty) {
-                          final matched = state.referenceKoridor.where(
-                            (e) => e.id == state.idKoridor,
-                          );
-                          if (matched.isNotEmpty) {
-                            selectedKoridor = matched.first;
-                          }
-                        }
+                              if (state.referenceKoridor.isNotEmpty) {
+                                final matched = state.referenceKoridor.where(
+                                      (e) => e.id == state.idKoridor,
+                                );
+                                if (matched.isNotEmpty) {
+                                  selectedKoridor = matched.first;
+                                }
+                              }
 
-                        return CoreDropdownSearch<ReferenceDetail>(
-                          label: 'Pilih Koridor',
-                          hintText: 'Pilih Koridor',
-                          popupTitle: 'Daftar Koridor',
-                          items: state.referenceKoridor,
-                          selectedItem: selectedKoridor,
-                          itemAsString: (item) => '${item.code} - ${item.name}',
-                          compareFn: (a, b) => a.id == b.id,
-                          isRequired: true,
-                          isItemSelected: (item) => item.id == state.idKoridor,
-                          onSelected: (value) {
-                            if (value == null) return;
-                            context.read<TimetableBloc>().add(
-                              SelectKoridor(value.id, value.name),
-                            );
-                          },
-                        );
-                      },
-                    ),
+                              return CoreDropdownSearch<ReferenceDetail>(
+                                label: 'Pilih Koridor',
+                                hintText: 'Pilih Koridor',
+                                popupTitle: 'Daftar Koridor',
+                                items: state.referenceKoridor,
+                                selectedItem: selectedKoridor,
+                                itemAsString: (item) => '${item.code} - ${item.name}',
+                                compareFn: (a, b) => a.id == b.id,
+                                isRequired: true,
+                                isItemSelected: (item) => item.id == state.idKoridor,
+                                onSelected: (value) {
+                                  if (value == null) return;
+                                  context.read<TimetableBloc>().add(
+                                    SelectKoridor(value.id, value.name),
+                                  );
+                                },
+                              );
+                            },
+                          ),
 
-                    BlocBuilder<TimetableBloc, TimetableState>(
-                      builder: (context, state) {
-                        if (state.idKoridor == 0) {
-                          return const SizedBox.shrink();
-                        }
+                          BlocBuilder<TimetableBloc, TimetableState>(
+                            builder: (context, state) {
+                              if (state.idKoridor == 0) {
+                                return const SizedBox.shrink();
+                              }
 
-                        if (state.status == TimetableStatus.fetching) {
-                          return const Center(
-                            child: Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: CircularProgressIndicator(),
-                            ),
-                          );
-                        }
+                              if (state.status == TimetableStatus.fetching) {
+                                return const Center(
+                                  child: Padding(
+                                    padding: EdgeInsets.all(8.0),
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                );
+                              }
 
-                        if (state.referenceBus.isEmpty &&
-                            state.idKoridor != 0) {
-                          return const Text(
-                            "Tidak terdapat bus terdata di koridor tersebut",
-                            style: TextStyle(
-                              color: Colors.redAccent,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          );
-                        }
+                              if (state.referenceBus.isEmpty &&
+                                  state.idKoridor != 0) {
+                                return const Text(
+                                  "Tidak terdapat bus terdata di koridor tersebut",
+                                  style: TextStyle(
+                                    color: Colors.redAccent,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                );
+                              }
 
-                        ReferenceDetail? selectedBus;
-                        if (state.referenceBus.isNotEmpty) {
-                          final matched = state.referenceBus.where(
-                            (e) => e.id == state.idBus,
-                          );
-                          if (matched.isNotEmpty) selectedBus = matched.first;
-                        }
+                              ReferenceDetail? selectedBus;
+                              if (state.referenceBus.isNotEmpty) {
+                                final matched = state.referenceBus.where(
+                                      (e) => e.id == state.idBus,
+                                );
+                                if (matched.isNotEmpty) selectedBus = matched.first;
+                              }
 
-                        return CoreDropdownSearch<ReferenceDetail>(
-                          label: 'Pilih Bus',
-                          hintText: 'Pilih Bus',
-                          popupTitle: 'Daftar Bus',
-                          items: state.referenceBus,
-                          selectedItem: selectedBus,
-                          itemAsString: (item) => '${item.code} - ${item.name}',
-                          compareFn: (a, b) => a.id == b.id,
-                          isItemSelected: (item) => item.id == state.idBus,
-                          isRequired: true,
-                          onSelected: (value) {
-                            if (value == null) return;
-                            context.read<TimetableBloc>().add(
-                              SelectBus(value.id, value.name),
-                            );
-                          },
-                        );
-                      },
-                    ),
+                              return CoreDropdownSearch<ReferenceDetail>(
+                                label: 'Pilih Bus',
+                                hintText: 'Pilih Bus',
+                                popupTitle: 'Daftar Bus',
+                                items: state.referenceBus,
+                                selectedItem: selectedBus,
+                                itemAsString: (item) => '${item.code} - ${item.name}',
+                                compareFn: (a, b) => a.id == b.id,
+                                isItemSelected: (item) => item.id == state.idBus,
+                                isRequired: true,
+                                onSelected: (value) {
+                                  if (value == null) return;
+                                  context.read<TimetableBloc>().add(
+                                    SelectBus(value.id, value.name),
+                                  );
+                                },
+                              );
+                            },
+                          ),
 
-                    const SizedBox(height: 10),
+                          const SizedBox(height: 10),
 
-                    BlocBuilder<TimetableBloc, TimetableState>(
-                      buildWhen: (prev, curr) =>
-                          prev.checkinData != curr.checkinData,
-                      builder: (context, state) {
-                        final isFormValid =
-                            state.checkinData?.isSubmittable ?? false;
+                          BlocBuilder<TimetableBloc, TimetableState>(
+                            buildWhen: (prev, curr) =>
+                            prev.checkinData != curr.checkinData,
+                            builder: (context, state) {
+                              final isFormValid =
+                                  state.checkinData?.isSubmittable ?? false;
 
-                        return CoreButton(
-                          width: double.infinity,
-                          onPressed: () => _handleCheckInSubmit(context, state),
-                          backgroundColor: isFormValid
-                              ? Colors.green
-                              : Colors.grey,
-                          foregroundColor: Colors.white,
-                          child: const Text("Submit"),
-                        );
-                      },
+                              return CoreButton(
+                                width: double.infinity,
+                                onPressed: () => _handleCheckInSubmit(context, state),
+                                backgroundColor: isFormValid
+                                    ? Colors.green
+                                    : Colors.grey,
+                                foregroundColor: Colors.white,
+                                child: const Text("Submit"),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -309,7 +337,11 @@ class _TimetableScreenState extends State<TimetableScreen> {
           ),
         );
       },
-    );
+    ).then((_) {
+      if (screenContext.mounted) {
+        screenContext.read<TimetableBloc>().add(ResetInput());
+      }
+    });
   }
 
   @override
@@ -359,7 +391,7 @@ class _TimetableScreenState extends State<TimetableScreen> {
                           children: [
                             Expanded(
                               child: CoreButton(
-                                onPressed: () => _showCheckinModal(context),
+                                onPressed: () => _showCheckInOutModal(context, true),
                                 backgroundColor: Colors.green,
                                 foregroundColor: Colors.white,
                                 child: FittedBox(
@@ -376,7 +408,7 @@ class _TimetableScreenState extends State<TimetableScreen> {
                             ),
                             Expanded(
                               child: CoreButton(
-                                onPressed: () {},
+                                onPressed: () => _showCheckInOutModal(context, false),
                                 backgroundColor: Colors.red,
                                 foregroundColor: Colors.white,
                                 child: FittedBox(

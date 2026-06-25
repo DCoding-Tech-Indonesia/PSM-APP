@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:psm_mobile/core/error/failure.dart';
 import 'package:psm_mobile/features/kmbus/data/kmbus_data_source.dart';
+import 'package:psm_mobile/features/kmbus/domain/entities/kmbus_data.dart';
 import 'package:psm_mobile/features/kmbus/domain/entities/titik_awal_create.dart';
 import 'package:psm_mobile/features/kmbus/domain/repositories/kmbus_repository.dart';
 import 'package:psm_mobile/features/reference/domain/entities/reference_detail.dart';
@@ -18,6 +19,22 @@ class KmbusRepositoryImpl implements KmbusRepository {
     required this.dataSource,
     required this.dataSourceReference,
   });
+
+  @override
+  Future<Either<Failure, List<KmbusData>>> fetchListKmbus(String keyword) async {
+    try {
+      final result = await dataSource.fetchKmbusDataList(keyword);
+
+      return right(result);
+    } on DioException catch (e) {
+      final message =
+          e.response?.data?['message'] ?? 'Terjadi kesalahan server';
+
+      return left(ServerFailure(message));
+    } catch (_) {
+      return left(const ServerFailure('Unexpected error'));
+    }
+  }
 
   @override
   Future<Either<Failure, String>> createTitikAwal(

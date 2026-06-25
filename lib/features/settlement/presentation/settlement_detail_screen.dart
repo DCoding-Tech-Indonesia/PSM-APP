@@ -357,9 +357,6 @@ class _SettlementDetailScreenState extends State<SettlementDetailScreen> {
                                               orElse: () => null,
                                             );
 
-                                        print("INI DETAIL NYA LEK KUU");
-                                        print(detail);
-
                                         final qty = detail?.total ?? 0;
 
                                         final value =

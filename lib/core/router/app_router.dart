@@ -17,6 +17,7 @@ import 'package:psm_mobile/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:psm_mobile/features/kmbus/data/kmbus_data_source.dart';
 import 'package:psm_mobile/features/kmbus/data/kmbus_repository_impl.dart';
 import 'package:psm_mobile/features/kmbus/presentation/bloc/kmbus_bloc.dart';
+import 'package:psm_mobile/features/kmbus/presentation/kmbus_history_screen.dart';
 import 'package:psm_mobile/features/kmbus/presentation/kmbus_screen.dart';
 import 'package:psm_mobile/features/kmbus/presentation/kmbus_titik_awal_form_screen.dart';
 import 'package:psm_mobile/features/portal/presentation/bloc/portal_bloc.dart';
@@ -47,6 +48,7 @@ import 'package:psm_mobile/features/splash/presentation/splash_screen.dart';
 import 'package:psm_mobile/features/timetable/data/timetable_data_source.dart';
 import 'package:psm_mobile/features/timetable/data/timetable_repository_impl.dart';
 import 'package:psm_mobile/features/timetable/presentation/bloc/timetable_bloc.dart';
+import 'package:psm_mobile/features/timetable/presentation/timetable_history_screen.dart';
 import 'package:psm_mobile/features/timetable/presentation/timetable_screen.dart';
 
 late final GoRouter appRouter;
@@ -288,6 +290,31 @@ void setupRouter(String initialLocation) {
           );
         },
       ),
+      GoRoute(
+        path: '/kmbus/history',
+        builder: (context, state) {
+          return KmbusHistoryScreen();
+          // final dio = DioClient().instance;
+          // final secureStorageService = SecureStorageService();
+
+          // return MultiBlocProvider(
+          //   providers: [
+          //     BlocProvider(
+          //       create: (_) => SettlementBloc(
+          //         SettlementRepositoryImpl(
+          //           dataSource: SettlementDataSource(
+          //             dio: dio,
+          //             secureStorageService: secureStorageService,
+          //           ),
+          //           dataSourceReference: ReferenceDataSource(dio: dio),
+          //         ),
+          //       ),
+          //     ),
+          //   ],
+          //   child: SettlementHistoryScreen(),
+          // );
+        },
+      ),
 
       // TIMETABLE ROUTE
       GoRoute(
@@ -310,6 +337,31 @@ void setupRouter(String initialLocation) {
             ],
             child: const TimetableScreen(),
           );
+        },
+      ),
+      GoRoute(
+        path: '/timetable/history',
+        builder: (context, state) {
+          return TimetableHistoryScreen();
+          // final dio = DioClient().instance;
+          // final secureStorageService = SecureStorageService();
+
+          // return MultiBlocProvider(
+          //   providers: [
+          //     BlocProvider(
+          //       create: (_) => SettlementBloc(
+          //         SettlementRepositoryImpl(
+          //           dataSource: SettlementDataSource(
+          //             dio: dio,
+          //             secureStorageService: secureStorageService,
+          //           ),
+          //           dataSourceReference: ReferenceDataSource(dio: dio),
+          //         ),
+          //       ),
+          //     ),
+          //   ],
+          //   child: SettlementHistoryScreen(),
+          // );
         },
       ),
 

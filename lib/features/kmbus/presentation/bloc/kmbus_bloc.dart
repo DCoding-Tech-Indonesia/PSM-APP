@@ -8,6 +8,28 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
   final KmbusRepository kmbusRepository;
 
   KmbusBloc(this.kmbusRepository) : super(const KmbusState()) {
+    on<PageDashboardLoad>((event, emit) async {
+      emit(state.copyWith(status: KmbusStatus.initial));
+
+      try {
+        final list = await kmbusRepository.fetchListKmbus('');
+
+        final kmBusList = list.fold((failure) {
+          emit(
+            state.copyWith(status: KmbusStatus.error, message: failure.message),
+          );
+          return null;
+        }, (data) => data);
+
+        emit(state.copyWith(listKmbus: kmBusList, status: KmbusStatus.success));
+      } catch (e, s) {
+        debugPrint(e.toString());
+        debugPrint(s.toString());
+
+        emit(state.copyWith(status: KmbusStatus.error, message: e.toString()));
+      }
+    });
+
     on<KmbusTitikAwalInputLoad>((event, emit) async {
       emit(state.copyWith(status: KmbusStatus.initial));
 

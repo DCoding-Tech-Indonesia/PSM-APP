@@ -63,8 +63,6 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
           return null;
         }, (data) => data);
 
-        if (timeTableList == null) return;
-
         emit(
           state.copyWith(
             listTimetable: timeTableList,
@@ -249,6 +247,35 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
             ),
           );
         },
+      );
+    });
+
+    on<ResetInput>((event, emit) {
+      final currentCheckin = state.checkinData ??
+          TimetableCheckin(
+            tanggal: DateTime.now().toString().split(' ')[0],
+            idKoridor: 0,
+            idBus: 0,
+            idShift: 1,
+            idPramugara: 0,
+            ritaseKe: 0.0,
+            long: 0,
+            lat: 0,
+          );
+
+      emit(
+        state.copyWith(
+          status: TimetableStatus.success,
+          idKoridor: 0,
+          namaKoridor: '',
+          idBus: 0,
+          referenceBus: const [],
+          checkinData: currentCheckin.copyWith(
+            ritaseKe: 0.0,
+            idBus: 0,
+            idKoridor: 0,
+          ),
+        ),
       );
     });
   }
