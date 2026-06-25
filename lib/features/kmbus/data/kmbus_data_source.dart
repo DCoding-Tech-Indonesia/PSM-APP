@@ -58,12 +58,18 @@ class KmbusDataSource {
         'file': await MultipartFile.fromFile(file.path, filename: fileName),
       });
 
-      const ocrHost = 'https://ocr.padangsejahteramandiri.com/api';
+      const ocrHost = 'https://ocr.ilkeiapps.com';
 
       final response = await dio.post(
-        '$ocrHost/ocr-speedometer',
+        '$ocrHost/ocr',
         data: formData,
       );
+
+      print("response");
+      print(response.data["result"][0][1][0]);
+
+      print("response.result");
+      print(response.data["result"]);
 
       return response.data["odometer"];
     } on DioException catch (e) {

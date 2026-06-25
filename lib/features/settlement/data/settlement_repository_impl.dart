@@ -8,7 +8,6 @@ import 'package:psm_mobile/features/settlement/data/settlement_data_source.dart'
 import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/task_audit_trail.dart';
 import 'package:psm_mobile/features/reference/domain/entities/document_preview.dart';
 import 'package:psm_mobile/features/reference/domain/entities/reference_billing.dart';
-import 'package:psm_mobile/features/reference/domain/entities/reference_bus.dart';
 import 'package:psm_mobile/features/reference/domain/entities/reference_detail.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/settlement_create.dart';
 import 'package:psm_mobile/features/settlement/domain/repositories/settlement_repository.dart';
@@ -20,7 +19,7 @@ class SettlementRepositoryImpl implements SettlementRepository {
   SettlementRepositoryImpl({required this.dataSource, required this.dataSourceReference});
 
   @override
-  Future<Either<Failure, List<ReferenceBus>>> fetchReferenceBus(
+  Future<Either<Failure, List<ReferenceDetail>>> fetchReferenceBus(
     String keyword,
     int idKoridor
   ) async {

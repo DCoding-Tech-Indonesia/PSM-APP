@@ -269,7 +269,7 @@ class _SettlementSuccessSubmitDraftScreenState
                                   );
                                 },
                                 child: const Text(
-                                  "Submit Draft",
+                                  "Submit",
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 18,

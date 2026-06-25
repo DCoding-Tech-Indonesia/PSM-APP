@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:psm_mobile/features/reference/domain/entities/document_preview.dart';
-import 'package:psm_mobile/features/reference/domain/entities/reference_bus.dart';
 import 'package:psm_mobile/features/reference/domain/entities/reference_detail.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/settlement_create.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/settlement_detail.dart';
@@ -47,7 +46,7 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
 
         List<ReferenceDetail> paymentList = [];
         List<ReferenceDetail> custList = [];
-        List<ReferenceBus> busList = [];
+        List<ReferenceDetail> busList = [];
 
         if (event.idAuditTrail != null) {
           final detailSettlement = await settlementRepository
@@ -152,7 +151,7 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
           final bus = busList.where((e) => e.id == idBus);
 
           if (bus.isNotEmpty) {
-            noUnit = bus.first.platNomor;
+            noUnit = bus.first.name;
           }
         }
 
@@ -614,12 +613,12 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
         final koridorList = results[0].fold(
               (f) => throw Exception(f.message),
               (d) => d,
-        ) as List<ReferenceDetail>;
+        );
 
         final busList = results[3].fold(
               (f) => throw Exception(f.message),
               (d) => d,
-        ) as List<ReferenceBus>;
+        );
 
         final namaKoridor = koridorList
             .firstWhere((e) => e.id == idKoridor)
@@ -627,7 +626,7 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
 
         final noUnit = busList
             .firstWhere((e) => e.id == idBus)
-            .platNomor;
+            .name;
 
         final documents =
         List<SettlementDocument>.from(detailData.document);
@@ -645,12 +644,12 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
         final paymentList = results[1].fold(
               (f) => throw Exception(f.message),
               (d) => d,
-        ) as List<ReferenceDetail>;
+        );
 
         final customerList = results[2].fold(
               (f) => throw Exception(f.message),
               (d) => d,
-        ) as List<ReferenceDetail>;
+        );
 
         emit(
           state.copyWith(

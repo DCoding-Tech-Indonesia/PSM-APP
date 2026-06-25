@@ -51,7 +51,7 @@ class SettlementDataSource {
 
       return idAuditTrail;
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
       return e.toString();
     }
   }
@@ -78,7 +78,7 @@ class SettlementDataSource {
 
       return result;
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
       rethrow;
     }
   }

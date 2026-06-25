@@ -1,30 +1,58 @@
-import 'dart:io';
-
 import 'package:dio/dio.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:psm_mobile/core/error/failure.dart';
-import 'package:psm_mobile/features/kmbus/data/kmbus_data_source.dart';
-import 'package:psm_mobile/features/kmbus/domain/entities/titik_awal_create.dart';
-import 'package:psm_mobile/features/kmbus/domain/repositories/kmbus_repository.dart';
 import 'package:psm_mobile/features/reference/domain/entities/reference_detail.dart';
 import 'package:psm_mobile/features/reference/reference_data_source.dart';
-import 'package:psm_mobile/features/reference/domain/entities/document_preview.dart';
+import 'package:psm_mobile/features/timetable/data/timetable_data_source.dart';
+import 'package:psm_mobile/features/timetable/domain/timetable_checkin.dart';
+import 'package:psm_mobile/features/timetable/domain/timetable_data.dart';
+import 'package:psm_mobile/features/timetable/presentation/domain/timetable_repository.dart';
 
-class KmbusRepositoryImpl implements KmbusRepository {
-  final KmbusDataSource dataSource;
+class TimetableRepositoryImpl implements TimetableRepository {
+  final TimetableDataSource dataSource;
   final ReferenceDataSource dataSourceReference;
 
-  KmbusRepositoryImpl({
-    required this.dataSource,
-    required this.dataSourceReference,
-  });
+  TimetableRepositoryImpl({required this.dataSource, required this.dataSourceReference});
 
   @override
-  Future<Either<Failure, String>> createTitikAwal(
-    TitikAwalCreate request,
-  ) async {
+  Future<Either<Failure, List<TimetableData>>> fetchListTimeTable(String keyword) async {
     try {
-      final response = await dataSource.createTitikAwal(request);
+      final result = await dataSource.fetchTimetableDataList(keyword);
+
+      return right(result);
+    } on DioException catch (e) {
+      final message =
+          e.response?.data?['message'] ?? 'Terjadi kesalahan server';
+
+      return left(ServerFailure(message));
+    } catch (_) {
+      return left(const ServerFailure('Unexpected error'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, double>> fetchNextRitase(
+      int idKoridor,
+      int idBus
+      ) async {
+    try {
+      final result = await dataSource.fetchNextRitase(idKoridor, idBus);
+
+      return right(result);
+    } on DioException catch (e) {
+      final message =
+          e.response?.data?['message'] ?? 'Terjadi kesalahan server';
+
+      return left(ServerFailure(message));
+    } catch (_) {
+      return left(const ServerFailure('Unexpected error'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, String?>> checkinTimeTable(TimetableCheckin request) async {
+    try {
+      final response = await dataSource.checkinTimeTable(request);
 
       return right(response);
     } on DioException catch (e) {
@@ -37,45 +65,14 @@ class KmbusRepositoryImpl implements KmbusRepository {
     }
   }
 
-  @override
-  Future<Either<Failure, String>> uploadOcr(File file) async {
-    try {
-      final response = await dataSource.uploadOcr(file);
 
-      return right(response);
-    } on DioException catch (e) {
-      final message =
-          e.response?.data?['message'] ??
-          e.response?.data?.toString() ??
-          'Terjadi kesalahan server';
 
-      return left(ServerFailure(message));
-    } catch (_) {
-      return left(const ServerFailure('Unexpected error'));
-    }
-  }
 
-  @override
-  Future<Either<Failure, DocumentPreview>> uploadDocument(File file) async {
-    try {
-      final response = await dataSourceReference.uploadDocument(file);
-
-      return right(response);
-    } on DioException catch (e) {
-      final message =
-          e.response?.data?['message'] ?? 'Terjadi kesalahan server';
-
-      return left(ServerFailure(message));
-    } catch (_) {
-      return left(const ServerFailure('Unexpected error'));
-    }
-  }
-
-  // FETCHING REFERENCE
+  // region REFERENCE
   @override
   Future<Either<Failure, List<ReferenceDetail>>> fetchReferenceKoridor(
-    String keyword,
-  ) async {
+      String keyword,
+      ) async {
     try {
       final result = await dataSourceReference.fetchReferenceKoridor(keyword);
 
@@ -92,14 +89,11 @@ class KmbusRepositoryImpl implements KmbusRepository {
 
   @override
   Future<Either<Failure, List<ReferenceDetail>>> fetchReferenceBus(
-    String keyword,
-    int idKoridor,
-  ) async {
+      String keyword,
+      int idKoridor
+      ) async {
     try {
-      final result = await dataSourceReference.fetchReferenceBus(
-        keyword,
-        idKoridor,
-      );
+      final result = await dataSourceReference.fetchReferenceBus(keyword, idKoridor);
 
       return right(result);
     } on DioException catch (e) {
@@ -111,4 +105,5 @@ class KmbusRepositoryImpl implements KmbusRepository {
       return left(const ServerFailure('Unexpected error'));
     }
   }
+  // endregion
 }

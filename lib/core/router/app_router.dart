@@ -44,9 +44,9 @@ import 'package:psm_mobile/features/settlement/presentation/settlement_history_s
 import 'package:psm_mobile/features/settlement/presentation/settlement_screen.dart';
 import 'package:psm_mobile/features/settlement/presentation/settlement_success_submit_draft_screen.dart';
 import 'package:psm_mobile/features/splash/presentation/splash_screen.dart';
-import 'package:psm_mobile/features/spm/presentation/screens/spm_screen.dart';
-import 'package:psm_mobile/features/spm/presentation/screens/spm_input_screen.dart';
-import 'package:psm_mobile/features/spm/presentation/screens/spm_detail_screen.dart';
+import 'package:psm_mobile/features/timetable/data/timetable_data_source.dart';
+import 'package:psm_mobile/features/timetable/data/timetable_repository_impl.dart';
+import 'package:psm_mobile/features/timetable/presentation/bloc/timetable_bloc.dart';
 import 'package:psm_mobile/features/timetable/presentation/timetable_screen.dart';
 
 late final GoRouter appRouter;
@@ -108,10 +108,7 @@ void setupRouter(String initialLocation) {
                       dio: dio,
                       secureStorageService: secureStorageService,
                     ),
-                    dataSourceReference: ReferenceDataSource(
-                      dio: dio,
-                      secureStorageService: secureStorageService,
-                    ),
+                    dataSourceReference: ReferenceDataSource(dio: dio),
                   ),
                 ),
               ),
@@ -140,10 +137,7 @@ void setupRouter(String initialLocation) {
                       dio: dio,
                       secureStorageService: secureStorageService,
                     ),
-                    dataSourceReference: ReferenceDataSource(
-                      dio: dio,
-                      secureStorageService: secureStorageService,
-                    ),
+                    dataSourceReference: ReferenceDataSource(dio: dio),
                   ),
                 ),
               ),
@@ -172,10 +166,7 @@ void setupRouter(String initialLocation) {
                       dio: dio,
                       secureStorageService: secureStorageService,
                     ),
-                    dataSourceReference: ReferenceDataSource(
-                      dio: dio,
-                      secureStorageService: secureStorageService,
-                    ),
+                    dataSourceReference: ReferenceDataSource(dio: dio),
                   ),
                 ),
               ),
@@ -206,10 +197,7 @@ void setupRouter(String initialLocation) {
                       dio: dio,
                       secureStorageService: secureStorageService,
                     ),
-                    dataSourceReference: ReferenceDataSource(
-                      dio: dio,
-                      secureStorageService: secureStorageService,
-                    ),
+                    dataSourceReference: ReferenceDataSource(dio: dio),
                   ),
                 ),
               ),
@@ -238,10 +226,7 @@ void setupRouter(String initialLocation) {
                       dio: dio,
                       secureStorageService: secureStorageService,
                     ),
-                    dataSourceReference: ReferenceDataSource(
-                      dio: dio,
-                      secureStorageService: secureStorageService,
-                    ),
+                    dataSourceReference: ReferenceDataSource(dio: dio),
                   ),
                 ),
               ),
@@ -270,10 +255,7 @@ void setupRouter(String initialLocation) {
                       dio: dio,
                       secureStorageService: secureStorageService,
                     ),
-                    dataSourceReference: ReferenceDataSource(
-                      dio: dio,
-                      secureStorageService: secureStorageService,
-                    ),
+                    dataSourceReference: ReferenceDataSource(dio: dio),
                   ),
                 ),
               ),
@@ -297,10 +279,7 @@ void setupRouter(String initialLocation) {
                       dio: dio,
                       secureStorageService: secureStorageService,
                     ),
-                    dataSourceReference: ReferenceDataSource(
-                      dio: dio,
-                      secureStorageService: secureStorageService,
-                    ),
+                    dataSourceReference: ReferenceDataSource(dio: dio),
                   ),
                 ),
               ),
@@ -319,23 +298,17 @@ void setupRouter(String initialLocation) {
 
           return MultiBlocProvider(
             providers: [
-              BlocProvider(create: (_) => CoreTabCubit()),
               BlocProvider(
-                create: (_) => SettlementBloc(
-                  SettlementRepositoryImpl(
-                    dataSource: SettlementDataSource(
-                      dio: dio,
-                      secureStorageService: secureStorageService,
-                    ),
-                    dataSourceReference: ReferenceDataSource(
-                      dio: dio,
-                      secureStorageService: secureStorageService,
-                    ),
+                create: (_) => TimetableBloc(
+                  TimetableRepositoryImpl(
+                    dataSource: TimetableDataSource(dio: dio),
+                    dataSourceReference: ReferenceDataSource(dio: dio),
                   ),
+                  secureStorageService,
                 ),
               ),
             ],
-            child: TimetableScreen(),
+            child: const TimetableScreen(),
           );
         },
       ),
@@ -354,10 +327,6 @@ void setupRouter(String initialLocation) {
 
       // ATTENDANCE & APPROVAL ROUTE
       GoRoute(
-        path: '/attendance',
-        builder: (context, state) => const AttendanceScreen(),
-      ),
-      GoRoute(
         path: '/leave-request',
         builder: (context, state) {
           final portalState = context.read<PortalBloc>().state;
@@ -375,6 +344,10 @@ void setupRouter(String initialLocation) {
             child: const LeaveRequestScreen(),
           );
         },
+      ),
+      GoRoute(
+        path: '/attendance',
+        builder: (context, state) => const AttendanceScreen(),
       ),
       GoRoute(
         path: '/approval',
@@ -421,20 +394,6 @@ void setupRouter(String initialLocation) {
                       required String alasan,
                     }),
           );
-        },
-      ),
-
-      // SPM ROUTE
-      GoRoute(path: '/spm', builder: (context, state) => const SpmScreen()),
-      GoRoute(
-        path: '/spm/input',
-        builder: (context, state) => const SpmInputScreen(),
-      ),
-      GoRoute(
-        path: '/spm/detail',
-        builder: (context, state) {
-          final taskId = state.extra as int;
-          return SpmDetailScreen(taskId: taskId);
         },
       ),
 

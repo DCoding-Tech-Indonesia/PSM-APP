@@ -1,23 +1,20 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:psm_mobile/core/storage/secure_storage.dart';
 
 import 'domain/entities/document_preview.dart';
 import 'domain/entities/reference_billing.dart';
-import 'domain/entities/reference_bus.dart';
 import 'domain/entities/reference_detail.dart';
 
 class ReferenceDataSource {
   final Dio dio;
-  final SecureStorageService secureStorageService;
 
-  ReferenceDataSource({required this.dio, required this.secureStorageService});
+  ReferenceDataSource({required this.dio});
 
-  Future<List<ReferenceBus>> fetchReferenceBus(
-    String keyword,
-    int idKoridor,
-  ) async {
+  Future<List<ReferenceDetail>> fetchReferenceBus(
+      String keyword,
+      int idKoridor,
+      ) async {
     final response = await dio.get(
       '/reference/bus',
       queryParameters: {
@@ -30,7 +27,7 @@ class ReferenceDataSource {
 
     final data = response.data['data'] as List;
 
-    return data.map((e) => ReferenceBus.fromJson(e)).toList();
+    return data.map((e) => ReferenceDetail.fromJson(e)).toList();
   }
 
   Future<List<ReferenceDetail>> fetchReferenceKoridor(String keyword) async {
@@ -45,8 +42,8 @@ class ReferenceDataSource {
   }
 
   Future<List<ReferenceBilling>> fetchReferenceCustomerBilling(
-    int idTypeNasabah,
-  ) async {
+      int idTypeNasabah,
+      ) async {
     final response = await dio.get(
       '/reference/customer-billing',
       queryParameters: {
@@ -84,8 +81,8 @@ class ReferenceDataSource {
   }
 
   Future<List<ReferenceDetail>> fetchReferenceObjectTypeSpm(
-    String keyword,
-  ) async {
+      String keyword,
+      ) async {
     final response = await dio.get(
       '/reference/object-type-spm',
       queryParameters: {'keyword': keyword, 'page': 1, 'perPage': 999},
@@ -97,8 +94,8 @@ class ReferenceDataSource {
   }
 
   Future<List<ReferenceDetail>> fetchReferenceCategorySpm(
-    String keyword,
-  ) async {
+      String keyword,
+      ) async {
     final response = await dio.get(
       '/reference/category-spm',
       queryParameters: {'keyword': keyword, 'page': 1, 'perPage': 999},
@@ -110,9 +107,9 @@ class ReferenceDataSource {
   }
 
   Future<List<ReferenceDetail>> fetchReferenceLokasiHalte(
-    String keyword,
-    int idKoridor,
-  ) async {
+      String keyword,
+      int idKoridor,
+      ) async {
     final response = await dio.get(
       '/reference/lokasi-halte',
       queryParameters: {

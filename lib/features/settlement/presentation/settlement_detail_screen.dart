@@ -132,8 +132,12 @@ class _SettlementDetailScreenState extends State<SettlementDetailScreen> {
                             int total = 0;
 
                             for (final item in details) {
-                              total +=
-                                  (item.total ?? 0) * (item.billingValue ?? 0);
+                              final billingValue =
+                                  (item.total != null && item.total! > 0)
+                                  ? (item.value ?? 0) ~/ item.total!
+                                  : 0;
+
+                              total += (item.total ?? 0) * billingValue;
                             }
 
                             return total;
@@ -353,10 +357,18 @@ class _SettlementDetailScreenState extends State<SettlementDetailScreen> {
                                               orElse: () => null,
                                             );
 
+                                        print("INI DETAIL NYA LEK KUU");
+                                        print(detail);
+
                                         final qty = detail?.total ?? 0;
 
-                                        final value = detail?.billingValue ?? 0;
-
+                                        final value =
+                                            (detail != null &&
+                                                detail.total != null &&
+                                                detail.total! > 0 &&
+                                                detail.value != null)
+                                            ? (detail.value! ~/ detail.total!)
+                                            : 0;
                                         final subtotal = qty * value;
 
                                         return Padding(

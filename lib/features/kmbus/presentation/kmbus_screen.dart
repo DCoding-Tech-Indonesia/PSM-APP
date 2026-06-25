@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_button.dart';
+import 'package:psm_mobile/core/presentations/widgets/core_date_time_widget.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_header.dart';
 
 class KmbusScreen extends StatelessWidget {
@@ -17,6 +18,7 @@ class KmbusScreen extends StatelessWidget {
               customBgColor: Colors.white,
               withBorder: true,
             ),
+            const CoreDateTimeWidget(),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 24),
               child: Row(
@@ -68,6 +70,55 @@ class KmbusScreen extends StatelessWidget {
                           ),
                         ],
                       ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: 5,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Expanded(
+                    child: Text(
+                      'Riwayat Terakhir',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () async {
+                      await context.push('/kmbus/history');
+
+                      // if (context.mounted) {
+                      //   context.read<TimetableBloc>().add(
+                      //     PageDashboardLoad(),
+                      //   );
+                      // }
+                    },
+                    child: const Row(
+                      children: [
+                        Text(
+                          'Lihat Semua',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                            color: Colors.blue,
+                          ),
+                        ),
+                        SizedBox(width: 4),
+                        Icon(
+                          Icons.arrow_forward_ios,
+                          size: 12,
+                          color: Colors.blue,
+                        ),
+                      ],
                     ),
                   ),
                 ],

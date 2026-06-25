@@ -1,7 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/task_audit_trail.dart';
 import 'package:psm_mobile/features/reference/domain/entities/document_preview.dart';
-import 'package:psm_mobile/features/reference/domain/entities/reference_bus.dart';
 import 'package:psm_mobile/features/reference/domain/entities/reference_detail.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/settlement_detail.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/settlement_detail_input.dart';
@@ -21,7 +20,7 @@ class SettlementState extends Equatable {
   final bool detailValid;
   final bool allowLastStep;
 
-  final List<ReferenceBus> referenceBus;
+  final List<ReferenceDetail> referenceBus;
   final List<ReferenceDetail> referenceKoridor;
   final List<ReferenceDetail> referencePayment;
   final List<ReferenceDetail> referenceCustomer;
@@ -96,7 +95,7 @@ class SettlementState extends Equatable {
     bool? detailValid,
     bool? allowLastStep,
 
-    List<ReferenceBus>? referenceBus,
+    List<ReferenceDetail>? referenceBus,
     List<ReferenceDetail>? referenceKoridor,
     List<ReferenceDetail>? referencePayment,
     List<ReferenceDetail>? referenceCustomer,

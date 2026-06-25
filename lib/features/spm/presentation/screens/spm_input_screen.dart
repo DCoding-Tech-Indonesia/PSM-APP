@@ -7,8 +7,6 @@ import 'package:psm_mobile/core/presentations/widgets/core_blur_dialog.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_button.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_dropdown_search.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_header.dart';
-import 'package:psm_mobile/core/storage/secure_storage.dart';
-import 'package:psm_mobile/features/reference/domain/entities/reference_bus.dart';
 import 'package:psm_mobile/features/reference/domain/entities/reference_detail.dart';
 import 'package:psm_mobile/features/reference/reference_data_source.dart';
 import 'package:psm_mobile/features/spm/data/datasources/spm_remote_data_source.dart';
@@ -52,7 +50,7 @@ class _SpmInputScreenViewState extends State<SpmInputScreenView> {
   ReferenceDetail? _selectedKoridor;
   ReferenceDetail? _selectedTipePemeriksaan;
   ReferenceDetail? _selectedHalte;
-  ReferenceBus? _selectedBus;
+  ReferenceDetail? _selectedBus;
   bool _isLoadingKoridor = false;
   bool _isLoadingTipe = false;
   bool _isLoadingHalte = false;
@@ -61,7 +59,7 @@ class _SpmInputScreenViewState extends State<SpmInputScreenView> {
   List<ReferenceDetail> _listKoridor = [];
   List<ReferenceDetail> _listTipePemeriksaan = [];
   List<ReferenceDetail> _listHalte = [];
-  List<ReferenceBus> _listBus = [];
+  List<ReferenceDetail> _listBus = [];
 
   bool get _isIdentitasValid {
     if (_selectedTipePemeriksaan?.code == 'HALTE') {
@@ -101,7 +99,6 @@ class _SpmInputScreenViewState extends State<SpmInputScreenView> {
     super.initState();
     _referenceDataSource = ReferenceDataSource(
       dio: DioClient().instance,
-      secureStorageService: SecureStorageService(),
     );
     _loadKoridor();
   }
@@ -664,7 +661,7 @@ class _SpmInputScreenViewState extends State<SpmInputScreenView> {
                   ),
                 )
               else
-                CoreDropdownSearch<ReferenceBus>(
+                CoreDropdownSearch<ReferenceDetail>(
                   label: 'Bus',
                   hintText: 'Pilih bus',
                   popupTitle: 'Pilih Bus',
@@ -672,7 +669,7 @@ class _SpmInputScreenViewState extends State<SpmInputScreenView> {
                   items: _listBus,
                   selectedItem: _selectedBus,
                   itemAsString: (t) =>
-                      'No. Lambung ${t.nomorLambung} - ${t.platNomor}',
+                      'No. Lambung ${t.code} - ${t.name}',
                   compareFn: (a, b) => a.id == b.id,
                   isItemSelected: (t) => t.id == _selectedBus?.id,
                   onSelected: (t) {
@@ -1072,7 +1069,7 @@ class _SpmInputScreenViewState extends State<SpmInputScreenView> {
           const SizedBox(height: 4),
           if (_selectedBus != null)
             Text(
-              'Bus: Nomor Lambung ${_selectedBus!.nomorLambung} - ${_selectedBus!.platNomor}',
+              'Bus: Nomor Lambung ${_selectedBus!.code} - ${_selectedBus!.name}',
               style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey),
             ),
           if (_selectedHalte != null)

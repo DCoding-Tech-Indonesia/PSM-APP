@@ -1,4 +1,5 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:formz/formz.dart';
 import 'package:psm_mobile/core/network/dio_client.dart';
@@ -44,11 +45,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         emit(
           state.copyWith(
             username: savedUsername ?? '',
-            password: Password.dirty(savedPassword!),
             rememberMe: true,
             allowBiometric: allowBiometric,
           ),
         );
+
+        if (kDebugMode) {
+          emit(state.copyWith(password: Password.dirty(savedPassword!)));
+        }
       }
 
       emit(state.copyWith(pageLoaded: true));

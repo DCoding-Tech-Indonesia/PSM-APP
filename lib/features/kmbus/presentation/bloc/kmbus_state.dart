@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:psm_mobile/features/kmbus/domain/entities/titik_awal_create.dart';
-import 'package:psm_mobile/features/reference/domain/entities/reference_bus.dart';
 import 'package:psm_mobile/features/reference/domain/entities/reference_detail.dart';
 
 enum KmbusStatus {
@@ -32,7 +31,7 @@ class KmbusState {
   final int idKoridor;
   final List<ReferenceDetail> referenceKoridor;
   final int idBus;
-  final List<ReferenceBus> referenceBus;
+  final List<ReferenceDetail> referenceBus;
 
   const KmbusState({
     this.status = KmbusStatus.initial,
@@ -59,7 +58,7 @@ class KmbusState {
     int? idKoridor,
     List<ReferenceDetail>? referenceKoridor,
     int? idBus,
-    List<ReferenceBus>? referenceBus,
+    List<ReferenceDetail>? referenceBus,
   }) {
     return KmbusState(
       status: status ?? this.status,

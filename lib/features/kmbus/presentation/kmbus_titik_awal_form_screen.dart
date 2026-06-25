@@ -11,7 +11,6 @@ import 'package:psm_mobile/core/presentations/widgets/core_header.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_snackbar.dart';
 import 'package:psm_mobile/features/kmbus/presentation/bloc/kmbus_bloc.dart';
 import 'package:psm_mobile/features/kmbus/presentation/bloc/kmbus_state.dart';
-import 'package:psm_mobile/features/reference/domain/entities/reference_bus.dart';
 import 'package:psm_mobile/features/reference/domain/entities/reference_detail.dart';
 
 import 'bloc/kmbus_event.dart';
@@ -31,6 +30,50 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
     Future.microtask(() {
       context.read<KmbusBloc>().add(KmbusTitikAwalInputLoad());
     });
+  }
+
+  void _showEditOdometerDialog(BuildContext context, String? currentOcr) {
+    final controller = TextEditingController(text: currentOcr == "-" ? "" : currentOcr);
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Edit Odometer'),
+          content: TextField(
+            controller: controller,
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(
+              hintText: 'Masukkan nilai odometer baru',
+              labelText: 'Nilai Odometer',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('Batal'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final newValue = int.tryParse(controller.text);
+                if (newValue != null) {
+                  context.read<KmbusBloc>().add(EditOdometer(newValue));
+                  Navigator.pop(dialogContext);
+                } else {
+                  CoreSnackbar.show(
+                    dialogContext,
+                    message: "Masukkan angka yang valid.",
+                    type: SnackbarType.failed,
+                  );
+                }
+              },
+              child: const Text('Simpan'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -133,7 +176,7 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
                             prev.idKoridor != curr.idKoridor ||
                             prev.referenceBus != curr.referenceBus,
                         builder: (context, state) {
-                          ReferenceBus? selectedBus;
+                          ReferenceDetail? selectedBus;
 
                           if (state.referenceBus.isNotEmpty) {
                             final matched = state.referenceBus.where(
@@ -159,21 +202,21 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
                             return SizedBox(height: 0);
                           }
 
-                          return CoreDropdownSearch<ReferenceBus>(
+                          return CoreDropdownSearch<ReferenceDetail>(
                             label: 'Pilih Bus',
                             hintText: 'Pilih Bus',
                             popupTitle: 'Daftar Bus',
                             items: state.referenceBus,
                             selectedItem: selectedBus,
                             itemAsString: (item) =>
-                                '${item.nomorLambung} - ${item.platNomor}',
+                                '${item.code} - ${item.name}',
                             compareFn: (a, b) => a.id == b.id,
                             isItemSelected: (item) => item.id == state.idBus,
                             isRequired: true,
                             onSelected: (value) {
                               if (value == null) return;
                               context.read<KmbusBloc>().add(
-                                SelectBus(value.id, value.platNomor),
+                                SelectBus(value.id, value.name),
                               );
                             },
                           );
@@ -198,7 +241,7 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
                                   ),
                                 ),
                                 GestureDetector(
-                                  onTap: () {},
+                                  onTap: () => _showEditOdometerDialog(context, state.ocrResult),
                                   child: Container(
                                     padding: const EdgeInsets.all(1),
                                     decoration: BoxDecoration(
