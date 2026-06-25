@@ -14,6 +14,8 @@ import 'package:psm_mobile/features/attendance/data/models/schedule_model.dart';
 import 'package:psm_mobile/features/auth/domain/repositories/auth_repository.dart';
 import 'package:psm_mobile/features/auth/presentation/auth_screen.dart';
 import 'package:psm_mobile/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:psm_mobile/features/checklist/presentation/checklist_screen.dart';
+import 'package:psm_mobile/features/checklist/presentation/screens/checklist_input_screen.dart';
 import 'package:psm_mobile/features/kmbus/data/kmbus_data_source.dart';
 import 'package:psm_mobile/features/kmbus/data/kmbus_repository_impl.dart';
 import 'package:psm_mobile/features/kmbus/presentation/bloc/kmbus_bloc.dart';
@@ -44,6 +46,9 @@ import 'package:psm_mobile/features/settlement/presentation/settlement_history_s
 import 'package:psm_mobile/features/settlement/presentation/settlement_screen.dart';
 import 'package:psm_mobile/features/settlement/presentation/settlement_success_submit_draft_screen.dart';
 import 'package:psm_mobile/features/splash/presentation/splash_screen.dart';
+import 'package:psm_mobile/features/spm/presentation/screens/spm_detail_screen.dart';
+import 'package:psm_mobile/features/spm/presentation/screens/spm_input_screen.dart';
+import 'package:psm_mobile/features/spm/presentation/screens/spm_screen.dart';
 import 'package:psm_mobile/features/timetable/data/timetable_data_source.dart';
 import 'package:psm_mobile/features/timetable/data/timetable_repository_impl.dart';
 import 'package:psm_mobile/features/timetable/presentation/bloc/timetable_bloc.dart';
@@ -395,6 +400,30 @@ void setupRouter(String initialLocation) {
                     }),
           );
         },
+      ),
+
+      // SPM ROUTE
+      GoRoute(path: '/spm', builder: (context, state) => const SpmScreen()),
+      GoRoute(
+        path: '/spm/input',
+        builder: (context, state) => const SpmInputScreen(),
+      ),
+      GoRoute(
+        path: '/spm/detail',
+        builder: (context, state) {
+          final taskId = state.extra as int;
+          return SpmDetailScreen(taskId: taskId);
+        },
+      ),
+
+      // CHECKLIST ROUTE
+      GoRoute(
+        path: '/checklist',
+        builder: (context, state) => const ChecklistScreen(),
+      ),
+      GoRoute(
+        path: '/checklist/input',
+        builder: (context, state) => const ChecklistInputScreen(),
       ),
 
       // WIDGET DEMO ROUTE

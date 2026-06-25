@@ -150,4 +150,42 @@ class ReferenceDataSource {
       throw Exception(e.toString());
     }
   }
+  Future<List<ReferenceDetail>> fetchReferenceShiftKaryawan(
+      String keyword,
+      ) async {
+    final response = await dio.get(
+      '/reference/shift-karyawan',
+      queryParameters: {'keyword': keyword, 'page': 1, 'perPage': 999},
+    );
+
+    final data = response.data['data'] as List;
+
+    return data.map((e) => ReferenceDetail.fromJson(e)).toList();
+  }
+
+  Future<List<ReferenceDetail>> fetchReferenceTypeChecklist(
+      String keyword,
+      ) async {
+    final response = await dio.get(
+      '/reference/type-checklist',
+      queryParameters: {'keyword': keyword, 'page': 1, 'perPage': 999},
+    );
+
+    final data = response.data['data'] as List;
+
+    return data.map((e) => ReferenceDetail.fromJson(e)).toList();
+  }
+
+  Future<List<ReferenceDetail>> fetchReferencePramugara(
+      String keyword,
+      ) async {
+    final response = await dio.get(
+      '/reference/pramugara',
+      queryParameters: {'keyword': keyword, 'page': 1, 'perPage': 999},
+    );
+
+    final data = response.data['data'] as List;
+
+    return data.map((e) => ReferenceDetail.fromJson(e)).toList();
+  }
 }

@@ -336,6 +336,9 @@ class PortalQuickActionsGrid extends StatelessWidget {
                   } else if (menu.title.toLowerCase().contains("spm")) {
                     mappedIcon = Icons.receipt;
                     mappedColor = Colors.green;
+                  } else if (menu.title.toLowerCase().contains("checklist")) {
+                    mappedIcon = Icons.checklist;
+                    mappedColor = Colors.amber;
                   } else {
                     mappedIcon = Icons.menu;
                   }
@@ -361,6 +364,10 @@ class PortalQuickActionsGrid extends StatelessWidget {
                         "TIME TABLE",
                       )) {
                         context.push('/timetable/dashboard');
+                      } else if (menu.title.toLowerCase().contains(
+                        "checklist",
+                      )) {
+                        context.push('/checklist');
                       } else {
                         PortalDialogs.showComingSoonDialog(
                           context,

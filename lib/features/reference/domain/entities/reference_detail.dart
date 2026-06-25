@@ -14,22 +14,14 @@ class ReferenceDetail extends Equatable {
   factory ReferenceDetail.fromJson(Map<String, dynamic> json) {
     return ReferenceDetail(
       id: json['id'],
-      code: json['code'] ?? '',
-      name: json['name'] ?? '',
+      code: json['code'] ?? json['email'] ?? json['nip'] ?? '',
+      name: json['name'] ?? json['namaLokasi'] ?? json['fullName'] ?? '',
     );
   }
 
-  Map<String, dynamic> toJson() => {
-    "id": id,
-    "code": code,
-    "name": name,
-  };
+  Map<String, dynamic> toJson() => {"id": id, "code": code, "name": name};
 
-  ReferenceDetail copyWith({
-    int? id,
-    String? code,
-    String? name,
-  }) {
+  ReferenceDetail copyWith({int? id, String? code, String? name}) {
     return ReferenceDetail(
       id: id ?? this.id,
       code: code ?? this.code,
