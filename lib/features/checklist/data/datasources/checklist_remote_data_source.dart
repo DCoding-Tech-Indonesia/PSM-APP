@@ -1,0 +1,72 @@
+import 'package:dio/dio.dart';
+import 'package:psm_mobile/features/checklist/data/models/checklist_item_model.dart';
+import 'package:psm_mobile/features/checklist/data/models/checklist_question_model.dart';
+
+class ChecklistRemoteDataSource {
+  final Dio dio;
+
+  ChecklistRemoteDataSource({required this.dio});
+
+  Future<List<ChecklistItemModel>> fetchChecklistList({
+    String keyword = '',
+    int page = 1,
+    int perPage = 1073741824,
+  }) async {
+    try {
+      final response = await dio.get(
+        '/daily-checklist/list',
+        queryParameters: {
+          "keyword": keyword,
+          "page": page,
+          "perPage": perPage,
+        },
+      );
+
+      final data = response.data['data'] as List?;
+      if (data != null) {
+        return data.map((e) => ChecklistItemModel.fromJson(e)).toList();
+      }
+      return [];
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<List<ChecklistQuestionModel>> getChecklistQuestions({
+    required String tipeForm,
+    String keyword = '',
+    int page = 1,
+    int perPage = 999,
+  }) async {
+    try {
+      final response = await dio.get(
+        '/checklist-question/list',
+        queryParameters: {
+          "keyword": keyword,
+          "tipeForm": tipeForm,
+          "page": page,
+          "perPage": perPage,
+        },
+      );
+
+      final data = response.data['data'] as List?;
+      if (data != null) {
+        return data.map((e) => ChecklistQuestionModel.fromJson(e)).toList();
+      }
+      return [];
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> createChecklist(Map<String, dynamic> payload) async {
+    try {
+      await dio.post(
+        '/daily-checklist/create',
+        data: payload,
+      );
+    } catch (e) {
+      rethrow;
+    }
+  }
+}

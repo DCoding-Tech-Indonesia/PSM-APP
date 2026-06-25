@@ -79,12 +79,12 @@ class PortalHeader extends StatelessWidget {
               // Action Buttons
               Row(
                 children: [
-                  IconButton(
-                    icon: const Icon(Icons.notifications),
-                    onPressed: () {
-                      PortalDialogs.showNotificationDialog(context);
-                    },
-                  ),
+                  // IconButton(
+                  //   icon: const Icon(Icons.notifications),
+                  //   onPressed: () {
+                  //     PortalDialogs.showNotificationDialog(context);
+                  //   },
+                  // ),
                   IconButton(
                     icon: const Icon(Icons.logout),
                     onPressed: () {

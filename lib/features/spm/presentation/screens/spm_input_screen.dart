@@ -97,9 +97,7 @@ class _SpmInputScreenViewState extends State<SpmInputScreenView> {
   @override
   void initState() {
     super.initState();
-    _referenceDataSource = ReferenceDataSource(
-      dio: DioClient().instance,
-    );
+    _referenceDataSource = ReferenceDataSource(dio: DioClient().instance);
     _loadKoridor();
   }
 
@@ -668,8 +666,7 @@ class _SpmInputScreenViewState extends State<SpmInputScreenView> {
                   isRequired: true,
                   items: _listBus,
                   selectedItem: _selectedBus,
-                  itemAsString: (t) =>
-                      'No. Lambung ${t.code} - ${t.name}',
+                  itemAsString: (t) => 'No. Lambung ${t.code} - ${t.name}',
                   compareFn: (a, b) => a.id == b.id,
                   isItemSelected: (t) => t.id == _selectedBus?.id,
                   onSelected: (t) {
@@ -866,12 +863,14 @@ class _SpmInputScreenViewState extends State<SpmInputScreenView> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          q.name,
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                            color: theme.primaryColor,
+                        Expanded(
+                          child: Text(
+                            q.name,
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                              color: theme.primaryColor,
+                            ),
                           ),
                         ),
                         Text(
@@ -925,6 +924,21 @@ class _SpmInputScreenViewState extends State<SpmInputScreenView> {
                               color: Colors.orange.shade800,
                               fontWeight: FontWeight.bold,
                             ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        const Icon(Icons.scale, size: 16, color: Colors.orange),
+                        const SizedBox(width: 6),
+                        Text(
+                          'Bobot Pertanyaan : ${q.bobotCapaian.toString()}',
+                          textAlign: TextAlign.center,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: Colors.orange.shade800,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ],
