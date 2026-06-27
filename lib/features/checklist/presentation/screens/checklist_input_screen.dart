@@ -260,10 +260,10 @@ class _ChecklistInputScreenViewState extends State<_ChecklistInputScreenView> {
           });
           _goToStep(1);
         } else if (state is ChecklistQuestionsError) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Gagal memuat pertanyaan. Error: ${state.message}'),
-            ),
+          showCoreErrorDialog(
+            context,
+            'Error',
+            'Gagal memuat pertanyaan. Error: ${state.message}',
           );
         } else if (state is ChecklistSubmitting) {
           showDialog(
@@ -273,11 +273,10 @@ class _ChecklistInputScreenViewState extends State<_ChecklistInputScreenView> {
           );
         } else if (state is ChecklistSubmitSuccess) {
           Navigator.pop(context); // close loading
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Berhasil menyimpan data checklist.'),
-              backgroundColor: Colors.green,
-            ),
+          showCoreSuccessDialog(
+            context,
+            'Sukses',
+            'Berhasil menyimpan data checklist.',
           );
           context.pop(true);
         } else if (state is ChecklistSubmitError) {

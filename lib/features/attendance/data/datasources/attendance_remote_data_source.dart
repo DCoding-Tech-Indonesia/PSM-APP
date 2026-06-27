@@ -79,7 +79,7 @@ class AttendanceRemoteDataSourceImpl implements AttendanceRemoteDataSource {
   }) async {
     try {
       final response = await _dioClient.instance.get(
-        '/absensi/history',
+        '/absensi/list',
         queryParameters: {
           'page': page,
           'perPage': perPage,

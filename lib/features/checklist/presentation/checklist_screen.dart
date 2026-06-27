@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:psm_mobile/core/network/dio_client.dart';
+import 'package:psm_mobile/core/presentations/widgets/core_blur_dialog.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_header.dart';
 import 'package:psm_mobile/features/checklist/data/datasources/checklist_remote_data_source.dart';
 import 'package:psm_mobile/features/checklist/data/repositories/checklist_repository_impl.dart';
@@ -113,12 +114,10 @@ class _ChecklistScreenViewState extends State<_ChecklistScreenView> {
               child: BlocConsumer<ChecklistListBloc, ChecklistListState>(
                 listener: (context, state) {
                   if (state is ChecklistListError) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          'Gagal memuat data. Error: ${state.message}',
-                        ),
-                      ),
+                    showCoreErrorDialog(
+                      context,
+                      'Error',
+                      'Gagal memuat data. Error: ${state.message}',
                     );
                   }
                 },
@@ -318,7 +317,7 @@ class _ChecklistScreenViewState extends State<_ChecklistScreenView> {
                   ),
                   Expanded(
                     child: Text(
-                      'No. ${item.busNomorLambung} — ${item.busPlatNomor}',
+                      'No. Lambung ${item.busNomorLambung} — ${item.busPlatNomor}',
                       style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
@@ -358,27 +357,27 @@ class _ChecklistScreenViewState extends State<_ChecklistScreenView> {
               // Row 5: Tanggal + Created date + chevron
               Row(
                 children: [
-                  Icon(
-                    Icons.calendar_today_outlined,
-                    size: 14,
-                    color: theme.textTheme.bodySmall?.color,
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    item.tanggal,
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: theme.primaryColor,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
+                  // Icon(
+                  //   Icons.calendar_today_outlined,
+                  //   size: 14,
+                  //   color: theme.textTheme.bodySmall?.color,
+                  // ),
+                  // const SizedBox(width: 6),
+                  // Text(
+                  //   item.tanggal,
+                  //   style: TextStyle(
+                  //     fontSize: 13,
+                  //     fontWeight: FontWeight.w600,
+                  //     color: theme.primaryColor,
+                  //   ),
+                  // ),
+                  // const SizedBox(width: 12),
                   Icon(
                     Icons.access_time,
                     size: 14,
                     color: theme.textTheme.bodySmall?.color,
                   ),
-                  const SizedBox(width: 4),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       createdDate,

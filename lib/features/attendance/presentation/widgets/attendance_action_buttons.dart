@@ -60,7 +60,7 @@ class AttendanceActionButtons extends StatelessWidget {
                                     popupTitle: 'Pilih Bus',
                                     items: state.bus,
                                     itemAsString: (s) =>
-                                        s['name']?.toString() ?? '',
+                                        'No. Lambung ${s['code']} - ${s['name']?.toString()}',
                                     compareFn: (a, b) => a['id'] == b['id'],
                                     onSelected: (selected) {
                                       if (selected != null) {
