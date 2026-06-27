@@ -208,6 +208,22 @@ class _SpmInputScreenViewState extends State<SpmInputScreenView> {
     }
   }
 
+  void _previousQuestion() {
+    if (_currentQuestionIndex > 0) {
+      setState(() => _currentQuestionIndex--);
+    } else if (_currentKategoriIndex > 0) {
+      setState(() {
+        _currentKategoriIndex--;
+        final prevKategori = _kategoriList[_currentKategoriIndex].toLowerCase();
+        _currentQuestionIndex = _pertanyaan
+            .where((q) => q.categorySPM.name.toLowerCase() == prevKategori)
+            .length - 1;
+      });
+    } else {
+      _goToStep(0);
+    }
+  }
+
   void _showLanjutDialog() {
     showCoreConfirmDialog(
       context: context,
@@ -405,33 +421,26 @@ class _SpmInputScreenViewState extends State<SpmInputScreenView> {
           });
           _goToStep(1);
         } else if (state is QuestionsError) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                'Gagal memuat pertanyaan SPM. Error: ${state.message}',
-              ),
-            ),
+          showCoreErrorDialog(
+            context,
+            'Gagal memuat pertanyaan SPM',
+            state.message,
           );
         } else if (state is SpmCreateSuccess) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Data SPM berhasil disimpan.')),
+          showCoreSuccessDialog(
+            context,
+            'Sukses',
+            'Data SPM berhasil disimpan',
           );
           _showWorkflowSubmitDialog(context, state.auditTrailId);
         } else if (state is SpmCreateError) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                'Gagal menyimpan data SPM. Error: ${state.message}',
-              ),
-            ),
+          showCoreErrorDialog(
+            context,
+            'Gagal menyimpan data SPM',
+            state.message,
           );
         } else if (state is SpmSubmitSuccess) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.message),
-              backgroundColor: Colors.green,
-            ),
-          );
+          showCoreSuccessDialog(context, 'Sukses', state.message);
           context.pop(true);
         } else if (state is SpmSubmitError) {
           showCoreErrorDialog(context, 'Gagal Submit', state.message);
@@ -919,7 +928,7 @@ class _SpmInputScreenViewState extends State<SpmInputScreenView> {
                         const SizedBox(width: 6),
                         Expanded(
                           child: Text(
-                            'Target: ${q.nilai}',
+                            'Target: \n${q.nilai}',
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: Colors.orange.shade800,
                               fontWeight: FontWeight.bold,
@@ -1003,43 +1012,61 @@ class _SpmInputScreenViewState extends State<SpmInputScreenView> {
             ),
           ),
 
-          // Tombol Next / Lanjut
-          SizedBox(
-            width: double.infinity,
-            height: 52,
-            child: ElevatedButton.icon(
-              onPressed: q.nilai != '' ? _nextQuestion : null,
-              icon: Icon(
-                _currentQuestionIndex < _currentKategoriQuestions.length - 1
-                    ? Icons.navigate_next
-                    : _currentKategoriIndex < _kategoriList.length - 1
-                    ? Icons.chevron_right
-                    : Icons.check,
-                color: Colors.white,
-              ),
-              label: Text(
-                _currentQuestionIndex < _currentKategoriQuestions.length - 1
-                    ? 'Pertanyaan Berikutnya'
-                    : _currentKategoriIndex < _kategoriList.length - 1
-                    ? 'Lanjut Kategori Berikutnya'
-                    : 'Lihat Ringkasan',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
+          // Navigation Buttons
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: _previousQuestion,
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    side: BorderSide(color: theme.disabledColor, width: 0.5),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                  child: const Text('Sebelumnya'),
                 ),
               ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: theme.primaryColor,
-                disabledBackgroundColor: theme.primaryColor.withValues(
-                  alpha: 0.4,
+              const SizedBox(width: 16),
+              Expanded(
+                flex: 2,
+                child: ElevatedButton.icon(
+                  onPressed: q.nilai != '' ? _nextQuestion : null,
+                  icon: Icon(
+                    _currentQuestionIndex < _currentKategoriQuestions.length - 1
+                        ? Icons.navigate_next
+                        : _currentKategoriIndex < _kategoriList.length - 1
+                        ? Icons.chevron_right
+                        : Icons.check,
+                    color: Colors.white,
+                  ),
+                  label: Text(
+                    _currentQuestionIndex < _currentKategoriQuestions.length - 1
+                        ? 'Selanjutnya'
+                        : _currentKategoriIndex < _kategoriList.length - 1
+                        ? 'Lanjut Kategori Berikut'
+                        : 'Lihat Ringkasan',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: theme.primaryColor,
+                    disabledBackgroundColor: theme.primaryColor.withValues(
+                      alpha: 0.4,
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    elevation: 2,
+                  ),
                 ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                elevation: 2,
               ),
-            ),
+            ],
           ),
         ],
       ),

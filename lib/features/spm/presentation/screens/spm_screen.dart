@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:psm_mobile/core/network/dio_client.dart';
+import 'package:psm_mobile/core/presentations/widgets/core_blur_dialog.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_header.dart';
 import 'package:psm_mobile/features/spm/data/datasources/spm_remote_data_source.dart';
 import 'package:psm_mobile/features/spm/data/repositories/spm_repository_impl.dart';
@@ -66,12 +67,10 @@ class _SpmScreenViewState extends State<SpmScreenView> {
               child: BlocConsumer<SpmListBloc, SpmListState>(
                 listener: (context, state) {
                   if (state is SpmListError) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          'Gagal memuat data SPM. Error: ${state.message}',
-                        ),
-                      ),
+                    showCoreErrorDialog(
+                      context,
+                      'Error',
+                      'Gagal memuat data SPM. Error: ${state.message}',
                     );
                   }
                 },

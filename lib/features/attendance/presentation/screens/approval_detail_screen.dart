@@ -57,17 +57,13 @@ class ApprovalDetailView extends StatelessWidget {
               if (state.errorMessage != null) {
                 showCoreErrorDialog(context, 'Kesalahan', state.errorMessage!);
               } else if (state.isActionSuccess) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Berhasil menyetujui pergantian shift'),
-                    backgroundColor: Colors.green,
-                  ),
+                showCoreSuccessDialog(
+                  context,
+                  'Sukses',
+                  'Berhasil menyetujui pergantian shift',
                 );
                 ApprovalRefreshNotifier.instance.notifyRefresh();
                 context.pop(true);
-                // Navigator.of(
-                //   context,
-                // ).pop(true); // Pop with true to indicate success
               }
             }
           },

@@ -61,10 +61,14 @@ class ChecklistRemoteDataSource {
 
   Future<void> createChecklist(Map<String, dynamic> payload) async {
     try {
-      await dio.post(
+      final response = await dio.post(
         '/daily-checklist/create',
         data: payload,
       );
+
+      if (response.data != null && response.data['status'] == false) {
+        throw Exception(response.data['message'] ?? 'Gagal menyimpan checklist');
+      }
     } catch (e) {
       rethrow;
     }

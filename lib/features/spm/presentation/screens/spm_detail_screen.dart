@@ -210,12 +210,7 @@ class _SpmDetailScreenViewState extends State<SpmDetailScreenView> {
         child: BlocListener<SpmDetailBloc, SpmDetailState>(
           listener: (context, state) {
             if (state is SpmSubmitSuccess) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(state.message),
-                  backgroundColor: Colors.green,
-                ),
-              );
+              showCoreSuccessDialog(context, 'Sukses', state.message);
               context.pop(true); // signal list screen to refresh
             } else if (state is SpmSubmitError) {
               showCoreErrorDialog(context, 'Gagal', state.message);
@@ -316,7 +311,7 @@ class _SpmDetailScreenViewState extends State<SpmDetailScreenView> {
                                   _buildInfoRow(
                                     Icons.person_outline,
                                     'Dibuat Oleh',
-                                    data.createdBy.userName,
+                                    data.createdBy.fullName,
                                     theme,
                                   ),
                                   _buildInfoRow(
@@ -329,7 +324,7 @@ class _SpmDetailScreenViewState extends State<SpmDetailScreenView> {
                                     _buildInfoRow(
                                       Icons.check_circle,
                                       'Disetujui',
-                                      data.approvedBy!.userName,
+                                      data.approvedBy!.fullName,
                                       theme,
                                     ),
                                 ],
@@ -346,23 +341,21 @@ class _SpmDetailScreenViewState extends State<SpmDetailScreenView> {
                                 children: [
                                   _buildInfoRow(
                                     Icons.route_outlined,
-                                    'ID Koridor',
-                                    data.dataAfter.idKoridor?.toString() ?? '-',
+                                    'Koridor',
+                                    data.dataAfter.koridor?.name ?? '-',
                                     theme,
                                   ),
                                   _buildInfoRow(
                                     Icons.checklist_rtl_rounded,
-                                    'ID Tipe',
-                                    data.dataAfter.idTypePemeriksaan
-                                            ?.toString() ??
-                                        '-',
+                                    'Tipe Pemeriksaan',
+                                    data.dataAfter.jenisObjectSPM?.name ?? '-',
                                     theme,
                                   ),
                                   if (data.dataAfter.idBus != null)
                                     _buildInfoRow(
                                       Icons.directions_bus_outlined,
-                                      'ID Bus',
-                                      data.dataAfter.idBus.toString(),
+                                      'Bus',
+                                      '${data.dataAfter.bus?.nomorLambung} - ${data.dataAfter.bus?.platNomor}',
                                       theme,
                                     ),
                                   if (data.dataAfter.idHalte != null)
@@ -493,15 +486,103 @@ class _SpmDetailScreenViewState extends State<SpmDetailScreenView> {
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
                                               children: [
-                                                Text(
-                                                  'Indikator SPM',
-                                                  style: TextStyle(
-                                                    color: Colors.grey.shade600,
-                                                    fontSize: 12,
-                                                    fontWeight: FontWeight.w500,
+                                                if (detail.categorySpm != null)
+                                                  Container(
+                                                    margin:
+                                                        const EdgeInsets.only(
+                                                          bottom: 6,
+                                                        ),
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal: 8,
+                                                          vertical: 4,
+                                                        ),
+                                                    decoration: BoxDecoration(
+                                                      color: theme.primaryColor
+                                                          .withValues(
+                                                            alpha: 0.1,
+                                                          ),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            6,
+                                                          ),
+                                                    ),
+                                                    child: Text(
+                                                      detail.categorySpm!.name,
+                                                      style: TextStyle(
+                                                        color:
+                                                            theme.primaryColor,
+                                                        fontSize: 11,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                      ),
+                                                    ),
                                                   ),
+                                                Text(
+                                                  detail.indikatorSpm?.name ??
+                                                      'Indikator',
+                                                  style: theme
+                                                      .textTheme
+                                                      .titleMedium
+                                                      ?.copyWith(
+                                                        fontWeight:
+                                                            FontWeight.w800,
+                                                        height: 1.3,
+                                                      ),
                                                 ),
-                                                const SizedBox(height: 4),
+                                                SizedBox(height: 4),
+                                                Text(
+                                                  detail.indikatorSpm?.uraian ??
+                                                      detail
+                                                          .indikatorSpm
+                                                          ?.name ??
+                                                      'Indikator',
+                                                  style: theme
+                                                      .textTheme
+                                                      .titleSmall
+                                                      ?.copyWith(
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                        height: 1.3,
+                                                      ),
+                                                ),
+                                                if (detail
+                                                            .indikatorSpm
+                                                            ?.nilai !=
+                                                        null &&
+                                                    detail
+                                                        .indikatorSpm!
+                                                        .nilai
+                                                        .isNotEmpty) ...[
+                                                  const SizedBox(height: 6),
+                                                  Row(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Icon(
+                                                        Icons.notes,
+                                                        size: 14,
+                                                        color: Colors
+                                                            .grey
+                                                            .shade500,
+                                                      ),
+                                                      const SizedBox(width: 4),
+                                                      Expanded(
+                                                        child: Text(
+                                                          '${detail.indikatorSpm?.nilai}',
+                                                          style: TextStyle(
+                                                            color: Colors
+                                                                .grey
+                                                                .shade600,
+                                                            fontSize: 12,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                                const SizedBox(height: 12),
                                                 Row(
                                                   children: [
                                                     _buildScoreBadge(
