@@ -12,10 +12,24 @@ import 'package:psm_mobile/features/reference/domain/entities/document_preview.d
 import 'package:psm_mobile/features/timetable/domain/entities/auditTrail/km_task_audit_trail.dart';
 
 abstract class KmbusRepository {
-  Future<Either<Failure, List<CoreScheduleModel>>> fetchTodaySchedule(int userId);
+  Future<Either<Failure, List<CoreScheduleModel>>> fetchTodaySchedule(
+    int userId,
+  );
+  Future<Either<Failure, String>> checkAllowTitikAwal(
+    int idKoridor,
+    int idBus,
+    double nextRit,
+  );
+  Future<Either<Failure, String>> checkAllowTitikAkhir(
+    int idKoridor,
+    int idBus,
+    double nextRit,
+  );
 
   Future<Either<Failure, List<KmbusData>>> fetchListKmbus(String keyword);
-  Future<Either<Failure, List<KmTaskAuditTrail>>> fetchListKmbusAuditTrail(String keyword);
+  Future<Either<Failure, List<KmTaskAuditTrail>>> fetchListKmbusAuditTrail(
+    String keyword,
+  );
   Future<Either<Failure, double>> fetchNextRitase(int idKoridor, int idBus);
 
   Future<Either<Failure, String>> createTitikAwal(TitikAwalCreate request);
@@ -24,9 +38,17 @@ abstract class KmbusRepository {
   Future<Either<Failure, DocumentPreview>> uploadDocument(File file);
 
   Future<Either<Failure, bool>> submitTitikAwal(TitikAwalCreate request);
-  Future<Either<Failure, String>> submitWorkflow(int idAuditTrail, String reason);
+  Future<Either<Failure, String>> submitWorkflow(
+    int idAuditTrail,
+    String reason,
+  );
 
   // FETCHING REFERENCE
-  Future<Either<Failure, List<ReferenceDetail>>> fetchReferenceKoridor(String keyword);
-  Future<Either<Failure, List<ReferenceDetail>>> fetchReferenceBus(String keyword, int idKoridor);
+  Future<Either<Failure, List<ReferenceDetail>>> fetchReferenceKoridor(
+    String keyword,
+  );
+  Future<Either<Failure, List<ReferenceDetail>>> fetchReferenceBus(
+    String keyword,
+    int idKoridor,
+  );
 }

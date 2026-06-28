@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:psm_mobile/core/error/failure.dart';
+import 'package:psm_mobile/core/presentations/entity/core_schedule_model.dart';
 import 'package:psm_mobile/features/reference/domain/entities/reference_detail.dart';
 import 'package:psm_mobile/features/reference/reference_data_source.dart';
 import 'package:psm_mobile/features/timetable/data/timetable_data_source.dart';
@@ -12,10 +13,15 @@ class TimetableRepositoryImpl implements TimetableRepository {
   final TimetableDataSource dataSource;
   final ReferenceDataSource dataSourceReference;
 
-  TimetableRepositoryImpl({required this.dataSource, required this.dataSourceReference});
+  TimetableRepositoryImpl({
+    required this.dataSource,
+    required this.dataSourceReference,
+  });
 
   @override
-  Future<Either<Failure, List<TimetableData>>> fetchListTimeTable(String keyword) async {
+  Future<Either<Failure, List<TimetableData>>> fetchListTimeTable(
+    String keyword,
+  ) async {
     try {
       final result = await dataSource.fetchTimetableDataList(keyword);
 
@@ -31,10 +37,78 @@ class TimetableRepositoryImpl implements TimetableRepository {
   }
 
   @override
+  Future<Either<Failure, List<CoreScheduleModel>>> fetchTodaySchedule(
+    int userId,
+  ) async {
+    try {
+      final result = await dataSourceReference.fetchTodaySchedule(
+        userId: userId,
+      );
+
+      return right(result);
+    } on DioException catch (e) {
+      final message =
+          e.response?.data?['message'] ?? 'Terjadi kesalahan server';
+
+      return left(ServerFailure(message));
+    } catch (_) {
+      return left(const ServerFailure('Unexpected error'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, String>> checkAllowCheckIn(
+    int idKoridor,
+    int idBus,
+    double nextRit,
+  ) async {
+    try {
+      final result = await dataSource.checkAllowCheckIn(
+        idKoridor,
+        idBus,
+        nextRit,
+      );
+
+      return right(result);
+    } on DioException catch (e) {
+      final message =
+          e.response?.data?['message'] ?? 'Terjadi kesalahan server';
+
+      return left(ServerFailure(message));
+    } catch (_) {
+      return left(const ServerFailure('Unexpected error'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, String>> checkAllowCheckOut(
+    int idKoridor,
+    int idBus,
+    double nextRit,
+  ) async {
+    try {
+      final result = await dataSource.checkAllowCheckOut(
+        idKoridor,
+        idBus,
+        nextRit,
+      );
+
+      return right(result);
+    } on DioException catch (e) {
+      final message =
+          e.response?.data?['message'] ?? 'Terjadi kesalahan server';
+
+      return left(ServerFailure(message));
+    } catch (_) {
+      return left(const ServerFailure('Unexpected error'));
+    }
+  }
+
+  @override
   Future<Either<Failure, double>> fetchNextRitase(
-      int idKoridor,
-      int idBus
-      ) async {
+    int idKoridor,
+    int idBus,
+  ) async {
     try {
       final result = await dataSource.fetchNextRitase(idKoridor, idBus);
 
@@ -50,7 +124,9 @@ class TimetableRepositoryImpl implements TimetableRepository {
   }
 
   @override
-  Future<Either<Failure, String?>> checkinTimeTable(TimetableCheckin request) async {
+  Future<Either<Failure, String?>> checkinTimeTable(
+    TimetableCheckin request,
+  ) async {
     try {
       final response = await dataSource.checkinTimeTable(request);
 
@@ -65,14 +141,11 @@ class TimetableRepositoryImpl implements TimetableRepository {
     }
   }
 
-
-
-
   // region REFERENCE
   @override
   Future<Either<Failure, List<ReferenceDetail>>> fetchReferenceKoridor(
-      String keyword,
-      ) async {
+    String keyword,
+  ) async {
     try {
       final result = await dataSourceReference.fetchReferenceKoridor(keyword);
 
@@ -89,11 +162,14 @@ class TimetableRepositoryImpl implements TimetableRepository {
 
   @override
   Future<Either<Failure, List<ReferenceDetail>>> fetchReferenceBus(
-      String keyword,
-      int idKoridor
-      ) async {
+    String keyword,
+    int idKoridor,
+  ) async {
     try {
-      final result = await dataSourceReference.fetchReferenceBus(keyword, idKoridor);
+      final result = await dataSourceReference.fetchReferenceBus(
+        keyword,
+        idKoridor,
+      );
 
       return right(result);
     } on DioException catch (e) {
@@ -105,5 +181,6 @@ class TimetableRepositoryImpl implements TimetableRepository {
       return left(const ServerFailure('Unexpected error'));
     }
   }
+
   // endregion
 }

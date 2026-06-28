@@ -109,7 +109,7 @@ class _KmbusScreenState extends State<KmbusScreen> {
                                       return;
                                     }
 
-                                    if (state.allowTitikAkhir) {
+                                    if (!state.allowTitikAwal) {
                                       CoreSnackbar.show(
                                         context,
                                         message:
@@ -133,7 +133,7 @@ class _KmbusScreenState extends State<KmbusScreen> {
                                     }
                                   },
                                   backgroundColor:
-                                      !state.allowTitikAkhir &&
+                                      state.allowTitikAwal &&
                                           state.idShift != null
                                       ? Colors.green
                                       : Colors.grey,

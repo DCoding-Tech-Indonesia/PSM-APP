@@ -32,6 +32,54 @@ class TimetableDataSource {
     }
   }
 
+  Future<String> checkAllowCheckIn(
+      int idKoridor,
+      int idBus,
+      double nextRit,
+      ) async {
+    try {
+      final response = await dio.get(
+        '/time-table/check/check-in',
+        queryParameters: {
+          'idKoridor': idKoridor,
+          'idBus': idBus,
+          'ritaseKe': nextRit,
+        },
+      );
+
+      bool allow = response.data["data"][0];
+
+      return !allow ? "Access Granted" : "Access Denied";
+    } catch (e) {
+      debugPrint(e.toString());
+      rethrow;
+    }
+  }
+
+  Future<String> checkAllowCheckOut(
+      int idKoridor,
+      int idBus,
+      double nextRit,
+      ) async {
+    try {
+      final response = await dio.get(
+        '/time-table/check/check-out',
+        queryParameters: {
+          'idKoridor': idKoridor,
+          'idBus': idBus,
+          'ritaseKe': nextRit,
+        },
+      );
+
+      bool allow = response.data["data"][0];
+
+      return !allow ? "Access Granted" : "Access Denied";
+    } catch (e) {
+      debugPrint(e.toString());
+      rethrow;
+    }
+  }
+
   Future<double> fetchNextRitase(int idKoridor, int idBus) async {
     final response = await dio.get(
       '/reference/next-ritase',

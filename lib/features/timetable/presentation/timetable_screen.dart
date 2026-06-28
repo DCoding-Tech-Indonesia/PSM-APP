@@ -391,8 +391,11 @@ class _TimetableScreenState extends State<TimetableScreen> {
                           children: [
                             Expanded(
                               child: CoreButton(
-                                onPressed: () => _showCheckInOutModal(context, true),
-                                backgroundColor: Colors.green,
+                                onPressed: () {
+                                  if (!state.isAllowCheckIn) return;
+                                  _showCheckInOutModal(context, true);
+                                },
+                                backgroundColor: state.isAllowCheckIn ? Colors.green : Colors.grey,
                                 foregroundColor: Colors.white,
                                 child: FittedBox(
                                   fit: BoxFit.scaleDown,
@@ -408,8 +411,11 @@ class _TimetableScreenState extends State<TimetableScreen> {
                             ),
                             Expanded(
                               child: CoreButton(
-                                onPressed: () => _showCheckInOutModal(context, false),
-                                backgroundColor: Colors.red,
+                                onPressed: () {
+                                  if (!state.isAllowCheckIn) return;
+                                  _showCheckInOutModal(context, false);
+                                },
+                                backgroundColor: state.isAllowCheckOut ? Colors.red : Colors.grey,
                                 foregroundColor: Colors.white,
                                 child: FittedBox(
                                   fit: BoxFit.scaleDown,

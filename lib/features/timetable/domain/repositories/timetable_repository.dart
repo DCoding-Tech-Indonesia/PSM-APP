@@ -1,10 +1,25 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:psm_mobile/core/error/failure.dart';
+import 'package:psm_mobile/core/presentations/entity/core_schedule_model.dart';
 import 'package:psm_mobile/features/reference/domain/entities/reference_detail.dart';
 import 'package:psm_mobile/features/timetable/domain/entities/timetable_checkin.dart';
 import 'package:psm_mobile/features/timetable/domain/entities/timetable_data.dart';
 
 abstract class TimetableRepository {
+  Future<Either<Failure, List<CoreScheduleModel>>> fetchTodaySchedule(
+      int userId,
+      );
+  Future<Either<Failure, String>> checkAllowCheckIn(
+      int idKoridor,
+      int idBus,
+      double nextRit,
+      );
+  Future<Either<Failure, String>> checkAllowCheckOut(
+      int idKoridor,
+      int idBus,
+      double nextRit,
+      );
+
   Future<Either<Failure, List<TimetableData>>> fetchListTimeTable(String keyword);
 
   Future<Either<Failure, double>> fetchNextRitase(int idKoridor, int idBus);

@@ -203,15 +203,14 @@ class ReferenceDataSource {
 
   Future<List<CoreScheduleModel>> fetchTodaySchedule({required int userId}) async {
     try {
-      // final String todayStr = DateTime.now().toIso8601String().split('T')[0];
-      final String tomorrowStr = DateTime.now().add(const Duration(days: 1)).toIso8601String().split('T')[0];
+      final String todayStr = DateTime.now().toIso8601String().split('T')[0];
 
       final response = await dio.get(
         '/jadwal/list',
         queryParameters: {
           'userId': userId,
-          'startDate': tomorrowStr,
-          'endDate': tomorrowStr,
+          'startDate': todayStr,
+          'endDate': todayStr,
           'page': 1,
           'perPage': 1,
         },

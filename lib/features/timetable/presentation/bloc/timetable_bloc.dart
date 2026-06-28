@@ -63,11 +63,38 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
           return null;
         }, (data) => data);
 
+        if (timeTableList == null) return;
+
+        final checkCheckInFuture = timetableRepository.checkAllowCheckIn(
+          updatedCheckinWithPramugara.idKoridor,
+          updatedCheckinWithPramugara.idBus,
+          updatedCheckinWithPramugara.ritaseKe,
+        );
+        final checkCheckOutFuture = timetableRepository.checkAllowCheckIn(
+          updatedCheckinWithPramugara.idKoridor,
+          updatedCheckinWithPramugara.idBus,
+          updatedCheckinWithPramugara.ritaseKe,
+        );
+
+        final allowResults = await Future.wait([checkCheckInFuture, checkCheckOutFuture]);
+
+        final bool isAllowCheckIn = allowResults[0].fold(
+              (_) => false,
+              (res) => res == "Access Granted",
+        );
+
+        final bool isAllowCheckOut = allowResults[1].fold(
+              (_) => false,
+              (res) => res == "Access Granted",
+        );
+
         emit(
           state.copyWith(
             listTimetable: timeTableList,
             referenceKoridor: koridorList,
             checkinData: updatedCheckinWithPramugara,
+            isAllowCheckIn: isAllowCheckIn,
+            isAllowCheckOut: (isAllowCheckOut && !isAllowCheckIn),
             status: TimetableStatus.success,
           ),
         );

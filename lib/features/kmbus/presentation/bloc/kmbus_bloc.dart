@@ -32,46 +32,71 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
           return null;
         }, (data) => data);
 
-        final listMaster = await kmbusRepository.fetchListKmbus('');
-        final listAuditTrail = await kmbusRepository.fetchListKmbusAuditTrail(
-          '',
+        if (todayScheduleData == null || todayScheduleData.isEmpty) {
+          emit(state.copyWith(status: KmbusStatus.error, message: "Jadwal tidak ditemukan"));
+          return;
+        }
+
+        final idKoridorShift = todayScheduleData[0].lokasi.koridor;
+        final idBusShift = todayScheduleData[0].bus.id;
+
+        final nextRitaseResult = await kmbusRepository.fetchNextRitase(idKoridorShift, idBusShift!);
+        final double ritaseValue = nextRitaseResult.fold((_) => 0.0, (value) => value);
+
+        final checkAwalFuture = kmbusRepository.checkAllowTitikAwal(idKoridorShift, idBusShift, ritaseValue);
+        final checkAkhirFuture = kmbusRepository.checkAllowTitikAkhir(idKoridorShift, idBusShift, ritaseValue);
+
+        final results = await Future.wait([checkAwalFuture, checkAkhirFuture]);
+
+        final checkAwalResult = results[0];
+        final checkAkhirResult = results[1];
+
+        final bool isAllowTitikAwal = checkAwalResult.fold(
+              (_) => false,
+              (res) => res == "Access Granted",
         );
 
+        final bool isAllowTitikAkhirCheck = checkAkhirResult.fold(
+              (_) => false,
+              (res) => res == "Access Granted",
+        );
+
+        final listMaster = await kmbusRepository.fetchListKmbus('');
+        final listAuditTrail = await kmbusRepository.fetchListKmbusAuditTrail('');
+
         final kmBusListMaster = listMaster.fold((failure) {
-          emit(
-            state.copyWith(status: KmbusStatus.error, message: failure.message),
-          );
+          emit(state.copyWith(status: KmbusStatus.error, message: failure.message));
           return null;
         }, (data) => data);
 
         if (kmBusListMaster == null) return;
 
         final kmBusListAuditTrail = listAuditTrail.fold((failure) {
-          emit(
-            state.copyWith(status: KmbusStatus.error, message: failure.message),
-          );
+          emit(state.copyWith(status: KmbusStatus.error, message: failure.message));
           return null;
         }, (data) => data);
 
         if (kmBusListAuditTrail == null) return;
 
         final activeMasterData = kmBusListMaster.cast<KmbusData?>().firstWhere(
-          (e) => e != null && e.titikAkhir == null,
+              (e) => e != null && e.titikAkhir == null,
           orElse: () => null,
         );
 
-        final isAllowTitikAkhir = activeMasterData != null;
         final idKm = activeMasterData?.id ?? 0;
+
+        final bool finalAllowTitikAkhir = isAllowTitikAkhirCheck && idKm != 0;
 
         emit(
           state.copyWith(
             listKmbusAuditTrail: kmBusListAuditTrail,
-            allowTitikAkhir: isAllowTitikAkhir,
+            allowTitikAwal: isAllowTitikAwal,
+            allowTitikAkhir: finalAllowTitikAkhir,
             idKm: idKm,
             status: KmbusStatus.success,
-            idShift: todayScheduleData?[0].shift.id,
-            idKoridorShift: todayScheduleData?[0].lokasi.id,
-            idBusShift: todayScheduleData?[0].bus.id,
+            idShift: todayScheduleData[0].shift.id,
+            idKoridorShift: idKoridorShift,
+            idBusShift: idBusShift,
           ),
         );
       } catch (e, s) {

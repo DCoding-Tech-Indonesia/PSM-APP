@@ -33,11 +33,13 @@ class CoreScheduleModel {
 class ScheduleLocation {
   final int id;
   final String code;
+  final int koridor;
   final String namaLokasi;
 
   ScheduleLocation({
     required this.id,
     required this.code,
+    required this.koridor,
     required this.namaLokasi,
   });
 
@@ -45,6 +47,7 @@ class ScheduleLocation {
     return ScheduleLocation(
       id: json['id'] ?? 0,
       code: json['code'] ?? '',
+      koridor: json['koridor'] ?? '',
       namaLokasi: json['namaLokasi'] ?? '',
     );
   }

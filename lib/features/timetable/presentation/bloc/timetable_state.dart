@@ -19,6 +19,9 @@ class TimetableState extends Equatable {
   final TimetableStatus status;
   final String message;
 
+  final bool isAllowCheckIn;
+  final bool isAllowCheckOut;
+
   final List<TimetableData> listTimetable;
   final List<ReferenceDetail> referenceKoridor;
   final List<ReferenceDetail> referenceBus;
@@ -33,6 +36,8 @@ class TimetableState extends Equatable {
   const TimetableState({
     this.status = TimetableStatus.initial,
     this.message = '',
+    this.isAllowCheckIn = false,
+    this.isAllowCheckOut = false,
     this.listTimetable = const [],
     this.referenceKoridor = const [],
     this.referenceBus = const [],
@@ -46,6 +51,8 @@ class TimetableState extends Equatable {
   TimetableState copyWith({
     TimetableStatus? status,
     String? message,
+    bool? isAllowCheckIn,
+    bool? isAllowCheckOut,
     List<TimetableData>? listTimetable,
     List<ReferenceDetail>? referenceKoridor,
     List<ReferenceDetail>? referenceBus,
@@ -58,6 +65,8 @@ class TimetableState extends Equatable {
     return TimetableState(
       status: status ?? this.status,
       message: message ?? this.message,
+      isAllowCheckIn: isAllowCheckIn ?? this.isAllowCheckIn,
+      isAllowCheckOut: isAllowCheckOut ?? this.isAllowCheckOut,
       listTimetable: listTimetable ?? this.listTimetable,
       referenceKoridor: referenceKoridor ?? this.referenceKoridor,
       referenceBus: referenceBus ?? this.referenceBus,
@@ -73,6 +82,8 @@ class TimetableState extends Equatable {
   List<Object?> get props => [
     status,
     message,
+    isAllowCheckIn,
+    isAllowCheckOut,
     listTimetable,
     referenceKoridor,
     referenceBus,

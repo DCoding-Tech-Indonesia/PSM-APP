@@ -20,21 +20,19 @@ class KmbusDataSource {
       final String todayStr = DateTime.now().toIso8601String().split('T')[0];
 
       final response = await dio.get(
-          '/km/list',
-          queryParameters: {
-            'keyword': keyword,
-            'page': 1,
-            'perPage': 99,
-            'startDate': todayStr,
-            'endDate': todayStr,
-          }
+        '/km/list',
+        queryParameters: {
+          'keyword': keyword,
+          'page': 1,
+          'perPage': 99,
+          'startDate': todayStr,
+          'endDate': todayStr,
+        },
       );
 
       final List data = response.data['data'] ?? [];
 
-      final result = data
-          .map<KmbusData>((e) => KmbusData.fromJson(e))
-          .toList();
+      final result = data.map<KmbusData>((e) => KmbusData.fromJson(e)).toList();
 
       return result;
     } catch (e) {
@@ -43,15 +41,61 @@ class KmbusDataSource {
     }
   }
 
-  Future<List<KmTaskAuditTrail>> fetchKmbusDataListAuditTrail(String keyword) async {
+  Future<String> checkAllowTitikAwal(
+    int idKoridor,
+    int idBus,
+    double nextRit,
+  ) async {
     try {
       final response = await dio.get(
-          '/audittrail/task/km/list',
-          queryParameters: {
-            'keyword': keyword,
-            'page': 1,
-            'perPage': 99,
-          }
+        '/km/check/titik-awal',
+        queryParameters: {
+          'idKoridor': idKoridor,
+          'idBus': idBus,
+          'ritaseKe': nextRit,
+        },
+      );
+
+      bool allow = response.data["data"][0];
+
+      return !allow ? "Access Granted" : "Access Denied";
+    } catch (e) {
+      debugPrint(e.toString());
+      rethrow;
+    }
+  }
+
+  Future<String> checkAllowTitikAkhir(
+    int idKoridor,
+    int idBus,
+    double nextRit,
+  ) async {
+    try {
+      final response = await dio.get(
+        '/km/check/titik-akhir',
+        queryParameters: {
+          'idKoridor': idKoridor,
+          'idBus': idBus,
+          'ritaseKe': nextRit,
+        },
+      );
+
+      bool allow = response.data["data"][0];
+
+      return !allow ? "Access Granted" : "Access Denied";
+    } catch (e) {
+      debugPrint(e.toString());
+      rethrow;
+    }
+  }
+
+  Future<List<KmTaskAuditTrail>> fetchKmbusDataListAuditTrail(
+    String keyword,
+  ) async {
+    try {
+      final response = await dio.get(
+        '/audittrail/task/km/list',
+        queryParameters: {'keyword': keyword, 'page': 1, 'perPage': 99},
       );
 
       final List data = response.data['data'] ?? [];
@@ -95,16 +139,10 @@ class KmbusDataSource {
         print(response.statusCode);
 
         print("HEADERS:");
-        print(
-          const JsonEncoder.withIndent('  ')
-              .convert(response.headers.map),
-        );
+        print(const JsonEncoder.withIndent('  ').convert(response.headers.map));
 
         print("DATA:");
-        print(
-          const JsonEncoder.withIndent('  ')
-              .convert(response.data),
-        );
+        print(const JsonEncoder.withIndent('  ').convert(response.data));
 
         print("================================");
       }
@@ -135,16 +173,10 @@ class KmbusDataSource {
         print(response.statusCode);
 
         print("HEADERS:");
-        print(
-          const JsonEncoder.withIndent('  ')
-              .convert(response.headers.map),
-        );
+        print(const JsonEncoder.withIndent('  ').convert(response.headers.map));
 
         print("DATA:");
-        print(
-          const JsonEncoder.withIndent('  ')
-              .convert(response.data),
-        );
+        print(const JsonEncoder.withIndent('  ').convert(response.data));
 
         print("================================");
       }
@@ -168,10 +200,7 @@ class KmbusDataSource {
 
       const ocrHost = 'https://ocr.ilkeiapps.com';
 
-      final response = await dio.post(
-        '$ocrHost/ocr',
-        data: formData,
-      );
+      final response = await dio.post('$ocrHost/ocr', data: formData);
 
       final ocrValue = response.data["texts"][0]["text"];
 
@@ -203,5 +232,4 @@ class KmbusDataSource {
       return e.toString();
     }
   }
-
 }
