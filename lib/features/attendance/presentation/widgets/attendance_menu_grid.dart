@@ -31,8 +31,10 @@ class AttendanceMenuGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     final portalState = context.read<PortalBloc>().state;
     String role = '';
+    String typePegawai = '';
     if (portalState is PortalLoaded) {
       role = portalState.profile.role;
+      typePegawai = portalState.profile.typePegawaiCode;
     }
     final theme = Theme.of(context);
 
@@ -68,11 +70,17 @@ class AttendanceMenuGrid extends StatelessWidget {
             );
           },
         ),
+      if (typePegawai.toLowerCase().contains('pgw_mngr_opr'))
+        _MenuItem(
+          title: 'Verifikasi Cuti',
+          icon: Icons.check_circle_outline,
+          color: theme.primaryColor,
+          route: '/leave-approval',
+          onTap: null,
+        ),
       if (role.toLowerCase().contains('pegawai'))
         _MenuItem(
-          title: role.toLowerCase().contains('pegawai')
-              ? 'Pengajuan Cuti'
-              : 'Verifikasi Cuti',
+          title: 'Pengajuan Cuti',
           icon: Icons.event_note_outlined,
           color: theme.primaryColor,
           route: '/leave-request',
@@ -93,10 +101,10 @@ class AttendanceMenuGrid extends StatelessWidget {
         color: theme.primaryColor,
         route: null,
         onTap: () {
-          context.push('/history', extra: {
-            'history': state.history,
-            'userId': state.userId,
-          });
+          context.push(
+            '/history',
+            extra: {'history': state.history, 'userId': state.userId},
+          );
         },
       ),
       _MenuItem(

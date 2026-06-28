@@ -13,7 +13,7 @@ class LeaveRequestRepositoryImpl implements LeaveRequestRepository {
     int perPage = 10,
     String status = '',
     String type = '',
-    required int userId,
+    int? userId,
     String keyword = '',
   }) async {
     return await remoteDataSource.getLeaveRequestList(
@@ -40,6 +40,26 @@ class LeaveRequestRepositoryImpl implements LeaveRequestRepository {
       tanggalMulai: tanggalMulai,
       tanggalSelesai: tanggalSelesai,
       alasan: alasan,
+    );
+  }
+
+  @override
+  Future<LeaveRequestModel?> getLeaveRequestDetail({required int id}) async {
+    return await remoteDataSource.getLeaveRequestDetail(id: id);
+  }
+
+  @override
+  Future<String> approveLeaveRequest({
+    required int pengajuanRequestId,
+    required int approvedByUserId,
+    required bool approved,
+    required String rejectReason,
+  }) async {
+    return await remoteDataSource.approveLeaveRequest(
+      pengajuanRequestId: pengajuanRequestId,
+      approvedByUserId: approvedByUserId,
+      approved: approved,
+      rejectReason: rejectReason,
     );
   }
 }

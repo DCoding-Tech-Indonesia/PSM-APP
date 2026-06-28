@@ -7,7 +7,7 @@ abstract class LeaveRequestRemoteDataSource {
     int perPage = 10,
     String status = '',
     String type = '',
-    required int userId,
+    int? userId,
     String keyword = '',
   });
 
@@ -17,6 +17,15 @@ abstract class LeaveRequestRemoteDataSource {
     required String tanggalMulai,
     required String tanggalSelesai,
     required String alasan,
+  });
+
+  Future<LeaveRequestModel?> getLeaveRequestDetail({required int id});
+
+  Future<String> approveLeaveRequest({
+    required int pengajuanRequestId,
+    required int approvedByUserId,
+    required bool approved,
+    required String rejectReason,
   });
 }
 
@@ -31,15 +40,16 @@ class LeaveRequestRemoteDataSourceImpl implements LeaveRequestRemoteDataSource {
     int perPage = 10,
     String status = '',
     String type = '',
-    required int userId,
+    int? userId,
     String keyword = '',
   }) async {
     try {
-      final queryParameters = {
+      final queryParameters = <String, dynamic>{
         'page': page,
         'perPage': perPage,
-        'userId': userId,
       };
+
+      if (userId != null) queryParameters['userId'] = userId;
 
       if (status.isNotEmpty) queryParameters['status'] = int.parse(status);
       if (type.isNotEmpty) queryParameters['type'] = int.parse(type);
@@ -90,6 +100,55 @@ class LeaveRequestRemoteDataSourceImpl implements LeaveRequestRemoteDataSource {
         }
       }
       return false;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<LeaveRequestModel?> getLeaveRequestDetail({required int id}) async {
+    try {
+      final response = await _dioClient.instance.get(
+        '/pengajuan/detail',
+        queryParameters: {'id': id},
+      );
+      if (response.data != null && response.data['status'] == true) {
+        final List data = response.data['data'] ?? [];
+        if (data.isNotEmpty) {
+          return LeaveRequestModel.fromJson(data.first);
+        }
+      }
+      return null;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<String> approveLeaveRequest({
+    required int pengajuanRequestId,
+    required int approvedByUserId,
+    required bool approved,
+    required String rejectReason,
+  }) async {
+    try {
+      final data = {
+        "pengajuanRequestId": pengajuanRequestId,
+        "approvedByUserId": approvedByUserId,
+        "approved": approved,
+        "rejectReason": rejectReason,
+      };
+
+      final response = await _dioClient.instance.post(
+        '/pengajuan/approve',
+        data: data,
+      );
+
+      if (response.data != null && response.data['status'] == true) {
+        return response.data['message'] ?? 'Berhasil memproses pengajuan';
+      } else {
+        throw response.data['message'] ?? 'Gagal memproses pengajuan';
+      }
     } catch (e) {
       rethrow;
     }

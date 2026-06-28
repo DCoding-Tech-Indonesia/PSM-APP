@@ -17,7 +17,8 @@ class ApprovalRefreshNotifier {
 
     return screen.contains('approval') ||
         type.contains('approval') ||
-        screen == 'approval_pergantian_shift';
+        screen == 'approval_pergantian_shift' ||
+        screen == 'approval_pengajuan';
   }
 
   void notifyRefresh() {

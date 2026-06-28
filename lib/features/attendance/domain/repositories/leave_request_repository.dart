@@ -6,7 +6,7 @@ abstract class LeaveRequestRepository {
     int perPage = 10,
     String status = '',
     String type = '',
-    required int userId,
+    int? userId,
     String keyword = '',
   });
 
@@ -16,5 +16,14 @@ abstract class LeaveRequestRepository {
     required String tanggalMulai,
     required String tanggalSelesai,
     required String alasan,
+  });
+
+  Future<LeaveRequestModel?> getLeaveRequestDetail({required int id});
+
+  Future<String> approveLeaveRequest({
+    required int pengajuanRequestId,
+    required int approvedByUserId,
+    required bool approved,
+    required String rejectReason,
   });
 }

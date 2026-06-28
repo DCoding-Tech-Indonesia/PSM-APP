@@ -5,7 +5,7 @@ class LoadLeaveRequestList extends LeaveRequestEvent {
   final int perPage;
   final String status;
   final String type;
-  final int userId;
+  final int? userId;
   final String keyword;
 
   LoadLeaveRequestList({
@@ -13,7 +13,7 @@ class LoadLeaveRequestList extends LeaveRequestEvent {
     this.perPage = 10,
     this.status = '',
     this.type = '',
-    required this.userId,
+    this.userId,
     this.keyword = '',
   });
 }
@@ -33,3 +33,24 @@ class SubmitLeaveRequest extends LeaveRequestEvent {
     required this.alasan,
   });
 }
+
+class LoadLeaveRequestDetail extends LeaveRequestEvent {
+  final int id;
+
+  LoadLeaveRequestDetail({required this.id});
+}
+
+class ApproveLeaveRequest extends LeaveRequestEvent {
+  final int pengajuanRequestId;
+  final int approvedByUserId;
+  final bool approved;
+  final String rejectReason;
+
+  ApproveLeaveRequest({
+    required this.pengajuanRequestId,
+    required this.approvedByUserId,
+    required this.approved,
+    required this.rejectReason,
+  });
+}
+
