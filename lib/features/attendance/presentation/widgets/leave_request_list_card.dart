@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:psm_mobile/features/attendance/data/models/leave_request_model.dart';
 import 'package:intl/intl.dart';
 
@@ -23,7 +24,7 @@ class LeaveRequestListCard extends StatelessWidget {
         ),
         child: InkWell(
           onTap: () {
-            // Context push for detail if needed later
+            context.push('/leave-request-detail', extra: leaveRequest.id);
           },
           borderRadius: BorderRadius.circular(16),
           child: Container(

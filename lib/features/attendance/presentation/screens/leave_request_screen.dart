@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:psm_mobile/core/notification/approval_refresh_notifier.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_header.dart';
 import 'package:psm_mobile/features/attendance/presentation/bloc/leave_request_bloc.dart';
 import 'package:psm_mobile/features/portal/presentation/bloc/portal_bloc.dart';
@@ -10,16 +13,52 @@ import 'package:psm_mobile/features/attendance/presentation/widgets/leave_reques
 import 'package:psm_mobile/features/attendance/presentation/widgets/leave_request_form_sheet.dart';
 import 'package:psm_mobile/features/portal/presentation/bloc/portal_state.dart';
 
-class LeaveRequestScreen extends StatelessWidget {
-  const LeaveRequestScreen({super.key});
+class LeaveRequestScreen extends StatefulWidget {
+  final String title;
+  final bool isApproval;
+
+  const LeaveRequestScreen({
+    super.key,
+    this.title = 'Pengajuan Cuti',
+    this.isApproval = false,
+  });
+
+  @override
+  State<LeaveRequestScreen> createState() => _LeaveRequestScreenState();
+}
+
+class _LeaveRequestScreenState extends State<LeaveRequestScreen> {
+  StreamSubscription<void>? _refreshSub;
+
+  @override
+  void initState() {
+    super.initState();
+    _refreshSub = ApprovalRefreshNotifier.instance.stream.listen((_) {
+      _refreshList();
+    });
+  }
+
+  @override
+  void dispose() {
+    _refreshSub?.cancel();
+    super.dispose();
+  }
+
+  void _refreshList() {
+    int? userId;
+    if (!widget.isApproval) {
+      final portalState = context.read<PortalBloc>().state;
+      if (portalState is PortalLoaded) {
+        userId = int.tryParse(portalState.profile.id);
+      }
+    }
+    context.read<LeaveRequestBloc>().add(
+      LoadLeaveRequestList(userId: userId),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    final portalState = context.read<PortalBloc>().state;
-    String role = '';
-    if (portalState is PortalLoaded) {
-      role = portalState.profile.role;
-    }
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -28,12 +67,10 @@ class LeaveRequestScreen extends StatelessWidget {
         child: Column(
           children: [
             CoreHeader(
-              title: role.toLowerCase().contains('pegawai')
-                  ? 'Pengajuan Cuti'
-                  : 'Verifikasi Cuti',
-              subtitle: role.toLowerCase().contains('pegawai')
-                  ? 'Silahkan ajukan cuti anda'
-                  : 'Silahkan verifikasi cuti anda',
+              title: widget.title,
+              subtitle: widget.isApproval
+                  ? 'Silahkan verifikasi cuti anda'
+                  : 'Silahkan ajukan cuti anda',
               showBackButton: true,
               onBackPressed: () => context.pop(),
             ),
@@ -50,15 +87,17 @@ class LeaveRequestScreen extends StatelessWidget {
                   } else if (state is LeaveRequestLoaded) {
                     return RefreshIndicator(
                       onRefresh: () async {
-                        final portalState = context.read<PortalBloc>().state;
-                        String userId = '';
-                        if (portalState is PortalLoaded) {
-                          userId = portalState.profile.id;
+                        int? userId;
+                        if (!widget.isApproval) {
+                          final portalState = context.read<PortalBloc>().state;
+                          if (portalState is PortalLoaded) {
+                            userId = int.tryParse(portalState.profile.id);
+                          }
                         }
 
                         final bloc = context.read<LeaveRequestBloc>();
                         bloc.add(
-                          LoadLeaveRequestList(userId: int.tryParse(userId)!),
+                          LoadLeaveRequestList(userId: userId),
                         );
                         await bloc.stream.firstWhere(
                           (s) => s is LeaveRequestLoaded && !s.isLoading,
@@ -73,7 +112,7 @@ class LeaveRequestScreen extends StatelessWidget {
                                 SizedBox(
                                   height:
                                       MediaQuery.of(context).size.height * 0.7,
-                                  child: _LeaveRequestEmptyState(role: role),
+                                  child: _LeaveRequestEmptyState(isApproval: widget.isApproval),
                                 ),
                               ],
                             )
@@ -101,7 +140,7 @@ class LeaveRequestScreen extends StatelessWidget {
           ],
         ),
       ),
-      floatingActionButton: role.toLowerCase().contains('pegawai')
+      floatingActionButton: !widget.isApproval
           ? FloatingActionButton(
               onPressed: () {
                 showModalBottomSheet(
@@ -125,8 +164,8 @@ class LeaveRequestScreen extends StatelessWidget {
 }
 
 class _LeaveRequestEmptyState extends StatelessWidget {
-  const _LeaveRequestEmptyState({required this.role});
-  final String role;
+  const _LeaveRequestEmptyState({required this.isApproval});
+  final bool isApproval;
 
   @override
   Widget build(BuildContext context) {
@@ -152,18 +191,18 @@ class _LeaveRequestEmptyState extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             Text(
-              role.toLowerCase().contains('pegawai')
-                  ? 'Belum Ada Pengajuan Cuti'
-                  : 'Belum Ada Verifikasi Cuti',
+              isApproval
+                  ? 'Belum Ada Verifikasi Cuti'
+                  : 'Belum Ada Pengajuan Cuti',
               style: theme.textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              role.toLowerCase().contains('pegawai')
-                  ? 'Daftar pengajuan cuti Anda akan muncul di sini.'
-                  : 'Daftar verifikasi cuti akan muncul di sini.',
+              isApproval
+                  ? 'Daftar verifikasi cuti akan muncul di sini.'
+                  : 'Daftar pengajuan cuti Anda akan muncul di sini.',
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.textTheme.bodySmall?.color,

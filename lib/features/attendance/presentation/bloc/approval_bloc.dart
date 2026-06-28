@@ -89,20 +89,27 @@ class ApprovalBloc extends Bloc<ApprovalEvent, ApprovalState> {
       final userIdStr = await SecureStorageService().readUserId();
       final userId = int.tryParse(userIdStr ?? '0') ?? 0;
 
-      await repository.approveShift(
+      final successMessage = await repository.approveShift(
         pergantianShiftId: event.pergantianShiftId,
         userId: userId,
         approved: event.approved,
         rejectReason: event.rejectReason,
       );
 
-      if (!isClosed) {
-        emit(currentState.copyWith(isLoading: false, isActionSuccess: true));
+      if (!isClosed && state is ApprovalDetailLoaded) {
+        emit((state as ApprovalDetailLoaded).copyWith(
+          isLoading: false,
+          isActionSuccess: true,
+          actionSuccessMessage: successMessage,
+        ));
       }
     } catch (e) {
-      if (!isClosed) {
+      if (!isClosed && state is ApprovalDetailLoaded) {
         emit(
-          currentState.copyWith(isLoading: false, errorMessage: e.toString()),
+          (state as ApprovalDetailLoaded).copyWith(
+            isLoading: false,
+            actionErrorMessage: e.toString(),
+          ),
         );
       }
     }

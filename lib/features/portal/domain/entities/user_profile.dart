@@ -6,6 +6,7 @@ class UserProfile {
   final String email;
   final String name;
   final String role;
+  final String typePegawaiCode;
   final List<PortalMenu> menu;
   final List<PortalMenu> children;
 
@@ -15,6 +16,7 @@ class UserProfile {
     required this.email,
     required this.name,
     required this.role,
+    required this.typePegawaiCode,
     required this.menu,
     required this.children,
   });
@@ -26,6 +28,7 @@ class UserProfile {
       email: json['email'] ?? '',
       name: json['name'] ?? '',
       role: json['role'] ?? '',
+      typePegawaiCode: json['typePegawaiCode'] ?? '',
       menu: json['menu'] != null
           ? (json['menu'] as List).map((i) => PortalMenu.fromJson(i)).toList()
           : [],

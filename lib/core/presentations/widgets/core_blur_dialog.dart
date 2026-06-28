@@ -246,13 +246,13 @@ class CoreBlurDialog extends StatelessWidget {
   }
 }
 
-void showCoreSuccessDialog(
+Future<void> showCoreSuccessDialog(
   BuildContext context,
   String title,
   String message, {
   Widget? contentWidget,
 }) {
-  showDialog(
+  return showDialog(
     context: context,
     builder: (context) => CoreBlurDialog(
       title: title,
@@ -266,13 +266,13 @@ void showCoreSuccessDialog(
   );
 }
 
-void showCoreErrorDialog(
+Future<void> showCoreErrorDialog(
   BuildContext context,
   String title,
   String message, {
   Widget? contentWidget,
 }) {
-  showDialog(
+  return showDialog(
     context: context,
     builder: (context) => CoreBlurDialog(
       title: title,
@@ -286,13 +286,13 @@ void showCoreErrorDialog(
   );
 }
 
-void showCoreInfoDialog(
+Future<void> showCoreInfoDialog(
   BuildContext context,
   String title,
   String message, {
   Widget? contentWidget,
 }) {
-  showDialog(
+  return showDialog(
     context: context,
     builder: (context) => CoreBlurDialog(
       title: title,

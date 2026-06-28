@@ -19,7 +19,7 @@ class ApprovalRepositoryImpl implements ApprovalRepository {
   }
 
   @override
-  Future<bool> approveShift({
+  Future<String> approveShift({
     required int pergantianShiftId,
     required int userId,
     required bool approved,

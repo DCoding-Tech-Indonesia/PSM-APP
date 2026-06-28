@@ -204,16 +204,9 @@ class NotificationService {
       } catch (e) {
         debugPrint('Error parsing detail_pergantian_shift: $e');
       }
-    }
-  }
-
-  String _formatDate(String? dateStr) {
-    if (dateStr == null || dateStr.isEmpty) return '-';
-    try {
-      final parsed = DateTime.parse(dateStr);
-      return DateFormat('dd MMM yyyy').format(parsed);
-    } catch (_) {
-      return dateStr;
+    } else if (screen == 'approval_pengajuan') {
+      debugPrint('Pushing route /leave-request-detail');
+      appRouter.push('/leave-request-detail', extra: idStr);
     }
   }
 
@@ -224,7 +217,8 @@ class NotificationService {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      isDismissible: false, // User must tap button, tapping outside will not close
+      isDismissible:
+          false, // User must tap button, tapping outside will not close
       enableDrag: false, // User cannot swipe down to close
       backgroundColor: Colors.transparent,
       barrierColor: Colors.black.withValues(alpha: 0.6),
@@ -430,9 +424,13 @@ class _ShiftReplacementBottomSheetState
                     children: [
                       CircleAvatar(
                         radius: 26,
-                        backgroundColor: theme.primaryColor.withValues(alpha: 0.1),
+                        backgroundColor: theme.primaryColor.withValues(
+                          alpha: 0.1,
+                        ),
                         child: Text(
-                          requester.isNotEmpty ? requester[0].toUpperCase() : 'U',
+                          requester.isNotEmpty
+                              ? requester[0].toUpperCase()
+                              : 'U',
                           style: TextStyle(
                             color: theme.primaryColor,
                             fontWeight: FontWeight.bold,
@@ -460,7 +458,7 @@ class _ShiftReplacementBottomSheetState
                     ],
                   ),
                 ),
-                
+
                 // Swap Arrow / Icon
                 Container(
                   padding: const EdgeInsets.all(10),
@@ -483,7 +481,9 @@ class _ShiftReplacementBottomSheetState
                         radius: 26,
                         backgroundColor: Colors.orange.withValues(alpha: 0.1),
                         child: Text(
-                          replacement.isNotEmpty ? replacement[0].toUpperCase() : 'U',
+                          replacement.isNotEmpty
+                              ? replacement[0].toUpperCase()
+                              : 'U',
                           style: const TextStyle(
                             color: Colors.orange,
                             fontWeight: FontWeight.bold,
@@ -531,7 +531,11 @@ class _ShiftReplacementBottomSheetState
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.calendar_today_outlined, color: theme.primaryColor, size: 20),
+                      Icon(
+                        Icons.calendar_today_outlined,
+                        color: theme.primaryColor,
+                        size: 20,
+                      ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
@@ -539,12 +543,16 @@ class _ShiftReplacementBottomSheetState
                           children: [
                             Text(
                               'Tanggal',
-                              style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey.shade500),
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: Colors.grey.shade500,
+                              ),
                             ),
                             const SizedBox(height: 3),
                             Text(
                               dateFormatted,
-                              style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ],
                         ),
@@ -566,7 +574,11 @@ class _ShiftReplacementBottomSheetState
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.access_time_outlined, color: theme.primaryColor, size: 20),
+                      Icon(
+                        Icons.access_time_outlined,
+                        color: theme.primaryColor,
+                        size: 20,
+                      ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
@@ -574,12 +586,16 @@ class _ShiftReplacementBottomSheetState
                           children: [
                             Text(
                               'Shift',
-                              style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey.shade500),
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: Colors.grey.shade500,
+                              ),
                             ),
                             const SizedBox(height: 3),
                             Text(
                               shift,
-                              style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ],
                         ),
@@ -604,20 +620,32 @@ class _ShiftReplacementBottomSheetState
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.verified_user_outlined, color: Color(0xFF10B981), size: 20),
+                  Icon(
+                    status == 'APPROVED'
+                        ? Icons.verified_user_outlined
+                        : Icons.cancel_outlined,
+                    color: status == 'APPROVED'
+                        ? Color(0xFF10B981)
+                        : Colors.red,
+                    size: 20,
+                  ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Disetujui Oleh',
-                          style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey.shade500),
+                          '${status == 'APPROVED' ? 'Disetujui' : 'Ditolak'} Oleh',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: Colors.grey.shade500,
+                          ),
                         ),
                         const SizedBox(height: 3),
                         Text(
                           approvedBy,
-                          style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ],
                     ),
@@ -689,10 +717,7 @@ class _ShiftReplacementBottomSheetState
             ),
             child: Text(
               'Tutup (${_secondsRemaining}s)',
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
           ),
         ],

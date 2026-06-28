@@ -4,7 +4,7 @@ import 'package:psm_mobile/features/attendance/data/models/approval_model.dart';
 abstract class ApprovalRepository {
   Future<List<ApprovalModel>> getApprovalList(String type);
   Future<List<ApprovalDetailModel>> getApprovalDetail(int id);
-  Future<bool> approveShift({
+  Future<String> approveShift({
     required int pergantianShiftId,
     required int userId,
     required bool approved,

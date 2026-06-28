@@ -10,6 +10,8 @@ import 'package:psm_mobile/core/storage/shared_preferences.dart';
 import 'package:psm_mobile/features/attendance/presentation/bloc/leave_request_event.dart';
 import 'package:psm_mobile/features/attendance/presentation/screens/approval_detail_screen.dart';
 import 'package:psm_mobile/features/attendance/presentation/screens/approval_screen.dart';
+import 'package:psm_mobile/features/attendance/presentation/screens/leave_request_screen.dart';
+import 'package:psm_mobile/features/attendance/presentation/screens/leave_request_detail_screen.dart';
 import 'package:psm_mobile/features/attendance/presentation/screens/schedule_calendar_screen.dart';
 import 'package:psm_mobile/features/attendance/data/models/schedule_model.dart';
 import 'package:psm_mobile/features/auth/domain/repositories/auth_repository.dart';
@@ -40,7 +42,6 @@ import 'package:psm_mobile/features/settlement/presentation/cubit/settlement_tab
 import 'package:psm_mobile/features/settlement/presentation/settlement_detail_screen.dart';
 import 'package:psm_mobile/features/settlement/presentation/settlement_form_screen.dart';
 import 'package:psm_mobile/features/attendance/presentation/screens/attendance_screen.dart';
-import 'package:psm_mobile/features/attendance/presentation/screens/leave_request_screen.dart';
 import 'package:psm_mobile/features/attendance/presentation/screens/shift_replacement_screen.dart';
 import 'package:psm_mobile/features/attendance/data/datasources/leave_request_remote_data_source.dart';
 import 'package:psm_mobile/features/attendance/data/repositories/leave_request_repository_impl.dart';
@@ -445,7 +446,26 @@ void setupRouter(String initialLocation) {
                 remoteDataSource: LeaveRequestRemoteDataSourceImpl(DioClient()),
               ),
             )..add(LoadLeaveRequestList(userId: userId)),
-            child: const LeaveRequestScreen(),
+            child: const LeaveRequestScreen(
+              title: 'Pengajuan Cuti',
+              isApproval: false,
+            ),
+          );
+        },
+      ),
+      GoRoute(
+        path: '/leave-approval',
+        builder: (context, state) {
+          return BlocProvider(
+            create: (context) => LeaveRequestBloc(
+              repository: LeaveRequestRepositoryImpl(
+                remoteDataSource: LeaveRequestRemoteDataSourceImpl(DioClient()),
+              ),
+            )..add(LoadLeaveRequestList()),
+            child: const LeaveRequestScreen(
+              title: 'Verifikasi Cuti',
+              isApproval: true,
+            ),
           );
         },
       ),
@@ -462,6 +482,13 @@ void setupRouter(String initialLocation) {
         builder: (context, state) {
           final idStr = state.extra?.toString();
           return ApprovalDetailScreen(id: idStr);
+        },
+      ),
+      GoRoute(
+        path: '/leave-request-detail',
+        builder: (context, state) {
+          final idStr = state.extra?.toString();
+          return LeaveRequestDetailScreen(id: idStr);
         },
       ),
       GoRoute(

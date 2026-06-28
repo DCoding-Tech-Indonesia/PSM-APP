@@ -74,22 +74,35 @@ class ApprovalDetailLoaded extends ApprovalState {
   final dynamic detail;
   final bool isLoading;
   final String? errorMessage;
+  final String? actionErrorMessage;
+  final String? actionSuccessMessage;
   final bool isActionSuccess;
 
   ApprovalDetailLoaded({
     required this.detail,
     this.isLoading = false,
     this.errorMessage,
+    this.actionErrorMessage,
+    this.actionSuccessMessage,
     this.isActionSuccess = false,
   });
 
   @override
-  List<Object?> get props => [detail, isLoading, errorMessage, isActionSuccess];
+  List<Object?> get props => [
+        detail,
+        isLoading,
+        errorMessage,
+        actionErrorMessage,
+        actionSuccessMessage,
+        isActionSuccess
+      ];
 
   ApprovalDetailLoaded copyWith({
     dynamic detail,
     bool? isLoading,
     String? errorMessage,
+    String? actionErrorMessage,
+    String? actionSuccessMessage,
     bool clearError = false,
     bool? isActionSuccess,
   }) {
@@ -97,6 +110,8 @@ class ApprovalDetailLoaded extends ApprovalState {
       detail: detail ?? this.detail,
       isLoading: isLoading ?? this.isLoading,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
+      actionErrorMessage: actionErrorMessage,
+      actionSuccessMessage: actionSuccessMessage,
       isActionSuccess: isActionSuccess ?? this.isActionSuccess,
     );
   }

@@ -9,6 +9,8 @@ class LeaveRequestBloc extends Bloc<LeaveRequestEvent, LeaveRequestState> {
   LeaveRequestBloc({required this.repository}) : super(LeaveRequestInitial()) {
     on<LoadLeaveRequestList>(_onLoadLeaveRequestList);
     on<SubmitLeaveRequest>(_onSubmitLeaveRequest);
+    on<LoadLeaveRequestDetail>(_onLoadLeaveRequestDetail);
+    on<ApproveLeaveRequest>(_onApproveLeaveRequest);
   }
 
   Future<void> _onLoadLeaveRequestList(
@@ -17,7 +19,12 @@ class LeaveRequestBloc extends Bloc<LeaveRequestEvent, LeaveRequestState> {
   ) async {
     try {
       if (state is LeaveRequestLoaded) {
-        emit((state as LeaveRequestLoaded).copyWith(isLoading: true, errorMessage: null));
+        emit(
+          (state as LeaveRequestLoaded).copyWith(
+            isLoading: true,
+            errorMessage: null,
+          ),
+        );
       } else {
         emit(LeaveRequestLoading());
       }
@@ -34,7 +41,12 @@ class LeaveRequestBloc extends Bloc<LeaveRequestEvent, LeaveRequestState> {
       emit(LeaveRequestLoaded(leaveRequests: leaveRequests, isLoading: false));
     } catch (e) {
       if (state is LeaveRequestLoaded) {
-        emit((state as LeaveRequestLoaded).copyWith(isLoading: false, errorMessage: e.toString()));
+        emit(
+          (state as LeaveRequestLoaded).copyWith(
+            isLoading: false,
+            errorMessage: e.toString(),
+          ),
+        );
       } else {
         emit(LeaveRequestError(message: e.toString()));
       }
@@ -47,9 +59,15 @@ class LeaveRequestBloc extends Bloc<LeaveRequestEvent, LeaveRequestState> {
   ) async {
     if (state is LeaveRequestLoaded) {
       final currentState = state as LeaveRequestLoaded;
-      
+
       // Emit submitting state
-      emit(currentState.copyWith(isSubmitting: true, submitSuccess: false, submitError: null));
+      emit(
+        currentState.copyWith(
+          isSubmitting: true,
+          submitSuccess: false,
+          submitError: null,
+        ),
+      );
 
       try {
         final success = await repository.submitLeaveRequest(
@@ -61,18 +79,86 @@ class LeaveRequestBloc extends Bloc<LeaveRequestEvent, LeaveRequestState> {
         );
 
         if (success) {
-          emit(currentState.copyWith(isSubmitting: false, submitSuccess: true, submitError: null));
+          emit(
+            currentState.copyWith(
+              isSubmitting: false,
+              submitSuccess: true,
+              submitError: null,
+            ),
+          );
           // Re-fetch the list
           add(LoadLeaveRequestList(userId: event.userId));
         } else {
-          emit(currentState.copyWith(isSubmitting: false, submitSuccess: false, submitError: 'Gagal mengirim pengajuan.'));
+          emit(
+            currentState.copyWith(
+              isSubmitting: false,
+              submitSuccess: false,
+              submitError: 'Gagal mengirim pengajuan.',
+            ),
+          );
         }
       } catch (e) {
         String errorMsg = e.toString();
         if (errorMsg.startsWith('Exception: ')) {
           errorMsg = errorMsg.substring(11);
         }
-        emit(currentState.copyWith(isSubmitting: false, submitSuccess: false, submitError: errorMsg));
+        emit(
+          currentState.copyWith(
+            isSubmitting: false,
+            submitSuccess: false,
+            submitError: errorMsg,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _onLoadLeaveRequestDetail(
+    LoadLeaveRequestDetail event,
+    Emitter<LeaveRequestState> emit,
+  ) async {
+    emit(LeaveRequestDetailLoading());
+    try {
+      final detail = await repository.getLeaveRequestDetail(id: event.id);
+      if (detail != null) {
+        emit(LeaveRequestDetailLoaded(leaveRequest: detail));
+      } else {
+        emit(LeaveRequestError(message: 'Data pengajuan tidak ditemukan'));
+      }
+    } catch (e) {
+      emit(LeaveRequestError(message: e.toString()));
+    }
+  }
+
+  Future<void> _onApproveLeaveRequest(
+    ApproveLeaveRequest event,
+    Emitter<LeaveRequestState> emit,
+  ) async {
+    final currentState = state;
+    if (currentState is LeaveRequestDetailLoaded) {
+      emit(currentState.copyWith(isLoading: true));
+      try {
+        final successMessage = await repository.approveLeaveRequest(
+          pengajuanRequestId: event.pengajuanRequestId,
+          approvedByUserId: event.approvedByUserId,
+          approved: event.approved,
+          rejectReason: event.rejectReason,
+        );
+
+        if (!isClosed && state is LeaveRequestDetailLoaded) {
+          emit((state as LeaveRequestDetailLoaded).copyWith(
+            isLoading: false,
+            isActionSuccess: true,
+            actionSuccessMessage: successMessage,
+          ));
+        }
+      } catch (e) {
+        if (!isClosed && state is LeaveRequestDetailLoaded) {
+          emit((state as LeaveRequestDetailLoaded).copyWith(
+            isLoading: false,
+            actionErrorMessage: e.toString(),
+          ));
+        }
       }
     }
   }

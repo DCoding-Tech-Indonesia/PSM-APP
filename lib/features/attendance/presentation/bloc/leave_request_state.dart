@@ -47,3 +47,37 @@ class LeaveRequestError extends LeaveRequestState {
 
   LeaveRequestError({required this.message});
 }
+
+class LeaveRequestDetailLoading extends LeaveRequestState {}
+
+class LeaveRequestDetailLoaded extends LeaveRequestState {
+  final LeaveRequestModel leaveRequest;
+  final bool isLoading;
+  final bool isActionSuccess;
+  final String? actionErrorMessage;
+  final String? actionSuccessMessage;
+
+  LeaveRequestDetailLoaded({
+    required this.leaveRequest,
+    this.isLoading = false,
+    this.isActionSuccess = false,
+    this.actionErrorMessage,
+    this.actionSuccessMessage,
+  });
+
+  LeaveRequestDetailLoaded copyWith({
+    LeaveRequestModel? leaveRequest,
+    bool? isLoading,
+    bool? isActionSuccess,
+    String? actionErrorMessage,
+    String? actionSuccessMessage,
+  }) {
+    return LeaveRequestDetailLoaded(
+      leaveRequest: leaveRequest ?? this.leaveRequest,
+      isLoading: isLoading ?? this.isLoading,
+      isActionSuccess: isActionSuccess ?? this.isActionSuccess,
+      actionErrorMessage: actionErrorMessage,
+      actionSuccessMessage: actionSuccessMessage,
+    );
+  }
+}

@@ -5,7 +5,7 @@ import 'package:psm_mobile/features/attendance/data/models/approval_model.dart';
 abstract class ApprovalRemoteDataSource {
   Future<List<ApprovalModel>> getApprovalList(String type);
   Future<List<ApprovalDetailModel>> getApprovalDetail(int id);
-  Future<bool> approveShift({
+  Future<String> approveShift({
     required int pergantianShiftId,
     required int userId,
     required bool approved,
@@ -68,7 +68,7 @@ class ApprovalRemoteDataSourceImpl implements ApprovalRemoteDataSource {
   }
 
   @override
-  Future<bool> approveShift({
+  Future<String> approveShift({
     required int pergantianShiftId,
     required int userId,
     required bool approved,
@@ -81,12 +81,12 @@ class ApprovalRemoteDataSourceImpl implements ApprovalRemoteDataSource {
           "pergantianShiftId": pergantianShiftId,
           "userId": userId,
           "approved": approved,
-          "rejectReason": ?rejectReason,
+          "rejectReason": rejectReason,
         },
       );
 
       if (response.data != null && response.data['status'] == true) {
-        return true;
+        return response.data['message'] ?? 'Berhasil menyetujui pergantian shift';
       } else {
         throw response.data['message'] ?? 'Gagal memproses persetujuan';
       }
