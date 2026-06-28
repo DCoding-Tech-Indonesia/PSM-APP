@@ -82,8 +82,8 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
               idShift: idShiftActive,
               idPramugara: userId,
               ritaseKe: ritaseValue,
-              long: 0,
-              lat: 0,
+              long: 0.0,
+              lat: 0.0,
             );
 
         final updatedCheckinWithPramugara = currentCheckin.copyWith(
@@ -152,11 +152,11 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
           state.copyWith(
             listTimetable: timeTableList,
             referenceKoridor: koridorList,
-            referenceBus: busList, // 🛠️ Set list data reference bus ke state
+            referenceBus: busList,
             checkinData: updatedCheckinWithPramugara,
             idKoridor: idKoridorShift,
             idBus: idBusShift,
-            noUnit: currentNoUnit, // 🛠️ Select unit bus langsung ke state
+            noUnit: currentNoUnit,
             isAllowCheckIn: isAllowCheckIn,
             isAllowCheckOut: (isAllowCheckOut && !isAllowCheckIn),
             status: TimetableStatus.success,
@@ -176,18 +176,20 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
           state.checkinData ??
           TimetableCheckin(
             tanggal: DateTime.now().toString().split(' ')[0],
-            idKoridor: 0,
-            idBus: 0,
+            idKoridor: state.idKoridor,
+            idBus: state.idBus,
             idShift: 1,
             idPramugara: 0,
-            ritaseKe: 0,
-            long: 0,
-            lat: 0,
+            ritaseKe: 0.0,
+            long: event.long,
+            lat: event.lat,
           );
 
       emit(
         state.copyWith(
           checkinData: currentCheckin.copyWith(
+            idKoridor: state.idKoridor,
+            idBus: state.idBus,
             lat: event.lat,
             long: event.long,
           ),
@@ -210,6 +212,9 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
       }
 
       emit(state.copyWith(status: TimetableStatus.onSubmit));
+
+      print("state.checkinData?.tanggal");
+      print(state.checkinData?.tanggal);
 
       try {
         final result = await timetableRepository.checkinTimeTable(
@@ -253,22 +258,22 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
           state.checkinData ??
           TimetableCheckin(
             tanggal: DateTime.now().toString().split(' ')[0],
-            idKoridor: 0,
+            idKoridor: event.id,
             idBus: 0,
             idShift: 1,
             idPramugara: 0,
-            ritaseKe: 0,
-            long: 0,
-            lat: 0,
+            ritaseKe: 0.0,
+            long: 0.0,
+            lat: 0.0,
           );
 
       emit(
         state.copyWith(
           status: TimetableStatus.fetching,
           checkinData: currentCheckin.copyWith(
-            ritaseKe: 0.0,
-            idBus: 0,
             idKoridor: event.id,
+            idBus: 0,
+            ritaseKe: 0.0,
           ),
           idKoridor: event.id,
           namaKoridor: event.namaKoridor,
@@ -276,10 +281,12 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
           referenceBus: const [],
         ),
       );
+
       final resultBus = await timetableRepository.fetchReferenceBus(
         '',
         event.id,
       );
+
       resultBus.fold(
         (failure) {
           emit(
@@ -315,13 +322,13 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
           state.checkinData ??
           TimetableCheckin(
             tanggal: DateTime.now().toString().split(' ')[0],
-            idKoridor: 0,
-            idBus: 0,
+            idKoridor: state.idKoridor,
+            idBus: event.id,
             idShift: 1,
             idPramugara: 0,
-            ritaseKe: 0,
-            long: 0,
-            lat: 0,
+            ritaseKe: 0.0,
+            long: 0.0,
+            lat: 0.0,
           );
 
       nextRitase.fold(
@@ -338,9 +345,9 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
             state.copyWith(
               status: TimetableStatus.success,
               checkinData: currentCheckin.copyWith(
-                ritaseKe: ritaseValue,
-                idBus: event.id,
                 idKoridor: state.idKoridor,
+                idBus: event.id,
+                ritaseKe: ritaseValue,
               ),
             ),
           );
@@ -358,8 +365,8 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
             idShift: 1,
             idPramugara: 0,
             ritaseKe: 0.0,
-            long: 0,
-            lat: 0,
+            long: 0.0,
+            lat: 0.0,
           );
 
       emit(
@@ -370,9 +377,9 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
           idBus: 0,
           referenceBus: const [],
           checkinData: currentCheckin.copyWith(
-            ritaseKe: 0.0,
-            idBus: 0,
             idKoridor: 0,
+            idBus: 0,
+            ritaseKe: 0.0,
           ),
         ),
       );

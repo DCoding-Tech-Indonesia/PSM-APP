@@ -4,6 +4,8 @@ abstract class KmbusEvent {}
 
 class PageDashboardLoad extends KmbusEvent {}
 
+class PageHistoryLoad extends KmbusEvent {}
+
 class KmbusTitikAwalInputLoad extends KmbusEvent {
   final int idShift;
   final int idKoridorShift;

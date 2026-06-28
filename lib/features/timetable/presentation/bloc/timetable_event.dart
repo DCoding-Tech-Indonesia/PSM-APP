@@ -28,4 +28,6 @@ class SelectBus extends TimetableEvent {
 
 class CheckInTimetable extends TimetableEvent {}
 
+class CheckOutTimetable extends TimetableEvent {}
+
 class ResetInput extends TimetableEvent {}

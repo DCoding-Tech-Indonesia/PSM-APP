@@ -1,28 +1,24 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:psm_mobile/core/storage/secure_storage.dart';
 import 'package:psm_mobile/features/timetable/domain/entities/timetable_checkin.dart';
+import 'package:psm_mobile/features/timetable/domain/entities/timetable_checkout.dart';
 import 'package:psm_mobile/features/timetable/domain/entities/timetable_data.dart';
 
 class TimetableDataSource {
   final Dio dio;
+  final SecureStorageService secureStorageService;
 
-  TimetableDataSource({required this.dio});
+  TimetableDataSource({required this.dio, required this.secureStorageService});
 
   Future<List<TimetableData>> fetchTimetableDataList(String keyword) async {
     try {
       final response = await dio.get(
         '/time-table/list',
-        queryParameters: {
-          'keyword': keyword,
-          'page': 1,
-          'perPage': 99,
-        }
+        queryParameters: {'keyword': keyword, 'page': 1, 'perPage': 99},
       );
 
       final List data = response.data['data'] ?? [];
-
-      print("data");
-      print(data);
 
       final result = data
           .map<TimetableData>((e) => TimetableData.fromJson(e))
@@ -36,10 +32,10 @@ class TimetableDataSource {
   }
 
   Future<String> checkAllowCheckIn(
-      int idKoridor,
-      int idBus,
-      double nextRit,
-      ) async {
+    int idKoridor,
+    int idBus,
+    double nextRit,
+  ) async {
     try {
       final response = await dio.get(
         '/time-table/check/check-in',
@@ -60,10 +56,10 @@ class TimetableDataSource {
   }
 
   Future<String> checkAllowCheckOut(
-      int idKoridor,
-      int idBus,
-      double nextRit,
-      ) async {
+    int idKoridor,
+    int idBus,
+    double nextRit,
+  ) async {
     try {
       final response = await dio.get(
         '/time-table/check/check-out',
@@ -96,15 +92,35 @@ class TimetableDataSource {
 
   Future<String?> checkinTimeTable(TimetableCheckin request) async {
     try {
-      final response = await dio.post(
-        '/time-table/check-in',
-        data: request.toJson(),
-      );
+      await dio.post('/time-table/check-in', data: request);
 
-      final data = response.data["data"];
-
-      return data;
+      return "Berhasil";
+    } on DioException catch (e) {
+      debugPrint("=== DIO ERROR ===");
+      debugPrint("Status Code: ${e.response?.statusCode}");
+      debugPrint("Message: ${e.message}");
+      debugPrint("Data Server: ${e.response?.data}");
+      return e.toString();
     } catch (e) {
+      debugPrint("=== GENERAL ERROR ===");
+      debugPrint(e.toString());
+      return e.toString();
+    }
+  }
+
+  Future<String?> checkoutTimeTable(TimetableCheckout request) async {
+    try {
+      await dio.post('/time-table/check-out', data: request);
+
+      return "Berhasil";
+    } on DioException catch (e) {
+      debugPrint("=== DIO ERROR ===");
+      debugPrint("Status Code: ${e.response?.statusCode}");
+      debugPrint("Message: ${e.message}");
+      debugPrint("Data Server: ${e.response?.data}");
+      return e.toString();
+    } catch (e) {
+      debugPrint("=== GENERAL ERROR ===");
       debugPrint(e.toString());
       return e.toString();
     }

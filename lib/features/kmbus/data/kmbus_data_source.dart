@@ -15,7 +15,7 @@ class KmbusDataSource {
 
   KmbusDataSource({required this.dio, required this.secureStorageService});
 
-  Future<List<KmbusData>> fetchKmbusData(String keyword) async {
+  Future<List<KmbusData>> fetchKmbusDataToday(String keyword) async {
     try {
       final idUserRole = await secureStorageService.readUserRoleId();
 
@@ -30,6 +30,31 @@ class KmbusDataSource {
           'idPramugara': idUserRole,
           'startDate': todayStr,
           'endDate': todayStr,
+        },
+      );
+
+      final List data = response.data['data'] ?? [];
+
+      final result = data.map<KmbusData>((e) => KmbusData.fromJson(e)).toList();
+
+      return result;
+    } catch (e) {
+      debugPrint(e.toString());
+      rethrow;
+    }
+  }
+
+  Future<List<KmbusData>> fetchKmbusData(String keyword) async {
+    try {
+      final idUserRole = await secureStorageService.readUserRoleId();
+
+      final response = await dio.get(
+        '/km/list',
+        queryParameters: {
+          'keyword': keyword,
+          'page': 1,
+          'perPage': 99,
+          'idPramugara': idUserRole,
         },
       );
 

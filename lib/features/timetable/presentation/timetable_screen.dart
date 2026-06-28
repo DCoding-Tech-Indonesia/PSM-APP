@@ -520,8 +520,6 @@ class _TimetableScreenState extends State<TimetableScreen> {
                                 const SizedBox(height: 12),
                             itemBuilder: (context, index) {
                               final data = state.listTimetable[index];
-                              print("data");
-                              print(data);
                               return Padding(
                                 padding: const EdgeInsets.all(24.0),
                                 child: Container(
@@ -542,7 +540,7 @@ class _TimetableScreenState extends State<TimetableScreen> {
                                   ),
                                   child: Row(
                                     children: [
-                                      Text(data.id.toString()),
+                                      Text("[DUMMY]"),
                                     ],
                                   ),
                                 ),

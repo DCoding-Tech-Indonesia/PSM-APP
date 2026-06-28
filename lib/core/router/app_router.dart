@@ -10,7 +10,6 @@ import 'package:psm_mobile/core/storage/shared_preferences.dart';
 import 'package:psm_mobile/features/attendance/presentation/bloc/leave_request_event.dart';
 import 'package:psm_mobile/features/attendance/presentation/screens/approval_detail_screen.dart';
 import 'package:psm_mobile/features/attendance/presentation/screens/approval_screen.dart';
-import 'package:psm_mobile/features/attendance/presentation/screens/leave_request_screen.dart';
 import 'package:psm_mobile/features/attendance/presentation/screens/leave_request_detail_screen.dart';
 import 'package:psm_mobile/features/attendance/presentation/screens/schedule_calendar_screen.dart';
 import 'package:psm_mobile/features/attendance/data/models/schedule_model.dart';
@@ -42,6 +41,7 @@ import 'package:psm_mobile/features/settlement/presentation/cubit/settlement_tab
 import 'package:psm_mobile/features/settlement/presentation/settlement_detail_screen.dart';
 import 'package:psm_mobile/features/settlement/presentation/settlement_form_screen.dart';
 import 'package:psm_mobile/features/attendance/presentation/screens/attendance_screen.dart';
+import 'package:psm_mobile/features/attendance/presentation/screens/leave_request_screen.dart';
 import 'package:psm_mobile/features/attendance/presentation/screens/shift_replacement_screen.dart';
 import 'package:psm_mobile/features/attendance/data/datasources/leave_request_remote_data_source.dart';
 import 'package:psm_mobile/features/attendance/data/repositories/leave_request_repository_impl.dart';
@@ -346,26 +346,26 @@ void setupRouter(String initialLocation) {
       GoRoute(
         path: '/kmbus/history',
         builder: (context, state) {
-          return KmbusHistoryScreen();
-          // final dio = DioClient().instance;
-          // final secureStorageService = SecureStorageService();
+          final dio = DioClient().instance;
+          final secureStorageService = SecureStorageService();
 
-          // return MultiBlocProvider(
-          //   providers: [
-          //     BlocProvider(
-          //       create: (_) => SettlementBloc(
-          //         SettlementRepositoryImpl(
-          //           dataSource: SettlementDataSource(
-          //             dio: dio,
-          //             secureStorageService: secureStorageService,
-          //           ),
-          //           dataSourceReference: ReferenceDataSource(dio: dio),
-          //         ),
-          //       ),
-          //     ),
-          //   ],
-          //   child: SettlementHistoryScreen(),
-          // );
+          return MultiBlocProvider(
+            providers: [
+              BlocProvider(
+                create: (_) => KmbusBloc(
+                  KmbusRepositoryImpl(
+                    dataSource: KmbusDataSource(
+                      dio: dio,
+                      secureStorageService: secureStorageService,
+                    ),
+                    dataSourceReference: ReferenceDataSource(dio: dio),
+                  ),
+                  secureStorageService,
+                ),
+              ),
+            ],
+            child: KmbusHistoryScreen(),
+          );
         },
       ),
 
@@ -381,7 +381,10 @@ void setupRouter(String initialLocation) {
               BlocProvider(
                 create: (_) => TimetableBloc(
                   TimetableRepositoryImpl(
-                    dataSource: TimetableDataSource(dio: dio),
+                    dataSource: TimetableDataSource(
+                      dio: dio,
+                      secureStorageService: secureStorageService,
+                    ),
                     dataSourceReference: ReferenceDataSource(dio: dio),
                   ),
                   secureStorageService,

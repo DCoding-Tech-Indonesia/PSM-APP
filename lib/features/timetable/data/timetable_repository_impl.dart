@@ -6,6 +6,7 @@ import 'package:psm_mobile/features/reference/domain/entities/reference_detail.d
 import 'package:psm_mobile/features/reference/reference_data_source.dart';
 import 'package:psm_mobile/features/timetable/data/timetable_data_source.dart';
 import 'package:psm_mobile/features/timetable/domain/entities/timetable_checkin.dart';
+import 'package:psm_mobile/features/timetable/domain/entities/timetable_checkout.dart';
 import 'package:psm_mobile/features/timetable/domain/entities/timetable_data.dart';
 import 'package:psm_mobile/features/timetable/domain/repositories/timetable_repository.dart';
 
@@ -129,6 +130,24 @@ class TimetableRepositoryImpl implements TimetableRepository {
   ) async {
     try {
       final response = await dataSource.checkinTimeTable(request);
+
+      return right(response);
+    } on DioException catch (e) {
+      final message =
+          e.response?.data?['message'] ?? 'Terjadi kesalahan server';
+
+      return left(ServerFailure(message));
+    } catch (_) {
+      return left(const ServerFailure('Unexpected error'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, String?>> checkoutTimeTable(
+    TimetableCheckout request,
+  ) async {
+    try {
+      final response = await dataSource.checkoutTimeTable(request);
 
       return right(response);
     } on DioException catch (e) {

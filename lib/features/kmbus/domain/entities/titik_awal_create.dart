@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:psm_mobile/features/kmbus/domain/entities/kmbus_document.dart';
 
 class TitikAwalCreate {

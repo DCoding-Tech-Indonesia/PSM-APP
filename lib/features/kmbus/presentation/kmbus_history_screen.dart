@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_header.dart';
+import 'package:psm_mobile/features/kmbus/presentation/bloc/kmbus_event.dart';
+
+import 'bloc/kmbus_bloc.dart';
+import 'bloc/kmbus_state.dart';
 
 class KmbusHistoryScreen extends StatefulWidget {
   const KmbusHistoryScreen({super.key});
@@ -11,25 +16,20 @@ class KmbusHistoryScreen extends StatefulWidget {
 class _KmbusHistoryScreenState extends State<KmbusHistoryScreen> {
   String _activeTab = "Semua";
 
-  static const List<String> _tabs = [
-    "Semua",
-    "Awal",
-    "Akhir",
-  ];
+  static const List<String> _tabs = ["Semua", "Awal", "Akhir"];
 
   late final PageController _pageController;
-
-  final List<Map<String, String>> _dummyData = [
-    {"title": "Perjalanan KM Bus 01", "type": "Awal", "time": "06:30 WIB", "route": "Terminal A -> Hub B"},
-    {"title": "Perjalanan KM Bus 02", "type": "Akhir", "time": "09:15 WIB", "route": "Hub B -> Terminal C"},
-    {"title": "Perjalanan KM Bus 03", "type": "Awal", "time": "13:00 WIB", "route": "Terminal C -> Hub A"},
-    {"title": "Perjalanan KM Bus 01", "type": "Akhir", "time": "16:45 WIB", "route": "Hub A -> Terminal A"},
-  ];
 
   @override
   void initState() {
     super.initState();
     _pageController = PageController();
+
+    Future.microtask(() {
+      if (mounted) {
+        context.read<KmbusBloc>().add(PageHistoryLoad());
+      }
+    });
   }
 
   @override
@@ -39,7 +39,12 @@ class _KmbusHistoryScreenState extends State<KmbusHistoryScreen> {
   }
 
   Future<void> _onRefresh() async {
-    await Future.delayed(const Duration(seconds: 1));
+    final bloc = context.read<KmbusBloc>();
+    bloc.add(PageHistoryLoad());
+
+    await bloc.stream.firstWhere(
+      (state) => state.status != KmbusStatus.loading,
+    );
   }
 
   void _changeTab(String tab) {
@@ -57,15 +62,10 @@ class _KmbusHistoryScreenState extends State<KmbusHistoryScreen> {
     );
   }
 
-  List<Map<String, String>> _filterData(String tab) {
-    if (tab == "Semua") return _dummyData;
-    return _dummyData.where((item) => item["type"] == tab).toList();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.grey.shade50,
       body: SafeArea(
         child: Column(
           children: [
@@ -75,142 +75,94 @@ class _KmbusHistoryScreenState extends State<KmbusHistoryScreen> {
               withBorder: true,
             ),
 
-            Row(
-              children: _tabs.map((tab) {
-                final active = _activeTab == tab;
+            Container(
+              color: Colors.white,
+              child: Row(
+                children: _tabs.map((tab) {
+                  final active = _activeTab == tab;
 
-                return Expanded(
-                  child: InkWell(
-                    onTap: () => _changeTab(tab),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 250),
-                      padding: const EdgeInsets.symmetric(vertical: 15),
-                      decoration: BoxDecoration(
-                        border: Border(
-                          bottom: BorderSide(
-                            width: 3,
-                            color: active ? Colors.blue : Colors.transparent,
+                  return Expanded(
+                    child: InkWell(
+                      onTap: () => _changeTab(tab),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 250),
+                        padding: const EdgeInsets.symmetric(vertical: 15),
+                        decoration: BoxDecoration(
+                          border: Border(
+                            bottom: BorderSide(
+                              width: 3,
+                              color: active ? Colors.blue : Colors.transparent,
+                            ),
                           ),
                         ),
-                      ),
-                      child: Center(
-                        child: AnimatedDefaultTextStyle(
-                          duration: const Duration(milliseconds: 250),
-                          style: TextStyle(
-                            color: active ? Colors.blue : Colors.grey,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 16,
+                        child: Center(
+                          child: AnimatedDefaultTextStyle(
+                            duration: const Duration(milliseconds: 250),
+                            style: TextStyle(
+                              color: active
+                                  ? Colors.blue
+                                  : Colors.grey.shade500,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 16,
+                            ),
+                            child: Text(tab),
                           ),
-                          child: Text(tab),
                         ),
                       ),
                     ),
-                  ),
-                );
-              }).toList(),
+                  );
+                }).toList(),
+              ),
             ),
 
             Expanded(
-              child: PageView.builder(
-                controller: _pageController,
-                onPageChanged: (index) {
-                  setState(() {
-                    _activeTab = _tabs[index];
-                  });
-                },
-                itemCount: _tabs.length,
-                itemBuilder: (context, index) {
-                  final tab = _tabs[index];
-                  final filtered = _filterData(tab);
+              child: BlocBuilder<KmbusBloc, KmbusState>(
+                builder: (context, state) {
+                  if (state.status == KmbusStatus.loading &&
+                      state.listKmbus.isEmpty &&
+                      state.listKmbusAuditTrail.isEmpty) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
 
-                  return RefreshIndicator(
-                    onRefresh: _onRefresh,
-                    child: filtered.isEmpty
-                        ? ListView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      children: const [
-                        SizedBox(height: 200),
-                        Center(
-                          child: Text(
-                            "Tidak ada data",
-                            style: TextStyle(color: Colors.grey),
-                          ),
-                        ),
-                      ],
-                    )
-                        : ListView.separated(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      padding: const EdgeInsets.fromLTRB(26, 20, 26, 20),
-                      itemCount: filtered.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 12),
-                      itemBuilder: (context, i) {
-                        final item = filtered[i];
+                  return PageView.builder(
+                    controller: _pageController,
+                    onPageChanged: (index) {
+                      setState(() {
+                        _activeTab = _tabs[index];
+                      });
+                    },
+                    itemCount: _tabs.length,
+                    itemBuilder: (context, index) {
+                      final currentTab = _tabs[index];
 
-                        return Card(
-                          elevation: 1,
-                          color: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            side: BorderSide(color: Colors.grey.shade100),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        item["title"] ?? "",
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 15,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        item["route"] ?? "",
-                                        style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
-                                      ),
-                                      const SizedBox(height: 6),
-                                      Text(
-                                        item["time"] ?? "",
-                                        style: const TextStyle(color: Colors.grey, fontSize: 12),
-                                      ),
-                                    ],
-                                  ),
-                                ),
+                      if (currentTab == "Semua") {
+                        final dataList = state.listKmbus;
 
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 10,
-                                    vertical: 6,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: item["type"] == "Awal"
-                                        ? Colors.blue.withValues(alpha: 0.1)
-                                        : Colors.purple.withValues(alpha: 0.1),
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
-                                  child: Text(
-                                    item["type"] ?? "",
-                                    style: TextStyle(
-                                      color: item["type"] == "Awal"
-                                          ? Colors.blue
-                                          : Colors.purple,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                        return RefreshIndicator(
+                          onRefresh: _onRefresh,
+                          child: dataList.isEmpty
+                              ? _buildEmptyState()
+                              : _buildSemuaListView(dataList),
                         );
-                      },
-                    ),
+                      } else {
+                        final dataList = state.listKmbusAuditTrail.where((
+                          audit,
+                        ) {
+                          if (currentTab == "Awal") {
+                            return audit.dataAfter.titikAwal != null;
+                          } else {
+                            return audit.dataAfter.titikAkhir != null;
+                          }
+                        }).toList();
+
+                        return RefreshIndicator(
+                          onRefresh: _onRefresh,
+                          child: dataList.isEmpty
+                              ? _buildEmptyState()
+                              : _buildAuditListView(dataList, currentTab),
+                        );
+                      }
+                    },
                   );
                 },
               ),
@@ -218,6 +170,260 @@ class _KmbusHistoryScreenState extends State<KmbusHistoryScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      children: const [
+        SizedBox(height: 200),
+        Center(
+          child: Text(
+            "Tidak ada data riwayat",
+            style: TextStyle(color: Colors.grey, fontSize: 14),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSemuaListView(List<dynamic> dataList) {
+    return ListView.separated(
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
+      itemCount: dataList.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      itemBuilder: (context, i) {
+        final item = dataList[i];
+
+        return Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: Colors.grey.shade200),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.02),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      item.code ?? "NO CODE",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey.shade600,
+                        fontSize: 12,
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.blue.withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        item.status?.name ?? "Selesai",
+                        style: const TextStyle(
+                          color: Colors.blue,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  item.koridor?.name ?? "Koridor N/A",
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  "Bus: ${item.bus?.nomorLambung ?? '-'} (${item.bus?.platNomor ?? '-'})",
+                  style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                ),
+                const Divider(height: 24, thickness: 0.8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Ritase Ke-${item.ritaseKe.toInt()}",
+                      style: TextStyle(
+                        color: Colors.grey.shade700,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                      ),
+                    ),
+                    Text(
+                      "${item.totalTempuh ?? 0} km",
+                      style: const TextStyle(
+                        color: Colors.blue,
+                        fontWeight: FontWeight.w800,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildAuditListView(List<dynamic> dataList, String type) {
+    final isAwal = type == "Awal";
+    final mainColor = isAwal ? Colors.teal : Colors.deepOrange;
+
+    return ListView.separated(
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
+      itemCount: dataList.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      itemBuilder: (context, i) {
+        final item = dataList[i];
+        final details = item.dataAfter;
+
+        final int targetKm = isAwal
+            ? (details.titikAwal ?? 0)
+            : (details.titikAkhir ?? 0);
+
+        return Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: Colors.grey.shade200),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.02),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Container(
+                  width: 5,
+                  decoration: BoxDecoration(
+                    color: mainColor,
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(14),
+                      bottomLeft: Radius.circular(14),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(
+                                  isAwal
+                                      ? Icons.login_rounded
+                                      : Icons.logout_rounded,
+                                  size: 16,
+                                  color: mainColor,
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  "KM $type".toUpperCase(),
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w800,
+                                    color: mainColor,
+                                    fontSize: 12,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Text(
+                              "Ritase ${details.ritaseKe.toInt()}",
+                              style: TextStyle(
+                                color: Colors.grey.shade500,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          item.namaKoridor,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          "No. Polisi: ${item.noPolisi}",
+                          style: TextStyle(
+                            color: Colors.grey.shade600,
+                            fontSize: 13,
+                          ),
+                        ),
+                        const Divider(height: 20, thickness: 0.8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                "Oleh: ${item.namaPramugara ?? 'Pramugara'}",
+                                style: TextStyle(
+                                  color: Colors.grey.shade500,
+                                  fontSize: 12,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ),
+                            Text(
+                              "$targetKm KM",
+                              style: TextStyle(
+                                color: mainColor,
+                                fontWeight: FontWeight.w800,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }
