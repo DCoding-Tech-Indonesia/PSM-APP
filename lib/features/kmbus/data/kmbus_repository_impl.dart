@@ -92,6 +92,42 @@ class KmbusRepositoryImpl implements KmbusRepository {
   }
 
   @override
+  Future<Either<Failure, TitikAwalCreate>> fetchDetailAuditTrailAwal(
+    int idAuditTrail,
+  ) async {
+    try {
+      final result = await dataSource.fetchDetailAuditTrailAwal(idAuditTrail);
+
+      return right(result);
+    } on DioException catch (e) {
+      final message =
+          e.response?.data?['message'] ?? 'Terjadi kesalahan server';
+
+      return left(ServerFailure(message));
+    } catch (_) {
+      return left(const ServerFailure('Unexpected error'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, TitikAkhirCreate>> fetchDetailAuditTrailAkhir(
+    int idAuditTrail,
+  ) async {
+    try {
+      final result = await dataSource.fetchDetailAuditTrailAkhir(idAuditTrail);
+
+      return right(result);
+    } on DioException catch (e) {
+      final message =
+          e.response?.data?['message'] ?? 'Terjadi kesalahan server';
+
+      return left(ServerFailure(message));
+    } catch (_) {
+      return left(const ServerFailure('Unexpected error'));
+    }
+  }
+
+  @override
   Future<Either<Failure, List<KmbusData>>> fetchListKmbus(
     String keyword,
   ) async {
@@ -183,6 +219,42 @@ class KmbusRepositoryImpl implements KmbusRepository {
   }
 
   @override
+  Future<Either<Failure, String>> updateTitikAwal(
+      TitikAwalCreate request, int idAuditTrail
+      ) async {
+    try {
+      final response = await dataSource.updateTitikAwal(request, idAuditTrail);
+
+      return right(response);
+    } on DioException catch (e) {
+      final message =
+          e.response?.data?['message'] ?? 'Terjadi kesalahan server';
+
+      return left(ServerFailure(message));
+    } catch (_) {
+      return left(const ServerFailure('Unexpected error'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, String>> updateTitikAkhir(
+      TitikAkhirCreate request, int idAuditTrail
+      ) async {
+    try {
+      final response = await dataSource.updateTitikAkhir(request, idAuditTrail);
+
+      return right(response);
+    } on DioException catch (e) {
+      final message =
+          e.response?.data?['message'] ?? 'Terjadi kesalahan server';
+
+      return left(ServerFailure(message));
+    } catch (_) {
+      return left(const ServerFailure('Unexpected error'));
+    }
+  }
+
+  @override
   Future<Either<Failure, String>> submitWorkflow(
     int idAuditTrail,
     String reason,
@@ -230,17 +302,6 @@ class KmbusRepositoryImpl implements KmbusRepository {
           e.response?.data?['message'] ?? 'Terjadi kesalahan server';
 
       return left(ServerFailure(message));
-    } catch (_) {
-      return left(const ServerFailure('Unexpected error'));
-    }
-  }
-
-  @override
-  Future<Either<Failure, bool>> submitTitikAwal(TitikAwalCreate request) async {
-    try {
-      final response = await dataSource.createTitikAwal(request);
-
-      return right(true);
     } catch (_) {
       return left(const ServerFailure('Unexpected error'));
     }

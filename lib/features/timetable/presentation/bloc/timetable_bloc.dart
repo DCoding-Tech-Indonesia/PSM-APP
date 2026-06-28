@@ -19,26 +19,84 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
         final userIdString = await secureStorageService.readUserId();
         final userId = int.tryParse(userIdString ?? '') ?? 0;
 
-        final currentCheckin = state.checkinData ??
+        final todaySchedule = await timetableRepository.fetchTodaySchedule(
+          userId,
+        );
+
+        final todayScheduleData = todaySchedule.fold((failure) {
+          emit(
+            state.copyWith(
+              status: TimetableStatus.error,
+              message: failure.message,
+            ),
+          );
+          return null;
+        }, (data) => data);
+
+        if (todayScheduleData == null || todayScheduleData.isEmpty) {
+          emit(
+            state.copyWith(
+              status: TimetableStatus.error,
+              message: "Jadwal tidak ditemukan",
+            ),
+          );
+          return;
+        }
+
+        final idKoridorShift = todayScheduleData[0].lokasi.koridor;
+        final idBusShift = todayScheduleData[0].bus.id;
+        final idShiftActive = todayScheduleData[0].shift.id;
+        final currentNoUnit = todayScheduleData[0].bus.nomorLambung;
+
+        final resultBus = await timetableRepository.fetchReferenceBus(
+          '',
+          idKoridorShift,
+        );
+        final busList = resultBus.fold((failure) {
+          emit(
+            state.copyWith(
+              status: TimetableStatus.error,
+              message: failure.message,
+            ),
+          );
+          return null;
+        }, (data) => data);
+
+        if (busList == null) return;
+
+        final nextRitaseResult = await timetableRepository.fetchNextRitase(
+          idKoridorShift,
+          idBusShift!,
+        );
+        final double ritaseValue = nextRitaseResult.fold(
+          (_) => 0.0,
+          (value) => value,
+        );
+
+        final currentCheckin =
+            state.checkinData ??
             TimetableCheckin(
               tanggal: DateTime.now().toString().split(' ')[0],
-              idKoridor: 0,
-              idBus: 0,
-              idShift: 1,
-              idPramugara: 0,
-              ritaseKe: 0,
+              idKoridor: idKoridorShift,
+              idBus: idBusShift,
+              idShift: idShiftActive,
+              idPramugara: userId,
+              ritaseKe: ritaseValue,
               long: 0,
               lat: 0,
             );
 
         final updatedCheckinWithPramugara = currentCheckin.copyWith(
+          idKoridor: idKoridorShift,
+          idBus: idBusShift,
+          idShift: idShiftActive,
           idPramugara: userId,
+          ritaseKe: ritaseValue,
         );
 
         final resultKoridor = await timetableRepository.fetchReferenceKoridor(
           '',
         );
-
         final koridorList = resultKoridor.fold((failure) {
           emit(
             state.copyWith(
@@ -52,7 +110,6 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
         if (koridorList == null) return;
 
         final list = await timetableRepository.fetchListTimeTable('');
-
         final timeTableList = list.fold((failure) {
           emit(
             state.copyWith(
@@ -70,29 +127,36 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
           updatedCheckinWithPramugara.idBus,
           updatedCheckinWithPramugara.ritaseKe,
         );
-        final checkCheckOutFuture = timetableRepository.checkAllowCheckIn(
+        final checkCheckOutFuture = timetableRepository.checkAllowCheckOut(
           updatedCheckinWithPramugara.idKoridor,
           updatedCheckinWithPramugara.idBus,
           updatedCheckinWithPramugara.ritaseKe,
         );
 
-        final allowResults = await Future.wait([checkCheckInFuture, checkCheckOutFuture]);
+        final allowResults = await Future.wait([
+          checkCheckInFuture,
+          checkCheckOutFuture,
+        ]);
 
         final bool isAllowCheckIn = allowResults[0].fold(
-              (_) => false,
-              (res) => res == "Access Granted",
+          (_) => false,
+          (res) => res == "Access Granted",
         );
 
         final bool isAllowCheckOut = allowResults[1].fold(
-              (_) => false,
-              (res) => res == "Access Granted",
+          (_) => false,
+          (res) => res == "Access Granted",
         );
 
         emit(
           state.copyWith(
             listTimetable: timeTableList,
             referenceKoridor: koridorList,
+            referenceBus: busList, // 🛠️ Set list data reference bus ke state
             checkinData: updatedCheckinWithPramugara,
+            idKoridor: idKoridorShift,
+            idBus: idBusShift,
+            noUnit: currentNoUnit, // 🛠️ Select unit bus langsung ke state
             isAllowCheckIn: isAllowCheckIn,
             isAllowCheckOut: (isAllowCheckOut && !isAllowCheckIn),
             status: TimetableStatus.success,
@@ -108,7 +172,8 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
     });
 
     on<LocationLoaded>((event, emit) {
-      final currentCheckin = state.checkinData ??
+      final currentCheckin =
+          state.checkinData ??
           TimetableCheckin(
             tanggal: DateTime.now().toString().split(' ')[0],
             idKoridor: 0,
@@ -163,8 +228,12 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
           (data) {
             emit(
               state.copyWith(
-                status: data != null ? TimetableStatus.successSave : TimetableStatus.failedSave,
-                message: data != null ? "Berhasil check-in!" : "Gagal check-in!",
+                status: data != null
+                    ? TimetableStatus.successSave
+                    : TimetableStatus.failedSave,
+                message: data != null
+                    ? "Berhasil check-in!"
+                    : "Gagal check-in!",
               ),
             );
           },
@@ -180,7 +249,8 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
     });
 
     on<SelectKoridor>((event, emit) async {
-      final currentCheckin = state.checkinData ??
+      final currentCheckin =
+          state.checkinData ??
           TimetableCheckin(
             tanggal: DateTime.now().toString().split(' ')[0],
             idKoridor: 0,
@@ -241,7 +311,8 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
         event.id,
       );
 
-      final currentCheckin = state.checkinData ??
+      final currentCheckin =
+          state.checkinData ??
           TimetableCheckin(
             tanggal: DateTime.now().toString().split(' ')[0],
             idKoridor: 0,
@@ -278,7 +349,8 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
     });
 
     on<ResetInput>((event, emit) {
-      final currentCheckin = state.checkinData ??
+      final currentCheckin =
+          state.checkinData ??
           TimetableCheckin(
             tanggal: DateTime.now().toString().split(' ')[0],
             idKoridor: 0,

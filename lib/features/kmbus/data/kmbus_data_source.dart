@@ -17,6 +17,8 @@ class KmbusDataSource {
 
   Future<List<KmbusData>> fetchKmbusData(String keyword) async {
     try {
+      final idUserRole = await secureStorageService.readUserRoleId();
+
       final String todayStr = DateTime.now().toIso8601String().split('T')[0];
 
       final response = await dio.get(
@@ -25,6 +27,7 @@ class KmbusDataSource {
           'keyword': keyword,
           'page': 1,
           'perPage': 99,
+          'idPramugara': idUserRole,
           'startDate': todayStr,
           'endDate': todayStr,
         },
@@ -93,12 +96,22 @@ class KmbusDataSource {
     String keyword,
   ) async {
     try {
+      final idUser = await secureStorageService.readUserId();
+
       final response = await dio.get(
         '/audittrail/task/km/list',
-        queryParameters: {'keyword': keyword, 'page': 1, 'perPage': 99},
+        queryParameters: {
+          'keyword': keyword,
+          'page': 1,
+          'perPage': 99,
+          'createdBy': idUser,
+        },
       );
 
       final List data = response.data['data'] ?? [];
+
+      print("response");
+      print(response);
 
       final result = data
           .map<KmTaskAuditTrail>((e) => KmTaskAuditTrail.fromJson(e))
@@ -156,6 +169,43 @@ class KmbusDataSource {
     }
   }
 
+  Future<TitikAwalCreate> fetchDetailAuditTrailAwal(int idAuditTrail) async {
+    try {
+      final response = await dio.get(
+        '/audittrail/task/km/detail',
+        queryParameters: {'id': idAuditTrail},
+      );
+
+      final detail = response.data["data"][0]["dataAfter"];
+
+      return TitikAwalCreate.fromJson(detail);
+    } catch (e) {
+      print(e);
+      rethrow;
+    }
+  }
+
+  Future<String> updateTitikAwal(
+    TitikAwalCreate request,
+    int idAuditTrail,
+  ) async {
+    try {
+      await dio.post(
+        '/audittrail/task/approval/edit',
+        data: {
+          "idAuditTrail": idAuditTrail,
+          "payload": request,
+          "reason": "UPDATE",
+        },
+      );
+
+      return "Berhasil Update";
+    } catch (e) {
+      print(e);
+      return e.toString();
+    }
+  }
+
   Future<String> createTitikAkhir(TitikAkhirCreate request) async {
     try {
       final response = await dio.post(
@@ -184,6 +234,46 @@ class KmbusDataSource {
       final idAuditTrail = response.data["data"][0]["auditTrailId"];
 
       return idAuditTrail.toString();
+    } catch (e) {
+      print(e);
+      return e.toString();
+    }
+  }
+
+  Future<TitikAkhirCreate> fetchDetailAuditTrailAkhir(int idAuditTrail) async {
+    try {
+      final response = await dio.get(
+        '/audittrail/task/km/detail',
+        queryParameters: {'id': idAuditTrail},
+      );
+
+      final detail = response.data["data"][0]["dataAfter"];
+
+      print("detail");
+      print(detail);
+
+      return TitikAkhirCreate.fromJson(detail);
+    } catch (e) {
+      print(e);
+      rethrow;
+    }
+  }
+
+  Future<String> updateTitikAkhir(
+    TitikAkhirCreate request,
+    int idAuditTrail,
+  ) async {
+    try {
+      await dio.post(
+        '/audittrail/task/approval/edit',
+        data: {
+          "idAuditTrail": idAuditTrail,
+          "payload": request,
+          "reason": "UPDATE",
+        },
+      );
+
+      return "Berhasil Update";
     } catch (e) {
       print(e);
       return e.toString();

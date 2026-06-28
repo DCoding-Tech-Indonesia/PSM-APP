@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:psm_mobile/core/helper/auth_token_helper.dart';
+import 'package:psm_mobile/core/helper/error_helper_parser.dart';
 import 'package:psm_mobile/core/network/dio_client.dart';
 import 'package:psm_mobile/core/storage/secure_storage.dart';
 import 'package:psm_mobile/features/auth/domain/entities/login_response.dart';
@@ -61,9 +62,11 @@ class AuthDataSource {
         message: response.data["message"] ?? "Login gagal",
       );
     } catch (e) {
+      final cleanMessage = ErrorParserHelper.parse(e.toString());
+
       return LoginResponse(
         isSuccess: false,
-        message: "Terjadi kesalahan: ${e.toString()}",
+        message: cleanMessage,
       );
     }
   }

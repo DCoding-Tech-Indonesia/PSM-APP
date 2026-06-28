@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:psm_mobile/core/storage/secure_storage.dart';
 import 'package:psm_mobile/features/reference/domain/entities/document_preview.dart';
 import 'package:psm_mobile/features/reference/domain/entities/reference_detail.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/settlement_create.dart';
@@ -12,8 +13,10 @@ import 'dart:convert';
 
 class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
   final SettlementRepository settlementRepository;
+  final SecureStorageService secureStorageService;
 
-  SettlementBloc(this.settlementRepository) : super(const SettlementState()) {
+  SettlementBloc(this.settlementRepository, this.secureStorageService)
+    : super(const SettlementState()) {
     on<PageInputLoad>((event, emit) async {
       emit(state.copyWith(status: SettlementStatus.loading));
 
@@ -256,6 +259,59 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
 
       final list = await settlementRepository.fetchTaskAuditTrailList('');
 
+      final userIdString = await secureStorageService.readUserId();
+      final userId = int.tryParse(userIdString ?? '') ?? 0;
+
+      final todaySchedule = await settlementRepository.fetchTodaySchedule(
+        userId,
+      );
+
+      final todayScheduleData = todaySchedule.fold((failure) {
+        emit(
+          state.copyWith(
+            status: SettlementStatus.error,
+            message: failure.message,
+          ),
+        );
+        return null;
+      }, (data) => data);
+
+      if (todayScheduleData == null || todayScheduleData.isEmpty) {
+        emit(
+          state.copyWith(
+            status: SettlementStatus.error,
+            message: "Jadwal tidak ditemukan",
+          ),
+        );
+        return;
+      }
+
+      final idKoridorShift = todayScheduleData[0].lokasi.koridor;
+      final idBusShift = todayScheduleData[0].bus.id;
+
+      final nextRitaseResult = await settlementRepository.fetchNextRitase(
+        idKoridorShift,
+        idBusShift!,
+      );
+
+      final double ritaseValue = nextRitaseResult.fold(
+        (_) => 0.0,
+        (value) => value,
+      );
+
+      final checkAllowInput = settlementRepository.checkAllowSettlement(
+        idKoridorShift,
+        idBusShift,
+        ritaseValue,
+      );
+
+      final checkAllowInputResult = await checkAllowInput;
+
+      final bool allowInputAccess = checkAllowInputResult.fold(
+        (_) => false,
+        (res) => res == "Access Granted",
+      );
+
       list.fold(
         (failure) {
           emit(
@@ -270,7 +326,12 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
         },
       );
 
-      emit(state.copyWith(status: SettlementStatus.success));
+      emit(
+        state.copyWith(
+          status: SettlementStatus.success,
+          allowInput: allowInputAccess,
+        ),
+      );
     });
 
     on<MoveStepWizard>((event, emit) {
@@ -493,17 +554,6 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
         document: state.document,
       );
 
-      final prettyDoc = const JsonEncoder.withIndent(
-        '  ',
-      ).convert(state.document);
-      debugPrint("prettyDoc");
-      debugPrint(prettyDoc);
-
-      final prettyJson = const JsonEncoder.withIndent(
-        '  ',
-      ).convert(request.toJson());
-      debugPrint(prettyJson);
-
       var result;
 
       if (state.auditTrailId.toString() != '0') {
@@ -568,7 +618,9 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
     on<CancelTaskDraft>((event, emit) async {
       emit(state.copyWith(status: SettlementStatus.loading));
 
-      final result = await settlementRepository.cancelTaskDraft(event.idAuditTrail);
+      final result = await settlementRepository.cancelTaskDraft(
+        event.idAuditTrail,
+      );
 
       result.fold(
         (failure) {
@@ -592,12 +644,9 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
         final detailResult = await settlementRepository
             .fetchTaskAuditTrailDetail(event.idAuditTrail!);
 
-        final detailData = detailResult.fold(
-              (failure) {
-            throw Exception(failure.message);
-          },
-              (data) => data,
-        );
+        final detailData = detailResult.fold((failure) {
+          throw Exception(failure.message);
+        }, (data) => data);
 
         final idKoridor = detailData.idKoridor;
         final idBus = detailData.detail.first.idBus;
@@ -611,44 +660,38 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
         ]);
 
         final koridorList = results[0].fold(
-              (f) => throw Exception(f.message),
-              (d) => d,
+          (f) => throw Exception(f.message),
+          (d) => d,
         );
 
         final busList = results[3].fold(
-              (f) => throw Exception(f.message),
-              (d) => d,
+          (f) => throw Exception(f.message),
+          (d) => d,
         );
 
         final namaKoridor = koridorList
             .firstWhere((e) => e.id == idKoridor)
             .name;
 
-        final noUnit = busList
-            .firstWhere((e) => e.id == idBus)
-            .name;
+        final noUnit = busList.firstWhere((e) => e.id == idBus).name;
 
-        final documents =
-        List<SettlementDocument>.from(detailData.document);
+        final documents = List<SettlementDocument>.from(detailData.document);
 
         final documentPreview = detailData.document
             .where((e) => (e.urlDoc ?? '').isNotEmpty)
             .map(
-              (e) => DocumentPreview(
-            idDocument: e.idDocument,
-            url: e.urlDoc!,
-          ),
-        )
+              (e) => DocumentPreview(idDocument: e.idDocument, url: e.urlDoc!),
+            )
             .toList();
 
         final paymentList = results[1].fold(
-              (f) => throw Exception(f.message),
-              (d) => d,
+          (f) => throw Exception(f.message),
+          (d) => d,
         );
 
         final customerList = results[2].fold(
-              (f) => throw Exception(f.message),
-              (d) => d,
+          (f) => throw Exception(f.message),
+          (d) => d,
         );
 
         emit(
@@ -674,13 +717,9 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
         );
       } catch (e) {
         emit(
-          state.copyWith(
-            status: SettlementStatus.error,
-            message: e.toString(),
-          ),
+          state.copyWith(status: SettlementStatus.error, message: e.toString()),
         );
       }
     });
-
   }
 }

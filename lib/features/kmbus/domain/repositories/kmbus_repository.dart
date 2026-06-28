@@ -26,6 +26,13 @@ abstract class KmbusRepository {
     double nextRit,
   );
 
+  Future<Either<Failure, TitikAwalCreate>> fetchDetailAuditTrailAwal(
+    int idAuditTrail,
+  );
+  Future<Either<Failure, TitikAkhirCreate>> fetchDetailAuditTrailAkhir(
+    int idAuditTrail,
+  );
+
   Future<Either<Failure, List<KmbusData>>> fetchListKmbus(String keyword);
   Future<Either<Failure, List<KmTaskAuditTrail>>> fetchListKmbusAuditTrail(
     String keyword,
@@ -33,11 +40,12 @@ abstract class KmbusRepository {
   Future<Either<Failure, double>> fetchNextRitase(int idKoridor, int idBus);
 
   Future<Either<Failure, String>> createTitikAwal(TitikAwalCreate request);
+  Future<Either<Failure, String>> updateTitikAwal(TitikAwalCreate request, int idAuditTrail);
   Future<Either<Failure, String>> createTitikAkhir(TitikAkhirCreate request);
+  Future<Either<Failure, String>> updateTitikAkhir(TitikAkhirCreate request, int idAuditTrail);
   Future<Either<Failure, String>> uploadOcr(File file);
   Future<Either<Failure, DocumentPreview>> uploadDocument(File file);
 
-  Future<Either<Failure, bool>> submitTitikAwal(TitikAwalCreate request);
   Future<Either<Failure, String>> submitWorkflow(
     int idAuditTrail,
     String reason,

@@ -13,9 +13,10 @@ class KmbusTitikAwalInputLoad extends KmbusEvent {
 }
 
 class KmbusTitikAkhirInputLoad extends KmbusEvent {
-  final int idAuditTrail;
+  final int idKm;
+  final int? idAuditTrail;
 
-  KmbusTitikAkhirInputLoad(this.idAuditTrail);
+  KmbusTitikAkhirInputLoad(this.idKm, this.idAuditTrail);
 }
 
 class UploadOcrAwalEvent extends KmbusEvent {
@@ -64,7 +65,11 @@ class RemoveDocumentById extends KmbusEvent {
 
 class SubmitTitikAwal extends KmbusEvent {}
 
-class SubmitTitikAkhir extends KmbusEvent {}
+class SubmitTitikAkhir extends KmbusEvent {
+  final int? idAuditTrail;
+
+  SubmitTitikAkhir(this.idAuditTrail);
+}
 
 class SubmitWorkflow extends KmbusEvent {
   final String reason;

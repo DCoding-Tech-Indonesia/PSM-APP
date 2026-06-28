@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:psm_mobile/core/presentations/entity/core_schedule_model.dart';
-import 'package:psm_mobile/features/attendance/data/models/schedule_model.dart';
 
 import 'domain/entities/document_preview.dart';
 import 'domain/entities/reference_billing.dart';

@@ -4,12 +4,16 @@ class KmbusDocument extends Equatable {
   final int? idKmDocument;
   final int idDocument;
   final int idDocumentType;
+  final String? urlDoc;
 
   const KmbusDocument({
     this.idKmDocument,
     required this.idDocument,
     required this.idDocumentType,
+    this.urlDoc,
   });
+
+  String? get url => urlDoc;
 
   KmbusDocument copyWith({
     int? idKmDocument,
@@ -21,6 +25,7 @@ class KmbusDocument extends Equatable {
       idKmDocument: idKmDocument ?? this.idKmDocument,
       idDocument: idDocument ?? this.idDocument,
       idDocumentType: idDocumentType ?? this.idDocumentType,
+      urlDoc: urlDoc ?? this.urlDoc,
     );
   }
 
@@ -29,6 +34,7 @@ class KmbusDocument extends Equatable {
       idKmDocument: json['id_detail_document'] ?? json['idKmDocument'],
       idDocument: json['id_document'] ?? json['idDocument'] ?? 0,
       idDocumentType: json['id_document_type'] ?? json['idDocumentType'] ?? 0,
+      urlDoc: json['urlDoc'] ?? json['url_doc'],
     );
   }
 
@@ -39,11 +45,12 @@ class KmbusDocument extends Equatable {
       'idKmDocument': idKmDocument,
       'idDocument': idDocument,
       'idDocumentType': idDocumentType,
+      'urlDoc': urlDoc,
     };
   }
 
   Map<String, dynamic> toMap() => toJson();
 
   @override
-  List<Object?> get props => [idKmDocument, idDocument, idDocumentType];
+  List<Object?> get props => [idKmDocument, idDocument, idDocumentType, urlDoc];
 }

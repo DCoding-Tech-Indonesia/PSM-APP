@@ -1,34 +1,26 @@
+import 'package:psm_mobile/features/kmbus/domain/entities/kmbus_document.dart';
+
 class KmDataAfterAuditTrail {
   final String? processId;
   final int? auditTrailId;
-  final bool isSubmit;
-  final String? code;
-  final String tanggalKm;
-  final int idKoridor;
-  final int idShift;
-  final int idBus;
-  final int idPramugara;
-  final double? ritaseKe;
-  final int? titikAwal;
+  final bool? isSubmit;
+  final int? idKm;
   final int? titikAkhir;
-  final String? keteranganBus;
-  final List<KmTaskDocument> document;
+  final int? titikAwal;
+  final double? ritaseKe;
+  final List<KmbusDocument> document;
+  final String? tanggalKm;
 
   const KmDataAfterAuditTrail({
     this.processId,
     this.auditTrailId,
-    required this.isSubmit,
-    this.code,
-    required this.tanggalKm,
-    required this.idKoridor,
-    required this.idShift,
-    required this.idBus,
-    required this.idPramugara,
-    this.ritaseKe,
-    this.titikAwal,
+    this.isSubmit,
+    this.idKm,
     this.titikAkhir,
-    this.keteranganBus,
+    this.titikAwal,
+    this.ritaseKe,
     required this.document,
+    this.tanggalKm,
   });
 
   factory KmDataAfterAuditTrail.fromJson(Map<String, dynamic> json) {
@@ -36,62 +28,28 @@ class KmDataAfterAuditTrail {
       processId: json['processId'],
       auditTrailId: json['auditTrailId'],
       isSubmit: json['isSubmit'] ?? false,
-      code: json['code'],
-      tanggalKm: json['tanggalKm'] ?? '',
-      idKoridor: json['idKoridor'] ?? 0,
-      idShift: json['idShift'] ?? 0,
-      idBus: json['idBus'] ?? 0,
-      idPramugara: json['idPramugara'] ?? 0,
-      ritaseKe: json['ritaseKe'],
-      titikAwal: json['titikAwal'] ?? 0,
-      titikAkhir: json['titikAkhir'] ?? 0,
-      keteranganBus: json['keteranganBus'],
+      idKm: json['idKm'],
+      titikAkhir: json['titikAkhir'],
+      titikAwal: json['titikAwal'],
+      ritaseKe: (json['ritaseKe'] as num? ?? 0.0).toDouble(),
+      tanggalKm: json['tanggalKm'],
       document: (json['document'] as List<dynamic>? ?? [])
-          .map((e) => KmTaskDocument.fromJson(e))
+          .map((e) => KmbusDocument.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
   }
 
-  Map<String, dynamic> toJson() => {
-    'processId': processId,
-    'auditTrailId': auditTrailId,
-    'isSubmit': isSubmit,
-    'code': code,
-    'tanggalKm': tanggalKm,
-    'idKoridor': idKoridor,
-    'idShift': idShift,
-    'idBus': idBus,
-    'idPramugara': idPramugara,
-    'ritaseKe': ritaseKe,
-    'titikAwal': titikAwal,
-    'titikAkhir': titikAkhir,
-    'keteranganBus': keteranganBus,
-    'document': document.map((e) => e.toJson()).toList(),
-  };
-}
-
-class KmTaskDocument {
-  final int? idKmDocument;
-  final int? idDocument;
-  final int? idDocumentType;
-
-  const KmTaskDocument({
-    this.idKmDocument,
-    this.idDocument,
-    this.idDocumentType,
-  });
-
-  factory KmTaskDocument.fromJson(Map<String, dynamic> json) {
-    return KmTaskDocument(
-      idKmDocument: json['idKmDocument'],
-      idDocument: json['idDocument'],
-      idDocumentType: json['idDocumentType'],
-    );
+  Map<String, dynamic> toJson() {
+    return {
+      'processId': processId,
+      'auditTrailId': auditTrailId,
+      'isSubmit': isSubmit,
+      'idKm': idKm,
+      'titikAkhir': titikAkhir,
+      'titikAwal': titikAwal,
+      'ritaseKe': ritaseKe,
+      'tanggalKm': tanggalKm,
+      'document': document.map((x) => x.toJson()).toList(),
+    };
   }
-
-  Map<String, dynamic> toJson() => {
-    'idKmDocument': idKmDocument,
-    'idDocument': idDocument,
-    'idDocumentType': idDocumentType,
-  };
 }

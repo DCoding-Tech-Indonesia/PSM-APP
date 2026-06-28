@@ -139,14 +139,21 @@ class _TimetableScreenState extends State<TimetableScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 5,
+                      ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Row(
                             spacing: 10,
                             children: [
-                              Icon(isCheckin ? Icons.login : Icons.logout, color: Colors.white, size: 20),
+                              Icon(
+                                isCheckin ? Icons.login : Icons.logout,
+                                color: Colors.white,
+                                size: 20,
+                              ),
                               Text(
                                 isCheckin ? "Check-in" : "Check-out",
                                 style: TextStyle(
@@ -165,7 +172,10 @@ class _TimetableScreenState extends State<TimetableScreen> {
                       ),
                     ),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 28,
+                      ),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(20),
                         color: Colors.white,
@@ -175,12 +185,13 @@ class _TimetableScreenState extends State<TimetableScreen> {
                         children: [
                           BlocBuilder<TimetableBloc, TimetableState>(
                             buildWhen: (prev, curr) =>
-                            prev.checkinData?.ritaseKe !=
+                                prev.checkinData?.ritaseKe !=
                                 curr.checkinData?.ritaseKe,
                             builder: (context, state) {
                               final ritaseValue = state.checkinData?.ritaseKe;
                               return Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   const Text(
                                     "Ritase Berikutnya",
@@ -219,14 +230,14 @@ class _TimetableScreenState extends State<TimetableScreen> {
 
                           BlocBuilder<TimetableBloc, TimetableState>(
                             buildWhen: (prev, curr) =>
-                            prev.idKoridor != curr.idKoridor ||
+                                prev.idKoridor != curr.idKoridor ||
                                 prev.referenceKoridor != curr.referenceKoridor,
                             builder: (context, state) {
                               ReferenceDetail? selectedKoridor;
 
                               if (state.referenceKoridor.isNotEmpty) {
                                 final matched = state.referenceKoridor.where(
-                                      (e) => e.id == state.idKoridor,
+                                  (e) => e.id == state.idKoridor,
                                 );
                                 if (matched.isNotEmpty) {
                                   selectedKoridor = matched.first;
@@ -234,15 +245,18 @@ class _TimetableScreenState extends State<TimetableScreen> {
                               }
 
                               return CoreDropdownSearch<ReferenceDetail>(
+                                readOnly: true,
                                 label: 'Pilih Koridor',
                                 hintText: 'Pilih Koridor',
                                 popupTitle: 'Daftar Koridor',
                                 items: state.referenceKoridor,
                                 selectedItem: selectedKoridor,
-                                itemAsString: (item) => '${item.code} - ${item.name}',
+                                itemAsString: (item) =>
+                                    '${item.code} - ${item.name}',
                                 compareFn: (a, b) => a.id == b.id,
                                 isRequired: true,
-                                isItemSelected: (item) => item.id == state.idKoridor,
+                                isItemSelected: (item) =>
+                                    item.id == state.idKoridor,
                                 onSelected: (value) {
                                   if (value == null) return;
                                   context.read<TimetableBloc>().add(
@@ -282,20 +296,24 @@ class _TimetableScreenState extends State<TimetableScreen> {
                               ReferenceDetail? selectedBus;
                               if (state.referenceBus.isNotEmpty) {
                                 final matched = state.referenceBus.where(
-                                      (e) => e.id == state.idBus,
+                                  (e) => e.id == state.idBus,
                                 );
-                                if (matched.isNotEmpty) selectedBus = matched.first;
+                                if (matched.isNotEmpty)
+                                  selectedBus = matched.first;
                               }
 
                               return CoreDropdownSearch<ReferenceDetail>(
+                                readOnly: true,
                                 label: 'Pilih Bus',
                                 hintText: 'Pilih Bus',
                                 popupTitle: 'Daftar Bus',
                                 items: state.referenceBus,
                                 selectedItem: selectedBus,
-                                itemAsString: (item) => '${item.code} - ${item.name}',
+                                itemAsString: (item) =>
+                                    '${item.code} - ${item.name}',
                                 compareFn: (a, b) => a.id == b.id,
-                                isItemSelected: (item) => item.id == state.idBus,
+                                isItemSelected: (item) =>
+                                    item.id == state.idBus,
                                 isRequired: true,
                                 onSelected: (value) {
                                   if (value == null) return;
@@ -311,14 +329,15 @@ class _TimetableScreenState extends State<TimetableScreen> {
 
                           BlocBuilder<TimetableBloc, TimetableState>(
                             buildWhen: (prev, curr) =>
-                            prev.checkinData != curr.checkinData,
+                                prev.checkinData != curr.checkinData,
                             builder: (context, state) {
                               final isFormValid =
                                   state.checkinData?.isSubmittable ?? false;
 
                               return CoreButton(
                                 width: double.infinity,
-                                onPressed: () => _handleCheckInSubmit(context, state),
+                                onPressed: () =>
+                                    _handleCheckInSubmit(context, state),
                                 backgroundColor: isFormValid
                                     ? Colors.green
                                     : Colors.grey,
@@ -374,116 +393,164 @@ class _TimetableScreenState extends State<TimetableScreen> {
             children: [
               Scaffold(
                 body: SafeArea(
-                  child: Column(
-                    spacing: 10,
-                    children: [
-                      CoreHeader(
-                        title: "Time Table",
-                        customBgColor: Colors.white,
-                        withBorder: true,
-                      ),
-                      const CoreDateTimeWidget(),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        child: Row(
-                          spacing: 10,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: CoreButton(
-                                onPressed: () {
-                                  if (!state.isAllowCheckIn) return;
-                                  _showCheckInOutModal(context, true);
-                                },
-                                backgroundColor: state.isAllowCheckIn ? Colors.green : Colors.grey,
-                                foregroundColor: Colors.white,
-                                child: FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  child: Row(
-                                    children: const [
-                                      Icon(Icons.login),
-                                      SizedBox(width: 8),
-                                      Text("Check-in"),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: CoreButton(
-                                onPressed: () {
-                                  if (!state.isAllowCheckIn) return;
-                                  _showCheckInOutModal(context, false);
-                                },
-                                backgroundColor: state.isAllowCheckOut ? Colors.red : Colors.grey,
-                                foregroundColor: Colors.white,
-                                child: FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  child: Row(
-                                    children: const [
-                                      Icon(Icons.logout),
-                                      SizedBox(width: 8),
-                                      Text("Check-out"),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
+                  child: RefreshIndicator(
+                    onRefresh: _onRefresh,
+                    child: ListView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      children: [
+                        CoreHeader(
+                          title: "Time Table",
+                          customBgColor: Colors.white,
+                          withBorder: true,
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 5,
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Expanded(
-                              child: Text(
-                                'Riwayat Terakhir',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            GestureDetector(
-                              onTap: () async {
-                                await context.push('/timetable/history');
-
-                                if (context.mounted) {
-                                  context.read<TimetableBloc>().add(
-                                    PageDashboardLoad(),
-                                  );
-                                }
-                              },
-                              child: const Row(
-                                children: [
-                                  Text(
-                                    'Lihat Semua',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 13,
-                                      color: Colors.blue,
+                        const CoreDateTimeWidget(),
+                        const SizedBox(height: 10),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: Row(
+                            spacing: 10,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: CoreButton(
+                                  onPressed: () {
+                                    if (!state.isAllowCheckIn) return;
+                                    _showCheckInOutModal(context, true);
+                                  },
+                                  backgroundColor: state.isAllowCheckIn
+                                      ? Colors.green
+                                      : Colors.grey,
+                                  foregroundColor: Colors.white,
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Row(
+                                      children: const [
+                                        Icon(Icons.login),
+                                        SizedBox(width: 8),
+                                        Text("Check-in"),
+                                      ],
                                     ),
                                   ),
-                                  SizedBox(width: 4),
-                                  Icon(
-                                    Icons.arrow_forward_ios,
-                                    size: 12,
-                                    color: Colors.blue,
-                                  ),
-                                ],
+                                ),
                               ),
-                            ),
-                          ],
+                              Expanded(
+                                child: CoreButton(
+                                  onPressed: () {
+                                    if (!state.isAllowCheckIn) return;
+                                    _showCheckInOutModal(context, false);
+                                  },
+                                  backgroundColor: state.isAllowCheckOut
+                                      ? Colors.red
+                                      : Colors.grey,
+                                  foregroundColor: Colors.white,
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Row(
+                                      children: const [
+                                        Icon(Icons.logout),
+                                        SizedBox(width: 8),
+                                        Text("Check-out"),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      if (state.listTimetable.isEmpty)
-                        const Text("Belum ada data tersimpan."),
-                    ],
+                        const SizedBox(height: 10),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 5,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Expanded(
+                                child: Text(
+                                  'Riwayat Terakhir',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              GestureDetector(
+                                onTap: () async {
+                                  await context.push('/timetable/history');
+
+                                  if (context.mounted) {
+                                    context.read<TimetableBloc>().add(
+                                      PageDashboardLoad(),
+                                    );
+                                  }
+                                },
+                                child: const Row(
+                                  children: [
+                                    Text(
+                                      'Lihat Semua',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 13,
+                                        color: Colors.blue,
+                                      ),
+                                    ),
+                                    SizedBox(width: 4),
+                                    Icon(
+                                      Icons.arrow_forward_ios,
+                                      size: 12,
+                                      color: Colors.blue,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        if (state.listTimetable.isEmpty)
+                          Center(child: const Text("Belum ada data tersimpan."))
+                        else
+                          ListView.separated(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            itemCount: state.listTimetable.length,
+                            separatorBuilder: (_, __) =>
+                                const SizedBox(height: 12),
+                            itemBuilder: (context, index) {
+                              final data = state.listTimetable[index];
+                              print("data");
+                              print(data);
+                              return Padding(
+                                padding: const EdgeInsets.all(24.0),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(16),
+                                    border: Border.all(
+                                      color: Colors.grey.withValues(alpha: 0.3),
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withValues(alpha: 0.05),
+                                        blurRadius: 20,
+                                        offset: const Offset(0, 10),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Text(data.id.toString()),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                      ],
+                    ),
                   ),
                 ),
               ),

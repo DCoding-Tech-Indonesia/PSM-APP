@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:psm_mobile/core/error/failure.dart';
+import 'package:psm_mobile/core/presentations/entity/core_schedule_model.dart';
 import 'package:psm_mobile/features/reference/reference_data_source.dart';
 import 'package:psm_mobile/features/settlement/data/settlement_data_source.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/settlement_task_audit_trail.dart';
@@ -17,6 +18,50 @@ class SettlementRepositoryImpl implements SettlementRepository {
   final ReferenceDataSource dataSourceReference;
 
   SettlementRepositoryImpl({required this.dataSource, required this.dataSourceReference});
+
+  @override
+  Future<Either<Failure, List<CoreScheduleModel>>> fetchTodaySchedule(
+      int userId,
+      ) async {
+    try {
+      final result = await dataSourceReference.fetchTodaySchedule(
+        userId: userId,
+      );
+
+      return right(result);
+    } on DioException catch (e) {
+      final message =
+          e.response?.data?['message'] ?? 'Terjadi kesalahan server';
+
+      return left(ServerFailure(message));
+    } catch (_) {
+      return left(const ServerFailure('Unexpected error'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, String>> checkAllowSettlement(
+      int idKoridor,
+      int idBus,
+      double nextRit,
+      ) async {
+    try {
+      final result = await dataSource.checkAllowSettlement(
+        idKoridor,
+        idBus,
+        nextRit,
+      );
+
+      return right(result);
+    } on DioException catch (e) {
+      final message =
+          e.response?.data?['message'] ?? 'Terjadi kesalahan server';
+
+      return left(ServerFailure(message));
+    } catch (_) {
+      return left(const ServerFailure('Unexpected error'));
+    }
+  }
 
   @override
   Future<Either<Failure, List<ReferenceDetail>>> fetchReferenceBus(

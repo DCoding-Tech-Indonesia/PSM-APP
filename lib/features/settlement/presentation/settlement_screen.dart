@@ -69,112 +69,114 @@ class _SettlementScreenState extends State<SettlementScreen> {
                               datas: state.listTaskAuditTrail,
                             ),
 
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 18,
-                                horizontal: 16,
-                              ),
-                              margin: const EdgeInsets.symmetric(
-                                vertical: 10,
-                                horizontal: 20,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(color: Colors.grey[300]!),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.05),
-                                    blurRadius: 20,
-                                    offset: const Offset(0, 10),
-                                  ),
-                                ],
-                              ),
-                              child: const Column(
-                                spacing: 20,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Icon(Icons.analytics, color: Colors.purple),
-                                      SizedBox(width: 12),
-                                      Expanded(
-                                        child: Text(
-                                          'Statistik Bulan Ini',
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Row(
-                                    mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                    children: [
-                                      Column(
-                                        children: [
-                                          Text(
-                                            "10",
-                                            style: TextStyle(
-                                              color: Colors.green,
-                                              fontWeight: FontWeight.w700,
-                                              fontSize: 20,
-                                            ),
-                                          ),
-                                          Text(
-                                            "Approved",
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              color: Colors.grey,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      Column(
-                                        children: [
-                                          Text(
-                                            "3",
-                                            style: TextStyle(
-                                              color: Colors.red,
-                                              fontWeight: FontWeight.w700,
-                                              fontSize: 20,
-                                            ),
-                                          ),
-                                          Text(
-                                            "Rejected",
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              color: Colors.grey,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      Column(
-                                        children: [
-                                          Text(
-                                            "1",
-                                            style: TextStyle(
-                                              color: Colors.grey,
-                                              fontWeight: FontWeight.w700,
-                                              fontSize: 20,
-                                            ),
-                                          ),
-                                          Text(
-                                            "Pending",
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              color: Colors.grey,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
+                            // Container(
+                            //   padding: const EdgeInsets.symmetric(
+                            //     vertical: 18,
+                            //     horizontal: 16,
+                            //   ),
+                            //   margin: const EdgeInsets.symmetric(
+                            //     vertical: 10,
+                            //     horizontal: 20,
+                            //   ),
+                            //   decoration: BoxDecoration(
+                            //     color: Colors.white,
+                            //     borderRadius: BorderRadius.circular(20),
+                            //     border: Border.all(color: Colors.grey[300]!),
+                            //     boxShadow: [
+                            //       BoxShadow(
+                            //         color: Colors.black.withValues(alpha: 0.05),
+                            //         blurRadius: 20,
+                            //         offset: const Offset(0, 10),
+                            //       ),
+                            //     ],
+                            //   ),
+                            //   child: const Column(
+                            //     spacing: 20,
+                            //     children: [
+                            //       Row(
+                            //         children: [
+                            //           Icon(Icons.analytics, color: Colors.purple),
+                            //           SizedBox(width: 12),
+                            //           Expanded(
+                            //             child: Text(
+                            //               'Statistik Bulan Ini',
+                            //               style: TextStyle(
+                            //                 fontSize: 16,
+                            //                 fontWeight: FontWeight.bold,
+                            //               ),
+                            //               overflow: TextOverflow.ellipsis,
+                            //             ),
+                            //           ),
+                            //         ],
+                            //       ),
+                            //       Row(
+                            //         mainAxisAlignment:
+                            //         MainAxisAlignment.spaceEvenly,
+                            //         children: [
+                            //           Column(
+                            //             children: [
+                            //               Text(
+                            //                 "10",
+                            //                 style: TextStyle(
+                            //                   color: Colors.green,
+                            //                   fontWeight: FontWeight.w700,
+                            //                   fontSize: 20,
+                            //                 ),
+                            //               ),
+                            //               Text(
+                            //                 "Approved",
+                            //                 style: TextStyle(
+                            //                   fontSize: 12,
+                            //                   color: Colors.grey,
+                            //                 ),
+                            //               ),
+                            //             ],
+                            //           ),
+                            //           Column(
+                            //             children: [
+                            //               Text(
+                            //                 "3",
+                            //                 style: TextStyle(
+                            //                   color: Colors.red,
+                            //                   fontWeight: FontWeight.w700,
+                            //                   fontSize: 20,
+                            //                 ),
+                            //               ),
+                            //               Text(
+                            //                 "Rejected",
+                            //                 style: TextStyle(
+                            //                   fontSize: 12,
+                            //                   color: Colors.grey,
+                            //                 ),
+                            //               ),
+                            //             ],
+                            //           ),
+                            //           Column(
+                            //             children: [
+                            //               Text(
+                            //                 "1",
+                            //                 style: TextStyle(
+                            //                   color: Colors.grey,
+                            //                   fontWeight: FontWeight.w700,
+                            //                   fontSize: 20,
+                            //                 ),
+                            //               ),
+                            //               Text(
+                            //                 "Pending",
+                            //                 style: TextStyle(
+                            //                   fontSize: 12,
+                            //                   color: Colors.grey,
+                            //                 ),
+                            //               ),
+                            //             ],
+                            //           ),
+                            //         ],
+                            //       ),
+                            //     ],
+                            //   ),
+                            // ),
+
+                            const SizedBox(height: 15),
 
                             Padding(
                               padding: const EdgeInsets.symmetric(

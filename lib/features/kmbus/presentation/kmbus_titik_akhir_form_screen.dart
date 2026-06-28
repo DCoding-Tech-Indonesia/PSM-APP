@@ -15,9 +15,14 @@ import 'package:psm_mobile/features/kmbus/presentation/bloc/kmbus_state.dart';
 import 'bloc/kmbus_event.dart';
 
 class KmbusTitikAkhirFormScreen extends StatefulWidget {
-  const KmbusTitikAkhirFormScreen({super.key, required this.idAuditTrail});
+  const KmbusTitikAkhirFormScreen({
+    super.key,
+    required this.idKm,
+    this.idAuditTrail,
+  });
 
-  final int idAuditTrail;
+  final int idKm;
+  final int? idAuditTrail;
 
   @override
   State<KmbusTitikAkhirFormScreen> createState() =>
@@ -30,7 +35,7 @@ class _KmbusTitikAkhirFormScreenState extends State<KmbusTitikAkhirFormScreen> {
     super.initState();
     Future.microtask(() {
       context.read<KmbusBloc>().add(
-        KmbusTitikAkhirInputLoad(widget.idAuditTrail),
+        KmbusTitikAkhirInputLoad(widget.idKm, widget.idAuditTrail),
       );
     });
   }
@@ -129,7 +134,7 @@ class _KmbusTitikAkhirFormScreenState extends State<KmbusTitikAkhirFormScreen> {
 
     return BlocListener<KmbusBloc, KmbusState>(
       listenWhen: (prev, curr) =>
-      prev.uploadStatus != curr.uploadStatus ||
+          prev.uploadStatus != curr.uploadStatus ||
           prev.submitStatus != curr.submitStatus ||
           prev.submitWorkflowStatus != curr.submitWorkflowStatus,
       listener: (context, state) async {
@@ -203,7 +208,10 @@ class _KmbusTitikAkhirFormScreenState extends State<KmbusTitikAkhirFormScreen> {
                         color: Colors.white,
                         border: Border(
                           top: BorderSide(color: Color(0xFFB3B3B3), width: .65),
-                          bottom: BorderSide(color: Color(0xFFB3B3B3), width: .65),
+                          bottom: BorderSide(
+                            color: Color(0xFFB3B3B3),
+                            width: .65,
+                          ),
                         ),
                       ),
                       child: Column(
@@ -211,11 +219,12 @@ class _KmbusTitikAkhirFormScreenState extends State<KmbusTitikAkhirFormScreen> {
                         children: [
                           BlocBuilder<KmbusBloc, KmbusState>(
                             buildWhen: (prev, curr) =>
-                            prev.ocrResult != curr.ocrResult,
+                                prev.ocrResult != curr.ocrResult,
                             builder: (context, state) {
                               if (state.ocrResult != null) {
                                 return Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
                                       "Odometer : ${state.ocrResult}",
@@ -236,7 +245,9 @@ class _KmbusTitikAkhirFormScreenState extends State<KmbusTitikAkhirFormScreen> {
                                             width: 1,
                                             color: Colors.blue,
                                           ),
-                                          borderRadius: BorderRadius.circular(4),
+                                          borderRadius: BorderRadius.circular(
+                                            4,
+                                          ),
                                         ),
                                         child: const Icon(
                                           Icons.edit_note,
@@ -266,27 +277,41 @@ class _KmbusTitikAkhirFormScreenState extends State<KmbusTitikAkhirFormScreen> {
 
                           BlocBuilder<KmbusBloc, KmbusState>(
                             buildWhen: (prev, curr) =>
-                            prev.titikAkhirCreate?.document !=
-                                curr.titikAkhirCreate?.document ||
+                                prev.titikAkhirCreate?.document !=
+                                    curr.titikAkhirCreate?.document ||
+                                prev.documentPreview !=
+                                    curr.documentPreview ||
                                 prev.documentUploadStatus !=
                                     curr.documentUploadStatus,
                             builder: (context, state) {
-                              final doc = state.documentPreview.firstOrNull;
+                              final localDoc =
+                                  state.documentPreview.firstOrNull;
+                              final apiDoc =
+                                  state.titikAkhirCreate?.document.firstOrNull;
+
+                              final imageUrl = localDoc?.url ?? apiDoc?.urlDoc;
+                              final hasImage =
+                                  imageUrl != null && imageUrl.isNotEmpty;
+
+                              final targetIdDocument =
+                                  localDoc?.idDocument ??
+                                  apiDoc?.idDocument ??
+                                  0;
 
                               return CoreCameraWidget(
                                 title: "Ambil Foto Speedometer",
-                                imageUrl: doc?.url,
+                                imageUrl: imageUrl,
                                 isLoading:
-                                state.documentUploadStatus ==
+                                    state.documentUploadStatus ==
                                     DocumentUploadStatus.uploading,
                                 onTap: () {
-                                  if (doc != null) {
+                                  if (hasImage) {
                                     CoreCameraWidget.showPreviewDialog(
                                       context: context,
-                                      imageUrl: doc.url,
+                                      imageUrl: imageUrl,
                                       onDelete: () {
                                         context.read<KmbusBloc>().add(
-                                          RemoveDocumentById(doc.idDocument),
+                                          RemoveDocumentById(targetIdDocument),
                                         );
                                         Navigator.pop(context);
                                       },
@@ -296,13 +321,13 @@ class _KmbusTitikAkhirFormScreenState extends State<KmbusTitikAkhirFormScreen> {
                                     _openCamera();
                                   }
                                 },
-                                onRemoveImage: doc == null
+                                onRemoveImage: !hasImage
                                     ? null
                                     : () {
-                                  context.read<KmbusBloc>().add(
-                                    RemoveDocumentById(doc.idDocument),
-                                  );
-                                },
+                                        context.read<KmbusBloc>().add(
+                                          RemoveDocumentById(targetIdDocument),
+                                        );
+                                      },
                                 instructions: const [
                                   "Pastikan foto tidak buram",
                                   "Pastikan odometer yang didapatkan sesuai dengan yang di foto",
@@ -316,7 +341,7 @@ class _KmbusTitikAkhirFormScreenState extends State<KmbusTitikAkhirFormScreen> {
                   ),
                   BlocBuilder<KmbusBloc, KmbusState>(
                     buildWhen: (prev, curr) =>
-                    prev.ocrResult != curr.ocrResult ||
+                        prev.ocrResult != curr.ocrResult ||
                         prev.titikAkhirCreate != curr.titikAkhirCreate ||
                         prev.status != curr.status ||
                         prev.submitStatus != curr.submitStatus ||
@@ -324,13 +349,15 @@ class _KmbusTitikAkhirFormScreenState extends State<KmbusTitikAkhirFormScreen> {
                     builder: (context, state) {
                       final isLoading =
                           state.status == KmbusStatus.fetching ||
-                              state.submitStatus == SubmitStatus.submitting ||
-                              state.submitWorkflowStatus == SubmitWorkflowStatus.submitting;
+                          state.submitStatus == SubmitStatus.submitting ||
+                          state.submitWorkflowStatus ==
+                              SubmitWorkflowStatus.submitting;
 
                       final isSubmitable =
                           !isLoading &&
-                              state.titikAkhirCreate?.titikAkhir != 0 &&
-                              (state.titikAkhirCreate?.document.isNotEmpty ?? false);
+                          state.titikAkhirCreate?.titikAkhir != 0 &&
+                          (state.titikAkhirCreate?.document.isNotEmpty ??
+                              false);
 
                       return Padding(
                         padding: const EdgeInsets.symmetric(
@@ -341,7 +368,7 @@ class _KmbusTitikAkhirFormScreenState extends State<KmbusTitikAkhirFormScreen> {
                           width: double.infinity,
                           onPressed: () {
                             if (!isSubmitable) return;
-                            context.read<KmbusBloc>().add(SubmitTitikAkhir());
+                            context.read<KmbusBloc>().add(SubmitTitikAkhir(widget.idAuditTrail));
                           },
                           backgroundColor: isSubmitable
                               ? theme.colorScheme.primary
@@ -363,17 +390,18 @@ class _KmbusTitikAkhirFormScreenState extends State<KmbusTitikAkhirFormScreen> {
 
               BlocBuilder<KmbusBloc, KmbusState>(
                 buildWhen: (prev, curr) =>
-                prev.status != curr.status ||
+                    prev.status != curr.status ||
                     prev.uploadStatus != curr.uploadStatus ||
                     prev.submitStatus != curr.submitStatus ||
                     prev.submitWorkflowStatus != curr.submitWorkflowStatus,
                 builder: (context, state) {
                   final isLoading =
                       state.status == KmbusStatus.initial ||
-                          state.status == KmbusStatus.fetching ||
-                          state.uploadStatus == UploadStatus.uploading ||
-                          state.submitStatus == SubmitStatus.submitting ||
-                          state.submitWorkflowStatus == SubmitWorkflowStatus.submitting;
+                      state.status == KmbusStatus.fetching ||
+                      state.uploadStatus == UploadStatus.uploading ||
+                      state.submitStatus == SubmitStatus.submitting ||
+                      state.submitWorkflowStatus ==
+                          SubmitWorkflowStatus.submitting;
 
                   if (!isLoading) return const SizedBox.shrink();
 
@@ -382,7 +410,9 @@ class _KmbusTitikAkhirFormScreenState extends State<KmbusTitikAkhirFormScreen> {
                       color: Colors.black.withAlpha(120),
                       child: const Center(
                         child: CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.blue,
+                          ),
                         ),
                       ),
                     ),

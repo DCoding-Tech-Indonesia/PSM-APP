@@ -52,7 +52,37 @@ class TitikAwalCreate {
     );
   }
 
-  String toJson() => json.encode(toMap());
+  factory TitikAwalCreate.fromJson(Map<String, dynamic> json) {
+    return TitikAwalCreate(
+      isSubmit: json['isSubmit'],
+      tanggalKm: json['tanggalKm'],
+      idKoridor: json['idKoridor'],
+      idShift: json['idShift'],
+      idBus: json['idBus'],
+      idPramugara: json['idPramugara'],
+      ritaseKe: json['ritaseKe'],
+      titikAwal: json['titikAwal'],
+      keteranganBus: json['keteranganBus'],
+      document: (json['document'] as List<dynamic>? ?? [])
+          .map((e) => KmbusDocument.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'isSubmit': isSubmit,
+      'tanggalKm': tanggalKm,
+      'idKoridor': idKoridor,
+      'idShift': idShift,
+      'idBus': idBus,
+      'idPramugara': idPramugara,
+      'ritaseKe': ritaseKe,
+      'titikAwal': titikAwal,
+      'keteranganBus': keteranganBus,
+      'document': document.map((x) => x.toJson()).toList(),
+    };
+  }
 
   Map<String, dynamic> toMap() {
     return {

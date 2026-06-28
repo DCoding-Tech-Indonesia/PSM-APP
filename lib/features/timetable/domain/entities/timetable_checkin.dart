@@ -47,7 +47,7 @@ class TimetableCheckin extends Equatable {
       idShift: json['idShift'] ?? 0,
       idPramugara: json['idPramugara'] ?? 0,
       ritaseKe: (json['ritaseKe'] ?? 0).toDouble(),
-      long: (json['long'] ?? 0).toDouble(),
+      long: (json['lon'] ?? 0).toDouble(),
       lat: (json['lat'] ?? 0).toDouble(),
     );
   }
@@ -59,7 +59,7 @@ class TimetableCheckin extends Equatable {
     "idShift": idShift,
     "idPramugara": idPramugara,
     "ritaseKe": ritaseKe,
-    "long": long,
+    "lon": long,
     "lat": lat,
   };
 

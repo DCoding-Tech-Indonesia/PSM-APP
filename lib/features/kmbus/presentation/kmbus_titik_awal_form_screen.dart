@@ -22,11 +22,13 @@ class KmbusTitikAwalFormScreen extends StatefulWidget {
     required this.idShift,
     required this.idKoridorShift,
     required this.idBusShift,
+    this.idAuditTrail,
   });
 
   final int idShift;
   final int idKoridorShift;
   final int idBusShift;
+  final int? idAuditTrail;
 
   @override
   State<KmbusTitikAwalFormScreen> createState() =>

@@ -9,6 +9,11 @@ import 'package:psm_mobile/features/settlement/domain/entities/settlement_docume
 enum SettlementStatus { initial, loading, success, error, successSave, failedSave, fetching }
 
 class SettlementState extends Equatable {
+  final int? idShift;
+  final int? idKoridorShift;
+  final int? idBusShift;
+  final bool? allowInput;
+
   final List<SettlementTaskAuditTrail> listTaskAuditTrail;
 
   final int steps;
@@ -47,6 +52,11 @@ class SettlementState extends Equatable {
   final String? message;
 
   const SettlementState({
+    this.idShift,
+    this.idKoridorShift,
+    this.idBusShift,
+    this.allowInput,
+
     this.listTaskAuditTrail = const [],
 
     this.steps = 1,
@@ -84,6 +94,11 @@ class SettlementState extends Equatable {
   });
 
   SettlementState copyWith({
+    int? idShift,
+    int? idKoridorShift,
+    int? idBusShift,
+    bool? allowInput,
+
     List<SettlementTaskAuditTrail>? listTaskAuditTrail,
 
     int? steps,
@@ -121,6 +136,11 @@ class SettlementState extends Equatable {
     String? message,
   }) {
     return SettlementState(
+      idShift: idShift ?? this.idShift,
+      idKoridorShift: idKoridorShift ?? this.idKoridorShift,
+      idBusShift: idBusShift ?? this.idBusShift,
+      allowInput: allowInput ?? this.allowInput,
+
       listTaskAuditTrail: listTaskAuditTrail ?? this.listTaskAuditTrail,
 
       steps: steps ?? this.steps,

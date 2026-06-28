@@ -21,6 +21,9 @@ class TimetableDataSource {
 
       final List data = response.data['data'] ?? [];
 
+      print("data");
+      print(data);
+
       final result = data
           .map<TimetableData>((e) => TimetableData.fromJson(e))
           .toList();

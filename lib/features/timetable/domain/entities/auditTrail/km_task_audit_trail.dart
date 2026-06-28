@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:psm_mobile/features/timetable/domain/entities/auditTrail/km_data_after_audit_trail.dart';
 import 'package:psm_mobile/features/timetable/domain/entities/auditTrail/km_module_audit_trail.dart';
 import 'package:psm_mobile/features/timetable/domain/entities/auditTrail/km_status_audit_trail.dart';
@@ -35,6 +36,18 @@ class KmTaskAuditTrail {
   });
 
   factory KmTaskAuditTrail.fromJson(Map<String, dynamic> json) {
+    final rawDataAfter = json['dataAfter'];
+    Map<String, dynamic> parsedDataAfter = {};
+
+    if (rawDataAfter is String) {
+      parsedDataAfter = jsonDecode(rawDataAfter) as Map<String, dynamic>;
+    } else if (rawDataAfter is Map<String, dynamic>) {
+      parsedDataAfter = rawDataAfter;
+    }
+
+    final String fallbackNoPolisi = json['noPolisi'] ?? parsedDataAfter['bus']?['platNomor'] ?? '';
+    final String fallbackKoridor = json['namaKoridor'] ?? parsedDataAfter['koridor']?['name'] ?? '';
+
     return KmTaskAuditTrail(
       id: json['id'] as int,
       module: KmModuleAuditTrail.fromJson(json['module']),
@@ -53,10 +66,10 @@ class KmTaskAuditTrail {
           ? DateTime.parse(json['updatedDate'])
           : null,
       status: KmStatusAuditTrail.fromJson(json['status']),
-      namaKoridor: json['namaKoridor'] ?? '',
-      noPolisi: json['noPolisi'] ?? '',
-      namaPramugara: json['namaPramugara'],
-      dataAfter: KmDataAfterAuditTrail.fromJson(json['dataAfter']),
+      namaKoridor: fallbackKoridor,
+      noPolisi: fallbackNoPolisi,
+      namaPramugara: json['namaPramugara'] ?? parsedDataAfter['pramugara']?['name'],
+      dataAfter: KmDataAfterAuditTrail.fromJson(parsedDataAfter),
     );
   }
 
@@ -74,7 +87,7 @@ class KmTaskAuditTrail {
       'namaKoridor': namaKoridor,
       'noPolisi': noPolisi,
       'namaPramugara': namaPramugara,
-      'dataAfter': dataAfter,
+      'dataAfter': dataAfter.toJson(),
     };
   }
 }

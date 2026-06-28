@@ -19,6 +19,7 @@ import 'package:psm_mobile/features/checklist/presentation/checklist_screen.dart
 import 'package:psm_mobile/features/checklist/presentation/screens/checklist_input_screen.dart';
 import 'package:psm_mobile/features/kmbus/data/kmbus_data_source.dart';
 import 'package:psm_mobile/features/kmbus/data/kmbus_repository_impl.dart';
+import 'package:psm_mobile/features/kmbus/domain/entities/titik_akhir_args.dart';
 import 'package:psm_mobile/features/kmbus/presentation/bloc/kmbus_bloc.dart';
 import 'package:psm_mobile/features/kmbus/presentation/kmbus_history_screen.dart';
 import 'package:psm_mobile/features/kmbus/presentation/kmbus_screen.dart';
@@ -119,6 +120,7 @@ void setupRouter(String initialLocation) {
                     ),
                     dataSourceReference: ReferenceDataSource(dio: dio),
                   ),
+                  secureStorageService,
                 ),
               ),
             ],
@@ -148,6 +150,7 @@ void setupRouter(String initialLocation) {
                     ),
                     dataSourceReference: ReferenceDataSource(dio: dio),
                   ),
+                  secureStorageService,
                 ),
               ),
             ],
@@ -177,6 +180,7 @@ void setupRouter(String initialLocation) {
                     ),
                     dataSourceReference: ReferenceDataSource(dio: dio),
                   ),
+                  secureStorageService,
                 ),
               ),
             ],
@@ -208,6 +212,7 @@ void setupRouter(String initialLocation) {
                     ),
                     dataSourceReference: ReferenceDataSource(dio: dio),
                   ),
+                  secureStorageService,
                 ),
               ),
             ],
@@ -237,6 +242,7 @@ void setupRouter(String initialLocation) {
                     ),
                     dataSourceReference: ReferenceDataSource(dio: dio),
                   ),
+                  secureStorageService,
                 ),
               ),
             ],
@@ -301,6 +307,7 @@ void setupRouter(String initialLocation) {
               idShift: args.idShift,
               idKoridorShift: args.idKoridorShift,
               idBusShift: args.idBusShift,
+              idAuditTrail: args.idAuditTrail,
             ),
           );
         },
@@ -308,7 +315,7 @@ void setupRouter(String initialLocation) {
       GoRoute(
         path: '/kmbus/titik-akhir/form',
         builder: (context, state) {
-          final args = state.extra as int;
+          final args = state.extra as TitikAkhirArgs;
 
           final dio = DioClient().instance;
           final secureStorageService = SecureStorageService();
@@ -328,7 +335,10 @@ void setupRouter(String initialLocation) {
                 ),
               ),
             ],
-            child: KmbusTitikAkhirFormScreen(idAuditTrail: args),
+            child: KmbusTitikAkhirFormScreen(
+              idKm: args.idKm,
+              idAuditTrail: args.idAuditTrail,
+            ),
           );
         },
       ),

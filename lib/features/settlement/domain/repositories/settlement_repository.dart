@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:fpdart/fpdart.dart';
 import 'package:psm_mobile/core/error/failure.dart';
+import 'package:psm_mobile/core/presentations/entity/core_schedule_model.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/settlement_task_audit_trail.dart';
 import 'package:psm_mobile/features/reference/domain/entities/document_preview.dart';
 import 'package:psm_mobile/features/reference/domain/entities/reference_billing.dart';
@@ -9,6 +10,15 @@ import 'package:psm_mobile/features/reference/domain/entities/reference_detail.d
 import 'package:psm_mobile/features/settlement/domain/entities/settlement_create.dart';
 
 abstract class SettlementRepository {
+  Future<Either<Failure, List<CoreScheduleModel>>> fetchTodaySchedule(
+      int userId,
+      );
+  Future<Either<Failure, String>> checkAllowSettlement(
+      int idKoridor,
+      int idBus,
+      double nextRit,
+      );
+
   Future<Either<Failure, List<ReferenceDetail>>> fetchReferenceBus(String keyword, int idKoridor);
   Future<Either<Failure, List<ReferenceDetail>>> fetchReferenceKoridor(String keyword);
   Future<Either<Failure, double>> fetchNextRitase(int idKoridor, int idBus);
