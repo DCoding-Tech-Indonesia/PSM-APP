@@ -6,6 +6,7 @@ class SecureStorageService {
   static const _keyAccessToken = 'access_token';
   static const _keyRefreshToken = 'refresh_token';
   static const _keyUserId = 'userId';
+  static const _keyUserRoleId = 'userRoleId';
   static const _keyUsername = 'username';
   static const _keyEmailCred = 'email';
   static const _keyUsernameCred = 'usernameCred';
@@ -44,6 +45,12 @@ class SecureStorageService {
   Future<void> saveUserId(String id) => _storage.write(key: _keyUserId, value: id);
   Future<String?> readUserId() async {
     String? value = await _storage.read(key: _keyUserId);
+    return value;
+  }
+
+  Future<void> saveUserRoleIdId(String id) => _storage.write(key: _keyUserRoleId, value: id);
+  Future<String?> readUserRoleId() async {
+    String? value = await _storage.read(key: _keyUserRoleId);
     return value;
   }
 

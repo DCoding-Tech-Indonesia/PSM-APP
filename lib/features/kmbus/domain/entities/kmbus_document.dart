@@ -1,38 +1,34 @@
 import 'package:equatable/equatable.dart';
 
 class KmbusDocument extends Equatable {
-  final int? idDetailDocument;
+  final int? idKmDocument;
   final int idDocument;
   final int idDocumentType;
-  final String? urlDoc;
 
   const KmbusDocument({
-    this.idDetailDocument,
+    this.idKmDocument,
     required this.idDocument,
     required this.idDocumentType,
-    this.urlDoc,
   });
 
   KmbusDocument copyWith({
-    int? idDetailDocument,
+    int? idKmDocument,
     int? idDocument,
     int? idDocumentType,
     String? urlDoc,
   }) {
     return KmbusDocument(
-      idDetailDocument: idDetailDocument ?? this.idDetailDocument,
+      idKmDocument: idKmDocument ?? this.idKmDocument,
       idDocument: idDocument ?? this.idDocument,
       idDocumentType: idDocumentType ?? this.idDocumentType,
-      urlDoc: urlDoc ?? this.urlDoc,
     );
   }
 
   factory KmbusDocument.fromJson(Map<String, dynamic> json) {
     return KmbusDocument(
-      idDetailDocument: json['id_detail_document'] ?? json['idDetailDocument'],
+      idKmDocument: json['id_detail_document'] ?? json['idKmDocument'],
       idDocument: json['id_document'] ?? json['idDocument'] ?? 0,
       idDocumentType: json['id_document_type'] ?? json['idDocumentType'] ?? 0,
-      urlDoc: json['url_doc'] ?? json['urlDoc'],
     );
   }
 
@@ -40,15 +36,14 @@ class KmbusDocument extends Equatable {
 
   Map<String, dynamic> toJson() {
     return {
-      'id_detail_document': idDetailDocument,
-      'id_document': idDocument,
-      'id_document_type': idDocumentType,
-      'url_doc': urlDoc,
+      'idKmDocument': idKmDocument,
+      'idDocument': idDocument,
+      'idDocumentType': idDocumentType,
     };
   }
 
   Map<String, dynamic> toMap() => toJson();
 
   @override
-  List<Object?> get props => [idDetailDocument, idDocument, idDocumentType, urlDoc];
+  List<Object?> get props => [idKmDocument, idDocument, idDocumentType];
 }

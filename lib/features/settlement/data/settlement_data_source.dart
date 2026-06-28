@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:psm_mobile/core/storage/secure_storage.dart';
-import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/task_audit_trail.dart';
+import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/settlement_task_audit_trail.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/settlement_create.dart';
 
 class SettlementDataSource {
@@ -56,7 +56,7 @@ class SettlementDataSource {
     }
   }
 
-  Future<List<TaskAuditTrail>> fetchTaskAuditTrailList(String keyword) async {
+  Future<List<SettlementTaskAuditTrail>> fetchTaskAuditTrailList(String keyword) async {
     try {
       final idUser = await secureStorageService.readUserId();
 
@@ -73,7 +73,7 @@ class SettlementDataSource {
       final List data = response.data['data'] ?? [];
 
       final result = data
-          .map<TaskAuditTrail>((e) => TaskAuditTrail.fromJson(e))
+          .map<SettlementTaskAuditTrail>((e) => SettlementTaskAuditTrail.fromJson(e))
           .toList();
 
       return result;

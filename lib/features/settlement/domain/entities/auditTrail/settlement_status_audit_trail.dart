@@ -1,16 +1,16 @@
-class StatusAuditTrail {
+class SettlementStatusAuditTrail {
   final int id;
   final String code;
   final String name;
 
-  StatusAuditTrail({
+  SettlementStatusAuditTrail({
     required this.id,
     required this.code,
     required this.name,
   });
 
-  factory StatusAuditTrail.fromJson(Map<String, dynamic> json) {
-    return StatusAuditTrail(
+  factory SettlementStatusAuditTrail.fromJson(Map<String, dynamic> json) {
+    return SettlementStatusAuditTrail(
       id: json['id'],
       code: json['code'],
       name: json['name'],

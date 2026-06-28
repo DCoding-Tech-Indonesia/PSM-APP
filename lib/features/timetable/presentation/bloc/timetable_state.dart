@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:psm_mobile/features/reference/domain/entities/reference_detail.dart';
-import 'package:psm_mobile/features/timetable/domain/timetable_checkin.dart';
-import 'package:psm_mobile/features/timetable/domain/timetable_data.dart';
+import 'package:psm_mobile/features/timetable/domain/entities/timetable_checkin.dart';
+import 'package:psm_mobile/features/timetable/domain/entities/timetable_data.dart';
 
 enum TimetableStatus {
   initial,

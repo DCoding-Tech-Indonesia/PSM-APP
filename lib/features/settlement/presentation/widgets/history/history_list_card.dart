@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:psm_mobile/core/helper/string_formatter.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_bottom_modal_verification.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_button.dart';
-import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/task_audit_trail.dart';
+import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/settlement_task_audit_trail.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/detailSettlementScreen/detail_screen_args.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_bloc.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_event.dart';
@@ -12,7 +12,7 @@ import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_even
 class HistoryListCard extends StatelessWidget {
   const HistoryListCard({super.key, required this.data});
 
-  final TaskAuditTrail data;
+  final SettlementTaskAuditTrail data;
 
   Future<void> _showSubmitDraftVerification(
     BuildContext context,

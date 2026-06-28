@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:psm_mobile/core/helper/string_formatter.dart';
-import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/task_audit_trail.dart';
+import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/settlement_task_audit_trail.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_bloc.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_event.dart';
 
 class DraftSettlementCard extends StatefulWidget {
   const DraftSettlementCard({super.key, required this.datas});
 
-  final List<TaskAuditTrail> datas;
+  final List<SettlementTaskAuditTrail> datas;
 
   @override
   State<DraftSettlementCard> createState() => _DraftSettlementCardState();
@@ -81,7 +81,7 @@ class _DraftSettlementCardState extends State<DraftSettlementCard> {
     );
   }
 
-  Widget _buildCard(BuildContext context, {TaskAuditTrail? data}) {
+  Widget _buildCard(BuildContext context, {SettlementTaskAuditTrail? data}) {
     final isInputSettlement = data == null;
 
     return Container(

@@ -32,6 +32,7 @@ class AuthDataSource {
         final tokens = AuthTokenHelper.parseFromData(response.data['data']);
         final token = tokens.accessToken;
         final userId = response.data["data"][0]["userId"];
+        final userRoleId = response.data["data"][0]["userRoleId"];
 
         if (token == null) {
           return const LoginResponse(
@@ -46,6 +47,7 @@ class AuthDataSource {
           refreshToken: tokens.refreshToken ?? token,
         );
         secureStorageService.saveUserId(userId.toString());
+        secureStorageService.saveUserRoleIdId(userRoleId.toString());
         secureStorageService.saveUsername(username);
         DioClient().setAuthToken(token);
         // Mulai timer proaktif: refresh token sebelum expired (5 menit sebelum mati)

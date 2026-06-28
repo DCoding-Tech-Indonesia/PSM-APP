@@ -1,10 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:psm_mobile/core/storage/secure_storage.dart';
-import 'package:psm_mobile/features/timetable/domain/timetable_checkin.dart';
+import 'package:psm_mobile/features/timetable/domain/entities/timetable_checkin.dart';
+import 'package:psm_mobile/features/timetable/domain/repositories/timetable_repository.dart';
 import 'package:psm_mobile/features/timetable/presentation/bloc/timetable_event.dart';
 import 'package:psm_mobile/features/timetable/presentation/bloc/timetable_state.dart';
-import 'package:psm_mobile/features/timetable/presentation/domain/timetable_repository.dart';
 
 class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
   final TimetableRepository timetableRepository;

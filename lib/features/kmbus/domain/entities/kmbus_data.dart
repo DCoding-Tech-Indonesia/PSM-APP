@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 
 class KmbusData extends Equatable {
-  final KmbusStatus? status;
+  final KmbusDataStatus? status;
   final int? id;
   final int? selisih;
   final KmbusBus? bus;
@@ -35,7 +35,7 @@ class KmbusData extends Equatable {
 
   factory KmbusData.fromJson(Map<String, dynamic> json) {
     return KmbusData(
-      status: json['status'] != null ? KmbusStatus.fromJson(json['status']) : null,
+      status: json['status'] != null ? KmbusDataStatus.fromJson(json['status']) : null,
       id: json['id'],
       selisih: json['selisih'],
       bus: json['bus'] != null ? KmbusBus.fromJson(json['bus']) : null,
@@ -70,7 +70,7 @@ class KmbusData extends Equatable {
   };
 
   KmbusData copyWith({
-    KmbusStatus? status,
+    KmbusDataStatus? status,
     int? id,
     int? selisih,
     KmbusBus? bus,
@@ -122,14 +122,14 @@ class KmbusData extends Equatable {
   ];
 }
 
-class KmbusStatus extends Equatable {
+class KmbusDataStatus extends Equatable {
   final String? name;
   final int? id;
   final String? code;
 
-  const KmbusStatus({this.name, this.id, this.code});
+  const KmbusDataStatus({this.name, this.id, this.code});
 
-  factory KmbusStatus.fromJson(Map<String, dynamic> json) => KmbusStatus(
+  factory KmbusDataStatus.fromJson(Map<String, dynamic> json) => KmbusDataStatus(
     name: json['name'],
     id: json['id'],
     code: json['code'],

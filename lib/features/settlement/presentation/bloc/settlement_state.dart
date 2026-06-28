@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/task_audit_trail.dart';
+import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/settlement_task_audit_trail.dart';
 import 'package:psm_mobile/features/reference/domain/entities/document_preview.dart';
 import 'package:psm_mobile/features/reference/domain/entities/reference_detail.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/settlement_detail.dart';
@@ -9,7 +9,7 @@ import 'package:psm_mobile/features/settlement/domain/entities/settlement_docume
 enum SettlementStatus { initial, loading, success, error, successSave, failedSave, fetching }
 
 class SettlementState extends Equatable {
-  final List<TaskAuditTrail> listTaskAuditTrail;
+  final List<SettlementTaskAuditTrail> listTaskAuditTrail;
 
   final int steps;
   final int totalSteps;
@@ -84,7 +84,7 @@ class SettlementState extends Equatable {
   });
 
   SettlementState copyWith({
-    List<TaskAuditTrail>? listTaskAuditTrail,
+    List<SettlementTaskAuditTrail>? listTaskAuditTrail,
 
     int? steps,
     int? totalSteps,

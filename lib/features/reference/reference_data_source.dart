@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:psm_mobile/core/presentations/entity/core_schedule_model.dart';
+import 'package:psm_mobile/features/attendance/data/models/schedule_model.dart';
 
 import 'domain/entities/document_preview.dart';
 import 'domain/entities/reference_billing.dart';
@@ -12,9 +14,9 @@ class ReferenceDataSource {
   ReferenceDataSource({required this.dio});
 
   Future<List<ReferenceDetail>> fetchReferenceBus(
-      String keyword,
-      int idKoridor,
-      ) async {
+    String keyword,
+    int idKoridor,
+  ) async {
     final response = await dio.get(
       '/reference/bus',
       queryParameters: {
@@ -42,8 +44,8 @@ class ReferenceDataSource {
   }
 
   Future<List<ReferenceBilling>> fetchReferenceCustomerBilling(
-      int idTypeNasabah,
-      ) async {
+    int idTypeNasabah,
+  ) async {
     final response = await dio.get(
       '/reference/customer-billing',
       queryParameters: {
@@ -81,8 +83,8 @@ class ReferenceDataSource {
   }
 
   Future<List<ReferenceDetail>> fetchReferenceObjectTypeSpm(
-      String keyword,
-      ) async {
+    String keyword,
+  ) async {
     final response = await dio.get(
       '/reference/object-type-spm',
       queryParameters: {'keyword': keyword, 'page': 1, 'perPage': 999},
@@ -94,8 +96,8 @@ class ReferenceDataSource {
   }
 
   Future<List<ReferenceDetail>> fetchReferenceCategorySpm(
-      String keyword,
-      ) async {
+    String keyword,
+  ) async {
     final response = await dio.get(
       '/reference/category-spm',
       queryParameters: {'keyword': keyword, 'page': 1, 'perPage': 999},
@@ -107,9 +109,9 @@ class ReferenceDataSource {
   }
 
   Future<List<ReferenceDetail>> fetchReferenceLokasiHalte(
-      String keyword,
-      int idKoridor,
-      ) async {
+    String keyword,
+    int idKoridor,
+  ) async {
     final response = await dio.get(
       '/reference/lokasi-halte',
       queryParameters: {
@@ -150,9 +152,10 @@ class ReferenceDataSource {
       throw Exception(e.toString());
     }
   }
+
   Future<List<ReferenceDetail>> fetchReferenceShiftKaryawan(
-      String keyword,
-      ) async {
+    String keyword,
+  ) async {
     final response = await dio.get(
       '/reference/shift-karyawan',
       queryParameters: {'keyword': keyword, 'page': 1, 'perPage': 999},
@@ -164,8 +167,8 @@ class ReferenceDataSource {
   }
 
   Future<List<ReferenceDetail>> fetchReferenceTypeChecklist(
-      String keyword,
-      ) async {
+    String keyword,
+  ) async {
     final response = await dio.get(
       '/reference/type-checklist',
       queryParameters: {'keyword': keyword, 'page': 1, 'perPage': 999},
@@ -176,9 +179,7 @@ class ReferenceDataSource {
     return data.map((e) => ReferenceDetail.fromJson(e)).toList();
   }
 
-  Future<List<ReferenceDetail>> fetchReferencePramugara(
-      String keyword,
-      ) async {
+  Future<List<ReferenceDetail>> fetchReferencePramugara(String keyword) async {
     final response = await dio.get(
       '/reference/pramugara',
       queryParameters: {'keyword': keyword, 'page': 1, 'perPage': 999},
@@ -187,5 +188,42 @@ class ReferenceDataSource {
     final data = response.data['data'] as List;
 
     return data.map((e) => ReferenceDetail.fromJson(e)).toList();
+  }
+
+  Future<List<ReferenceDetail>> fetchReferenceShiftType(String keyword) async {
+    final response = await dio.get(
+      '/reference/shift-type',
+      queryParameters: {'keyword': keyword, 'page': 1, 'perPage': 999},
+    );
+
+    final data = response.data['data'] as List;
+
+    return data.map((e) => ReferenceDetail.fromJson(e)).toList();
+  }
+
+  Future<List<CoreScheduleModel>> fetchTodaySchedule({required int userId}) async {
+    try {
+      // final String todayStr = DateTime.now().toIso8601String().split('T')[0];
+      final String tomorrowStr = DateTime.now().add(const Duration(days: 1)).toIso8601String().split('T')[0];
+
+      final response = await dio.get(
+        '/jadwal/list',
+        queryParameters: {
+          'userId': userId,
+          'startDate': tomorrowStr,
+          'endDate': tomorrowStr,
+          'page': 1,
+          'perPage': 1,
+        },
+      );
+
+      if (response.data != null && response.data['status'] == true) {
+        final List data = response.data['data'] ?? [];
+        return data.map((json) => CoreScheduleModel.fromJson(json)).toList();
+      }
+      return [];
+    } catch (e) {
+      rethrow;
+    }
   }
 }

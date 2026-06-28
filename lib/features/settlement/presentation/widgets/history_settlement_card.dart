@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:psm_mobile/core/helper/string_formatter.dart';
-import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/task_audit_trail.dart';
+import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/settlement_task_audit_trail.dart';
 
 class HistorySettlementCard extends StatelessWidget {
   const HistorySettlementCard({super.key, required this.data});
 
-  final TaskAuditTrail data;
+  final SettlementTaskAuditTrail data;
 
   @override
   Widget build(BuildContext context) {

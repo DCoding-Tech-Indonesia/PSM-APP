@@ -6,19 +6,6 @@ import 'package:psm_mobile/core/presentations/widgets/core_selected_dropdown_ind
 ///
 /// Uses [DropdownSearch] from the `dropdown_search` package with a
 /// bottom-sheet popup, rounded corners, a coloured header, and a search box.
-///
-/// Example usage:
-/// ```dart
-/// CoreDropdownSearch<ReferenceBus>(
-///   label: 'Pilih Bus',
-///   popupTitle: 'Daftar Bus',
-///   items: state.referenceBus,
-///   selectedItem: selectedBus,
-///   itemAsString: (item) => '${item.nomorLambung} - ${item.platNomor}',
-///   compareFn: (a, b) => a.id == b.id,
-///   onSelected: (value) { ... },
-/// )
-/// ```
 class CoreDropdownSearch<T> extends StatelessWidget {
   const CoreDropdownSearch({
     super.key,
@@ -33,6 +20,7 @@ class CoreDropdownSearch<T> extends StatelessWidget {
     this.headerColor,
     this.isRequired = false,
     this.isItemSelected,
+    this.readOnly = false, // 🛠️ Tambah default param readOnly
   });
 
   /// Label shown inside the input field.
@@ -67,6 +55,9 @@ class CoreDropdownSearch<T> extends StatelessWidget {
 
   final bool Function(T item)? isItemSelected;
 
+  /// 🛠️ Menentukan apakah dropdown hanya bisa dibaca dan tidak bisa diklik.
+  final bool readOnly;
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -92,6 +83,7 @@ class CoreDropdownSearch<T> extends StatelessWidget {
         const SizedBox(height: 8),
 
         DropdownSearch<T>(
+          enabled: !readOnly, // 🛠️ Lock interaksi jika readOnly aktif
           items: (filter, _) => items
               .where(
                 (item) => itemAsString(item)
@@ -106,9 +98,19 @@ class CoreDropdownSearch<T> extends StatelessWidget {
           decoratorProps: DropDownDecoratorProps(
             decoration: InputDecoration(
               hintText: hintText ?? '',
+              filled: readOnly, // Memberikan warna background jika readOnly
+              fillColor: readOnly ? Colors.grey.withValues(alpha: 0.12) : null,
               contentPadding: const EdgeInsets.symmetric(
                 vertical: 10,
                 horizontal: 12,
+              ),
+              // Border ketika status dinonaktifkan / readOnly
+              disabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+                  color: Colors.grey.shade400,
+                  width: .5,
+                ),
+                borderRadius: BorderRadius.circular(4),
               ),
               enabledBorder: OutlineInputBorder(
                 borderSide: const BorderSide(
@@ -163,12 +165,7 @@ class CoreDropdownSearch<T> extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.only(
-                      top: 20,
-                      bottom: 20,
-                      left: 20,
-                      right: 20,
-                    ),
+                    padding: const EdgeInsets.all(20),
                     child: Text(
                       popupTitle,
                       style: const TextStyle(
@@ -187,7 +184,7 @@ class CoreDropdownSearch<T> extends StatelessWidget {
                 barrierDismissible: true,
                 clipBehavior: Clip.antiAlias,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadiusGeometry.all(Radius.circular(24)),
+                  borderRadius: BorderRadius.all(Radius.circular(24)),
                 )
             ),
             itemBuilder: (context, item, isSelected, _) {

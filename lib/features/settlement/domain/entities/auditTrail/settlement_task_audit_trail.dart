@@ -1,16 +1,16 @@
-import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/status_audit_trail.dart';
-import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/user_audit_trail.dart';
-import 'module_audit_trail.dart';
+import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/settlement_status_audit_trail.dart';
+import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/settlement_user_audit_trail.dart';
+import 'settlement_module_audit_trail.dart';
 
-class TaskAuditTrail {
+class SettlementTaskAuditTrail {
   final int id;
-  final UserAuditTrail createdBy;
+  final SettlementUserAuditTrail createdBy;
   final String createdDate;
-  final ModuleAuditTrail module;
-  final StatusAuditTrail status;
-  final UserAuditTrail? approvedBy;
+  final SettlementModuleAuditTrail module;
+  final SettlementStatusAuditTrail status;
+  final SettlementUserAuditTrail? approvedBy;
   final String? approvedDate;
-  final UserAuditTrail? updatedBy;
+  final SettlementUserAuditTrail? updatedBy;
   final String? updatedDate;
 
   final String? namaKoridor;
@@ -19,7 +19,7 @@ class TaskAuditTrail {
   final int? totalPenumpangKeseluruhan;
   final int? totalPendapatanPertitase;
 
-  TaskAuditTrail({
+  SettlementTaskAuditTrail({
     required this.id,
     required this.createdBy,
     required this.createdDate,
@@ -37,23 +37,23 @@ class TaskAuditTrail {
     this.totalPendapatanPertitase,
   });
 
-  factory TaskAuditTrail.fromJson(Map<String, dynamic> json) {
-    return TaskAuditTrail(
+  factory SettlementTaskAuditTrail.fromJson(Map<String, dynamic> json) {
+    return SettlementTaskAuditTrail(
       id: json['id'],
       createdDate: json['createdDate'],
 
-      createdBy: UserAuditTrail.fromJson(json['createdBy']),
-      module: ModuleAuditTrail.fromJson(json['module']),
-      status: StatusAuditTrail.fromJson(json['status']),
+      createdBy: SettlementUserAuditTrail.fromJson(json['createdBy']),
+      module: SettlementModuleAuditTrail.fromJson(json['module']),
+      status: SettlementStatusAuditTrail.fromJson(json['status']),
 
       approvedDate: json['approvedDate'],
       approvedBy: json['approvedBy'] != null
-          ? UserAuditTrail.fromJson(json['approvedBy'])
+          ? SettlementUserAuditTrail.fromJson(json['approvedBy'])
           : null,
 
       updatedDate: json['updatedDate'],
       updatedBy: json['updatedBy'] != null
-          ? UserAuditTrail.fromJson(json['updatedBy'])
+          ? SettlementUserAuditTrail.fromJson(json['updatedBy'])
           : null,
 
       namaKoridor: json['namaKoridor'],

@@ -7,43 +7,30 @@ import 'package:psm_mobile/core/helper/camera_access_helper.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_bottom_modal_verification.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_button.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_camera_widget.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_dropdown_search.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_header.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_snackbar.dart';
 import 'package:psm_mobile/features/kmbus/presentation/bloc/kmbus_bloc.dart';
 import 'package:psm_mobile/features/kmbus/presentation/bloc/kmbus_state.dart';
-import 'package:psm_mobile/features/reference/domain/entities/reference_detail.dart';
 
 import 'bloc/kmbus_event.dart';
 
-class KmbusTitikAwalFormScreen extends StatefulWidget {
-  const KmbusTitikAwalFormScreen({
-    super.key,
-    required this.idShift,
-    required this.idKoridorShift,
-    required this.idBusShift,
-  });
+class KmbusTitikAkhirFormScreen extends StatefulWidget {
+  const KmbusTitikAkhirFormScreen({super.key, required this.idAuditTrail});
 
-  final int idShift;
-  final int idKoridorShift;
-  final int idBusShift;
+  final int idAuditTrail;
 
   @override
-  State<KmbusTitikAwalFormScreen> createState() =>
-      _KmbusTitikAwalFormScreenState();
+  State<KmbusTitikAkhirFormScreen> createState() =>
+      _KmbusTitikAkhirFormScreenState();
 }
 
-class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
+class _KmbusTitikAkhirFormScreenState extends State<KmbusTitikAkhirFormScreen> {
   @override
   void initState() {
     super.initState();
     Future.microtask(() {
       context.read<KmbusBloc>().add(
-        KmbusTitikAwalInputLoad(
-          widget.idShift,
-          widget.idKoridorShift,
-          widget.idBusShift,
-        ),
+        KmbusTitikAkhirInputLoad(widget.idAuditTrail),
       );
     });
   }
@@ -99,7 +86,7 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
               onPressed: () {
                 final newValue = int.tryParse(controller.text);
                 if (newValue != null) {
-                  context.read<KmbusBloc>().add(EditOdometerAwal(newValue));
+                  context.read<KmbusBloc>().add(EditOdometerAkhir(newValue));
                   Navigator.pop(dialogContext);
                 } else {
                   CoreSnackbar.show(
@@ -135,7 +122,7 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
 
           if (file == null || !context.mounted) return;
 
-          context.read<KmbusBloc>().add(UploadOcrAwalEvent(file));
+          context.read<KmbusBloc>().add(UploadOcrAkhirEvent(file));
         },
       );
     }
@@ -202,7 +189,7 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
               Column(
                 children: [
                   CoreHeader(
-                    title: 'Submit Titik Awal',
+                    title: 'Submit Titik Akhir',
                     customBgColor: Colors.white,
                     withBorder: true,
                   ),
@@ -222,103 +209,6 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          BlocBuilder<KmbusBloc, KmbusState>(
-                            builder: (context, state) {
-                              ReferenceDetail? selectedKoridor;
-
-                              if (state.referenceKoridor.isNotEmpty) {
-                                final matched = state.referenceKoridor.where(
-                                      (e) => e.id == state.idKoridor,
-                                );
-                                if (matched.isNotEmpty) {
-                                  selectedKoridor = matched.first;
-                                }
-                              }
-
-                              return CoreDropdownSearch<ReferenceDetail>(
-                                readOnly: true,
-                                label: 'Pilih Koridor',
-                                hintText: 'Pilih Koridor',
-                                popupTitle: 'Daftar Koridor',
-                                items: state.referenceKoridor,
-                                selectedItem: selectedKoridor,
-                                itemAsString: (item) =>
-                                '${item.code} - ${item.name}',
-                                compareFn: (a, b) => a.id == b.id,
-                                isRequired: true,
-                                isItemSelected: (item) =>
-                                item.id == state.idKoridor,
-                                onSelected: (value) {
-                                  if (value == null) return;
-                                  context.read<KmbusBloc>().add(
-                                    SelectKoridor(value.id, value.name),
-                                  );
-                                },
-                              );
-                            },
-                          ),
-
-                          const SizedBox(height: 12),
-
-                          BlocBuilder<KmbusBloc, KmbusState>(
-                            buildWhen: (prev, curr) =>
-                            prev.idKoridor != curr.idKoridor ||
-                                prev.referenceBus != curr.referenceBus ||
-                                prev.idBus != curr.idBus ||
-                                prev.status != curr.status,
-                            builder: (context, state) {
-                              ReferenceDetail? selectedBus;
-
-                              if (state.referenceBus.isNotEmpty) {
-                                final matched = state.referenceBus.where(
-                                      (e) => e.id == state.idBus,
-                                );
-                                if (matched.isNotEmpty) {
-                                  selectedBus = matched.first;
-                                }
-                              }
-
-                              if (state.referenceBus.isEmpty &&
-                                  state.idKoridor != 0 &&
-                                  state.status != KmbusStatus.fetching) {
-                                return const Text(
-                                  "Tidak terdapat bus terdata di koridor tersebut",
-                                  style: TextStyle(
-                                    color: Colors.redAccent,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                );
-                              }
-
-                              if (state.idKoridor == 0 ||
-                                  state.referenceBus.isEmpty) {
-                                return const SizedBox(height: 0);
-                              }
-
-                              return CoreDropdownSearch<ReferenceDetail>(
-                                readOnly: true,
-                                label: 'Pilih Bus',
-                                hintText: 'Pilih Bus',
-                                popupTitle: 'Daftar Bus',
-                                items: state.referenceBus,
-                                selectedItem: selectedBus,
-                                itemAsString: (item) =>
-                                '${item.code} - ${item.name}',
-                                compareFn: (a, b) => a.id == b.id,
-                                isItemSelected: (item) => item.id == state.idBus,
-                                isRequired: true,
-                                onSelected: (value) {
-                                  if (value == null) return;
-                                  context.read<KmbusBloc>().add(
-                                    SelectBus(value.id, value.name),
-                                  );
-                                },
-                              );
-                            },
-                          ),
-
-                          const SizedBox(height: 12),
-
                           BlocBuilder<KmbusBloc, KmbusState>(
                             buildWhen: (prev, curr) =>
                             prev.ocrResult != curr.ocrResult,
@@ -376,8 +266,8 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
 
                           BlocBuilder<KmbusBloc, KmbusState>(
                             buildWhen: (prev, curr) =>
-                            prev.titikAwalCreate?.document !=
-                                curr.titikAwalCreate?.document ||
+                            prev.titikAkhirCreate?.document !=
+                                curr.titikAkhirCreate?.document ||
                                 prev.documentUploadStatus !=
                                     curr.documentUploadStatus,
                             builder: (context, state) {
@@ -426,24 +316,21 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
                   ),
                   BlocBuilder<KmbusBloc, KmbusState>(
                     buildWhen: (prev, curr) =>
-                    prev.titikAwalCreate != curr.titikAwalCreate ||
+                    prev.ocrResult != curr.ocrResult ||
+                        prev.titikAkhirCreate != curr.titikAkhirCreate ||
                         prev.status != curr.status ||
-                        prev.uploadStatus != curr.uploadStatus ||
                         prev.submitStatus != curr.submitStatus ||
                         prev.submitWorkflowStatus != curr.submitWorkflowStatus,
                     builder: (context, state) {
                       final isLoading =
                           state.status == KmbusStatus.fetching ||
-                              state.uploadStatus == UploadStatus.uploading ||
                               state.submitStatus == SubmitStatus.submitting ||
                               state.submitWorkflowStatus == SubmitWorkflowStatus.submitting;
 
                       final isSubmitable =
                           !isLoading &&
-                              state.titikAwalCreate?.titikAwal != 0 &&
-                              (state.titikAwalCreate?.document.isNotEmpty ?? false) &&
-                              state.titikAwalCreate?.idKoridor != 0 &&
-                              state.titikAwalCreate?.idBus != 0;
+                              state.titikAkhirCreate?.titikAkhir != 0 &&
+                              (state.titikAkhirCreate?.document.isNotEmpty ?? false);
 
                       return Padding(
                         padding: const EdgeInsets.symmetric(
@@ -454,7 +341,7 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
                           width: double.infinity,
                           onPressed: () {
                             if (!isSubmitable) return;
-                            context.read<KmbusBloc>().add(SubmitTitikAwal());
+                            context.read<KmbusBloc>().add(SubmitTitikAkhir());
                           },
                           backgroundColor: isSubmitable
                               ? theme.colorScheme.primary

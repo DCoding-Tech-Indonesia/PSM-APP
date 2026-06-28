@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:psm_mobile/core/network/dio_client.dart';
 import 'package:psm_mobile/core/presentations/cubit/core_tab_cubit.dart';
+import 'package:psm_mobile/core/presentations/entity/schedule_args.dart';
 import 'package:psm_mobile/core/presentations/widgets/widgets.dart';
 import 'package:psm_mobile/core/router/route_observer.dart';
 import 'package:psm_mobile/core/storage/secure_storage.dart';
@@ -21,6 +22,7 @@ import 'package:psm_mobile/features/kmbus/data/kmbus_repository_impl.dart';
 import 'package:psm_mobile/features/kmbus/presentation/bloc/kmbus_bloc.dart';
 import 'package:psm_mobile/features/kmbus/presentation/kmbus_history_screen.dart';
 import 'package:psm_mobile/features/kmbus/presentation/kmbus_screen.dart';
+import 'package:psm_mobile/features/kmbus/presentation/kmbus_titik_akhir_form_screen.dart';
 import 'package:psm_mobile/features/kmbus/presentation/kmbus_titik_awal_form_screen.dart';
 import 'package:psm_mobile/features/portal/presentation/bloc/portal_bloc.dart';
 import 'package:psm_mobile/features/portal/presentation/bloc/portal_state.dart';
@@ -264,6 +266,7 @@ void setupRouter(String initialLocation) {
                     ),
                     dataSourceReference: ReferenceDataSource(dio: dio),
                   ),
+                  secureStorageService,
                 ),
               ),
             ],
@@ -274,6 +277,39 @@ void setupRouter(String initialLocation) {
       GoRoute(
         path: '/kmbus/titik-awal/form',
         builder: (context, state) {
+          final dio = DioClient().instance;
+          final secureStorageService = SecureStorageService();
+
+          final args = state.extra as ScheduleArgs;
+
+          return MultiBlocProvider(
+            providers: [
+              BlocProvider(
+                create: (_) => KmbusBloc(
+                  KmbusRepositoryImpl(
+                    dataSource: KmbusDataSource(
+                      dio: dio,
+                      secureStorageService: secureStorageService,
+                    ),
+                    dataSourceReference: ReferenceDataSource(dio: dio),
+                  ),
+                  secureStorageService,
+                ),
+              ),
+            ],
+            child: KmbusTitikAwalFormScreen(
+              idShift: args.idShift,
+              idKoridorShift: args.idKoridorShift,
+              idBusShift: args.idBusShift,
+            ),
+          );
+        },
+      ),
+      GoRoute(
+        path: '/kmbus/titik-akhir/form',
+        builder: (context, state) {
+          final args = state.extra as int;
+
           final dio = DioClient().instance;
           final secureStorageService = SecureStorageService();
 
@@ -288,10 +324,11 @@ void setupRouter(String initialLocation) {
                     ),
                     dataSourceReference: ReferenceDataSource(dio: dio),
                   ),
+                  secureStorageService,
                 ),
               ),
             ],
-            child: KmbusTitikAwalFormScreen(),
+            child: KmbusTitikAkhirFormScreen(idAuditTrail: args),
           );
         },
       ),

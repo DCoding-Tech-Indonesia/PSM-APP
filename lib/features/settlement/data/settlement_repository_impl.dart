@@ -5,7 +5,7 @@ import 'package:fpdart/fpdart.dart';
 import 'package:psm_mobile/core/error/failure.dart';
 import 'package:psm_mobile/features/reference/reference_data_source.dart';
 import 'package:psm_mobile/features/settlement/data/settlement_data_source.dart';
-import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/task_audit_trail.dart';
+import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/settlement_task_audit_trail.dart';
 import 'package:psm_mobile/features/reference/domain/entities/document_preview.dart';
 import 'package:psm_mobile/features/reference/domain/entities/reference_billing.dart';
 import 'package:psm_mobile/features/reference/domain/entities/reference_detail.dart';
@@ -165,7 +165,7 @@ class SettlementRepositoryImpl implements SettlementRepository {
   }
 
   @override
-  Future<Either<Failure, List<TaskAuditTrail>>> fetchTaskAuditTrailList(
+  Future<Either<Failure, List<SettlementTaskAuditTrail>>> fetchTaskAuditTrailList(
     String keyword,
   ) async {
     try {

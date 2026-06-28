@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:fpdart/fpdart.dart';
 import 'package:psm_mobile/core/error/failure.dart';
-import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/task_audit_trail.dart';
+import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/settlement_task_audit_trail.dart';
 import 'package:psm_mobile/features/reference/domain/entities/document_preview.dart';
 import 'package:psm_mobile/features/reference/domain/entities/reference_billing.dart';
 import 'package:psm_mobile/features/reference/domain/entities/reference_detail.dart';
@@ -17,7 +17,7 @@ abstract class SettlementRepository {
   Future<Either<Failure, List<ReferenceBilling>>> fetchReferenceCustomerBilling(int idTypeNasabah);
   Future<Either<Failure, DocumentPreview>> uploadDocument(File file);
   Future<Either<Failure, String>> createSettlement(SettlementCreate request);
-  Future<Either<Failure, List<TaskAuditTrail>>> fetchTaskAuditTrailList(String keyword);
+  Future<Either<Failure, List<SettlementTaskAuditTrail>>> fetchTaskAuditTrailList(String keyword);
   Future<Either<Failure, SettlementCreate>> fetchTaskAuditTrailDetail(int idAuditTrail);
   Future<Either<Failure, String>> updateSettlement(SettlementCreate request);
   Future<Either<Failure, String>> submitWorkflow(int idAuditTrail, String reason);

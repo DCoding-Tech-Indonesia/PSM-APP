@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:psm_mobile/features/timetable/domain/timetable_checkin.dart';
-import 'package:psm_mobile/features/timetable/domain/timetable_data.dart';
+import 'package:psm_mobile/features/timetable/domain/entities/timetable_checkin.dart';
+import 'package:psm_mobile/features/timetable/domain/entities/timetable_data.dart';
 
 class TimetableDataSource {
   final Dio dio;

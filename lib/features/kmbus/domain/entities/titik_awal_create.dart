@@ -8,6 +8,7 @@ class TitikAwalCreate {
   final int idShift;
   final int idBus;
   final int idPramugara;
+  final double ritaseKe;
   final int titikAwal;
   final String? keteranganBus;
   final List<KmbusDocument> document;
@@ -19,6 +20,7 @@ class TitikAwalCreate {
     required this.idShift,
     required this.idBus,
     required this.idPramugara,
+    required this.ritaseKe,
     required this.titikAwal,
     this.keteranganBus,
     required this.document,
@@ -31,6 +33,7 @@ class TitikAwalCreate {
     int? idShift,
     int? idBus,
     int? idPramugara,
+    double? ritaseKe,
     int? titikAwal,
     String? keteranganBus,
     List<KmbusDocument>? document,
@@ -42,6 +45,7 @@ class TitikAwalCreate {
       idShift: idShift ?? this.idShift,
       idBus: idBus ?? this.idBus,
       idPramugara: idPramugara ?? this.idPramugara,
+      ritaseKe: ritaseKe ?? this.ritaseKe,
       titikAwal: titikAwal ?? this.titikAwal,
       keteranganBus: keteranganBus ?? this.keteranganBus,
       document: document ?? this.document,
@@ -58,6 +62,7 @@ class TitikAwalCreate {
       'idShift': idShift,
       'idBus': idBus,
       'idPramugara': idPramugara,
+      'ritaseKe': ritaseKe,
       'titikAwal': titikAwal,
       'keteranganBus': keteranganBus,
       'document': document.map((x) => x.toJson()).toList(),

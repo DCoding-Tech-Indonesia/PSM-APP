@@ -3,14 +3,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:psm_mobile/core/helper/string_formatter.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_bottom_modal_verification.dart';
-import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/task_audit_trail.dart';
+import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/settlement_task_audit_trail.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_bloc.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_event.dart';
 
 class DraftSettlementCardSingle extends StatelessWidget {
   const DraftSettlementCardSingle({super.key, required this.datas});
 
-  final List<TaskAuditTrail> datas;
+  final List<SettlementTaskAuditTrail> datas;
 
   Future<bool> _showDirectToEditVerification(BuildContext context) async {
     final isConfirm = await showModalBottomSheet<bool>(
@@ -34,7 +34,7 @@ class DraftSettlementCardSingle extends StatelessWidget {
         .where((task) => task.status.code == 'DFT')
         .toList();
 
-    final TaskAuditTrail? latestDraft = draftDatas.isNotEmpty
+    final SettlementTaskAuditTrail? latestDraft = draftDatas.isNotEmpty
         ? draftDatas.last
         : null;
 

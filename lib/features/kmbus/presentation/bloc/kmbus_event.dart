@@ -5,13 +5,29 @@ abstract class KmbusEvent {}
 class PageDashboardLoad extends KmbusEvent {}
 
 class KmbusTitikAwalInputLoad extends KmbusEvent {
-  KmbusTitikAwalInputLoad();
+  final int idShift;
+  final int idKoridorShift;
+  final int idBusShift;
+
+  KmbusTitikAwalInputLoad(this.idShift, this.idKoridorShift, this.idBusShift);
 }
 
-class UploadOcrEvent extends KmbusEvent {
+class KmbusTitikAkhirInputLoad extends KmbusEvent {
+  final int idAuditTrail;
+
+  KmbusTitikAkhirInputLoad(this.idAuditTrail);
+}
+
+class UploadOcrAwalEvent extends KmbusEvent {
   final File file;
 
-  UploadOcrEvent(this.file);
+  UploadOcrAwalEvent(this.file);
+}
+
+class UploadOcrAkhirEvent extends KmbusEvent {
+  final File file;
+
+  UploadOcrAkhirEvent(this.file);
 }
 
 class SelectKoridor extends KmbusEvent {
@@ -28,8 +44,31 @@ class SelectBus extends KmbusEvent {
   SelectBus(this.id, this.noUnit);
 }
 
-class EditOdometer extends KmbusEvent {
+class EditOdometerAwal extends KmbusEvent {
   final int odometerVal;
 
-  EditOdometer(this.odometerVal);
+  EditOdometerAwal(this.odometerVal);
+}
+
+class EditOdometerAkhir extends KmbusEvent {
+  final int odometerVal;
+
+  EditOdometerAkhir(this.odometerVal);
+}
+
+class RemoveDocumentById extends KmbusEvent {
+  final int idDocument;
+
+  RemoveDocumentById(this.idDocument);
+}
+
+class SubmitTitikAwal extends KmbusEvent {}
+
+class SubmitTitikAkhir extends KmbusEvent {}
+
+class SubmitWorkflow extends KmbusEvent {
+  final String reason;
+  final int idAuditTrail;
+
+  SubmitWorkflow(this.reason, this.idAuditTrail);
 }
