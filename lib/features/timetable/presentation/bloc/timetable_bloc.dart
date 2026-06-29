@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:psm_mobile/core/storage/secure_storage.dart';
 import 'package:psm_mobile/features/timetable/domain/entities/timetable_checkin.dart';
+import 'package:psm_mobile/features/timetable/domain/entities/timetable_checkout.dart';
+import 'package:psm_mobile/features/timetable/domain/entities/timetable_data.dart';
 import 'package:psm_mobile/features/timetable/domain/repositories/timetable_repository.dart';
 import 'package:psm_mobile/features/timetable/presentation/bloc/timetable_event.dart';
 import 'package:psm_mobile/features/timetable/presentation/bloc/timetable_state.dart';
@@ -120,7 +122,27 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
           return null;
         }, (data) => data);
 
-        if (timeTableList == null) return;
+        timeTableList?.sort((a, b) {
+          final jamA = a.jamBerangkat.trim().isEmpty
+              ? '00:00:00'
+              : a.jamBerangkat.split('.').first;
+
+          final jamB = b.jamBerangkat.trim().isEmpty
+              ? '00:00:00'
+              : b.jamBerangkat.split('.').first;
+
+          final dateTimeA = DateTime.parse('${a.tanggal} $jamA');
+          final dateTimeB = DateTime.parse('${b.tanggal} $jamB');
+
+          return dateTimeB.compareTo(dateTimeA);
+        });
+
+        final activeCheckin = timeTableList?.cast<TimetableData?>().firstWhere(
+              (e) => e != null && (e.jamDatang.trim().isEmpty),
+          orElse: () => null,
+        );
+
+        final int? idCheckin = activeCheckin?.id;
 
         final checkCheckInFuture = timetableRepository.checkAllowCheckIn(
           updatedCheckinWithPramugara.idKoridor,
@@ -150,6 +172,7 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
 
         emit(
           state.copyWith(
+            idCheckin: idCheckin,
             listTimetable: timeTableList,
             referenceKoridor: koridorList,
             referenceBus: busList,
@@ -213,8 +236,6 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
 
       emit(state.copyWith(status: TimetableStatus.onSubmit));
 
-      print("state.checkinData?.tanggal");
-      print(state.checkinData?.tanggal);
 
       try {
         final result = await timetableRepository.checkinTimeTable(
@@ -239,6 +260,66 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
                 message: data != null
                     ? "Berhasil check-in!"
                     : "Gagal check-in!",
+              ),
+            );
+          },
+        );
+      } catch (e) {
+        emit(
+          state.copyWith(
+            status: TimetableStatus.failedSave,
+            message: e.toString(),
+          ),
+        );
+      }
+    });
+
+    on<CheckOutTimetable>((event, emit) async {
+      if (state.idCheckin == null) {
+        emit(
+          state.copyWith(
+            status: TimetableStatus.failedSave,
+            message: "Data check-in tidak ditemukan",
+          ),
+        );
+        return;
+      }
+
+      if (state.checkinData == null) {
+        emit(
+          state.copyWith(
+            status: TimetableStatus.failedSave,
+            message: "Lokasi belum tersedia",
+          ),
+        );
+        return;
+      }
+
+      emit(state.copyWith(status: TimetableStatus.onSubmit));
+
+      try {
+        final payload = TimetableCheckout(
+          idTimeTableRitase: state.idCheckin!,
+          lat: state.checkinData!.lat,
+          long: state.checkinData!.long,
+        );
+
+        final result = await timetableRepository.checkoutTimeTable(payload);
+
+        result.fold(
+              (failure) {
+            emit(
+              state.copyWith(
+                status: TimetableStatus.failedSave,
+                message: "Gagal check-out!",
+              ),
+            );
+          },
+              (data) {
+            emit(
+              state.copyWith(
+                status: TimetableStatus.successSave,
+                message: "Berhasil check-out!",
               ),
             );
           },

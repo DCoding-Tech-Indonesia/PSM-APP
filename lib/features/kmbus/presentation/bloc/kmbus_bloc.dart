@@ -17,7 +17,7 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
   KmbusBloc(this.kmbusRepository, this.secureStorageService)
     : super(const KmbusState()) {
     on<PageDashboardLoad>((event, emit) async {
-      emit(state.copyWith(status: KmbusStatus.initial));
+      emit(state.copyWith(status: KmbusStatus.initial, submitStatus: SubmitStatus.idle, submitWorkflowStatus: SubmitWorkflowStatus.idle));
 
       try {
         final userIdString = await secureStorageService.readUserId();

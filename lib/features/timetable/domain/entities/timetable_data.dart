@@ -1,62 +1,87 @@
 import 'package:equatable/equatable.dart';
-import 'package:psm_mobile/features/reference/domain/entities/reference_bus.dart';
-import 'package:psm_mobile/features/reference/domain/entities/reference_detail.dart';
 
 class TimetableData extends Equatable {
-  final int? id;
-  final ReferenceBus bus;
-  final ReferenceDetail koridor;
-  final String? tanggal;
-  final double totalRitase;
+  final int id;
+  final double ritaseKe;
+  final String jamBerangkat;
+  final String jamDatang;
+
+  final String namaKoridor;
+  final String nomorLambung;
+  final String platNomor;
+  final String tanggal;
 
   const TimetableData({
-    this.id,
-    required this.bus,
-    required this.koridor,
-    this.tanggal,
-    required this.totalRitase,
+    required this.id,
+    required this.ritaseKe,
+    required this.jamBerangkat,
+    required this.jamDatang,
+    required this.namaKoridor,
+    required this.nomorLambung,
+    required this.platNomor,
+    required this.tanggal,
   });
 
   factory TimetableData.fromJson(Map<String, dynamic> json) {
+    final timeTable = json['timeTable'] as Map<String, dynamic>? ?? {};
+    final bus = timeTable['bus'] as Map<String, dynamic>? ?? {};
+    final koridor = timeTable['koridor'] as Map<String, dynamic>? ?? {};
+
     return TimetableData(
-      id: json['id'],
-      bus: ReferenceBus.fromJson(json['bus'] ?? {}),
-      koridor: ReferenceDetail.fromJson(json['koridor'] ?? {}),
-      tanggal: json['tanggal'],
-      totalRitase: (json['totalRitase'] ?? 0).toDouble(),
+      id: json['id'] as int,
+      ritaseKe: (json['ritaseKe'] as num).toDouble(),
+      jamBerangkat: json['jamBerangkat']?.toString() ?? '',
+      jamDatang: json['jamDatang']?.toString() ?? '',
+
+      namaKoridor: koridor['name']?.toString() ?? '',
+      nomorLambung: bus['nomorLambung']?.toString() ?? '',
+      platNomor: bus['platNomor']?.toString() ?? '',
+      tanggal: timeTable['tanggal']?.toString() ?? '',
     );
   }
 
   Map<String, dynamic> toJson() => {
     "id": id,
-    "bus": bus.toJson(),
-    "koridor": koridor.toJson(),
+    "ritaseKe": ritaseKe,
+    "jamBerangkat": jamBerangkat,
+    "jamDatang": jamDatang,
+    "namaKoridor": namaKoridor,
+    "nomorLambung": nomorLambung,
+    "platNomor": platNomor,
     "tanggal": tanggal,
-    "totalRitase": totalRitase,
   };
 
   TimetableData copyWith({
     int? id,
-    ReferenceBus? bus,
-    ReferenceDetail? koridor,
+    double? ritaseKe,
+    String? jamBerangkat,
+    String? jamDatang,
+    String? namaKoridor,
+    String? nomorLambung,
+    String? platNomor,
     String? tanggal,
-    double? totalRitase,
   }) {
     return TimetableData(
       id: id ?? this.id,
-      bus: bus ?? this.bus,
-      koridor: koridor ?? this.koridor,
+      ritaseKe: ritaseKe ?? this.ritaseKe,
+      jamBerangkat: jamBerangkat ?? this.jamBerangkat,
+      jamDatang: jamDatang ?? this.jamDatang,
+      namaKoridor: namaKoridor ?? this.namaKoridor,
+      nomorLambung: nomorLambung ?? this.nomorLambung,
+      platNomor: platNomor ?? this.platNomor,
       tanggal: tanggal ?? this.tanggal,
-      totalRitase: totalRitase ?? this.totalRitase,
     );
   }
 
   @override
   List<Object?> get props => [
     id,
-    bus,
-    koridor,
+    ritaseKe,
+    jamBerangkat,
+    jamDatang,
+    namaKoridor,
+    nomorLambung,
+    platNomor,
     tanggal,
-    totalRitase,
   ];
 }

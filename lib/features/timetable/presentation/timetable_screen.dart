@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
+import 'package:psm_mobile/core/helper/string_formatter.dart';
+import 'package:psm_mobile/core/presentations/widgets/core_bottom_modal_verification.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_date_time_widget.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_snackbar.dart';
 import 'package:psm_mobile/core/presentations/widgets/widgets.dart';
@@ -37,6 +39,26 @@ class _TimetableScreenState extends State<TimetableScreen> {
     await bloc.stream.firstWhere(
       (state) => state.status != TimetableStatus.loading,
     );
+  }
+
+  Future<void> _showCheckoutConfirmation(BuildContext context) async {
+    final isConfirm = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      builder: (modalContext) {
+        return CoreBottomModalVerification(
+          title: "Konfirmasi Check-out",
+          desc:
+          "Pastikan perjalanan telah selesai dan Anda yakin ingin melakukan check-out.",
+          onCancel: () => Navigator.pop(modalContext, false),
+          onConfirm: () => Navigator.pop(modalContext, true),
+        );
+      },
+    );
+
+    if (isConfirm == true && context.mounted) {
+      context.read<TimetableBloc>().add(CheckOutTimetable());
+    }
   }
 
   Future<void> _ensureLocationEnabled() async {
@@ -374,6 +396,10 @@ class _TimetableScreenState extends State<TimetableScreen> {
             message: state.message,
             type: SnackbarType.success,
           );
+
+          Future.delayed(const Duration(milliseconds: 200), () {
+            context.read<TimetableBloc>().add(PageDashboardLoad());
+          });
         } else if (state.status == TimetableStatus.failedSave) {
           CoreSnackbar.show(
             context,
@@ -436,8 +462,8 @@ class _TimetableScreenState extends State<TimetableScreen> {
                               Expanded(
                                 child: CoreButton(
                                   onPressed: () {
-                                    if (!state.isAllowCheckIn) return;
-                                    _showCheckInOutModal(context, false);
+                                    if (!state.isAllowCheckOut) return;
+                                    _showCheckoutConfirmation(context);
                                   },
                                   backgroundColor: state.isAllowCheckOut
                                       ? Colors.red
@@ -514,16 +540,21 @@ class _TimetableScreenState extends State<TimetableScreen> {
                           ListView.separated(
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
-                            padding: const EdgeInsets.symmetric(vertical: 10),
                             itemCount: state.listTimetable.length,
                             separatorBuilder: (_, __) =>
-                                const SizedBox(height: 12),
+                                const SizedBox(height: 4),
                             itemBuilder: (context, index) {
                               final data = state.listTimetable[index];
                               return Padding(
-                                padding: const EdgeInsets.all(24.0),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 24.0,
+                                  vertical: 8,
+                                ),
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 12,
+                                  ),
                                   decoration: BoxDecoration(
                                     color: Colors.white,
                                     borderRadius: BorderRadius.circular(16),
@@ -532,15 +563,188 @@ class _TimetableScreenState extends State<TimetableScreen> {
                                     ),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.black.withValues(alpha: 0.05),
+                                        color: Colors.black.withValues(
+                                          alpha: 0.05,
+                                        ),
                                         blurRadius: 20,
                                         offset: const Offset(0, 10),
                                       ),
                                     ],
                                   ),
-                                  child: Row(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      Text("[DUMMY]"),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            data.tanggal,
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                          ),
+                                          Text(
+                                            "${data.platNomor} (${data.nomorLambung})",
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const Divider(),
+                                      Row(
+                                        spacing: 15,
+                                        children: [
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  "Check-In",
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                ),
+                                                Container(
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                        horizontal: 6,
+                                                        vertical: 4,
+                                                      ),
+                                                  decoration: BoxDecoration(
+                                                    color: Colors
+                                                        .greenAccent
+                                                        .shade100,
+                                                    border: Border.all(
+                                                      width: 1,
+                                                      color: Colors.green,
+                                                    ),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          5,
+                                                        ),
+                                                  ),
+                                                  child: Row(
+                                                    spacing: 5,
+                                                    children: [
+                                                      Icon(
+                                                        Icons.timer_outlined,
+                                                        size: 20,
+                                                      ),
+                                                      Text(
+                                                        data.jamBerangkat != ''
+                                                            ? StringFormatter()
+                                                                  .formatLongTimeToMedium(
+                                                                    data.jamBerangkat,
+                                                                  )
+                                                            : '--:--:--',
+                                                        style: TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  "Check-Out",
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                ),
+                                                Container(
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                        horizontal: 6,
+                                                        vertical: 4,
+                                                      ),
+                                                  decoration: BoxDecoration(
+                                                    color: Colors
+                                                        .redAccent
+                                                        .shade100,
+                                                    border: Border.all(
+                                                      width: 1,
+                                                      color: Colors.red,
+                                                    ),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          5,
+                                                        ),
+                                                  ),
+                                                  child: Row(
+                                                    spacing: 5,
+                                                    children: [
+                                                      Icon(
+                                                        Icons.timer_outlined,
+                                                        size: 20,
+                                                        color: Colors.white,
+                                                      ),
+                                                      Text(
+                                                        data.jamDatang != ''
+                                                            ? StringFormatter()
+                                                                  .formatLongTimeToMedium(
+                                                                    data.jamDatang,
+                                                                  )
+                                                            : '--:--:--',
+                                                        style: TextStyle(
+                                                          color: Colors.white,
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 10),
+                                      Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.end,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            data.namaKoridor,
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          Container(
+                                            padding: const EdgeInsets.all(3),
+                                            decoration: BoxDecoration(
+                                              color: Colors.blue,
+                                              borderRadius:
+                                                  BorderRadius.circular(4),
+                                              border: Border.all(
+                                                width: 1,
+                                                color: Colors.blueAccent,
+                                              ),
+                                            ),
+                                            child: Text(
+                                              data.ritaseKe.toString(),
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ],
                                   ),
                                 ),

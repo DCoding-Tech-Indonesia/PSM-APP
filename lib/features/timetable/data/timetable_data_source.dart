@@ -13,12 +13,24 @@ class TimetableDataSource {
 
   Future<List<TimetableData>> fetchTimetableDataList(String keyword) async {
     try {
+      final idUser = await secureStorageService.readUserId();
+
       final response = await dio.get(
-        '/time-table/list',
-        queryParameters: {'keyword': keyword, 'page': 1, 'perPage': 99},
+        '/time-table/detail/list',
+        queryParameters: {
+          'keyword': keyword,
+          'page': 1,
+          'perPage': 99,
+          'idUser': idUser,
+        },
       );
 
       final List data = response.data['data'] ?? [];
+
+      print("data[0]");
+      print(data[0]);
+      print("data[1]");
+      print(data[1]);
 
       final result = data
           .map<TimetableData>((e) => TimetableData.fromJson(e))

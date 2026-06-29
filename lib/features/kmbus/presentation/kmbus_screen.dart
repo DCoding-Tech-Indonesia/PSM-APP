@@ -121,8 +121,7 @@ class _KmbusScreenState extends State<KmbusScreen> {
                                       return;
                                     }
 
-                                    if (!state.allowTitikAwal ||
-                                        state.idKm == 0) {
+                                    if (!state.allowTitikAwal) {
                                       CoreSnackbar.show(
                                         context,
                                         message:
@@ -146,9 +145,8 @@ class _KmbusScreenState extends State<KmbusScreen> {
                                     }
                                   },
                                   backgroundColor:
-                                      ((state.allowTitikAwal &&
-                                              state.idShift != null) &&
-                                          state.idKm != 0)
+                                      (state.allowTitikAwal &&
+                                              state.idShift != null)
                                       ? Colors.green
                                       : Colors.grey,
                                   child: const Row(

@@ -145,13 +145,11 @@ class _KmbusHistoryScreenState extends State<KmbusHistoryScreen> {
                               : _buildSemuaListView(dataList),
                         );
                       } else {
-                        final dataList = state.listKmbusAuditTrail.where((
-                          audit,
-                        ) {
+                        final dataList = state.listKmbus.where((item) {
                           if (currentTab == "Awal") {
-                            return audit.dataAfter.titikAwal != null;
+                            return item.titikAwal != null;
                           } else {
-                            return audit.dataAfter.titikAkhir != null;
+                            return item.titikAkhir != null;
                           }
                         }).toList();
 
@@ -159,7 +157,7 @@ class _KmbusHistoryScreenState extends State<KmbusHistoryScreen> {
                           onRefresh: _onRefresh,
                           child: dataList.isEmpty
                               ? _buildEmptyState()
-                              : _buildAuditListView(dataList, currentTab),
+                              : _buildKmListView(dataList, currentTab),
                         );
                       }
                     },
@@ -196,6 +194,8 @@ class _KmbusHistoryScreenState extends State<KmbusHistoryScreen> {
       separatorBuilder: (_, __) => const SizedBox(height: 12),
       itemBuilder: (context, i) {
         final item = dataList[i];
+        print("item");
+        print(item);
 
         return Container(
           decoration: BoxDecoration(
@@ -236,7 +236,7 @@ class _KmbusHistoryScreenState extends State<KmbusHistoryScreen> {
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
-                        item.status?.name ?? "Selesai",
+                        item.bus?.nomorLambung,
                         style: const TextStyle(
                           color: Colors.blue,
                           fontWeight: FontWeight.w700,
@@ -257,15 +257,59 @@ class _KmbusHistoryScreenState extends State<KmbusHistoryScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  "Bus: ${item.bus?.nomorLambung ?? '-'} (${item.bus?.platNomor ?? '-'})",
+                  "Bus: (${item.bus?.platNomor ?? '-'})",
                   style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  spacing: 8,
+                  children: [
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 5,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.greenAccent.shade200,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(width: 1, color: Colors.green),
+                        ),
+                        child: Column(
+                          children: [
+                            Icon(Icons.start, size: 20),
+                            Text(item.titikAwal.toString(), style: TextStyle(fontWeight: FontWeight.w700),),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 5,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.greenAccent.shade200,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(width: 1, color: Colors.green),
+                        ),
+                        child: Column(
+                          children: [
+                            Icon(Icons.start, size: 20),
+                            Text(item.titikAkhir != null ? item.titikAkhir.toString() : "-", style: TextStyle(fontWeight: FontWeight.w700),),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 const Divider(height: 24, thickness: 0.8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      "Ritase Ke-${item.ritaseKe.toInt()}",
+                      "Ritase Ke-${item.ritaseKe.toString()}",
                       style: TextStyle(
                         color: Colors.grey.shade700,
                         fontWeight: FontWeight.w600,
@@ -290,7 +334,7 @@ class _KmbusHistoryScreenState extends State<KmbusHistoryScreen> {
     );
   }
 
-  Widget _buildAuditListView(List<dynamic> dataList, String type) {
+  Widget _buildKmListView(List<dynamic> dataList, String type) {
     final isAwal = type == "Awal";
     final mainColor = isAwal ? Colors.teal : Colors.deepOrange;
 
@@ -301,11 +345,10 @@ class _KmbusHistoryScreenState extends State<KmbusHistoryScreen> {
       separatorBuilder: (_, __) => const SizedBox(height: 12),
       itemBuilder: (context, i) {
         final item = dataList[i];
-        final details = item.dataAfter;
 
-        final int targetKm = isAwal
-            ? (details.titikAwal ?? 0)
-            : (details.titikAkhir ?? 0);
+        final targetKm = isAwal
+            ? (item.titikAwal ?? 0)
+            : (item.titikAkhir ?? 0);
 
         return Container(
           decoration: BoxDecoration(
@@ -322,7 +365,6 @@ class _KmbusHistoryScreenState extends State<KmbusHistoryScreen> {
           ),
           child: IntrinsicHeight(
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Container(
                   width: 5,
@@ -354,54 +396,50 @@ class _KmbusHistoryScreenState extends State<KmbusHistoryScreen> {
                                 ),
                                 const SizedBox(width: 6),
                                 Text(
-                                  "KM $type".toUpperCase(),
+                                  "KM ${type.toUpperCase()}",
                                   style: TextStyle(
-                                    fontWeight: FontWeight.w800,
                                     color: mainColor,
+                                    fontWeight: FontWeight.w700,
                                     fontSize: 12,
-                                    letterSpacing: 0.5,
                                   ),
                                 ),
                               ],
                             ),
                             Text(
-                              "Ritase ${details.ritaseKe.toInt()}",
+                              "Ritase ${item.ritaseKe}",
                               style: TextStyle(
                                 color: Colors.grey.shade500,
                                 fontSize: 12,
-                                fontWeight: FontWeight.w500,
                               ),
                             ),
                           ],
                         ),
                         const SizedBox(height: 12),
                         Text(
-                          item.namaKoridor,
+                          item.koridor?.name ?? "-",
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
-                            color: Colors.black87,
                           ),
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          "No. Polisi: ${item.noPolisi}",
+                          "Bus: ${item.bus?.nomorLambung ?? '-'} (${item.bus?.platNomor ?? '-'})",
                           style: TextStyle(
                             color: Colors.grey.shade600,
                             fontSize: 13,
                           ),
                         ),
-                        const Divider(height: 20, thickness: 0.8),
+                        const Divider(height: 20),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Expanded(
                               child: Text(
-                                "Oleh: ${item.namaPramugara ?? 'Pramugara'}",
+                                item.code ?? "-",
                                 style: TextStyle(
                                   color: Colors.grey.shade500,
                                   fontSize: 12,
-                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                             ),
@@ -409,7 +447,7 @@ class _KmbusHistoryScreenState extends State<KmbusHistoryScreen> {
                               "$targetKm KM",
                               style: TextStyle(
                                 color: mainColor,
-                                fontWeight: FontWeight.w800,
+                                fontWeight: FontWeight.bold,
                                 fontSize: 16,
                               ),
                             ),
