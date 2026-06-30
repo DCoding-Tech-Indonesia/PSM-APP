@@ -279,8 +279,7 @@ class _KmbusTitikAkhirFormScreenState extends State<KmbusTitikAkhirFormScreen> {
                             buildWhen: (prev, curr) =>
                                 prev.titikAkhirCreate?.document !=
                                     curr.titikAkhirCreate?.document ||
-                                prev.documentPreview !=
-                                    curr.documentPreview ||
+                                prev.documentPreview != curr.documentPreview ||
                                 prev.documentUploadStatus !=
                                     curr.documentUploadStatus,
                             builder: (context, state) {
@@ -368,7 +367,9 @@ class _KmbusTitikAkhirFormScreenState extends State<KmbusTitikAkhirFormScreen> {
                           width: double.infinity,
                           onPressed: () {
                             if (!isSubmitable) return;
-                            context.read<KmbusBloc>().add(SubmitTitikAkhir(widget.idAuditTrail));
+                            context.read<KmbusBloc>().add(
+                              SubmitTitikAkhir(widget.idAuditTrail),
+                            );
                           },
                           backgroundColor: isSubmitable
                               ? theme.colorScheme.primary

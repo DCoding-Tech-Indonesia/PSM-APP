@@ -113,14 +113,10 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
 
         final list = await timetableRepository.fetchListTimeTable('');
         final timeTableList = list.fold((failure) {
-          emit(
-            state.copyWith(
-              status: TimetableStatus.error,
-              message: failure.message,
-            ),
-          );
           return null;
-        }, (data) => data);
+        }, (data) {
+          return data;
+        });
 
         timeTableList?.sort((a, b) {
           final jamA = a.jamBerangkat.trim().isEmpty
@@ -169,6 +165,9 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
           (_) => false,
           (res) => res == "Access Granted",
         );
+
+        print("timeTableList!.length");
+        print(timeTableList!.length);
 
         emit(
           state.copyWith(

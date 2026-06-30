@@ -194,8 +194,6 @@ class _KmbusHistoryScreenState extends State<KmbusHistoryScreen> {
       separatorBuilder: (_, __) => const SizedBox(height: 12),
       itemBuilder: (context, i) {
         final item = dataList[i];
-        print("item");
-        print(item);
 
         return Container(
           decoration: BoxDecoration(
@@ -290,14 +288,14 @@ class _KmbusHistoryScreenState extends State<KmbusHistoryScreen> {
                           vertical: 6,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.greenAccent.shade200,
+                          color: Colors.redAccent.shade200,
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(width: 1, color: Colors.green),
+                          border: Border.all(width: 1, color: Colors.red),
                         ),
                         child: Column(
                           children: [
-                            Icon(Icons.start, size: 20),
-                            Text(item.titikAkhir != null ? item.titikAkhir.toString() : "-", style: TextStyle(fontWeight: FontWeight.w700),),
+                            Icon(Icons.flag, size: 20, color: Colors.white),
+                            Text(item.titikAkhir != null ? item.titikAkhir.toString() : "-", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700),),
                           ],
                         ),
                       ),

@@ -160,25 +160,17 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
           return null;
         }, (data) => data);
 
-        if (kmBusListMaster == null) return;
+        kmBusListMaster?.sort((a, b) {
+          final dateA =
+          a.tanggalKm != null ? DateTime.tryParse(a.tanggalKm!) : DateTime(1970);
+          final dateB =
+          b.tanggalKm != null ? DateTime.tryParse(b.tanggalKm!) : DateTime(1970);
 
-        final kmBusListAuditTrail = listAuditTrail.fold((failure) {
-          emit(
-            state.copyWith(status: KmbusStatus.error, message: failure.message),
-          );
-          return null;
-        }, (data) => data);
-
-        if (kmBusListAuditTrail == null) return;
-
-        print("kmBusListAuditTrail");
-        print(kmBusListAuditTrail);
-        print("kmBusListMaster");
-        print(kmBusListMaster);
+          return dateB!.compareTo(dateA!);
+        });
 
         emit(
           state.copyWith(
-            listKmbusAuditTrail: kmBusListAuditTrail,
             status: KmbusStatus.success,
             listKmbus: kmBusListMaster,
           ),

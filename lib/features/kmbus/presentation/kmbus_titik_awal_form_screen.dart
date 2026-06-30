@@ -144,7 +144,7 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
 
     return BlocListener<KmbusBloc, KmbusState>(
       listenWhen: (prev, curr) =>
-      prev.uploadStatus != curr.uploadStatus ||
+          prev.uploadStatus != curr.uploadStatus ||
           prev.submitStatus != curr.submitStatus ||
           prev.submitWorkflowStatus != curr.submitWorkflowStatus,
       listener: (context, state) async {
@@ -218,7 +218,10 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
                         color: Colors.white,
                         border: Border(
                           top: BorderSide(color: Color(0xFFB3B3B3), width: .65),
-                          bottom: BorderSide(color: Color(0xFFB3B3B3), width: .65),
+                          bottom: BorderSide(
+                            color: Color(0xFFB3B3B3),
+                            width: .65,
+                          ),
                         ),
                       ),
                       child: Column(
@@ -230,7 +233,7 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
 
                               if (state.referenceKoridor.isNotEmpty) {
                                 final matched = state.referenceKoridor.where(
-                                      (e) => e.id == state.idKoridor,
+                                  (e) => e.id == state.idKoridor,
                                 );
                                 if (matched.isNotEmpty) {
                                   selectedKoridor = matched.first;
@@ -245,11 +248,11 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
                                 items: state.referenceKoridor,
                                 selectedItem: selectedKoridor,
                                 itemAsString: (item) =>
-                                '${item.code} - ${item.name}',
+                                    '${item.code} - ${item.name}',
                                 compareFn: (a, b) => a.id == b.id,
                                 isRequired: true,
                                 isItemSelected: (item) =>
-                                item.id == state.idKoridor,
+                                    item.id == state.idKoridor,
                                 onSelected: (value) {
                                   if (value == null) return;
                                   context.read<KmbusBloc>().add(
@@ -264,7 +267,7 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
 
                           BlocBuilder<KmbusBloc, KmbusState>(
                             buildWhen: (prev, curr) =>
-                            prev.idKoridor != curr.idKoridor ||
+                                prev.idKoridor != curr.idKoridor ||
                                 prev.referenceBus != curr.referenceBus ||
                                 prev.idBus != curr.idBus ||
                                 prev.status != curr.status,
@@ -273,7 +276,7 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
 
                               if (state.referenceBus.isNotEmpty) {
                                 final matched = state.referenceBus.where(
-                                      (e) => e.id == state.idBus,
+                                  (e) => e.id == state.idBus,
                                 );
                                 if (matched.isNotEmpty) {
                                   selectedBus = matched.first;
@@ -305,9 +308,10 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
                                 items: state.referenceBus,
                                 selectedItem: selectedBus,
                                 itemAsString: (item) =>
-                                '${item.code} - ${item.name}',
+                                    '${item.code} - ${item.name}',
                                 compareFn: (a, b) => a.id == b.id,
-                                isItemSelected: (item) => item.id == state.idBus,
+                                isItemSelected: (item) =>
+                                    item.id == state.idBus,
                                 isRequired: true,
                                 onSelected: (value) {
                                   if (value == null) return;
@@ -323,11 +327,12 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
 
                           BlocBuilder<KmbusBloc, KmbusState>(
                             buildWhen: (prev, curr) =>
-                            prev.ocrResult != curr.ocrResult,
+                                prev.ocrResult != curr.ocrResult,
                             builder: (context, state) {
                               if (state.ocrResult != null) {
                                 return Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
                                       "Odometer : ${state.ocrResult}",
@@ -348,7 +353,9 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
                                             width: 1,
                                             color: Colors.blue,
                                           ),
-                                          borderRadius: BorderRadius.circular(4),
+                                          borderRadius: BorderRadius.circular(
+                                            4,
+                                          ),
                                         ),
                                         child: const Icon(
                                           Icons.edit_note,
@@ -378,27 +385,39 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
 
                           BlocBuilder<KmbusBloc, KmbusState>(
                             buildWhen: (prev, curr) =>
-                            prev.titikAwalCreate?.document !=
-                                curr.titikAwalCreate?.document ||
+                                prev.titikAwalCreate?.document !=
+                                    curr.titikAwalCreate?.document ||
                                 prev.documentUploadStatus !=
                                     curr.documentUploadStatus,
                             builder: (context, state) {
-                              final doc = state.documentPreview.firstOrNull;
+                              final localDoc =
+                                  state.documentPreview.firstOrNull;
+                              final apiDoc =
+                                  state.titikAkhirCreate?.document.firstOrNull;
+
+                              final imageUrl = localDoc?.url ?? apiDoc?.urlDoc;
+                              final hasImage =
+                                  imageUrl != null && imageUrl.isNotEmpty;
+
+                              final targetIdDocument =
+                                  localDoc?.idDocument ??
+                                  apiDoc?.idDocument ??
+                                  0;
 
                               return CoreCameraWidget(
                                 title: "Ambil Foto Speedometer",
-                                imageUrl: doc?.url,
+                                imageUrl: imageUrl,
                                 isLoading:
-                                state.documentUploadStatus ==
+                                    state.documentUploadStatus ==
                                     DocumentUploadStatus.uploading,
                                 onTap: () {
-                                  if (doc != null) {
+                                  if (hasImage) {
                                     CoreCameraWidget.showPreviewDialog(
                                       context: context,
-                                      imageUrl: doc.url,
+                                      imageUrl: imageUrl,
                                       onDelete: () {
                                         context.read<KmbusBloc>().add(
-                                          RemoveDocumentById(doc.idDocument),
+                                          RemoveDocumentById(targetIdDocument),
                                         );
                                         Navigator.pop(context);
                                       },
@@ -408,13 +427,13 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
                                     _openCamera();
                                   }
                                 },
-                                onRemoveImage: doc == null
+                                onRemoveImage: !hasImage
                                     ? null
                                     : () {
-                                  context.read<KmbusBloc>().add(
-                                    RemoveDocumentById(doc.idDocument),
-                                  );
-                                },
+                                        context.read<KmbusBloc>().add(
+                                          RemoveDocumentById(targetIdDocument),
+                                        );
+                                      },
                                 instructions: const [
                                   "Pastikan foto tidak buram",
                                   "Pastikan odometer yang didapatkan sesuai dengan yang di foto",
@@ -428,7 +447,7 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
                   ),
                   BlocBuilder<KmbusBloc, KmbusState>(
                     buildWhen: (prev, curr) =>
-                    prev.titikAwalCreate != curr.titikAwalCreate ||
+                        prev.titikAwalCreate != curr.titikAwalCreate ||
                         prev.status != curr.status ||
                         prev.uploadStatus != curr.uploadStatus ||
                         prev.submitStatus != curr.submitStatus ||
@@ -436,16 +455,18 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
                     builder: (context, state) {
                       final isLoading =
                           state.status == KmbusStatus.fetching ||
-                              state.uploadStatus == UploadStatus.uploading ||
-                              state.submitStatus == SubmitStatus.submitting ||
-                              state.submitWorkflowStatus == SubmitWorkflowStatus.submitting;
+                          state.uploadStatus == UploadStatus.uploading ||
+                          state.submitStatus == SubmitStatus.submitting ||
+                          state.submitWorkflowStatus ==
+                              SubmitWorkflowStatus.submitting;
 
                       final isSubmitable =
                           !isLoading &&
-                              state.titikAwalCreate?.titikAwal != 0 &&
-                              (state.titikAwalCreate?.document.isNotEmpty ?? false) &&
-                              state.titikAwalCreate?.idKoridor != 0 &&
-                              state.titikAwalCreate?.idBus != 0;
+                          state.titikAwalCreate?.titikAwal != 0 &&
+                          (state.titikAwalCreate?.document.isNotEmpty ??
+                              false) &&
+                          state.titikAwalCreate?.idKoridor != 0 &&
+                          state.titikAwalCreate?.idBus != 0;
 
                       return Padding(
                         padding: const EdgeInsets.symmetric(
@@ -478,17 +499,18 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
 
               BlocBuilder<KmbusBloc, KmbusState>(
                 buildWhen: (prev, curr) =>
-                prev.status != curr.status ||
+                    prev.status != curr.status ||
                     prev.uploadStatus != curr.uploadStatus ||
                     prev.submitStatus != curr.submitStatus ||
                     prev.submitWorkflowStatus != curr.submitWorkflowStatus,
                 builder: (context, state) {
                   final isLoading =
                       state.status == KmbusStatus.initial ||
-                          state.status == KmbusStatus.fetching ||
-                          state.uploadStatus == UploadStatus.uploading ||
-                          state.submitStatus == SubmitStatus.submitting ||
-                          state.submitWorkflowStatus == SubmitWorkflowStatus.submitting;
+                      state.status == KmbusStatus.fetching ||
+                      state.uploadStatus == UploadStatus.uploading ||
+                      state.submitStatus == SubmitStatus.submitting ||
+                      state.submitWorkflowStatus ==
+                          SubmitWorkflowStatus.submitting;
 
                   if (!isLoading) return const SizedBox.shrink();
 
@@ -497,7 +519,9 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
                       color: Colors.black.withAlpha(120),
                       child: const Center(
                         child: CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.blue,
+                          ),
                         ),
                       ),
                     ),
