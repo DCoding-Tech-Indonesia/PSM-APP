@@ -119,8 +119,7 @@ class _KmbusHistoryScreenState extends State<KmbusHistoryScreen> {
               child: BlocBuilder<KmbusBloc, KmbusState>(
                 builder: (context, state) {
                   if (state.status == KmbusStatus.loading &&
-                      state.listKmbus.isEmpty &&
-                      state.listKmbusAuditTrail.isEmpty) {
+                      state.listKmbus.isEmpty) {
                     return const Center(child: CircularProgressIndicator());
                   }
 
@@ -213,6 +212,8 @@ class _KmbusHistoryScreenState extends State<KmbusHistoryScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Text(item.tanggalKm, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),),
+                const Divider(),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [

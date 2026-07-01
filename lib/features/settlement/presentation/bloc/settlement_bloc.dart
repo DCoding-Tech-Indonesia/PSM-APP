@@ -17,7 +17,7 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
   SettlementBloc(this.settlementRepository, this.secureStorageService)
     : super(const SettlementState()) {
     on<PageInputLoad>((event, emit) async {
-      emit(state.copyWith(status: SettlementStatus.loading));
+      emit(state.copyWith(status: SettlementStatus.loading, idShift: event.idShift, idKoridor: event.idKoridor, ritase: event.ritaseKe, auditTrailId: event.idAuditTrail, idBus: event.idBus, idKoridorShift: event.idKoridor, idBusShift: event.idBus));
 
       try {
         final resultKoridor = await settlementRepository.fetchReferenceKoridor(
@@ -252,9 +252,6 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
             activeTabLabel: activeTabLabel,
             auditTrailId: auditTrailId,
             status: SettlementStatus.success,
-            idKoridor: event.idKoridor,
-            idBus: event.idBus,
-            ritase: event.ritaseKe,
             namaKoridor: namaKoridor,
             noUnit: noUnit,
             referenceKoridor: koridorList,

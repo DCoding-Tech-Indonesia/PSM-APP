@@ -9,6 +9,7 @@ import 'package:psm_mobile/core/presentations/widgets/core_date_time_widget.dart
 import 'package:psm_mobile/core/presentations/widgets/core_snackbar.dart';
 import 'package:psm_mobile/core/presentations/widgets/widgets.dart';
 import 'package:psm_mobile/features/kmbus/domain/entities/titik_akhir_args.dart';
+import 'package:psm_mobile/features/settlement/domain/entities/settlement_form_args.dart';
 import 'package:psm_mobile/features/timetable/presentation/bloc/timetable_bloc.dart';
 import 'package:psm_mobile/features/timetable/presentation/bloc/timetable_event.dart';
 import 'package:psm_mobile/features/timetable/presentation/bloc/timetable_state.dart';
@@ -188,6 +189,21 @@ class _TimetableScreenState extends State<TimetableScreen> {
           Future.delayed(const Duration(milliseconds: 200), () {
             context.read<TimetableBloc>().add(PageDashboardLoad());
           });
+
+          if (state.message == "Berhasil check-out!") {
+            Future.delayed(const Duration(milliseconds: 200), () {
+              context.push(
+                '/settlement/form',
+                extra: SettlementFormArgs(
+                  idAuditTrail: null,
+                  idShift: state.idShift,
+                  idKoridor: state.idKoridor,
+                  idBus: state.idBus,
+                  ritaseKe: state.ritaseKe,
+                ),
+              );
+            });
+          }
         } else if (state.status == TimetableStatus.failedSave) {
           CoreSnackbar.show(
             context,
@@ -293,7 +309,7 @@ class _TimetableScreenState extends State<TimetableScreen> {
                                       children: const [
                                         Icon(Icons.login),
                                         SizedBox(width: 8),
-                                        Text("Check-in"),
+                                        Text("Berangkat"),
                                       ],
                                     ),
                                   ),
@@ -303,7 +319,7 @@ class _TimetableScreenState extends State<TimetableScreen> {
                                 child: CoreButton(
                                   onPressed: () {
                                     if (!state.isAllowCheckOut) return;
-                                    if (state.isLastRitase) {
+                                    if (!state.isLastRitase) {
                                       _showCheckInOutModal(context, false);
                                     } else {
                                       _showCheckInOutModalToKM(
@@ -330,7 +346,7 @@ class _TimetableScreenState extends State<TimetableScreen> {
                                       children: const [
                                         Icon(Icons.logout),
                                         SizedBox(width: 8),
-                                        Text("Check-out"),
+                                        Text("Datang"),
                                       ],
                                     ),
                                   ),
@@ -458,7 +474,7 @@ class _TimetableScreenState extends State<TimetableScreen> {
                                                   CrossAxisAlignment.start,
                                               children: [
                                                 Text(
-                                                  "Check-In",
+                                                  "Berangkat",
                                                   style: TextStyle(
                                                     fontWeight: FontWeight.w600,
                                                   ),
@@ -513,7 +529,7 @@ class _TimetableScreenState extends State<TimetableScreen> {
                                                   CrossAxisAlignment.start,
                                               children: [
                                                 Text(
-                                                  "Check-Out",
+                                                  "Datang",
                                                   style: TextStyle(
                                                     fontWeight: FontWeight.w600,
                                                   ),

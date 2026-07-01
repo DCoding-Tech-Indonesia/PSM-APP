@@ -405,26 +405,26 @@ void setupRouter(String initialLocation) {
       GoRoute(
         path: '/timetable/history',
         builder: (context, state) {
-          return TimetableHistoryScreen();
-          // final dio = DioClient().instance;
-          // final secureStorageService = SecureStorageService();
+          final dio = DioClient().instance;
+          final secureStorageService = SecureStorageService();
 
-          // return MultiBlocProvider(
-          //   providers: [
-          //     BlocProvider(
-          //       create: (_) => SettlementBloc(
-          //         SettlementRepositoryImpl(
-          //           dataSource: SettlementDataSource(
-          //             dio: dio,
-          //             secureStorageService: secureStorageService,
-          //           ),
-          //           dataSourceReference: ReferenceDataSource(dio: dio),
-          //         ),
-          //       ),
-          //     ),
-          //   ],
-          //   child: SettlementHistoryScreen(),
-          // );
+          return MultiBlocProvider(
+            providers: [
+              BlocProvider(
+                create: (_) => TimetableBloc(
+                  TimetableRepositoryImpl(
+                    dataSource: TimetableDataSource(
+                      dio: dio,
+                      secureStorageService: secureStorageService,
+                    ),
+                    dataSourceReference: ReferenceDataSource(dio: dio),
+                  ),
+                  secureStorageService,
+                ),
+              ),
+            ],
+            child: const TimetableHistoryScreen(),
+          );
         },
       ),
 

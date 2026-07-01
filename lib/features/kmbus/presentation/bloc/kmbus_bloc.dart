@@ -22,6 +22,50 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
       emit(state.copyWith(status: KmbusStatus.initial, submitStatus: SubmitStatus.idle, submitWorkflowStatus: SubmitWorkflowStatus.idle));
 
       try {
+        final listMaster = await kmbusRepository.fetchKmbusDataToday('');
+        final listAuditTrail = await kmbusRepository.fetchListKmbusAuditTrail(
+          '',
+        );
+
+        final kmBusListMaster = listMaster.fold((failure) {
+          emit(
+            state.copyWith(status: KmbusStatus.error, message: failure.message),
+          );
+          return null;
+        }, (data) => data);
+
+        final kmBusListAuditTrail = listAuditTrail.fold((failure) {
+          emit(
+            state.copyWith(status: KmbusStatus.error, message: failure.message),
+          );
+          return null;
+        }, (data) => data);
+
+        if (kmBusListAuditTrail == null) return;
+
+        final activeMasterData = kmBusListMaster?.cast<KmbusData?>().firstWhere(
+              (e) => e != null && e.titikAkhir == null,
+          orElse: () => null,
+        );
+
+        final idKm = activeMasterData?.id ?? 0;
+
+        emit(
+          state.copyWith(
+            listKmbusAuditTrail: kmBusListAuditTrail,
+            idKm: idKm,
+            status: KmbusStatus.success,
+          ),
+        );
+
+        final bool hasDraftTitikAkhir = kmBusListAuditTrail.any((data) {
+          final bool isTitikAkhir =
+              data.dataAfter.titikAkhir != null &&
+                  data.dataAfter.titikAkhir != 0;
+          final bool isDraft = data.status.code == "DFT";
+          return isTitikAkhir && isDraft;
+        });
+
         final userIdString = await secureStorageService.readUserId();
         final userId = int.tryParse(userIdString ?? '') ?? 0;
 
@@ -52,8 +96,8 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
           idBusShift!,
         );
         final double ritaseValue = nextRitaseResult.fold(
-          (_) => 0.0,
-          (value) => value.ritaseKe!,
+              (_) => 0.0,
+              (value) => value.ritaseKe!,
         );
 
         final checkAwalFuture = kmbusRepository.checkAllowTitikAwal(
@@ -73,50 +117,14 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
         final checkAkhirResult = results[1];
 
         final bool isAllowTitikAwal = checkAwalResult.fold(
-          (_) => false,
-          (res) => res == "Access Granted",
+              (_) => false,
+              (res) => res == "Access Granted",
         );
 
         final bool isAllowTitikAkhirCheck = checkAkhirResult.fold(
-          (_) => false,
-          (res) => res == "Access Granted",
+              (_) => false,
+              (res) => res == "Access Granted",
         );
-
-        final listMaster = await kmbusRepository.fetchKmbusDataToday('');
-        final listAuditTrail = await kmbusRepository.fetchListKmbusAuditTrail(
-          '',
-        );
-
-        final kmBusListMaster = listMaster.fold((failure) {
-          emit(
-            state.copyWith(status: KmbusStatus.error, message: failure.message),
-          );
-          return null;
-        }, (data) => data);
-
-        final kmBusListAuditTrail = listAuditTrail.fold((failure) {
-          emit(
-            state.copyWith(status: KmbusStatus.error, message: failure.message),
-          );
-          return null;
-        }, (data) => data);
-
-        if (kmBusListAuditTrail == null) return;
-
-        final activeMasterData = kmBusListMaster?.cast<KmbusData?>().firstWhere(
-          (e) => e != null && e.titikAkhir == null,
-          orElse: () => null,
-        );
-
-        final idKm = activeMasterData?.id ?? 0;
-
-        final bool hasDraftTitikAkhir = kmBusListAuditTrail.any((data) {
-          final bool isTitikAkhir =
-              data.dataAfter.titikAkhir != null &&
-              data.dataAfter.titikAkhir != 0;
-          final bool isDraft = data.status.code == "DFT";
-          return isTitikAkhir && isDraft;
-        });
 
         bool finalAllowTitikAkhir = isAllowTitikAkhirCheck && idKm != 0;
 
@@ -126,11 +134,8 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
 
         emit(
           state.copyWith(
-            listKmbusAuditTrail: kmBusListAuditTrail,
             allowTitikAwal: isAllowTitikAwal,
             allowTitikAkhir: finalAllowTitikAkhir,
-            idKm: idKm,
-            status: KmbusStatus.success,
             idShift: todayScheduleData[0].shift.id,
             idKoridorShift: idKoridorShift,
             idBusShift: idBusShift,

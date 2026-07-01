@@ -19,6 +19,34 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
       emit(state.copyWith(status: TimetableStatus.loading));
 
       try {
+        final list = await timetableRepository.fetchListTimeTable('');
+        final timeTableList = list.fold((failure) {
+          return null;
+        }, (data) {
+          return data;
+        });
+
+        timeTableList?.sort((a, b) {
+          final jamA = a.jamBerangkat.trim().isEmpty
+              ? '00:00:00'
+              : a.jamBerangkat.split('.').first;
+
+          final jamB = b.jamBerangkat.trim().isEmpty
+              ? '00:00:00'
+              : b.jamBerangkat.split('.').first;
+
+          final dateTimeA = DateTime.parse('${a.tanggal} $jamA');
+          final dateTimeB = DateTime.parse('${b.tanggal} $jamB');
+
+          return dateTimeB.compareTo(dateTimeA);
+        });
+
+        emit(
+          state.copyWith(
+            listTimetable: timeTableList,
+          ),
+        );
+
         final userIdString = await secureStorageService.readUserId();
         final userId = int.tryParse(userIdString ?? '') ?? 0;
 
@@ -46,7 +74,6 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
           );
           return;
         }
-
 
         final idKoridorShift = todayScheduleData[0].lokasi.koridor;
         final idBusShift = todayScheduleData[0].bus.id;
@@ -112,28 +139,6 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
           return null;
         }, (data) => data);
 
-        final list = await timetableRepository.fetchListTimeTable('');
-        final timeTableList = list.fold((failure) {
-          return null;
-        }, (data) {
-          return data;
-        });
-
-        timeTableList?.sort((a, b) {
-          final jamA = a.jamBerangkat.trim().isEmpty
-              ? '00:00:00'
-              : a.jamBerangkat.split('.').first;
-
-          final jamB = b.jamBerangkat.trim().isEmpty
-              ? '00:00:00'
-              : b.jamBerangkat.split('.').first;
-
-          final dateTimeA = DateTime.parse('${a.tanggal} $jamA');
-          final dateTimeB = DateTime.parse('${b.tanggal} $jamB');
-
-          return dateTimeB.compareTo(dateTimeA);
-        });
-
         final activeCheckin = timeTableList?.cast<TimetableData?>().firstWhere(
               (e) => e != null && (e.jamDatang.trim().isEmpty),
           orElse: () => null,
@@ -185,9 +190,9 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
 
         emit(
           state.copyWith(
+            idShift: idShiftActive,
             idKm: idKm,
             idCheckin: idCheckin,
-            listTimetable: timeTableList,
             referenceKoridor: koridorList,
             referenceBus: busList,
             checkinData: updatedCheckinWithPramugara,
@@ -197,6 +202,44 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
             isAllowCheckIn: isAllowCheckIn,
             isAllowCheckOut: (isAllowCheckOut && !isAllowCheckIn),
             status: TimetableStatus.success,
+          ),
+        );
+      } catch (e, s) {
+        debugPrint(e.toString());
+        debugPrint(s.toString());
+        emit(
+          state.copyWith(status: TimetableStatus.error, message: e.toString()),
+        );
+      }
+    });
+
+    on<PageHistoryLoad>((event, emit) async {
+      try {
+        final list = await timetableRepository.fetchListTimeTable('');
+        final timeTableList = list.fold((failure) {
+          return null;
+        }, (data) {
+          return data;
+        });
+
+        timeTableList?.sort((a, b) {
+          final jamA = a.jamBerangkat.trim().isEmpty
+              ? '00:00:00'
+              : a.jamBerangkat.split('.').first;
+
+          final jamB = b.jamBerangkat.trim().isEmpty
+              ? '00:00:00'
+              : b.jamBerangkat.split('.').first;
+
+          final dateTimeA = DateTime.parse('${a.tanggal} $jamA');
+          final dateTimeB = DateTime.parse('${b.tanggal} $jamB');
+
+          return dateTimeB.compareTo(dateTimeA);
+        });
+
+        emit(
+          state.copyWith(
+            listTimetable: timeTableList,
           ),
         );
       } catch (e, s) {
@@ -346,138 +389,6 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
           ),
         );
       }
-    });
-
-    on<SelectKoridor>((event, emit) async {
-      final currentCheckin =
-          state.checkinData ??
-          TimetableCheckin(
-            tanggal: DateTime.now().toString().split(' ')[0],
-            idKoridor: event.id,
-            idBus: 0,
-            idShift: 1,
-            idPramugara: 0,
-            ritaseKe: 0.0,
-            long: 0.0,
-            lat: 0.0,
-          );
-
-      emit(
-        state.copyWith(
-          status: TimetableStatus.fetching,
-          checkinData: currentCheckin.copyWith(
-            idKoridor: event.id,
-            idBus: 0,
-            ritaseKe: 0.0,
-          ),
-          idKoridor: event.id,
-          namaKoridor: event.namaKoridor,
-          idBus: 0,
-          referenceBus: const [],
-        ),
-      );
-
-      final resultBus = await timetableRepository.fetchReferenceBus(
-        '',
-        event.id,
-      );
-
-      resultBus.fold(
-        (failure) {
-          emit(
-            state.copyWith(
-              status: TimetableStatus.error,
-              message: failure.message,
-            ),
-          );
-        },
-        (data) {
-          emit(
-            state.copyWith(status: TimetableStatus.success, referenceBus: data),
-          );
-        },
-      );
-    });
-
-    on<SelectBus>((event, emit) async {
-      emit(
-        state.copyWith(
-          status: TimetableStatus.fetching,
-          idBus: event.id,
-          noUnit: event.noUnit,
-        ),
-      );
-
-      final nextRitase = await timetableRepository.fetchNextRitase(
-        state.idKoridor,
-        event.id,
-      );
-
-      final currentCheckin =
-          state.checkinData ??
-          TimetableCheckin(
-            tanggal: DateTime.now().toString().split(' ')[0],
-            idKoridor: state.idKoridor,
-            idBus: event.id,
-            idShift: 1,
-            idPramugara: 0,
-            ritaseKe: 0.0,
-            long: 0.0,
-            lat: 0.0,
-          );
-
-      nextRitase.fold(
-        (failure) {
-          emit(
-            state.copyWith(
-              status: TimetableStatus.error,
-              message: failure.message,
-            ),
-          );
-        },
-        (ritaseValue) {
-          emit(
-            state.copyWith(
-              status: TimetableStatus.success,
-              checkinData: currentCheckin.copyWith(
-                idKoridor: state.idKoridor,
-                idBus: event.id,
-                ritaseKe: ritaseValue.ritaseKe!,
-              ),
-            ),
-          );
-        },
-      );
-    });
-
-    on<ResetInput>((event, emit) {
-      final currentCheckin =
-          state.checkinData ??
-          TimetableCheckin(
-            tanggal: DateTime.now().toString().split(' ')[0],
-            idKoridor: 0,
-            idBus: 0,
-            idShift: 1,
-            idPramugara: 0,
-            ritaseKe: 0.0,
-            long: 0.0,
-            lat: 0.0,
-          );
-
-      emit(
-        state.copyWith(
-          status: TimetableStatus.success,
-          idKoridor: 0,
-          namaKoridor: '',
-          idBus: 0,
-          referenceBus: const [],
-          checkinData: currentCheckin.copyWith(
-            idKoridor: 0,
-            idBus: 0,
-            ritaseKe: 0.0,
-          ),
-        ),
-      );
     });
   }
 }
