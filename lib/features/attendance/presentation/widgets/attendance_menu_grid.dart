@@ -43,7 +43,8 @@ class AttendanceMenuGrid extends StatelessWidget {
     final itemHeight = itemWidth * 0.9; // Sesuaikan dengan childAspectRatio
 
     final List<_MenuItem> items = [
-      if (role.toLowerCase().contains('korlap'))
+      if (role.toLowerCase().contains('korlap') ||
+          typePegawai.toLowerCase().contains('pgw_mngr_opr'))
         _MenuItem(
           title: 'Approval Jadwal',
           icon: Icons.check_circle_outlined,

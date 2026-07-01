@@ -6,7 +6,6 @@ import 'package:psm_mobile/features/attendance/data/models/attendance_request.da
 import 'package:psm_mobile/features/attendance/data/models/schedule_model.dart';
 import 'package:psm_mobile/features/attendance/domain/repositories/attendance_repository.dart';
 import 'package:psm_mobile/core/helper/location_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'attendance_state.dart';
 
 class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
@@ -290,17 +289,18 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
           idUser: int.tryParse(s.userId) ?? 0,
           lokasiLat: position.latitude,
           lokasiLong: position.longitude,
-          idBus: event.busId,
         );
 
         final success = await repository.submitAttendance(request);
 
         if (success) {
-          final prefs = await SharedPreferences.getInstance();
-          await prefs.setInt('active_bus_id', event.busId);
-
           // Re-fetch everything to ensure stats and history are synchronized
-          await _fetchHistoryAndEmit(s.userId, emit, s, successMessage: 'Check-in berhasil!');
+          await _fetchHistoryAndEmit(
+            s.userId,
+            emit,
+            s,
+            successMessage: 'Check-in berhasil!',
+          );
         } else {
           emit(
             s.copyWith(
@@ -329,21 +329,22 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
         final position = await locationService.getCurrentLocation();
         if (position == null) throw 'Gagal mendapatkan lokasi';
 
-        final prefs = await SharedPreferences.getInstance();
-        final busId = prefs.getInt('active_bus_id') ?? 0;
-
         final request = AttendanceRequest(
           idUser: int.tryParse(s.userId) ?? 0,
           lokasiLat: position.latitude,
           lokasiLong: position.longitude,
-          idBus: busId,
         );
 
         final success = await repository.submitAttendance(request);
 
         if (success) {
           // Re-fetch everything to ensure stats and history are synchronized
-          await _fetchHistoryAndEmit(s.userId, emit, s, successMessage: 'Check-out berhasil!');
+          await _fetchHistoryAndEmit(
+            s.userId,
+            emit,
+            s,
+            successMessage: 'Check-out berhasil!',
+          );
         } else {
           emit(
             s.copyWith(

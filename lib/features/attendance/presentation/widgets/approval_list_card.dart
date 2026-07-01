@@ -103,7 +103,7 @@ class ApprovalListCard extends StatelessWidget {
                 _buildInfoRow(
                   icon: Icons.calendar_today_outlined,
                   label: 'Tanggal Shift',
-                  value: approval.tanggal,
+                  value: _formatDate(approval.tanggal),
                   color: Colors.deepPurple,
                 ),
                 const SizedBox(height: 8),
@@ -164,7 +164,7 @@ class ApprovalListCard extends StatelessWidget {
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(
-                        'Diajukan ${_formatDate(approval.createdAt)}',
+                        'Diajukan ${_formatDateWithHour(approval.createdAt)}',
                         style: theme.textTheme.bodySmall,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -234,6 +234,16 @@ class ApprovalListCard extends StatelessWidget {
   }
 
   String _formatDate(String raw) {
+    if (raw.isEmpty) return '-';
+    try {
+      final dt = DateTime.parse(raw);
+      return DateFormat('dd MMM yyyy').format(dt);
+    } catch (_) {
+      return raw;
+    }
+  }
+
+  String _formatDateWithHour(String raw) {
     if (raw.isEmpty) return '-';
     try {
       final dt = DateTime.parse(raw);

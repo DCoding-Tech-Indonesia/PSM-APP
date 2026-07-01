@@ -3,10 +3,12 @@ import 'package:psm_mobile/features/checklist/domain/repositories/checklist_repo
 import 'checklist_input_event.dart';
 import 'checklist_input_state.dart';
 
-class ChecklistInputBloc extends Bloc<ChecklistInputEvent, ChecklistInputState> {
+class ChecklistInputBloc
+    extends Bloc<ChecklistInputEvent, ChecklistInputState> {
   final ChecklistRepository repository;
 
-  ChecklistInputBloc({required this.repository}) : super(ChecklistInputInitial()) {
+  ChecklistInputBloc({required this.repository})
+    : super(ChecklistInputInitial()) {
     on<LoadChecklistQuestions>(_onLoadChecklistQuestions);
     on<SubmitChecklist>(_onSubmitChecklist);
   }
@@ -32,8 +34,8 @@ class ChecklistInputBloc extends Bloc<ChecklistInputEvent, ChecklistInputState> 
   ) async {
     emit(ChecklistSubmitting());
     try {
-      await repository.createChecklist(event.payload);
-      emit(ChecklistSubmitSuccess());
+      final msg = await repository.createChecklist(event.payload);
+      emit(ChecklistSubmitSuccess(msg)); // Kirim message ke UI
     } catch (e) {
       emit(ChecklistSubmitError(e.toString()));
     }

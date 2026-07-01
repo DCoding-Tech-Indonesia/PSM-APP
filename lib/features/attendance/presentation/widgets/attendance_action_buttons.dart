@@ -39,7 +39,7 @@ class AttendanceActionButtons extends StatelessWidget {
                           'Anda berada di luar radius kantor (${state.distanceFromOffice}). Silakan mendekat ke area kantor untuk melakukan absensi.',
                         );
                       } else {
-                        int selectedBusId = 0;
+                        // int selectedBusId = 0;
 
                         showCoreConfirmDialog(
                           context: context,
@@ -48,34 +48,34 @@ class AttendanceActionButtons extends StatelessWidget {
                               'Apakah Anda yakin ingin melakukan Check-in sekarang?',
                           color: Colors.green,
                           onConfirm: () => context.read<AttendanceBloc>().add(
-                            CheckInRequested(busId: selectedBusId),
+                            CheckInRequested(),
                           ),
-                          contentWidget: StatefulBuilder(
-                            builder: (context, setState) {
-                              return Column(
-                                children: [
-                                  CoreDropdownSearch<dynamic>(
-                                    label: 'Bus',
-                                    hintText: 'Pilih bus',
-                                    popupTitle: 'Pilih Bus',
-                                    items: state.bus,
-                                    itemAsString: (s) =>
-                                        'No. Lambung ${s['code']} - ${s['name']?.toString()}',
-                                    compareFn: (a, b) => a['id'] == b['id'],
-                                    onSelected: (selected) {
-                                      if (selected != null) {
-                                        selectedBusId =
-                                            int.tryParse(
-                                              selected['id'].toString(),
-                                            ) ??
-                                            0;
-                                      }
-                                    },
-                                  ),
-                                ],
-                              );
-                            },
-                          ),
+                          // contentWidget: StatefulBuilder(
+                          //   builder: (context, setState) {
+                          //     return Column(
+                          //       children: [
+                          //         CoreDropdownSearch<dynamic>(
+                          //           label: 'Bus',
+                          //           hintText: 'Pilih bus',
+                          //           popupTitle: 'Pilih Bus',
+                          //           items: state.bus,
+                          //           itemAsString: (s) =>
+                          //               'No. Lambung ${s['code']} - ${s['name']?.toString()}',
+                          //           compareFn: (a, b) => a['id'] == b['id'],
+                          //           onSelected: (selected) {
+                          //             if (selected != null) {
+                          //               selectedBusId =
+                          //                   int.tryParse(
+                          //                     selected['id'].toString(),
+                          //                   ) ??
+                          //                   0;
+                          //             }
+                          //           },
+                          //         ),
+                          //       ],
+                          //     );
+                          //   },
+                          // ),
                         );
                       }
                     },

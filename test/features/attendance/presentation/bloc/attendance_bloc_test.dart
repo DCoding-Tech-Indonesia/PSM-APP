@@ -105,7 +105,7 @@ void main() {
         history: [],
         bus: [],
       ),
-      act: (bloc) => bloc.add(CheckInRequested(busId: 1)),
+      act: (bloc) => bloc.add(CheckInRequested()),
       expect: () => [
         isA<AttendanceLoaded>().having((s) => s.isLoading, 'isLoading', true),
         isA<AttendanceLoaded>().having(

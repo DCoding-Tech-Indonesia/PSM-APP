@@ -1,7 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:psm_mobile/core/network/dio_client.dart';
+import 'package:psm_mobile/core/notification/approval_refresh_notifier.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_dropdown_search.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_header.dart';
 import 'package:psm_mobile/features/checklist/data/models/checklist_question_model.dart';
@@ -253,6 +255,9 @@ class _ChecklistInputScreenViewState extends State<_ChecklistInputScreenView> {
 
     return BlocListener<ChecklistInputBloc, ChecklistInputState>(
       listener: (context, state) {
+        if (kDebugMode) {
+          print('state: $state');
+        }
         if (state is ChecklistQuestionsLoaded) {
           setState(() {
             _pertanyaan = state.questions;
@@ -272,15 +277,31 @@ class _ChecklistInputScreenViewState extends State<_ChecklistInputScreenView> {
             builder: (ctx) => const Center(child: CircularProgressIndicator()),
           );
         } else if (state is ChecklistSubmitSuccess) {
-          Navigator.pop(context); // close loading
+          // 1. WAJIB: Tutup dialog loading (CircularProgressIndicator) terlebih dahulu
+          Navigator.of(context, rootNavigator: true).pop();
+
+          // 2. Kunci router halaman utama sebelum membuka dialog baru
+          final router = GoRouter.of(context);
+
+          // 3. Tampilkan pesan sukses dinamis dari response API
           showCoreSuccessDialog(
             context,
             'Sukses',
-            'Berhasil menyimpan data checklist.',
-          );
-          context.pop(true);
+            state.message, // Menggunakan pesan dari API
+          ).then((_) {
+            // Refresh notifier data list
+            ApprovalRefreshNotifier.instance.notifyRefresh();
+
+            // 4. Lakukan pop pada halaman utama untuk kembali ke halaman list
+            if (router.canPop()) {
+              router.pop(true);
+            }
+          });
         } else if (state is ChecklistSubmitError) {
-          Navigator.pop(context); // close loading
+          // Tutup dialog loading jika gagal
+          Navigator.of(context, rootNavigator: true).pop();
+
+          // Tampilkan pesan error dinamis dari response API
           showCoreErrorDialog(context, 'Gagal Menyimpan', state.message);
         }
       },

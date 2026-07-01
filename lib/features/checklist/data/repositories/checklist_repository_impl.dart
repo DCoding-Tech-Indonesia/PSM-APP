@@ -37,7 +37,7 @@ class ChecklistRepositoryImpl implements ChecklistRepository {
   }
 
   @override
-  Future<void> createChecklist(Map<String, dynamic> payload) async {
+  Future<String> createChecklist(Map<String, dynamic> payload) async {
     return remoteDataSource.createChecklist(payload);
   }
 }

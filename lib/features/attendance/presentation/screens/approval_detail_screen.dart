@@ -44,8 +44,10 @@ class ApprovalDetailView extends StatelessWidget {
   Widget build(BuildContext context) {
     final portalState = context.read<PortalBloc>().state;
     String role = '';
+    String typePegawai = '';
     if (portalState is PortalLoaded) {
       role = portalState.profile.role;
+      typePegawai = portalState.profile.typePegawaiCode;
     }
 
     final theme = Theme.of(context);
@@ -66,7 +68,8 @@ class ApprovalDetailView extends StatelessWidget {
                 showCoreSuccessDialog(
                   context,
                   'Sukses',
-                  state.actionSuccessMessage ?? 'Berhasil menyetujui pergantian shift',
+                  state.actionSuccessMessage ??
+                      'Berhasil menyetujui pergantian shift',
                 ).then((_) {
                   ApprovalRefreshNotifier.instance.notifyRefresh();
                   if (context.mounted) {
@@ -94,7 +97,8 @@ class ApprovalDetailView extends StatelessWidget {
                   detail != null &&
                   (detail.status == 'PENDING_REPL' ||
                       detail.status == 'PENDING') &&
-                  role.toLowerCase().contains('korlap');
+                  (role.toLowerCase().contains('korlap') ||
+                      typePegawai.toLowerCase().contains('pgw_mngr_opr'));
 
               return Column(
                 children: [
@@ -404,9 +408,8 @@ class ApprovalDetailView extends StatelessWidget {
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 14,
-                            color: theme.textTheme.bodyMedium?.color?.withValues(
-                              alpha: 0.7,
-                            ),
+                            color: theme.textTheme.bodyMedium?.color
+                                ?.withValues(alpha: 0.7),
                             height: 1.5,
                           ),
                         ),
@@ -476,7 +479,9 @@ class ApprovalDetailView extends StatelessWidget {
                               child: OutlinedButton(
                                 onPressed: () => Navigator.pop(dialogContext),
                                 style: OutlinedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 12,
+                                  ),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
