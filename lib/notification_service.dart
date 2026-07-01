@@ -204,7 +204,7 @@ class NotificationService {
       } catch (e) {
         debugPrint('Error parsing detail_pergantian_shift: $e');
       }
-    } else if (screen == 'approval_pengajuan') {
+    } else if (screen == 'approval_pengajuan' || screen == 'detail_pengajuan') {
       debugPrint('Pushing route /leave-request-detail');
       appRouter.push('/leave-request-detail', extra: idStr);
     }
@@ -260,6 +260,7 @@ class _ShiftReplacementBottomSheetState
         }
       } else {
         _timer?.cancel();
+        ApprovalRefreshNotifier.instance.notifyRefresh();
         if (mounted) {
           Navigator.pop(context);
         }

@@ -93,21 +93,26 @@ class SpmRemoteDataSource {
     }
   }
 
-  Future<void> submitSpmData({
+  Future<String> submitSpmData({
     required List<int> idAuditTrail,
     required String reason,
   }) async {
     try {
       final response = await dio.post(
         '/workflow/submit',
-        data: {
-          "idAuditTrail": idAuditTrail,
-          "reason": reason,
-        },
+        data: {"idAuditTrail": idAuditTrail, "reason": reason},
       );
-      if (response.data['status'] != true) {
-        throw Exception(response.data['message'] ?? 'Gagal submit data');
+
+      if (response.data != null && response.data['status'] == true) {
+        return response.data['message'] ?? 'Berhasil menyimpan data SPM';
       }
+      if (response.data != null && response.data['status'] == false) {
+        throw Exception(response.data['message'] ?? 'Gagal menyimpan SPM');
+      }
+      return 'Berhasil menyimpan data SPM';
+      // if (response.data['status'] != true) {
+      //   throw Exception(response.data['message'] ?? 'Gagal submit data');
+      // }
     } catch (e) {
       rethrow;
     }

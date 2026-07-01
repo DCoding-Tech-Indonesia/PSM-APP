@@ -176,9 +176,7 @@ class _ChecklistScreenViewState extends State<_ChecklistScreenView> {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       child: InkWell(
-        onTap: () {
-          // TODO: navigasi ke detail
-        },
+        onTap: () {},
         borderRadius: BorderRadius.circular(16),
         child: Container(
           padding: const EdgeInsets.all(16),

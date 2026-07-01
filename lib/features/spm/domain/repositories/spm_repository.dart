@@ -14,5 +14,5 @@ abstract class SpmRepository {
   Future<List<SpmDetailModel>> getSpmDetail(int id);
 
   Future<int> createSpm(Map<String, dynamic> payload);
-  Future<void> submitSpmData(List<int> idAuditTrail, String reason);
+  Future<String> submitSpmData(List<int> idAuditTrail, String reason);
 }

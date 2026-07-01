@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:psm_mobile/core/network/dio_client.dart';
+import 'package:psm_mobile/core/notification/approval_refresh_notifier.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_blur_dialog.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_button.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_dropdown_search.dart';
@@ -215,9 +216,11 @@ class _SpmInputScreenViewState extends State<SpmInputScreenView> {
       setState(() {
         _currentKategoriIndex--;
         final prevKategori = _kategoriList[_currentKategoriIndex].toLowerCase();
-        _currentQuestionIndex = _pertanyaan
-            .where((q) => q.categorySPM.name.toLowerCase() == prevKategori)
-            .length - 1;
+        _currentQuestionIndex =
+            _pertanyaan
+                .where((q) => q.categorySPM.name.toLowerCase() == prevKategori)
+                .length -
+            1;
       });
     } else {
       _goToStep(0);
@@ -440,8 +443,25 @@ class _SpmInputScreenViewState extends State<SpmInputScreenView> {
             state.message,
           );
         } else if (state is SpmSubmitSuccess) {
-          showCoreSuccessDialog(context, 'Sukses', state.message);
-          context.pop(true);
+          // showCoreSuccessDialog(context, 'Sukses', state.message);
+          // context.pop(true);
+          Navigator.of(context, rootNavigator: true).pop();
+
+          final router = GoRouter.of(context);
+
+          showCoreSuccessDialog(
+            context,
+            'Sukses',
+            state.message, // Menggunakan pesan dari API
+          ).then((_) {
+            // Refresh notifier data list
+            ApprovalRefreshNotifier.instance.notifyRefresh();
+
+            // 4. Lakukan pop pada halaman utama untuk kembali ke halaman list
+            if (router.canPop()) {
+              router.pop(true);
+            }
+          });
         } else if (state is SpmSubmitError) {
           showCoreErrorDialog(context, 'Gagal Submit', state.message);
           context.pop(true);

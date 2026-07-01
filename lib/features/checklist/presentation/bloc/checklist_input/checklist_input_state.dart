@@ -22,7 +22,11 @@ class ChecklistQuestionsError extends ChecklistInputState {
 
 class ChecklistSubmitting extends ChecklistInputState {}
 
-class ChecklistSubmitSuccess extends ChecklistInputState {}
+class ChecklistSubmitSuccess extends ChecklistInputState {
+  final String message;
+
+  const ChecklistSubmitSuccess(this.message);
+}
 
 class ChecklistSubmitError extends ChecklistInputState {
   final String message;

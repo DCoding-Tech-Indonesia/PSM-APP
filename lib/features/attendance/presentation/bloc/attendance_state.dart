@@ -20,12 +20,10 @@ class UpdateTime extends AttendanceEvent {}
 class RefreshLocation extends AttendanceEvent {}
 
 class CheckInRequested extends AttendanceEvent {
-  final int busId;
-
-  CheckInRequested({required this.busId});
+  CheckInRequested();
 
   @override
-  List<Object?> get props => [busId];
+  List<Object?> get props => [];
 }
 
 class CheckOutRequested extends AttendanceEvent {}

@@ -15,11 +15,7 @@ class ChecklistRemoteDataSource {
     try {
       final response = await dio.get(
         '/daily-checklist/list',
-        queryParameters: {
-          "keyword": keyword,
-          "page": page,
-          "perPage": perPage,
-        },
+        queryParameters: {"keyword": keyword, "page": page, "perPage": perPage},
       );
 
       final data = response.data['data'] as List?;
@@ -59,16 +55,19 @@ class ChecklistRemoteDataSource {
     }
   }
 
-  Future<void> createChecklist(Map<String, dynamic> payload) async {
+  Future<String> createChecklist(Map<String, dynamic> payload) async {
     try {
-      final response = await dio.post(
-        '/daily-checklist/create',
-        data: payload,
-      );
+      final response = await dio.post('/daily-checklist/create', data: payload);
 
-      if (response.data != null && response.data['status'] == false) {
-        throw Exception(response.data['message'] ?? 'Gagal menyimpan checklist');
+      if (response.data != null && response.data['status'] == true) {
+        return response.data['message'] ?? 'Berhasil menyimpan data checklist';
       }
+      if (response.data != null && response.data['status'] == false) {
+        throw Exception(
+          response.data['message'] ?? 'Gagal menyimpan checklist',
+        );
+      }
+      return 'Berhasil menyimpan data checklist';
     } catch (e) {
       rethrow;
     }

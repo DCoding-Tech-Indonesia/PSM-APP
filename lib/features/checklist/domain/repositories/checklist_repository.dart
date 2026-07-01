@@ -15,5 +15,5 @@ abstract class ChecklistRepository {
     int perPage = 999,
   });
 
-  Future<void> createChecklist(Map<String, dynamic> payload);
+  Future<String> createChecklist(Map<String, dynamic> payload);
 }

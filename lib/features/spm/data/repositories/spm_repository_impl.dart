@@ -38,7 +38,7 @@ class SpmRepositoryImpl implements SpmRepository {
   }
 
   @override
-  Future<void> submitSpmData(List<int> idAuditTrail, String reason) async {
+  Future<String> submitSpmData(List<int> idAuditTrail, String reason) async {
     return await remoteDataSource.submitSpmData(
       idAuditTrail: idAuditTrail,
       reason: reason,
