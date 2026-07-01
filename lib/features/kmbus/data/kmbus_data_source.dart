@@ -149,17 +149,6 @@ class KmbusDataSource {
     }
   }
 
-  Future<double> fetchNextRitase(int idKoridor, int idBus) async {
-    final response = await dio.get(
-      '/reference/next-ritase',
-      queryParameters: {'idKoridor': idKoridor, 'idBus': idBus},
-    );
-
-    final data = response.data['data'][0]['ritaseKe'] as double;
-
-    return data;
-  }
-
   Future<String> createTitikAwal(TitikAwalCreate request) async {
     try {
       final response = await dio.post(

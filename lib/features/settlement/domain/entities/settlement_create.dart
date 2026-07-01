@@ -2,6 +2,7 @@ import 'package:psm_mobile/features/settlement/domain/entities/settlement_detail
 import 'package:psm_mobile/features/settlement/domain/entities/settlement_document.dart';
 
 class SettlementCreate {
+  final bool? isSubmit;
   final String? processId;
   final int? auditTrailId;
   final int idKoridor;
@@ -10,6 +11,7 @@ class SettlementCreate {
   final List<SettlementDocument> document;
 
   SettlementCreate({
+    required this.isSubmit,
     this.processId,
     this.auditTrailId,
     required this.idKoridor,
@@ -20,6 +22,7 @@ class SettlementCreate {
 
   factory SettlementCreate.fromJson(Map<String, dynamic> json) {
     return SettlementCreate(
+      isSubmit: json['isSubmit'],
       processId: json['processId'],
       auditTrailId: json['auditTrailId'],
       idKoridor: json['idKoridor'] ?? 0,
@@ -34,6 +37,7 @@ class SettlementCreate {
   }
 
   Map<String, dynamic> toJson() => {
+    "isSubmit": isSubmit,
     "processId": processId,
     "auditTrailId": auditTrailId,
     "idKoridor": idKoridor,

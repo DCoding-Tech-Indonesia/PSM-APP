@@ -2,6 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:psm_mobile/core/error/failure.dart';
 import 'package:psm_mobile/core/presentations/entity/core_schedule_model.dart';
+import 'package:psm_mobile/features/kmbus/domain/entities/kmbus_data.dart';
+import 'package:psm_mobile/features/reference/domain/entities/next_ritase_response.dart';
 import 'package:psm_mobile/features/reference/domain/entities/reference_detail.dart';
 import 'package:psm_mobile/features/reference/reference_data_source.dart';
 import 'package:psm_mobile/features/timetable/data/timetable_data_source.dart';
@@ -106,12 +108,12 @@ class TimetableRepositoryImpl implements TimetableRepository {
   }
 
   @override
-  Future<Either<Failure, double>> fetchNextRitase(
+  Future<Either<Failure, NextRitaseResponse>> fetchNextRitase(
     int idKoridor,
     int idBus,
   ) async {
     try {
-      final result = await dataSource.fetchNextRitase(idKoridor, idBus);
+      final result = await dataSourceReference.fetchNextRitase(idKoridor, idBus);
 
       return right(result);
     } on DioException catch (e) {
@@ -150,6 +152,24 @@ class TimetableRepositoryImpl implements TimetableRepository {
       final response = await dataSource.checkoutTimeTable(request);
 
       return right(response);
+    } on DioException catch (e) {
+      final message =
+          e.response?.data?['message'] ?? 'Terjadi kesalahan server';
+
+      return left(ServerFailure(message));
+    } catch (_) {
+      return left(const ServerFailure('Unexpected error'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<KmbusData>>> fetchKmbusDataToday(
+      String keyword,
+      ) async {
+    try {
+      final result = await dataSource.fetchKmbusDataToday(keyword);
+
+      return right(result);
     } on DioException catch (e) {
       final message =
           e.response?.data?['message'] ?? 'Terjadi kesalahan server';

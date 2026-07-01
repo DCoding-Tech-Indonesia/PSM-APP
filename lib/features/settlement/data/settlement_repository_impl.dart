@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:psm_mobile/core/error/failure.dart';
 import 'package:psm_mobile/core/presentations/entity/core_schedule_model.dart';
+import 'package:psm_mobile/features/reference/domain/entities/next_ritase_response.dart';
 import 'package:psm_mobile/features/reference/reference_data_source.dart';
 import 'package:psm_mobile/features/settlement/data/settlement_data_source.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/settlement_task_audit_trail.dart';
@@ -101,12 +102,12 @@ class SettlementRepositoryImpl implements SettlementRepository {
   }
 
   @override
-  Future<Either<Failure, double>> fetchNextRitase(
+  Future<Either<Failure, NextRitaseResponse>> fetchNextRitase(
       int idKoridor,
       int idBus
       ) async {
     try {
-      final result = await dataSource.fetchNextRitase(idKoridor, idBus);
+      final result = await dataSourceReference.fetchNextRitase(idKoridor, idBus);
 
       return right(result);
     } on DioException catch (e) {

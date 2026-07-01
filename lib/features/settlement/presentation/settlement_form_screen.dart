@@ -13,9 +13,13 @@ import 'package:psm_mobile/features/settlement/presentation/widgets/form/wizard_
 import 'package:psm_mobile/features/settlement/presentation/widgets/form/wizard_last_step.dart';
 
 class SettlementFormScreen extends StatefulWidget {
-  const SettlementFormScreen({super.key, required this.idAuditTrail});
+  const SettlementFormScreen({super.key, this.idAuditTrail, this.idShift, this.idKoridor, this.idBus, this.ritaseKe});
 
   final int? idAuditTrail;
+  final int? idShift;
+  final int? idKoridor;
+  final int? idBus;
+  final double? ritaseKe;
 
   @override
   State<SettlementFormScreen> createState() => _SettlementFormScreenState();
@@ -26,7 +30,7 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
   void initState() {
     super.initState();
     Future.microtask(() {
-      context.read<SettlementBloc>().add(PageInputLoad(widget.idAuditTrail));
+      context.read<SettlementBloc>().add(PageInputLoad(widget.idAuditTrail, widget.idShift, widget.idKoridor, widget.idBus, widget.ritaseKe));
     });
   }
 

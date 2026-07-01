@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:psm_mobile/core/storage/secure_storage.dart';
+import 'package:psm_mobile/features/kmbus/domain/entities/kmbus_data.dart';
 import 'package:psm_mobile/features/timetable/domain/entities/timetable_checkin.dart';
 import 'package:psm_mobile/features/timetable/domain/entities/timetable_checkout.dart';
 import 'package:psm_mobile/features/timetable/domain/entities/timetable_data.dart';
@@ -86,17 +87,6 @@ class TimetableDataSource {
     }
   }
 
-  Future<double> fetchNextRitase(int idKoridor, int idBus) async {
-    final response = await dio.get(
-      '/reference/next-ritase',
-      queryParameters: {'idKoridor': idKoridor, 'idBus': idBus},
-    );
-
-    final data = response.data['data'][0]['ritaseKe'] as double;
-
-    return data;
-  }
-
   Future<String?> checkinTimeTable(TimetableCheckin request) async {
     try {
       await dio.post('/time-table/check-in', data: request);
@@ -130,6 +120,35 @@ class TimetableDataSource {
       debugPrint("=== GENERAL ERROR ===");
       debugPrint(e.toString());
       return e.toString();
+    }
+  }
+
+  Future<List<KmbusData>> fetchKmbusDataToday(String keyword) async {
+    try {
+      final idUserRole = await secureStorageService.readUserRoleId();
+
+      final String todayStr = DateTime.now().toIso8601String().split('T')[0];
+
+      final response = await dio.get(
+        '/km/list',
+        queryParameters: {
+          'keyword': keyword,
+          'page': 1,
+          'perPage': 99,
+          'idPramugara': idUserRole,
+          'startDate': todayStr,
+          'endDate': todayStr,
+        },
+      );
+
+      final List data = response.data['data'] ?? [];
+
+      final result = data.map<KmbusData>((e) => KmbusData.fromJson(e)).toList();
+
+      return result;
+    } catch (e) {
+      debugPrint(e.toString());
+      rethrow;
     }
   }
 }

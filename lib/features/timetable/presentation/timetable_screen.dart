@@ -3,11 +3,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:psm_mobile/core/helper/string_formatter.dart';
+import 'package:psm_mobile/core/presentations/entity/schedule_args.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_bottom_modal_verification.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_date_time_widget.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_snackbar.dart';
 import 'package:psm_mobile/core/presentations/widgets/widgets.dart';
-import 'package:psm_mobile/features/reference/domain/entities/reference_detail.dart';
+import 'package:psm_mobile/features/kmbus/domain/entities/titik_akhir_args.dart';
 import 'package:psm_mobile/features/timetable/presentation/bloc/timetable_bloc.dart';
 import 'package:psm_mobile/features/timetable/presentation/bloc/timetable_event.dart';
 import 'package:psm_mobile/features/timetable/presentation/bloc/timetable_state.dart';
@@ -39,26 +40,6 @@ class _TimetableScreenState extends State<TimetableScreen> {
     await bloc.stream.firstWhere(
       (state) => state.status != TimetableStatus.loading,
     );
-  }
-
-  Future<void> _showCheckoutConfirmation(BuildContext context) async {
-    final isConfirm = await showModalBottomSheet<bool>(
-      context: context,
-      isScrollControlled: true,
-      builder: (modalContext) {
-        return CoreBottomModalVerification(
-          title: "Konfirmasi Check-out",
-          desc:
-          "Pastikan perjalanan telah selesai dan Anda yakin ingin melakukan check-out.",
-          onCancel: () => Navigator.pop(modalContext, false),
-          onConfirm: () => Navigator.pop(modalContext, true),
-        );
-      },
-    );
-
-    if (isConfirm == true && context.mounted) {
-      context.read<TimetableBloc>().add(CheckOutTimetable());
-    }
   }
 
   Future<void> _ensureLocationEnabled() async {
@@ -119,270 +100,77 @@ class _TimetableScreenState extends State<TimetableScreen> {
     );
   }
 
-  void _handleCheckInSubmit(BuildContext ctx, TimetableState state) {
-    if (state.checkinData != null && state.checkinData!.isSubmittable) {
-      Navigator.pop(ctx);
+  void _showCheckInOutModal(BuildContext screenContext, bool isCheckIn) async {
+    final isConfirm = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      builder: (modalContext) {
+        return CoreBottomModalVerification(
+          title:
+              'Apakah ingin melakukan ${isCheckIn ? "Check-In" : "Check-Out"}?',
+          onCancel: () => Navigator.pop(modalContext, false),
+          onConfirm: () => Navigator.pop(modalContext, true),
+        );
+      },
+    );
 
-      context.read<TimetableBloc>().add(CheckInTimetable());
-    } else {
-      final errorMsg =
-          state.checkinData?.validationErrorMessage ??
-          "Data formulir belum lengkap.";
-
-      CoreSnackbar.show(context, message: errorMsg, type: SnackbarType.warning);
+    if (isConfirm == true) {
+      isCheckIn
+          ? context.read<TimetableBloc>().add(CheckInTimetable())
+          : context.read<TimetableBloc>().add(CheckOutTimetable());
     }
   }
 
-  void _showCheckInOutModal(BuildContext screenContext, bool isCheckin) {
-    showDialog(
-      context: screenContext,
-      barrierDismissible: true,
-      builder: (_) {
-        return BlocProvider.value(
-          value: screenContext.read<TimetableBloc>(),
-          child: Dialog(
-            backgroundColor: Colors.transparent,
-            surfaceTintColor: Colors.transparent,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Colors.blueAccent, Colors.blueAccent, Colors.blue],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(28.0),
-              ),
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 5,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            spacing: 10,
-                            children: [
-                              Icon(
-                                isCheckin ? Icons.login : Icons.logout,
-                                color: Colors.white,
-                                size: 20,
-                              ),
-                              Text(
-                                isCheckin ? "Check-in" : "Check-out",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ],
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.close, color: Colors.white),
-                            onPressed: () => Navigator.pop(screenContext),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 28,
-                      ),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        color: Colors.white,
-                      ),
-                      child: Column(
-                        spacing: 10,
-                        children: [
-                          BlocBuilder<TimetableBloc, TimetableState>(
-                            buildWhen: (prev, curr) =>
-                                prev.checkinData?.ritaseKe !=
-                                curr.checkinData?.ritaseKe,
-                            builder: (context, state) {
-                              final ritaseValue = state.checkinData?.ritaseKe;
-                              return Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  const Text(
-                                    "Ritase Berikutnya",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                  Container(
-                                    width: 50,
-                                    height: 40,
-                                    decoration: BoxDecoration(
-                                      color: Colors.greenAccent.withAlpha(100),
-                                      borderRadius: BorderRadius.circular(10),
-                                      border: Border.all(
-                                        width: 1,
-                                        color: Colors.green,
-                                      ),
-                                    ),
-                                    child: Center(
-                                      child: Text(
-                                        ritaseValue != null && ritaseValue != 0
-                                            ? ritaseValue.toString()
-                                            : "RIT",
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.w800,
-                                          fontSize: 16,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              );
-                            },
-                          ),
-
-                          BlocBuilder<TimetableBloc, TimetableState>(
-                            buildWhen: (prev, curr) =>
-                                prev.idKoridor != curr.idKoridor ||
-                                prev.referenceKoridor != curr.referenceKoridor,
-                            builder: (context, state) {
-                              ReferenceDetail? selectedKoridor;
-
-                              if (state.referenceKoridor.isNotEmpty) {
-                                final matched = state.referenceKoridor.where(
-                                  (e) => e.id == state.idKoridor,
-                                );
-                                if (matched.isNotEmpty) {
-                                  selectedKoridor = matched.first;
-                                }
-                              }
-
-                              return CoreDropdownSearch<ReferenceDetail>(
-                                readOnly: true,
-                                label: 'Pilih Koridor',
-                                hintText: 'Pilih Koridor',
-                                popupTitle: 'Daftar Koridor',
-                                items: state.referenceKoridor,
-                                selectedItem: selectedKoridor,
-                                itemAsString: (item) =>
-                                    '${item.code} - ${item.name}',
-                                compareFn: (a, b) => a.id == b.id,
-                                isRequired: true,
-                                isItemSelected: (item) =>
-                                    item.id == state.idKoridor,
-                                onSelected: (value) {
-                                  if (value == null) return;
-                                  context.read<TimetableBloc>().add(
-                                    SelectKoridor(value.id, value.name),
-                                  );
-                                },
-                              );
-                            },
-                          ),
-
-                          BlocBuilder<TimetableBloc, TimetableState>(
-                            builder: (context, state) {
-                              if (state.idKoridor == 0) {
-                                return const SizedBox.shrink();
-                              }
-
-                              if (state.status == TimetableStatus.fetching) {
-                                return const Center(
-                                  child: Padding(
-                                    padding: EdgeInsets.all(8.0),
-                                    child: CircularProgressIndicator(),
-                                  ),
-                                );
-                              }
-
-                              if (state.referenceBus.isEmpty &&
-                                  state.idKoridor != 0) {
-                                return const Text(
-                                  "Tidak terdapat bus terdata di koridor tersebut",
-                                  style: TextStyle(
-                                    color: Colors.redAccent,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                );
-                              }
-
-                              ReferenceDetail? selectedBus;
-                              if (state.referenceBus.isNotEmpty) {
-                                final matched = state.referenceBus.where(
-                                  (e) => e.id == state.idBus,
-                                );
-                                if (matched.isNotEmpty)
-                                  selectedBus = matched.first;
-                              }
-
-                              return CoreDropdownSearch<ReferenceDetail>(
-                                readOnly: true,
-                                label: 'Pilih Bus',
-                                hintText: 'Pilih Bus',
-                                popupTitle: 'Daftar Bus',
-                                items: state.referenceBus,
-                                selectedItem: selectedBus,
-                                itemAsString: (item) =>
-                                    '${item.code} - ${item.name}',
-                                compareFn: (a, b) => a.id == b.id,
-                                isItemSelected: (item) =>
-                                    item.id == state.idBus,
-                                isRequired: true,
-                                onSelected: (value) {
-                                  if (value == null) return;
-                                  context.read<TimetableBloc>().add(
-                                    SelectBus(value.id, value.name),
-                                  );
-                                },
-                              );
-                            },
-                          ),
-
-                          const SizedBox(height: 10),
-
-                          BlocBuilder<TimetableBloc, TimetableState>(
-                            buildWhen: (prev, curr) =>
-                                prev.checkinData != curr.checkinData,
-                            builder: (context, state) {
-                              final isFormValid =
-                                  state.checkinData?.isSubmittable ?? false;
-
-                              return CoreButton(
-                                width: double.infinity,
-                                onPressed: () =>
-                                    _handleCheckInSubmit(context, state),
-                                backgroundColor: isFormValid
-                                    ? Colors.green
-                                    : Colors.grey,
-                                foregroundColor: Colors.white,
-                                child: const Text("Submit"),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
+  void _showCheckInOutModalToKM(
+    BuildContext screenContext,
+    bool isCheckin,
+    int? idShift,
+    int? idKoridorShift,
+    int? idBusShift,
+    double long,
+    double lat,
+    bool isCheckIn,
+    int? idKm,
+    int? idAuditTrail,
+  ) async {
+    final isConfirm = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      builder: (modalContext) {
+        return CoreBottomModalVerification(
+          title: 'Apakah ingin melakukan Check-In?',
+          desc:
+              'Anda akan diminta melakukan foto KM Bus terlebih dahulu untuk ritase pertama kali.',
+          onCancel: () => Navigator.pop(modalContext, false),
+          onConfirm: () => Navigator.pop(modalContext, true),
         );
       },
-    ).then((_) {
-      if (screenContext.mounted) {
-        screenContext.read<TimetableBloc>().add(ResetInput());
+    );
+    if (isConfirm == true) {
+      final bool? result = isCheckIn
+          ? await context.push<bool>(
+              '/kmbus/titik-awal/form',
+              extra: ScheduleArgs(
+                idShift: idShift!,
+                idKoridorShift: idKoridorShift!,
+                idBusShift: idBusShift!,
+                long: long,
+                lat: lat,
+              ),
+            )
+          : await context.push<bool>(
+              '/kmbus/titik-akhir/form',
+              extra: TitikAkhirArgs(idKm: idKm!, idAuditTrail: 0),
+            );
+
+      if (result == true) {
+        if (isCheckIn) {
+          context.read<TimetableBloc>().add(CheckInTimetable());
+        } else {
+          context.read<TimetableBloc>().add(CheckOutTimetable());
+        }
       }
-    });
+    }
   }
 
   @override
@@ -431,6 +219,43 @@ class _TimetableScreenState extends State<TimetableScreen> {
                         ),
                         const CoreDateTimeWidget(),
                         const SizedBox(height: 10),
+                        if (!state.jadwalExist)
+                          Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 20),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 14,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Row(
+                              spacing: 15,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(3),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(999),
+                                    color: Colors.white70,
+                                  ),
+                                  child: Icon(
+                                    Icons.add_alert,
+                                    color: Colors.red,
+                                  ),
+                                ),
+                                Text(
+                                  "Tidak ada jadwal anda pada hari ini.",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 15,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        const SizedBox(height: 10),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 20),
                           child: Row(
@@ -441,7 +266,22 @@ class _TimetableScreenState extends State<TimetableScreen> {
                                 child: CoreButton(
                                   onPressed: () {
                                     if (!state.isAllowCheckIn) return;
-                                    _showCheckInOutModal(context, true);
+                                    if (state.checkinData!.ritaseKe != 0.5) {
+                                      _showCheckInOutModal(context, true);
+                                    } else {
+                                      _showCheckInOutModalToKM(
+                                        context,
+                                        true,
+                                        state.checkinData!.idShift,
+                                        state.idKoridor,
+                                        state.idBus,
+                                        state.checkinData!.long,
+                                        state.checkinData!.lat,
+                                        true,
+                                        null,
+                                        null,
+                                      );
+                                    }
                                   },
                                   backgroundColor: state.isAllowCheckIn
                                       ? Colors.green
@@ -463,7 +303,22 @@ class _TimetableScreenState extends State<TimetableScreen> {
                                 child: CoreButton(
                                   onPressed: () {
                                     if (!state.isAllowCheckOut) return;
-                                    _showCheckoutConfirmation(context);
+                                    if (state.isLastRitase) {
+                                      _showCheckInOutModal(context, false);
+                                    } else {
+                                      _showCheckInOutModalToKM(
+                                        context,
+                                        true,
+                                        state.checkinData!.idShift,
+                                        state.idKoridor,
+                                        state.idBus,
+                                        state.checkinData!.long,
+                                        state.checkinData!.lat,
+                                        false,
+                                        state.idKm,
+                                        null,
+                                      );
+                                    }
                                   },
                                   backgroundColor: state.isAllowCheckOut
                                       ? Colors.red

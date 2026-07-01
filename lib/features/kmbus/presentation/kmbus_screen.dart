@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:psm_mobile/core/presentations/entity/schedule_args.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_button.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_date_time_widget.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_header.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_snackbar.dart';
@@ -99,129 +98,6 @@ class _KmbusScreenState extends State<KmbusScreen> {
                           withBorder: true,
                         ),
                         const CoreDateTimeWidget(),
-
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 15,
-                            vertical: 24,
-                          ),
-                          child: Row(
-                            spacing: 10,
-                            children: [
-                              Expanded(
-                                child: CoreButton(
-                                  onPressed: () async {
-                                    if (state.idShift == null) {
-                                      CoreSnackbar.show(
-                                        context,
-                                        message:
-                                            "Tidak terdapat jadwal anda hari ini.",
-                                        type: SnackbarType.warning,
-                                      );
-                                      return;
-                                    }
-
-                                    if (!state.allowTitikAwal) {
-                                      CoreSnackbar.show(
-                                        context,
-                                        message:
-                                            "Anda sudah melakukan input titik awal.",
-                                        type: SnackbarType.warning,
-                                      );
-                                      return;
-                                    }
-                                    await context.push(
-                                      '/kmbus/titik-awal/form',
-                                      extra: ScheduleArgs(
-                                        idShift: state.idShift!,
-                                        idKoridorShift: state.idKoridorShift!,
-                                        idBusShift: state.idBusShift!,
-                                      ),
-                                    );
-                                    if (context.mounted) {
-                                      context.read<KmbusBloc>().add(
-                                        PageDashboardLoad(),
-                                      );
-                                    }
-                                  },
-                                  backgroundColor:
-                                      (state.allowTitikAwal &&
-                                              state.idShift != null)
-                                      ? Colors.green
-                                      : Colors.grey,
-                                  child: const Row(
-                                    spacing: 10,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(Icons.start, color: Colors.white),
-                                      Text(
-                                        "Titik Awal",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w800,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              Expanded(
-                                child: CoreButton(
-                                  onPressed: () async {
-                                    if (state.idShift == null) {
-                                      CoreSnackbar.show(
-                                        context,
-                                        message:
-                                            "Tidak terdapat jadwal anda hari ini.",
-                                        type: SnackbarType.warning,
-                                      );
-                                      return;
-                                    }
-
-                                    if (!state.allowTitikAkhir) {
-                                      CoreSnackbar.show(
-                                        context,
-                                        message:
-                                            "Silahkan selesaikan draft / lakukan edit jika ada kesalahan data.",
-                                        type: SnackbarType.warning,
-                                      );
-                                      return;
-                                    }
-                                    await context.push(
-                                      '/kmbus/titik-akhir/form',
-                                      extra: TitikAkhirArgs(
-                                        idKm: state.idKm!,
-                                        idAuditTrail: null,
-                                      ),
-                                    );
-                                    if (context.mounted) {
-                                      context.read<KmbusBloc>().add(
-                                        PageDashboardLoad(),
-                                      );
-                                    }
-                                  },
-                                  backgroundColor: state.allowTitikAkhir
-                                      ? Colors.red
-                                      : Colors.grey,
-                                  child: const Row(
-                                    spacing: 10,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(Icons.flag, color: Colors.white),
-                                      Text(
-                                        "Titik Akhir",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w800,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
 
                         Padding(
                           padding: const EdgeInsets.symmetric(
@@ -505,7 +381,7 @@ class _KmbusScreenState extends State<KmbusScreen> {
                                                 ),
                                                 const SizedBox(height: 8),
                                                 Text(
-                                                  "Apakah Anda yakin ingin mengubah draft data $tipeTitik ini?",
+                                                  "Apakah Anda yakin ingin mengubah draft $tipeTitik ini?",
                                                   textAlign: TextAlign.center,
                                                   style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
                                                 ),
@@ -552,6 +428,8 @@ class _KmbusScreenState extends State<KmbusScreen> {
                                               idKoridorShift: state.idKoridorShift ?? 0,
                                               idBusShift: state.idBusShift ?? 0,
                                               idAuditTrail: data.id,
+                                              long: null,
+                                              lat: null,
                                             ),
                                           );
                                         } else {

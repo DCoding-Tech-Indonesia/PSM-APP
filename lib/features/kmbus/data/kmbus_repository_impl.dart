@@ -9,6 +9,7 @@ import 'package:psm_mobile/features/kmbus/domain/entities/kmbus_data.dart';
 import 'package:psm_mobile/features/kmbus/domain/entities/titik_akhir_create.dart';
 import 'package:psm_mobile/features/kmbus/domain/entities/titik_awal_create.dart';
 import 'package:psm_mobile/features/kmbus/domain/repositories/kmbus_repository.dart';
+import 'package:psm_mobile/features/reference/domain/entities/next_ritase_response.dart';
 import 'package:psm_mobile/features/reference/domain/entities/reference_detail.dart';
 import 'package:psm_mobile/features/reference/reference_data_source.dart';
 import 'package:psm_mobile/features/reference/domain/entities/document_preview.dart';
@@ -182,12 +183,12 @@ class KmbusRepositoryImpl implements KmbusRepository {
   }
 
   @override
-  Future<Either<Failure, double>> fetchNextRitase(
+  Future<Either<Failure, NextRitaseResponse>> fetchNextRitase(
     int idKoridor,
     int idBus,
   ) async {
     try {
-      final result = await dataSource.fetchNextRitase(idKoridor, idBus);
+      final result = await dataSourceReference.fetchNextRitase(idKoridor, idBus);
 
       return right(result);
     } on DioException catch (e) {

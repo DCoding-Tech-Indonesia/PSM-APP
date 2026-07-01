@@ -121,9 +121,14 @@ class _SettlementDetailScreenState extends State<SettlementDetailScreen> {
 
                           int totalTransaction = state.detail.fold<int>(
                             0,
-                            (sum, item) =>
-                                sum +
-                                ((item.total ?? 0) * (item.billingValue ?? 0)),
+                                (sum, item) {
+                              final total = item.total ?? 0;
+                              final value = item.value ?? 0;
+
+                              final billingValue = (total > 0) ? (value ~/ total) : 0;
+
+                              return sum + (total * billingValue);
+                            },
                           );
 
                           int calculatePaymentTotal(

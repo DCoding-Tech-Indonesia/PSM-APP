@@ -10,8 +10,9 @@ class KmbusTitikAwalInputLoad extends KmbusEvent {
   final int idShift;
   final int idKoridorShift;
   final int idBusShift;
+  final int? idAuditTrail;
 
-  KmbusTitikAwalInputLoad(this.idShift, this.idKoridorShift, this.idBusShift);
+  KmbusTitikAwalInputLoad(this.idShift, this.idKoridorShift, this.idBusShift, this.idAuditTrail);
 }
 
 class KmbusTitikAkhirInputLoad extends KmbusEvent {
@@ -78,4 +79,14 @@ class SubmitWorkflow extends KmbusEvent {
   final int idAuditTrail;
 
   SubmitWorkflow(this.reason, this.idAuditTrail);
+}
+
+class LocationLoaded extends KmbusEvent {
+  final double lat;
+  final double long;
+
+  LocationLoaded({
+    required this.lat,
+    required this.long,
+  });
 }

@@ -6,6 +6,7 @@ import 'package:psm_mobile/features/kmbus/domain/entities/titik_awal_create.dart
 import 'package:psm_mobile/features/reference/domain/entities/document_preview.dart';
 import 'package:psm_mobile/features/reference/domain/entities/reference_detail.dart';
 import 'package:psm_mobile/features/timetable/domain/entities/auditTrail/km_task_audit_trail.dart';
+import 'package:psm_mobile/features/timetable/domain/entities/timetable_checkin.dart';
 
 enum SubmitStatus {
   idle,
@@ -50,6 +51,8 @@ enum DocumentUploadStatus {
 }
 
 class KmbusState {
+  final TimetableCheckin? checkinData;
+
   final bool allowTitikAwal;
   final bool allowTitikAkhir;
   final int? idKm;
@@ -86,6 +89,8 @@ class KmbusState {
   final int idAuditTrail;
 
   const KmbusState({
+    this.checkinData,
+
     this.allowTitikAwal = false,
     this.allowTitikAkhir = false,
     this.idKm,
@@ -123,6 +128,7 @@ class KmbusState {
   });
 
   KmbusState copyWith({
+    TimetableCheckin? checkinData,
     bool? allowTitikAwal,
     bool? allowTitikAkhir,
     int? idKm,
@@ -159,6 +165,8 @@ class KmbusState {
     int? idAuditTrail,
   }) {
     return KmbusState(
+      checkinData: checkinData ?? this.checkinData,
+
       allowTitikAwal: allowTitikAwal ?? this.allowTitikAwal,
       allowTitikAkhir: allowTitikAkhir ?? this.allowTitikAkhir,
       idKm: idKm ?? this.idKm,

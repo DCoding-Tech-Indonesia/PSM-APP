@@ -69,6 +69,7 @@ class WizardFirstStep extends StatelessWidget {
               }
 
               return CoreDropdownSearch<ReferenceDetail>(
+                readOnly: true,
                 label: 'Pilih Koridor',
                 hintText: 'Pilih Koridor',
                 popupTitle: 'Daftar Koridor',
@@ -117,6 +118,7 @@ class WizardFirstStep extends StatelessWidget {
               }
 
               return CoreDropdownSearch<ReferenceDetail>(
+                readOnly: true,
                 label: 'Pilih Bus',
                 hintText: 'Pilih Bus',
                 popupTitle: 'Daftar Bus',

@@ -9,7 +9,6 @@ import 'package:psm_mobile/features/settlement/domain/entities/settlement_docume
 import 'package:psm_mobile/features/settlement/domain/repositories/settlement_repository.dart';
 import 'settlement_event.dart';
 import 'settlement_state.dart';
-import 'dart:convert';
 
 class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
   final SettlementRepository settlementRepository;
@@ -74,10 +73,6 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
               existingDetails = data.detail;
               existingDocuments = data.document;
 
-              debugPrint(
-                const JsonEncoder.withIndent('  ').convert(data.toJson()),
-              );
-
               return true;
             },
           );
@@ -104,6 +99,34 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
           );
 
           if (emit.isDone) return;
+        }
+        else {
+          auditTrailId = null;
+          idKoridor = event.idKoridor;
+          idBus = event.idBus;
+
+          if (idKoridor != null) {
+            final resultBus = await settlementRepository.fetchReferenceBus(
+              '',
+              idKoridor,
+            );
+
+            resultBus.fold(
+              (failure) {
+                emit(
+                  state.copyWith(
+                    status: SettlementStatus.error,
+                    message: failure.message,
+                  ),
+                );
+              },
+              (data) {
+                busList = data;
+              },
+            );
+
+            if (emit.isDone) return;
+          }
         }
 
         final koridorList = resultKoridor.fold((failure) {
@@ -223,14 +246,15 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
 
         emit(
           state.copyWith(
+            idShift: event.idShift,
             activeTabIndex: 0,
             activeTabId: activeTabId,
             activeTabLabel: activeTabLabel,
             auditTrailId: auditTrailId,
             status: SettlementStatus.success,
-            idKoridor: idKoridor,
-            idBus: idBus,
-            ritase: ritaseKe,
+            idKoridor: event.idKoridor,
+            idBus: event.idBus,
+            ritase: event.ritaseKe,
             namaKoridor: namaKoridor,
             noUnit: noUnit,
             referenceKoridor: koridorList,
@@ -271,6 +295,7 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
           state.copyWith(
             status: SettlementStatus.error,
             message: failure.message,
+            jadwalExist: false,
           ),
         );
         return null;
@@ -283,10 +308,10 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
             message: "Jadwal tidak ditemukan",
           ),
         );
-        return;
       }
 
-      final idKoridorShift = todayScheduleData[0].lokasi.koridor;
+      final idKoridorShift = todayScheduleData![0].lokasi.koridor;
+      final idShiftActive = todayScheduleData[0].shift.id;
       final idBusShift = todayScheduleData[0].bus.id;
 
       final nextRitaseResult = await settlementRepository.fetchNextRitase(
@@ -296,7 +321,12 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
 
       final double ritaseValue = nextRitaseResult.fold(
         (_) => 0.0,
-        (value) => value,
+        (value) => value.ritaseKe!,
+      );
+
+      final bool isLastRitase = nextRitaseResult.fold(
+        (_) => false,
+        (value) => value.isLastRitase!,
       );
 
       final checkAllowInput = settlementRepository.checkAllowSettlement(
@@ -328,6 +358,11 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
 
       emit(
         state.copyWith(
+          isLastRitase: isLastRitase,
+          ritase: ritaseValue,
+          idShift: idShiftActive,
+          idKoridorShift: idKoridorShift,
+          idBusShift: idBusShift,
           status: SettlementStatus.success,
           allowInput: allowInputAccess,
         ),
@@ -400,10 +435,10 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
         },
         (ritaseValue) {
           final updatedDetails = state.detail.map((detail) {
-            return detail.copyWith(idBus: event.id, ritaseKe: ritaseValue);
+            return detail.copyWith(idBus: event.id, ritaseKe: ritaseValue.ritaseKe);
           }).toList();
 
-          emit(state.copyWith(ritase: ritaseValue, detail: updatedDetails));
+          emit(state.copyWith(ritase: ritaseValue.ritaseKe, detail: updatedDetails));
         },
       );
     });
@@ -549,7 +584,8 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
       final request = SettlementCreate(
         auditTrailId: state.auditTrailId == 0 ? null : state.auditTrailId,
         idKoridor: state.idKoridor,
-        idShift: 1,
+        idShift: state.idShift!,
+        isSubmit: state.isLastRitase,
         detail: state.detail,
         document: state.document,
       );

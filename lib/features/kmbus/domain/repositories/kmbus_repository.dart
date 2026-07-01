@@ -6,6 +6,7 @@ import 'package:psm_mobile/core/presentations/entity/core_schedule_model.dart';
 import 'package:psm_mobile/features/kmbus/domain/entities/kmbus_data.dart';
 import 'package:psm_mobile/features/kmbus/domain/entities/titik_akhir_create.dart';
 import 'package:psm_mobile/features/kmbus/domain/entities/titik_awal_create.dart';
+import 'package:psm_mobile/features/reference/domain/entities/next_ritase_response.dart';
 
 import 'package:psm_mobile/features/reference/domain/entities/reference_detail.dart';
 import 'package:psm_mobile/features/reference/domain/entities/document_preview.dart';
@@ -38,7 +39,7 @@ abstract class KmbusRepository {
   Future<Either<Failure, List<KmTaskAuditTrail>>> fetchListKmbusAuditTrail(
     String keyword,
   );
-  Future<Either<Failure, double>> fetchNextRitase(int idKoridor, int idBus);
+  Future<Either<Failure, NextRitaseResponse>> fetchNextRitase(int idKoridor, int idBus);
 
   Future<Either<Failure, String>> createTitikAwal(TitikAwalCreate request);
   Future<Either<Failure, String>> updateTitikAwal(TitikAwalCreate request, int idAuditTrail);

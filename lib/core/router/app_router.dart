@@ -33,6 +33,7 @@ import 'package:psm_mobile/features/reference/reference_data_source.dart';
 import 'package:psm_mobile/features/settlement/data/settlement_data_source.dart';
 import 'package:psm_mobile/features/settlement/data/settlement_repository_impl.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/detailSettlementScreen/detail_screen_args.dart';
+import 'package:psm_mobile/features/settlement/domain/entities/settlement_form_args.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/successDraftScreen/settlement_success_args.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_bloc.dart';
 import 'package:psm_mobile/features/settlement/presentation/cubit/settlement_category_cubit.dart';
@@ -135,7 +136,7 @@ void setupRouter(String initialLocation) {
           final dio = DioClient().instance;
           final secureStorageService = SecureStorageService();
 
-          final idAuditTrail = state.extra as int?;
+          final args = state.extra as SettlementFormArgs;
 
           return MultiBlocProvider(
             providers: [
@@ -155,7 +156,13 @@ void setupRouter(String initialLocation) {
                 ),
               ),
             ],
-            child: SettlementFormScreen(idAuditTrail: idAuditTrail),
+            child: SettlementFormScreen(
+              idAuditTrail: args.idAuditTrail,
+              idShift: args.idShift,
+              idKoridor: args.idKoridor,
+              idBus: args.idBus,
+              ritaseKe: args.ritaseKe,
+            ),
           );
         },
       ),

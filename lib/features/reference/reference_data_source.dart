@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:psm_mobile/core/presentations/entity/core_schedule_model.dart';
 
 import 'domain/entities/document_preview.dart';
+import 'domain/entities/next_ritase_response.dart';
 import 'domain/entities/reference_billing.dart';
 import 'domain/entities/reference_detail.dart';
 
@@ -223,5 +224,28 @@ class ReferenceDataSource {
     } catch (e) {
       rethrow;
     }
+  }
+
+  Future<NextRitaseResponse> fetchNextRitase(
+      int idKoridor,
+      int idBus,
+      ) async {
+    final response = await dio.get(
+      '/reference/next-ritase',
+      queryParameters: {
+        'idKoridor': idKoridor,
+        'idBus': idBus,
+      },
+    );
+
+    final data = response.data['data'] as List<dynamic>;
+
+    if (data.isEmpty) {
+      return const NextRitaseResponse();
+    }
+
+    return NextRitaseResponse.fromJson(
+      data.first as Map<String, dynamic>,
+    );
   }
 }

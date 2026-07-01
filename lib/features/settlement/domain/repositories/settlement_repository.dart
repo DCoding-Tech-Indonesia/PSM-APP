@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:fpdart/fpdart.dart';
 import 'package:psm_mobile/core/error/failure.dart';
 import 'package:psm_mobile/core/presentations/entity/core_schedule_model.dart';
+import 'package:psm_mobile/features/reference/domain/entities/next_ritase_response.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/settlement_task_audit_trail.dart';
 import 'package:psm_mobile/features/reference/domain/entities/document_preview.dart';
 import 'package:psm_mobile/features/reference/domain/entities/reference_billing.dart';
@@ -21,7 +22,7 @@ abstract class SettlementRepository {
 
   Future<Either<Failure, List<ReferenceDetail>>> fetchReferenceBus(String keyword, int idKoridor);
   Future<Either<Failure, List<ReferenceDetail>>> fetchReferenceKoridor(String keyword);
-  Future<Either<Failure, double>> fetchNextRitase(int idKoridor, int idBus);
+  Future<Either<Failure, NextRitaseResponse>> fetchNextRitase(int idKoridor, int idBus);
   Future<Either<Failure, List<ReferenceDetail>>> fetchReferencePayment(String keyword);
   Future<Either<Failure, List<ReferenceDetail>>> fetchReferenceCustType(String keyword);
   Future<Either<Failure, List<ReferenceBilling>>> fetchReferenceCustomerBilling(int idTypeNasabah);

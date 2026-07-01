@@ -4,13 +4,25 @@ import 'package:go_router/go_router.dart';
 import 'package:psm_mobile/core/helper/string_formatter.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_bottom_modal_verification.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/settlement_task_audit_trail.dart';
+import 'package:psm_mobile/features/settlement/domain/entities/settlement_form_args.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_bloc.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_event.dart';
 
 class DraftSettlementCardSingle extends StatelessWidget {
-  const DraftSettlementCardSingle({super.key, required this.datas});
+  const DraftSettlementCardSingle({
+    super.key,
+    required this.datas,
+    required this.idShift,
+    required this.idKoridor,
+    required this.idBus,
+    required this.ritaseKe,
+  });
 
   final List<SettlementTaskAuditTrail> datas;
+  final int idShift;
+  final int idKoridor;
+  final int idBus;
+  final double ritaseKe;
 
   Future<bool> _showDirectToEditVerification(BuildContext context) async {
     final isConfirm = await showModalBottomSheet<bool>(
@@ -108,7 +120,13 @@ class DraftSettlementCardSingle extends StatelessWidget {
                               if (await direct) {
                                 await context.push(
                                   '/settlement/form',
-                                  extra: draftDatas[0].id,
+                                  extra: SettlementFormArgs(
+                                    idAuditTrail: draftDatas[0].id,
+                                    idShift: null,
+                                    idKoridor: null,
+                                    idBus: null,
+                                    ritaseKe: null,
+                                  ),
                                 );
 
                                 if (context.mounted) {
@@ -146,7 +164,9 @@ class DraftSettlementCardSingle extends StatelessWidget {
                                   style: TextStyle(color: Colors.white70),
                                 ),
                                 Text(
-                                  StringFormatter().idrFormatter(draftDatas[0].totalPendapatanPertitase!),
+                                  StringFormatter().idrFormatter(
+                                    draftDatas[0].totalPendapatanPertitase!,
+                                  ),
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.w600,
@@ -172,7 +192,16 @@ class DraftSettlementCardSingle extends StatelessWidget {
         } else {
           return GestureDetector(
             onTap: () async {
-              await context.push('/settlement/form');
+              await context.push(
+                '/settlement/form',
+                extra: SettlementFormArgs(
+                  idAuditTrail: null,
+                  idShift: idShift,
+                  idKoridor: idKoridor,
+                  idBus: idBus,
+                  ritaseKe: ritaseKe,
+                ),
+              );
 
               if (context.mounted) {
                 context.read<SettlementBloc>().add(PageDashboardLoad());

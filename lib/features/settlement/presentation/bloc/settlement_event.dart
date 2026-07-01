@@ -9,8 +9,12 @@ class PageDashboardLoad extends SettlementEvent {}
 
 class PageInputLoad extends SettlementEvent {
   final int? idAuditTrail;
+  final int? idShift;
+  final int? idKoridor;
+  final int? idBus;
+  final double? ritaseKe;
 
-  PageInputLoad(this.idAuditTrail);
+  PageInputLoad(this.idAuditTrail, this.idShift, this.idKoridor, this.idBus, this.ritaseKe);
 }
 
 class SelectBus extends SettlementEvent {

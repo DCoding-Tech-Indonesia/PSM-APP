@@ -16,6 +16,10 @@ enum TimetableStatus {
 }
 
 class TimetableState extends Equatable {
+  final int? idKm;
+
+  final bool isLastRitase;
+  final bool jadwalExist;
   final int? idCheckin;
 
   final TimetableStatus status;
@@ -36,6 +40,10 @@ class TimetableState extends Equatable {
   final TimetableCheckin? checkinData;
 
   const TimetableState({
+    this.idKm,
+
+    this.isLastRitase = false,
+    this.jadwalExist = true,
     this.idCheckin,
 
     this.status = TimetableStatus.initial,
@@ -53,6 +61,10 @@ class TimetableState extends Equatable {
   });
 
   TimetableState copyWith({
+    int? idKm,
+
+    bool? isLastRitase,
+    bool? jadwalExist,
     int? idCheckin,
 
     TimetableStatus? status,
@@ -69,6 +81,9 @@ class TimetableState extends Equatable {
     TimetableCheckin? checkinData,
   }) {
     return TimetableState(
+      idKm: idKm ?? this.idKm,
+      isLastRitase: isLastRitase ?? this.isLastRitase,
+      jadwalExist: jadwalExist ?? this.jadwalExist,
       idCheckin: idCheckin ?? this.idCheckin,
       status: status ?? this.status,
       message: message ?? this.message,
@@ -87,6 +102,9 @@ class TimetableState extends Equatable {
 
   @override
   List<Object?> get props => [
+    idKm,
+    isLastRitase,
+    jadwalExist,
     idCheckin,
     status,
     message,

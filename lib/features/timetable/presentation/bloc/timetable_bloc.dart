@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:psm_mobile/core/storage/secure_storage.dart';
+import 'package:psm_mobile/features/kmbus/domain/entities/kmbus_data.dart';
 import 'package:psm_mobile/features/timetable/domain/entities/timetable_checkin.dart';
 import 'package:psm_mobile/features/timetable/domain/entities/timetable_checkout.dart';
 import 'package:psm_mobile/features/timetable/domain/entities/timetable_data.dart';
@@ -40,10 +41,12 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
             state.copyWith(
               status: TimetableStatus.error,
               message: "Jadwal tidak ditemukan",
+              jadwalExist: false
             ),
           );
           return;
         }
+
 
         final idKoridorShift = todayScheduleData[0].lokasi.koridor;
         final idBusShift = todayScheduleData[0].bus.id;
@@ -72,7 +75,7 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
         );
         final double ritaseValue = nextRitaseResult.fold(
           (_) => 0.0,
-          (value) => value,
+          (value) => value.ritaseKe!,
         );
 
         final currentCheckin =
@@ -108,8 +111,6 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
           );
           return null;
         }, (data) => data);
-
-        if (koridorList == null) return;
 
         final list = await timetableRepository.fetchListTimeTable('');
         final timeTableList = list.fold((failure) {
@@ -166,11 +167,25 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
           (res) => res == "Access Granted",
         );
 
-        print("timeTableList!.length");
-        print(timeTableList!.length);
+        final listMaster = await timetableRepository.fetchKmbusDataToday('');
+
+        final kmBusListMaster = listMaster.fold((failure) {
+          emit(
+            state.copyWith(status: TimetableStatus.error, message: failure.message),
+          );
+          return null;
+        }, (data) => data);
+
+        final activeMasterData = kmBusListMaster?.cast<KmbusData?>().firstWhere(
+              (e) => e != null && e.titikAkhir == null,
+          orElse: () => null,
+        );
+
+        final idKm = activeMasterData?.id ?? 0;
 
         emit(
           state.copyWith(
+            idKm: idKm,
             idCheckin: idCheckin,
             listTimetable: timeTableList,
             referenceKoridor: koridorList,
@@ -427,7 +442,7 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
               checkinData: currentCheckin.copyWith(
                 idKoridor: state.idKoridor,
                 idBus: event.id,
-                ritaseKe: ritaseValue,
+                ritaseKe: ritaseValue.ritaseKe!,
               ),
             ),
           );

@@ -9,10 +9,13 @@ import 'package:psm_mobile/features/settlement/domain/entities/settlement_docume
 enum SettlementStatus { initial, loading, success, error, successSave, failedSave, fetching }
 
 class SettlementState extends Equatable {
+  final bool jadwalExist;
+  final bool? isLastRitase;
+
   final int? idShift;
   final int? idKoridorShift;
   final int? idBusShift;
-  final bool? allowInput;
+  final bool allowInput;
 
   final List<SettlementTaskAuditTrail> listTaskAuditTrail;
 
@@ -52,10 +55,13 @@ class SettlementState extends Equatable {
   final String? message;
 
   const SettlementState({
+    this.jadwalExist = true,
+    this.isLastRitase,
+
     this.idShift,
     this.idKoridorShift,
     this.idBusShift,
-    this.allowInput,
+    this.allowInput = false,
 
     this.listTaskAuditTrail = const [],
 
@@ -94,6 +100,9 @@ class SettlementState extends Equatable {
   });
 
   SettlementState copyWith({
+    bool? jadwalExist,
+    bool? isLastRitase,
+
     int? idShift,
     int? idKoridorShift,
     int? idBusShift,
@@ -136,6 +145,9 @@ class SettlementState extends Equatable {
     String? message,
   }) {
     return SettlementState(
+      jadwalExist: jadwalExist ?? this.jadwalExist,
+      isLastRitase: isLastRitase ?? this.isLastRitase,
+
       idShift: idShift ?? this.idShift,
       idKoridorShift: idKoridorShift ?? this.idKoridorShift,
       idBusShift: idBusShift ?? this.idBusShift,
@@ -180,6 +192,9 @@ class SettlementState extends Equatable {
 
   @override
   List<Object?> get props => [
+    jadwalExist,
+    isLastRitase,
+
     listTaskAuditTrail,
 
     steps,
