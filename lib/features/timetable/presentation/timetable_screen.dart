@@ -247,7 +247,6 @@ class _TimetableScreenState extends State<TimetableScreen> {
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: Row(
-                              spacing: 15,
                               children: [
                                 Container(
                                   padding: const EdgeInsets.all(3),
@@ -255,17 +254,21 @@ class _TimetableScreenState extends State<TimetableScreen> {
                                     borderRadius: BorderRadius.circular(999),
                                     color: Colors.white70,
                                   ),
-                                  child: Icon(
+                                  child: const Icon(
                                     Icons.add_alert,
                                     color: Colors.red,
                                   ),
                                 ),
-                                Text(
-                                  "Tidak ada jadwal anda pada hari ini.",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 15,
+                                const SizedBox(width: 15),
+                                Expanded(
+                                  child: Text(
+                                    "Tidak ada jadwal anda pada hari ini.",
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 15,
+                                    ),
+                                    softWrap: true,
                                   ),
                                 ),
                               ],
