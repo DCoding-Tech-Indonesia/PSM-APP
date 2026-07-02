@@ -42,7 +42,9 @@ class _KmbusScreenState extends State<KmbusScreen> {
   @override
   Widget build(BuildContext context) {
     return BlocListener<KmbusBloc, KmbusState>(
-      listenWhen: (prev, curr) => prev.status != curr.status || prev.submitWorkflowStatus != curr.submitWorkflowStatus,
+      listenWhen: (prev, curr) =>
+          prev.status != curr.status ||
+          prev.submitWorkflowStatus != curr.submitWorkflowStatus,
       listener: (context, state) {
         if (state.status == KmbusStatus.successSave) {
           CoreSnackbar.show(
@@ -85,7 +87,7 @@ class _KmbusScreenState extends State<KmbusScreen> {
           return Stack(
             children: [
               Scaffold(
-                backgroundColor: Colors.white,
+                // backgroundColor: Colors.white,
                 body: SafeArea(
                   child: RefreshIndicator(
                     onRefresh: _onRefresh,
@@ -94,8 +96,7 @@ class _KmbusScreenState extends State<KmbusScreen> {
                       children: [
                         const CoreHeader(
                           title: "KM Bus",
-                          customBgColor: Colors.white,
-                          withBorder: true,
+                          subtitle: "Data KM Bus",
                         ),
                         const CoreDateTimeWidget(),
 
@@ -158,26 +159,37 @@ class _KmbusScreenState extends State<KmbusScreen> {
                             physics: const NeverScrollableScrollPhysics(),
                             padding: const EdgeInsets.symmetric(vertical: 10),
                             itemCount: state.listKmbusAuditTrail.length,
-                            separatorBuilder: (_, __) => const SizedBox(height: 12),
+                            separatorBuilder: (_, __) =>
+                                const SizedBox(height: 12),
                             itemBuilder: (context, index) {
                               final data = state.listKmbusAuditTrail[index];
 
                               final String hourMinute =
                                   "${data.createdDate.hour.toString().padLeft(2, '0')}:${data.createdDate.minute.toString().padLeft(2, '0')}";
 
-                              final String tanggalHariIni = data.createdDate.toIso8601String().split('T')[0];
+                              final String tanggalHariIni = data.createdDate
+                                  .toIso8601String()
+                                  .split('T')[0];
 
                               bool showHeaderTanggal = true;
                               if (index > 0) {
-                                final prevData = state.listKmbusAuditTrail[index - 1];
-                                final String tanggalSebelumnya = prevData.createdDate.toIso8601String().split('T')[0];
+                                final prevData =
+                                    state.listKmbusAuditTrail[index - 1];
+                                final String tanggalSebelumnya = prevData
+                                    .createdDate
+                                    .toIso8601String()
+                                    .split('T')[0];
                                 if (tanggalHariIni == tanggalSebelumnya) {
                                   showHeaderTanggal = false;
                                 }
                               }
 
-                              final bool isTitikAkhir = data.dataAfter.titikAkhir != null && data.dataAfter.titikAkhir != 0;
-                              final String tipeTitik = isTitikAkhir ? "TITIK AKHIR" : "TITIK AWAL";
+                              final bool isTitikAkhir =
+                                  data.dataAfter.titikAkhir != null &&
+                                  data.dataAfter.titikAkhir != 0;
+                              final String tipeTitik = isTitikAkhir
+                                  ? "TITIK AKHIR"
+                                  : "TITIK AWAL";
 
                               final int nilaiKm = isTitikAkhir
                                   ? (data.dataAfter.titikAkhir ?? 0)
@@ -197,7 +209,10 @@ class _KmbusScreenState extends State<KmbusScreen> {
                               }
 
                               Widget cardItem = Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 12,
+                                ),
                                 decoration: BoxDecoration(
                                   color: Colors.white,
                                   borderRadius: BorderRadius.circular(16),
@@ -206,7 +221,9 @@ class _KmbusScreenState extends State<KmbusScreen> {
                                   ),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withValues(alpha: 0.05),
+                                      color: Colors.black.withValues(
+                                        alpha: 0.05,
+                                      ),
                                       blurRadius: 20,
                                       offset: const Offset(0, 10),
                                     ),
@@ -216,12 +233,20 @@ class _KmbusScreenState extends State<KmbusScreen> {
                                   children: [
                                     Expanded(
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            tipeTitik == "TITIK AWAL" || (index + 1) >= state.listKmbusAuditTrail.length
+                                            tipeTitik == "TITIK AWAL" ||
+                                                    (index + 1) >=
+                                                        state
+                                                            .listKmbusAuditTrail
+                                                            .length
                                                 ? data.noPolisi
-                                                : state.listKmbusAuditTrail[index + 1].noPolisi,
+                                                : state
+                                                      .listKmbusAuditTrail[index +
+                                                          1]
+                                                      .noPolisi,
                                             style: const TextStyle(
                                               fontWeight: FontWeight.bold,
                                               fontSize: 15,
@@ -232,15 +257,22 @@ class _KmbusScreenState extends State<KmbusScreen> {
                                             spacing: 6,
                                             children: [
                                               Icon(
-                                                tipeTitik == "TITIK AWAL" ? Icons.start : Icons.flag,
+                                                tipeTitik == "TITIK AWAL"
+                                                    ? Icons.start
+                                                    : Icons.flag,
                                                 size: 18,
-                                                color: tipeTitik == "TITIK AWAL" ? Colors.green : Colors.red,
+                                                color: tipeTitik == "TITIK AWAL"
+                                                    ? Colors.green
+                                                    : Colors.red,
                                               ),
                                               Text(
                                                 "$nilaiKm KM",
                                                 style: TextStyle(
                                                   fontWeight: FontWeight.w600,
-                                                  color: tipeTitik == "TITIK AWAL" ? Colors.green : Colors.red,
+                                                  color:
+                                                      tipeTitik == "TITIK AWAL"
+                                                      ? Colors.green
+                                                      : Colors.red,
                                                 ),
                                               ),
                                             ],
@@ -250,25 +282,41 @@ class _KmbusScreenState extends State<KmbusScreen> {
                                     ),
                                     const SizedBox(width: 10),
                                     Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
                                       children: [
                                         Container(
-                                          padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 2,
+                                            horizontal: 8,
+                                          ),
                                           decoration: BoxDecoration(
                                             color: badgeBgColor,
-                                            borderRadius: BorderRadius.circular(99),
-                                            border: Border.all(width: 1, color: badgeBorderColor),
+                                            borderRadius: BorderRadius.circular(
+                                              99,
+                                            ),
+                                            border: Border.all(
+                                              width: 1,
+                                              color: badgeBorderColor,
+                                            ),
                                           ),
                                           child: Text(
                                             data.status.name,
-                                            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600),
+                                            style: const TextStyle(
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.w600,
+                                            ),
                                           ),
                                         ),
                                         const SizedBox(height: 6),
                                         Text(
                                           hourMinute,
-                                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w700,
+                                          ),
                                         ),
                                       ],
                                     ),
@@ -281,11 +329,15 @@ class _KmbusScreenState extends State<KmbusScreen> {
                                   key: Key(data.id.toString()),
                                   direction: DismissDirection.horizontal,
                                   confirmDismiss: (direction) async {
-                                    if (direction == DismissDirection.endToStart) {
-                                      final bool? shouldSubmit = await showModalBottomSheet<bool>(
+                                    if (direction ==
+                                        DismissDirection.endToStart) {
+                                      final bool?
+                                      shouldSubmit = await showModalBottomSheet<bool>(
                                         context: context,
                                         shape: const RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                                          borderRadius: BorderRadius.vertical(
+                                            top: Radius.circular(24),
+                                          ),
                                         ),
                                         builder: (BuildContext ctx) {
                                           return Padding(
@@ -298,21 +350,34 @@ class _KmbusScreenState extends State<KmbusScreen> {
                                                   height: 4,
                                                   decoration: BoxDecoration(
                                                     color: Colors.grey.shade300,
-                                                    borderRadius: BorderRadius.circular(2),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          2,
+                                                        ),
                                                   ),
                                                 ),
                                                 const SizedBox(height: 20),
-                                                const Icon(Icons.cloud_upload_outlined, size: 48, color: Colors.blue),
+                                                const Icon(
+                                                  Icons.cloud_upload_outlined,
+                                                  size: 48,
+                                                  color: Colors.blue,
+                                                ),
                                                 const SizedBox(height: 16),
                                                 const Text(
                                                   "Submit Data KM Bus",
-                                                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                                  style: TextStyle(
+                                                    fontSize: 18,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
                                                 ),
                                                 const SizedBox(height: 8),
                                                 Text(
                                                   "Apakah Anda yakin ingin melakukan submit untuk data $tipeTitik ($nilaiKm KM)?",
                                                   textAlign: TextAlign.center,
-                                                  style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+                                                  style: TextStyle(
+                                                    color: Colors.grey.shade600,
+                                                    fontSize: 14,
+                                                  ),
                                                 ),
                                                 const SizedBox(height: 24),
                                                 Row(
@@ -320,24 +385,61 @@ class _KmbusScreenState extends State<KmbusScreen> {
                                                     Expanded(
                                                       child: OutlinedButton(
                                                         style: OutlinedButton.styleFrom(
-                                                          padding: const EdgeInsets.symmetric(vertical: 14),
-                                                          side: const BorderSide(color: Colors.blue),
-                                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                                          padding:
+                                                              const EdgeInsets.symmetric(
+                                                                vertical: 14,
+                                                              ),
+                                                          side:
+                                                              const BorderSide(
+                                                                color:
+                                                                    Colors.blue,
+                                                              ),
+                                                          shape: RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius.circular(
+                                                                  12,
+                                                                ),
+                                                          ),
                                                         ),
-                                                        onPressed: () => Navigator.of(ctx).pop(false),
-                                                        child: const Text("Batal", style: TextStyle(color: Colors.blue)),
+                                                        onPressed: () =>
+                                                            Navigator.of(
+                                                              ctx,
+                                                            ).pop(false),
+                                                        child: const Text(
+                                                          "Batal",
+                                                          style: TextStyle(
+                                                            color: Colors.blue,
+                                                          ),
+                                                        ),
                                                       ),
                                                     ),
                                                     const SizedBox(width: 12),
                                                     Expanded(
                                                       child: ElevatedButton(
                                                         style: ElevatedButton.styleFrom(
-                                                          backgroundColor: Colors.blue,
-                                                          padding: const EdgeInsets.symmetric(vertical: 14),
-                                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                                          backgroundColor:
+                                                              Colors.blue,
+                                                          padding:
+                                                              const EdgeInsets.symmetric(
+                                                                vertical: 14,
+                                                              ),
+                                                          shape: RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius.circular(
+                                                                  12,
+                                                                ),
+                                                          ),
                                                         ),
-                                                        onPressed: () => Navigator.of(ctx).pop(true),
-                                                        child: const Text("Ya, Submit", style: TextStyle(color: Colors.white)),
+                                                        onPressed: () =>
+                                                            Navigator.of(
+                                                              ctx,
+                                                            ).pop(true),
+                                                        child: const Text(
+                                                          "Ya, Submit",
+                                                          style: TextStyle(
+                                                            color: Colors.white,
+                                                          ),
+                                                        ),
                                                       ),
                                                     ),
                                                   ],
@@ -349,14 +451,20 @@ class _KmbusScreenState extends State<KmbusScreen> {
                                       );
 
                                       if (shouldSubmit == true) {
-                                        context.read<KmbusBloc>().add(SubmitWorkflow('Done', data.id));
+                                        context.read<KmbusBloc>().add(
+                                          SubmitWorkflow('Done', data.id),
+                                        );
                                       }
                                       return false;
-                                    } else if (direction == DismissDirection.startToEnd) {
-                                      final bool? shouldEdit = await showModalBottomSheet<bool>(
+                                    } else if (direction ==
+                                        DismissDirection.startToEnd) {
+                                      final bool?
+                                      shouldEdit = await showModalBottomSheet<bool>(
                                         context: context,
                                         shape: const RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                                          borderRadius: BorderRadius.vertical(
+                                            top: Radius.circular(24),
+                                          ),
                                         ),
                                         builder: (BuildContext ctx) {
                                           return Padding(
@@ -369,21 +477,34 @@ class _KmbusScreenState extends State<KmbusScreen> {
                                                   height: 4,
                                                   decoration: BoxDecoration(
                                                     color: Colors.grey.shade300,
-                                                    borderRadius: BorderRadius.circular(2),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          2,
+                                                        ),
                                                   ),
                                                 ),
                                                 const SizedBox(height: 20),
-                                                const Icon(Icons.edit_note_rounded, size: 48, color: Colors.orange),
+                                                const Icon(
+                                                  Icons.edit_note_rounded,
+                                                  size: 48,
+                                                  color: Colors.orange,
+                                                ),
                                                 const SizedBox(height: 16),
                                                 const Text(
                                                   "Edit Draft Data KM Bus",
-                                                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                                  style: TextStyle(
+                                                    fontSize: 18,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
                                                 ),
                                                 const SizedBox(height: 8),
                                                 Text(
                                                   "Apakah Anda yakin ingin mengubah draft $tipeTitik ini?",
                                                   textAlign: TextAlign.center,
-                                                  style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+                                                  style: TextStyle(
+                                                    color: Colors.grey.shade600,
+                                                    fontSize: 14,
+                                                  ),
                                                 ),
                                                 const SizedBox(height: 24),
                                                 Row(
@@ -391,24 +512,62 @@ class _KmbusScreenState extends State<KmbusScreen> {
                                                     Expanded(
                                                       child: OutlinedButton(
                                                         style: OutlinedButton.styleFrom(
-                                                          padding: const EdgeInsets.symmetric(vertical: 14),
-                                                          side: const BorderSide(color: Colors.orange),
-                                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                                          padding:
+                                                              const EdgeInsets.symmetric(
+                                                                vertical: 14,
+                                                              ),
+                                                          side:
+                                                              const BorderSide(
+                                                                color: Colors
+                                                                    .orange,
+                                                              ),
+                                                          shape: RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius.circular(
+                                                                  12,
+                                                                ),
+                                                          ),
                                                         ),
-                                                        onPressed: () => Navigator.of(ctx).pop(false),
-                                                        child: const Text("Batal", style: TextStyle(color: Colors.orange)),
+                                                        onPressed: () =>
+                                                            Navigator.of(
+                                                              ctx,
+                                                            ).pop(false),
+                                                        child: const Text(
+                                                          "Batal",
+                                                          style: TextStyle(
+                                                            color:
+                                                                Colors.orange,
+                                                          ),
+                                                        ),
                                                       ),
                                                     ),
                                                     const SizedBox(width: 12),
                                                     Expanded(
                                                       child: ElevatedButton(
                                                         style: ElevatedButton.styleFrom(
-                                                          backgroundColor: Colors.orange,
-                                                          padding: const EdgeInsets.symmetric(vertical: 14),
-                                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                                          backgroundColor:
+                                                              Colors.orange,
+                                                          padding:
+                                                              const EdgeInsets.symmetric(
+                                                                vertical: 14,
+                                                              ),
+                                                          shape: RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius.circular(
+                                                                  12,
+                                                                ),
+                                                          ),
                                                         ),
-                                                        onPressed: () => Navigator.of(ctx).pop(true),
-                                                        child: const Text("Ya, Edit", style: TextStyle(color: Colors.white)),
+                                                        onPressed: () =>
+                                                            Navigator.of(
+                                                              ctx,
+                                                            ).pop(true),
+                                                        child: const Text(
+                                                          "Ya, Edit",
+                                                          style: TextStyle(
+                                                            color: Colors.white,
+                                                          ),
+                                                        ),
                                                       ),
                                                     ),
                                                   ],
@@ -425,7 +584,8 @@ class _KmbusScreenState extends State<KmbusScreen> {
                                             '/kmbus/titik-awal/form',
                                             extra: ScheduleArgs(
                                               idShift: state.idShift ?? 0,
-                                              idKoridorShift: state.idKoridorShift ?? 0,
+                                              idKoridorShift:
+                                                  state.idKoridorShift ?? 0,
                                               idBusShift: state.idBusShift ?? 0,
                                               idAuditTrail: data.id,
                                               long: null,
@@ -443,7 +603,9 @@ class _KmbusScreenState extends State<KmbusScreen> {
                                         }
 
                                         if (context.mounted) {
-                                          context.read<KmbusBloc>().add(PageDashboardLoad());
+                                          context.read<KmbusBloc>().add(
+                                            PageDashboardLoad(),
+                                          );
                                         }
                                       }
                                       return false;
@@ -461,7 +623,13 @@ class _KmbusScreenState extends State<KmbusScreen> {
                                       children: [
                                         Icon(Icons.edit, color: Colors.white),
                                         SizedBox(width: 8),
-                                        Text("Edit Draft", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                        Text(
+                                          "Edit Draft",
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
                                       ],
                                     ),
                                   ),
@@ -475,7 +643,13 @@ class _KmbusScreenState extends State<KmbusScreen> {
                                     child: const Row(
                                       mainAxisAlignment: MainAxisAlignment.end,
                                       children: [
-                                        Text("Submit", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                        Text(
+                                          "Submit",
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
                                         SizedBox(width: 8),
                                         Icon(Icons.send, color: Colors.white),
                                       ],
@@ -486,27 +660,41 @@ class _KmbusScreenState extends State<KmbusScreen> {
                               }
 
                               return Container(
-                                margin: const EdgeInsets.symmetric(horizontal: 20),
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                ),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     if (showHeaderTanggal)
                                       Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 8),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 5,
+                                          vertical: 8,
+                                        ),
                                         child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
                                           children: [
                                             Text(
                                               tanggalHariIni,
-                                              style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 15),
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.w900,
+                                                fontSize: 15,
+                                              ),
                                             ),
                                             Container(
                                               padding: const EdgeInsets.all(5),
                                               decoration: BoxDecoration(
                                                 color: Colors.blue,
-                                                borderRadius: BorderRadius.circular(4),
+                                                borderRadius:
+                                                    BorderRadius.circular(4),
                                               ),
-                                              child: const Icon(Icons.calendar_today, size: 16, color: Colors.white),
+                                              child: const Icon(
+                                                Icons.calendar_today,
+                                                size: 16,
+                                                color: Colors.white,
+                                              ),
                                             ),
                                           ],
                                         ),
