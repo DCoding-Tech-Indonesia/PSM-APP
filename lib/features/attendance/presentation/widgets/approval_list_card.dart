@@ -5,8 +5,13 @@ import 'package:psm_mobile/features/attendance/data/models/approval_model.dart';
 
 class ApprovalListCard extends StatelessWidget {
   final ApprovalModel approval;
+  final bool hideActions;
 
-  const ApprovalListCard({super.key, required this.approval});
+  const ApprovalListCard({
+    super.key,
+    required this.approval,
+    this.hideActions = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +29,13 @@ class ApprovalListCard extends StatelessWidget {
         ),
         // padding: EdgeInsets.all(size.width * 0.045),
         child: InkWell(
-          onTap: () => context.push('/approval-detail', extra: approval.id),
+          onTap: () => context.push(
+            '/approval-detail',
+            extra: {
+              'id': approval.id,
+              'hideActions': hideActions,
+            },
+          ),
           borderRadius: BorderRadius.circular(16),
           child: Container(
             // padding: EdgeInsets.symmetric(

@@ -217,7 +217,10 @@ class _ShiftReplacementView extends StatelessWidget {
                             itemBuilder: (context, index) {
                               final approval =
                                   state.approvals[index] as ApprovalModel;
-                              return ApprovalListCard(approval: approval);
+                              return ApprovalListCard(
+                                approval: approval,
+                                hideActions: true,
+                              );
                             },
                           ),
                   );

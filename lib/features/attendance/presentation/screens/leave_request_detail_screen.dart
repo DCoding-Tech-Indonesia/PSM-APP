@@ -20,8 +20,13 @@ import 'package:psm_mobile/features/portal/presentation/bloc/portal_state.dart';
 
 class LeaveRequestDetailScreen extends StatelessWidget {
   final String? id;
+  final bool hideActions;
 
-  const LeaveRequestDetailScreen({super.key, this.id});
+  const LeaveRequestDetailScreen({
+    super.key,
+    this.id,
+    this.hideActions = false,
+  });
 
   @override
   Widget build(BuildContext context) {

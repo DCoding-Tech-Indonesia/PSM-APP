@@ -9,6 +9,8 @@ class ApprovalDetailModel {
   final String? rejectReason;
   final String? approvedAt;
   final ScheduleModel jadwal;
+  final ScheduleLocation lokasi;
+  final GeneralModel shift;
   final UserApprovalModel replacement;
   final UserApprovalModel requester;
 
@@ -20,6 +22,8 @@ class ApprovalDetailModel {
     this.rejectReason,
     this.approvedAt,
     required this.jadwal,
+    required this.lokasi,
+    required this.shift,
     required this.replacement,
     required this.requester,
   });
@@ -47,6 +51,8 @@ class ApprovalDetailModel {
       rejectReason: json['rejectReason'],
       approvedAt: json['approvedAt'],
       jadwal: jadwal,
+      lokasi: ScheduleLocation.fromJson(json['lokasi'] ?? {}),
+      shift: GeneralModel.fromJson(json['shift'] ?? {}),
       replacement: UserApprovalModel.fromJson(json['replacement'] ?? {}),
       requester: UserApprovalModel.fromJson(json['requester'] ?? {}),
     );
