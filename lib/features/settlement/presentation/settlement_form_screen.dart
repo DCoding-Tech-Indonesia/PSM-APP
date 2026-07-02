@@ -13,7 +13,14 @@ import 'package:psm_mobile/features/settlement/presentation/widgets/form/wizard_
 import 'package:psm_mobile/features/settlement/presentation/widgets/form/wizard_last_step.dart';
 
 class SettlementFormScreen extends StatefulWidget {
-  const SettlementFormScreen({super.key, this.idAuditTrail, this.idShift, this.idKoridor, this.idBus, this.ritaseKe});
+  const SettlementFormScreen({
+    super.key,
+    this.idAuditTrail,
+    this.idShift,
+    this.idKoridor,
+    this.idBus,
+    this.ritaseKe,
+  });
 
   final int? idAuditTrail;
   final int? idShift;
@@ -30,7 +37,15 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
   void initState() {
     super.initState();
     Future.microtask(() {
-      context.read<SettlementBloc>().add(PageInputLoad(widget.idAuditTrail, widget.idShift, widget.idKoridor, widget.idBus, widget.ritaseKe));
+      context.read<SettlementBloc>().add(
+        PageInputLoad(
+          widget.idAuditTrail,
+          widget.idShift,
+          widget.idKoridor,
+          widget.idBus,
+          widget.ritaseKe,
+        ),
+      );
     });
   }
 
@@ -129,8 +144,7 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
               children: [
                 CoreHeader(
                   title: 'Submit Settlement',
-                  customBgColor: Colors.white,
-                  withBorder: true,
+                  subtitle: 'Isian submit data settlement',
                 ),
                 BlocBuilder<SettlementBloc, SettlementState>(
                   builder: (context, state) {
@@ -301,7 +315,9 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
                           Expanded(
                             child: CoreButton(
                               onPressed: () async {
-                                if (state.steps == 1 && state.ritase == 0 && state.status == SettlementStatus.loading) {
+                                if (state.steps == 1 &&
+                                    state.ritase == 0 &&
+                                    state.status == SettlementStatus.loading) {
                                   return;
                                 }
 
@@ -334,7 +350,9 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
                               width: size.width * 0.24,
                               borderRadius: 12,
                               backgroundColor:
-                                  (state.steps == 1 && state.ritase == 0 && state.status == SettlementStatus.loading)
+                                  (state.steps == 1 &&
+                                      state.ritase == 0 &&
+                                      state.status == SettlementStatus.loading)
                                   ? const Color(0xFF5E5E5E)
                                   : const Color(0xFF1E3C72),
                               foregroundColor: Colors.white,
