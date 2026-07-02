@@ -157,9 +157,16 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
           updatedCheckinWithPramugara.ritaseKe,
         );
 
+        final checkAwalFuture = timetableRepository.checkAllowTitikAwal(
+          updatedCheckinWithPramugara.idKoridor,
+          updatedCheckinWithPramugara.idBus,
+          updatedCheckinWithPramugara.ritaseKe,
+        );
+
         final allowResults = await Future.wait([
           checkCheckInFuture,
           checkCheckOutFuture,
+          checkAwalFuture,
         ]);
 
         final bool isAllowCheckIn = allowResults[0].fold(
@@ -168,6 +175,11 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
         );
 
         final bool isAllowCheckOut = allowResults[1].fold(
+          (_) => false,
+          (res) => res == "Access Granted",
+        );
+
+        final bool isKmAwalExist = allowResults[1].fold(
           (_) => false,
           (res) => res == "Access Granted",
         );
@@ -199,7 +211,7 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
             idKoridor: idKoridorShift,
             idBus: idBusShift,
             noUnit: currentNoUnit,
-            isAllowCheckIn: isAllowCheckIn,
+            isAllowCheckIn: isAllowCheckIn && !isKmAwalExist,
             isAllowCheckOut: (isAllowCheckOut && !isAllowCheckIn),
             status: TimetableStatus.success,
           ),
@@ -308,15 +320,23 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
               ),
             );
           },
-          (data) {
+              (data) {
+            if (data == null) {
+              emit(
+                state.copyWith(
+                  status: TimetableStatus.failedSave,
+                  message: "Gagal check-in!",
+                ),
+              );
+              return;
+            }
+
             emit(
               state.copyWith(
-                status: data != null
+                status: data.success
                     ? TimetableStatus.successSave
                     : TimetableStatus.failedSave,
-                message: data != null
-                    ? "Berhasil check-in!"
-                    : "Gagal check-in!",
+                message: data.message,
               ),
             );
           },

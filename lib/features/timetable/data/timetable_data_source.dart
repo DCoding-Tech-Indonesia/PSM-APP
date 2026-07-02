@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:psm_mobile/core/storage/secure_storage.dart';
 import 'package:psm_mobile/features/kmbus/domain/entities/kmbus_data.dart';
+import 'package:psm_mobile/features/timetable/domain/entities/response/timetable_checkin_response.dart';
 import 'package:psm_mobile/features/timetable/domain/entities/timetable_checkin.dart';
 import 'package:psm_mobile/features/timetable/domain/entities/timetable_checkout.dart';
 import 'package:psm_mobile/features/timetable/domain/entities/timetable_data.dart';
@@ -87,21 +88,31 @@ class TimetableDataSource {
     }
   }
 
-  Future<String?> checkinTimeTable(TimetableCheckin request) async {
+  Future<TimetableCheckinResponse?> checkinTimeTable(
+    TimetableCheckin request,
+  ) async {
     try {
-      await dio.post('/time-table/check-in', data: request);
+      final result = await dio.post(
+        '/time-table/check-in',
+        data: request.toJson(),
+      );
 
-      return "Berhasil";
+      return TimetableCheckinResponse.fromJson(result.data);
     } on DioException catch (e) {
       debugPrint("=== DIO ERROR ===");
       debugPrint("Status Code: ${e.response?.statusCode}");
       debugPrint("Message: ${e.message}");
       debugPrint("Data Server: ${e.response?.data}");
-      return e.toString();
+
+      return TimetableCheckinResponse(
+        success: false,
+        message: e.response?.data?['message'] ?? e.message ?? 'Unknown error',
+      );
     } catch (e) {
       debugPrint("=== GENERAL ERROR ===");
       debugPrint(e.toString());
-      return e.toString();
+
+      return TimetableCheckinResponse(success: false, message: e.toString());
     }
   }
 
@@ -146,6 +157,30 @@ class TimetableDataSource {
       final result = data.map<KmbusData>((e) => KmbusData.fromJson(e)).toList();
 
       return result;
+    } catch (e) {
+      debugPrint(e.toString());
+      rethrow;
+    }
+  }
+
+  Future<String> checkAllowTitikAwal(
+      int idKoridor,
+      int idBus,
+      double nextRit,
+      ) async {
+    try {
+      final response = await dio.get(
+        '/km/check/titik-awal',
+        queryParameters: {
+          'idKoridor': idKoridor,
+          'idBus': idBus,
+          'ritaseKe': nextRit,
+        },
+      );
+
+      bool allow = response.data["data"][0];
+
+      return !allow ? "Access Granted" : "Access Denied";
     } catch (e) {
       debugPrint(e.toString());
       rethrow;

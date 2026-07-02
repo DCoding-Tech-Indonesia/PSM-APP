@@ -7,6 +7,7 @@ import 'package:psm_mobile/features/reference/domain/entities/next_ritase_respon
 import 'package:psm_mobile/features/reference/domain/entities/reference_detail.dart';
 import 'package:psm_mobile/features/reference/reference_data_source.dart';
 import 'package:psm_mobile/features/timetable/data/timetable_data_source.dart';
+import 'package:psm_mobile/features/timetable/domain/entities/response/timetable_checkin_response.dart';
 import 'package:psm_mobile/features/timetable/domain/entities/timetable_checkin.dart';
 import 'package:psm_mobile/features/timetable/domain/entities/timetable_checkout.dart';
 import 'package:psm_mobile/features/timetable/domain/entities/timetable_data.dart';
@@ -127,7 +128,7 @@ class TimetableRepositoryImpl implements TimetableRepository {
   }
 
   @override
-  Future<Either<Failure, String?>> checkinTimeTable(
+  Future<Either<Failure, TimetableCheckinResponse?>> checkinTimeTable(
     TimetableCheckin request,
   ) async {
     try {
@@ -168,6 +169,30 @@ class TimetableRepositoryImpl implements TimetableRepository {
       ) async {
     try {
       final result = await dataSource.fetchKmbusDataToday(keyword);
+
+      return right(result);
+    } on DioException catch (e) {
+      final message =
+          e.response?.data?['message'] ?? 'Terjadi kesalahan server';
+
+      return left(ServerFailure(message));
+    } catch (_) {
+      return left(const ServerFailure('Unexpected error'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, String>> checkAllowTitikAwal(
+      int idKoridor,
+      int idBus,
+      double nextRit,
+      ) async {
+    try {
+      final result = await dataSource.checkAllowTitikAwal(
+        idKoridor,
+        idBus,
+        nextRit,
+      );
 
       return right(result);
     } on DioException catch (e) {
