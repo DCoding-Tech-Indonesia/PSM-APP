@@ -5,8 +5,13 @@ import 'package:intl/intl.dart';
 
 class LeaveRequestListCard extends StatelessWidget {
   final LeaveRequestModel leaveRequest;
+  final bool hideActions;
 
-  const LeaveRequestListCard({super.key, required this.leaveRequest});
+  const LeaveRequestListCard({
+    super.key,
+    required this.leaveRequest,
+    this.hideActions = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +29,10 @@ class LeaveRequestListCard extends StatelessWidget {
         ),
         child: InkWell(
           onTap: () {
-            context.push('/leave-request-detail', extra: leaveRequest.id);
+            context.push(
+              '/leave-request-detail',
+              extra: {'id': leaveRequest.id, 'hideActions': hideActions},
+            );
           },
           borderRadius: BorderRadius.circular(16),
           child: Container(

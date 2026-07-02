@@ -490,13 +490,28 @@ void setupRouter(String initialLocation) {
       GoRoute(
         path: '/approval-detail',
         builder: (context, state) {
-          final idStr = state.extra?.toString();
+          final extra = state.extra;
+          if (extra is Map<String, dynamic>) {
+            final idStr = extra['id']?.toString();
+            final hideActions = extra['hideActions'] as bool? ?? false;
+            return ApprovalDetailScreen(id: idStr, hideActions: hideActions);
+          }
+          final idStr = extra?.toString();
           return ApprovalDetailScreen(id: idStr);
         },
       ),
       GoRoute(
         path: '/leave-request-detail',
         builder: (context, state) {
+          final extra = state.extra;
+          if (extra is Map<String, dynamic>) {
+            final idStr = extra['id']?.toString();
+            final hideActions = extra['hideActions'] as bool? ?? false;
+            return LeaveRequestDetailScreen(
+              id: idStr,
+              hideActions: hideActions,
+            );
+          }
           final idStr = state.extra?.toString();
           return LeaveRequestDetailScreen(id: idStr);
         },

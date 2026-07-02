@@ -100,13 +100,16 @@ class AttendanceStatusCard extends StatelessWidget {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: (state.isCadangan ? Colors.amber : Colors.green)
-                            .withValues(alpha: 0.1),
+                        color: state.shift.isNotEmpty
+                            ? (state.isCadangan ? Colors.amber : Colors.green)
+                                  .withValues(alpha: 0.1)
+                            : Colors.transparent,
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
-                          color:
-                              (state.isCadangan ? Colors.amber : Colors.green)
-                                  .withValues(alpha: 0.3),
+                          color: state.shift.isNotEmpty
+                              ? (state.isCadangan ? Colors.amber : Colors.green)
+                                    .withValues(alpha: 0.3)
+                              : Colors.transparent,
                           width: 1,
                         ),
                       ),
@@ -119,17 +122,20 @@ class AttendanceStatusCard extends StatelessWidget {
                               width: 8,
                               height: 8,
                               decoration: BoxDecoration(
-                                color: state.isCadangan
-                                    ? Colors.amber
-                                    : Colors.green,
+                                color: state.shift.isNotEmpty
+                                    ? state.isCadangan
+                                          ? Colors.amber
+                                          : Colors.green
+                                    : null,
                                 shape: BoxShape.circle,
                                 boxShadow: [
                                   BoxShadow(
-                                    color:
-                                        (state.isCadangan
-                                                ? Colors.amber
-                                                : Colors.green)
-                                            .withValues(alpha: 0.5),
+                                    color: state.shift.isNotEmpty
+                                        ? (state.isCadangan
+                                                  ? Colors.amber
+                                                  : Colors.green)
+                                              .withValues(alpha: 0.5)
+                                        : Colors.transparent,
                                     blurRadius: 4,
                                   ),
                                 ],
@@ -137,12 +143,18 @@ class AttendanceStatusCard extends StatelessWidget {
                             ),
                             const SizedBox(width: 6),
                             Text(
-                              state.isCadangan ? 'Cadangan' : 'Utama',
+                              state.shift.isNotEmpty
+                                  ? state.isCadangan
+                                        ? 'Cadangan'
+                                        : 'Utama'
+                                  : '',
                               style: TextStyle(
                                 fontSize: 12,
-                                color: state.isCadangan
-                                    ? Colors.amber[900]
-                                    : Colors.green[900],
+                                color: state.shift.isNotEmpty
+                                    ? state.isCadangan
+                                          ? Colors.amber[900]
+                                          : Colors.green[900]
+                                    : null,
                                 fontWeight: FontWeight.bold,
                                 letterSpacing: 0.5,
                               ),

@@ -38,10 +38,6 @@ class AttendanceMenuGrid extends StatelessWidget {
     }
     final theme = Theme.of(context);
 
-    final size = MediaQuery.of(context).size;
-    final itemWidth = (size.width - 32 - 8 * 3) / 4; // 32 margin + 3*8 spacing
-    final itemHeight = itemWidth * 0.9; // Sesuaikan dengan childAspectRatio
-
     final List<_MenuItem> items = [
       if (role.toLowerCase().contains('korlap') ||
           typePegawai.toLowerCase().contains('pgw_mngr_opr'))
@@ -79,7 +75,8 @@ class AttendanceMenuGrid extends StatelessWidget {
           route: '/leave-approval',
           onTap: null,
         ),
-      if (role.toLowerCase().contains('pegawai'))
+      if (role.toLowerCase().contains('pegawai') ||
+          role.toLowerCase().contains('manager_operational'))
         _MenuItem(
           title: 'Pengajuan Cuti',
           icon: Icons.event_note_outlined,
@@ -132,109 +129,123 @@ class AttendanceMenuGrid extends StatelessWidget {
               width: 1,
             ),
           ),
-          child: GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final availableWidth = constraints.maxWidth;
+              // 4 items horizontal: 4 columns, 3 gaps of 8.0 spacing
+              final itemWidth = (availableWidth - 8.0 * 3) / 4;
 
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 4,
-              mainAxisSpacing:
-                  itemWidth * 0.1, // Sesuaikan dengan childAspectRatio
-              crossAxisSpacing:
-                  itemWidth * 0.1, // Sesuaikan dengan childAspectRatio
-              childAspectRatio: itemWidth / itemHeight,
-            ),
-            itemCount: items.length,
-            itemBuilder: (context, index) {
-              final item = items[index];
-              return Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 2.0,
-                  vertical: 8.0,
-                ),
-                child: Column(
-                  children: [
-                    InkWell(
-                      borderRadius: BorderRadius.circular(15),
-                      onTap: () {
-                        // if (kDebugMode) {
-                        //   print('Tapped on ${item.title}');
-                        // }
-                        if (item.route == null && item.onTap == null) {
-                          if (kDebugMode) {
-                            print('No action defined for ${item.title}');
-                          }
-                          PortalDialogs.showComingSoonDialog(
-                            context,
-                            item.title,
-                            "Fitur ini masih dalam pengembangan.",
-                          );
-                          return;
-                        }
-                        if (item.route != null) {
-                          context.push(item.route!);
-                        } else if (item.onTap != null) {
-                          item.onTap!();
-                        }
-                      },
+              // Scale factor based on standard 360 width screen where itemWidth is ~76
+              final double scale = (itemWidth / 76.0).clamp(0.8, 1.2);
+              final double iconSize = (28.0 * scale).clamp(20.0, 28.0);
+              final double containerPadding = (12.0 * scale).clamp(8.0, 12.0);
+              final double fontSize = (11.0 * scale).clamp(9.5, 11.5);
+              final double verticalPadding = (8.0 * scale).clamp(4.0, 8.0);
+
+              return Wrap(
+                spacing: 8.0,
+                runSpacing: 8.0,
+                children: items.map((item) {
+                  return SizedBox(
+                    width: itemWidth,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 2.0,
+                        vertical: verticalPadding,
+                      ),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          ClipRRect(
+                          InkWell(
                             borderRadius: BorderRadius.circular(15),
-                            child: BackdropFilter(
-                              filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                              child: Container(
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                    colors: [
-                                      item.color.withValues(alpha: 0.05),
-                                      item.color.withValues(alpha: 0.1),
-                                    ],
-                                  ),
+                            onTap: () {
+                              // if (kDebugMode) {
+                              //   print('Tapped on ${item.title}');
+                              // }
+                              if (item.route == null && item.onTap == null) {
+                                if (kDebugMode) {
+                                  print('No action defined for ${item.title}');
+                                }
+                                PortalDialogs.showComingSoonDialog(
+                                  context,
+                                  item.title,
+                                  "Fitur ini masih dalam pengembangan.",
+                                );
+                                return;
+                              }
+                              if (item.route != null) {
+                                context.push(item.route!);
+                              } else if (item.onTap != null) {
+                                item.onTap!();
+                              }
+                            },
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                ClipRRect(
                                   borderRadius: BorderRadius.circular(15),
-                                  border: Border.all(
-                                    color: item.color.withValues(alpha: 0.2),
-                                    width: 1,
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: item.color.withValues(alpha: 0.05),
-                                      blurRadius: 4,
-                                      offset: const Offset(0, 2),
+                                  child: BackdropFilter(
+                                    filter: ImageFilter.blur(
+                                      sigmaX: 5,
+                                      sigmaY: 5,
                                     ),
-                                  ],
+                                    child: Container(
+                                      padding: EdgeInsets.all(containerPadding),
+                                      decoration: BoxDecoration(
+                                        gradient: LinearGradient(
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                          colors: [
+                                            item.color.withValues(alpha: 0.05),
+                                            item.color.withValues(alpha: 0.1),
+                                          ],
+                                        ),
+                                        borderRadius: BorderRadius.circular(15),
+                                        border: Border.all(
+                                          color: item.color.withValues(
+                                            alpha: 0.2,
+                                          ),
+                                          width: 1,
+                                        ),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: item.color.withValues(
+                                              alpha: 0.05,
+                                            ),
+                                            blurRadius: 4,
+                                            offset: const Offset(0, 2),
+                                          ),
+                                        ],
+                                      ),
+                                      child: Icon(
+                                        item.icon,
+                                        color: item.color,
+                                        size: iconSize,
+                                      ),
+                                    ),
+                                  ),
                                 ),
-                                child: Icon(
-                                  item.icon,
-                                  color: item.color,
-                                  size: 28,
-                                ),
-                              ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            item.title,
+                            textAlign: TextAlign.center,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: item.color.withValues(alpha: 0.9),
+                              fontSize: fontSize,
+                              fontWeight: FontWeight.w500,
+                              height: 1.2,
                             ),
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(height: 4),
-
-                    Text(
-                      item.title,
-                      textAlign: TextAlign.center,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: item.color.withValues(alpha: 0.9),
-                        fontSize: 11,
-                        fontWeight: FontWeight.w500,
-                        height: 1.2,
-                      ),
-                    ),
-                  ],
-                ),
+                  );
+                }).toList(),
               );
             },
           ),

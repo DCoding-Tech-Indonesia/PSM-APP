@@ -95,7 +95,7 @@ class ApprovalDetailSummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final jadwal = detail.jadwal;
+    // final jadwal = detail.jadwal;
     final status = detail.status;
 
     return Container(
@@ -180,7 +180,7 @@ class ApprovalDetailSummaryCard extends StatelessWidget {
               Expanded(
                 child: _buildHighlight(
                   label: 'Tanggal',
-                  value: jadwal.tanggal,
+                  value: detail.tanggal,
                   icon: Icons.calendar_today_outlined,
                 ),
               ),
@@ -188,7 +188,7 @@ class ApprovalDetailSummaryCard extends StatelessWidget {
               Expanded(
                 child: _buildHighlight(
                   label: 'Shift',
-                  value: jadwal.shift.name,
+                  value: detail.shift.name,
                   icon: Icons.schedule_outlined,
                 ),
               ),
@@ -197,7 +197,7 @@ class ApprovalDetailSummaryCard extends StatelessWidget {
           const SizedBox(height: 12),
           _buildHighlight(
             label: 'Lokasi',
-            value: jadwal.lokasi.namaLokasi,
+            value: detail.lokasi.namaLokasi,
             icon: Icons.location_on_outlined,
           ),
           // Show reject reason if rejected

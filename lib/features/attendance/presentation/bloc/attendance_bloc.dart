@@ -93,7 +93,9 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
       //   'yyyy-MM-dd',
       // ).format(now.add(const Duration(days: 100)));
 
-      final startDate = DateFormat('yyyy-MM-dd').format(now);
+      final startDate = DateFormat(
+        'yyyy-MM-dd',
+      ).format(now.add(const Duration(days: 1)));
       // Mengambil endDate 30 hari dari hari ini
       final endDate = DateFormat(
         'yyyy-MM-dd',
@@ -215,6 +217,7 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
               String namaLokasi =
                   info['namaLokasi'] ?? 'Lokasi tidak diketahui';
               bool isCadangan = info['isCadangan'] ?? false;
+              String shift = info['shift'] ?? '';
 
               double jarakVal = _parseDistanceValue(jarakStr);
               double radiusVal = _parseDistanceValue(radiusStr);
@@ -230,6 +233,7 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
                       ? 'FAKE GPS TERDETEKSI!'
                       : namaLokasi,
                   radiusInfo: radiusStr,
+                  shift: shift,
                   isCadangan: isCadangan,
                   bus: s.bus,
                   replacementSchedules: s.replacementSchedules,
@@ -254,6 +258,7 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
             isMocked: isFakeGps,
             distanceFromOffice: '0m',
             radiusInfo: '0m',
+            shift: '',
             isCadangan: false,
             bus: s.bus,
             replacementSchedules: s.replacementSchedules,

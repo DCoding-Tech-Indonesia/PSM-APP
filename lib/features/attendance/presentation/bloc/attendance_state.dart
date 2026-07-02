@@ -58,6 +58,7 @@ class AttendanceLoaded extends AttendanceState {
   final List<ScheduleModel> schedules;
   final List<ScheduleModel> schedulePerMonth;
   final String radiusInfo;
+  final String shift;
   final bool isCadangan;
   final List<dynamic> bus;
   final List<dynamic> replacementSchedules;
@@ -81,6 +82,7 @@ class AttendanceLoaded extends AttendanceState {
     this.schedules = const [],
     this.schedulePerMonth = const [],
     this.radiusInfo = '100m',
+    this.shift = '',
     this.isCadangan = false,
     required this.bus,
     this.replacementSchedules = const [],
@@ -106,6 +108,7 @@ class AttendanceLoaded extends AttendanceState {
     schedules,
     schedulePerMonth,
     radiusInfo,
+    shift,
     isCadangan,
     bus,
     replacementSchedules,
@@ -130,6 +133,7 @@ class AttendanceLoaded extends AttendanceState {
     List<ScheduleModel>? schedules,
     List<ScheduleModel>? schedulePerMonth,
     String? radiusInfo,
+    String? shift,
     bool? isCadangan,
     List<dynamic>? bus,
     List<dynamic>? replacementSchedules,
@@ -153,6 +157,7 @@ class AttendanceLoaded extends AttendanceState {
       schedules: schedules ?? this.schedules,
       schedulePerMonth: schedulePerMonth ?? this.schedulePerMonth,
       radiusInfo: radiusInfo ?? this.radiusInfo,
+      shift: shift ?? this.shift,
       isCadangan: isCadangan ?? this.isCadangan,
       bus: bus ?? this.bus,
       replacementSchedules: replacementSchedules ?? this.replacementSchedules,

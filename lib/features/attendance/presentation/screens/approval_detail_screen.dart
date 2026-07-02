@@ -17,8 +17,9 @@ import 'package:psm_mobile/features/portal/presentation/bloc/portal_state.dart';
 
 class ApprovalDetailScreen extends StatelessWidget {
   final String? id;
+  final bool hideActions;
 
-  const ApprovalDetailScreen({super.key, this.id});
+  const ApprovalDetailScreen({super.key, this.id, this.hideActions = false});
 
   @override
   Widget build(BuildContext context) {
@@ -30,15 +31,23 @@ class ApprovalDetailScreen extends StatelessWidget {
           remoteDataSource: ApprovalRemoteDataSourceImpl(DioClient()),
         ),
       )..add(LoadApprovalDetail(id: approvalId)),
-      child: ApprovalDetailView(approvalId: approvalId),
+      child: ApprovalDetailView(
+        approvalId: approvalId,
+        hideActions: hideActions,
+      ),
     );
   }
 }
 
 class ApprovalDetailView extends StatelessWidget {
   final int approvalId;
+  final bool hideActions;
 
-  const ApprovalDetailView({super.key, required this.approvalId});
+  const ApprovalDetailView({
+    super.key,
+    required this.approvalId,
+    this.hideActions = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -93,6 +102,7 @@ class ApprovalDetailView extends StatelessWidget {
 
               final detail = s.detail as ApprovalDetailModel?;
               final showActions =
+                  !hideActions &&
                   !s.isLoading &&
                   detail != null &&
                   (detail.status == 'PENDING_REPL' ||
@@ -250,17 +260,17 @@ class ApprovalDetailView extends StatelessWidget {
             rows: [
               ApprovalDetailInfoRow(
                 label: 'Lokasi',
-                value: detail.jadwal.lokasi.namaLokasi,
+                value: detail.lokasi.namaLokasi,
                 icon: Icons.location_on_outlined,
               ),
               ApprovalDetailInfoRow(
                 label: 'Shift',
-                value: detail.jadwal.shift.name,
+                value: detail.shift.name,
                 icon: Icons.schedule_outlined,
               ),
               ApprovalDetailInfoRow(
                 label: 'Tanggal',
-                value: detail.jadwal.tanggal,
+                value: detail.tanggal,
                 icon: Icons.calendar_today_outlined,
               ),
               if (detail.jadwal.isCadangan)
