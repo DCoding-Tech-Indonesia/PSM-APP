@@ -20,11 +20,14 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
 
       try {
         final list = await timetableRepository.fetchListTimeTable('');
-        final timeTableList = list.fold((failure) {
-          return null;
-        }, (data) {
-          return data;
-        });
+        final timeTableList = list.fold(
+          (failure) {
+            return null;
+          },
+          (data) {
+            return data;
+          },
+        );
 
         timeTableList?.sort((a, b) {
           final jamA = a.jamBerangkat.trim().isEmpty
@@ -41,11 +44,7 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
           return dateTimeB.compareTo(dateTimeA);
         });
 
-        emit(
-          state.copyWith(
-            listTimetable: timeTableList,
-          ),
-        );
+        emit(state.copyWith(listTimetable: timeTableList));
 
         final userIdString = await secureStorageService.readUserId();
         final userId = int.tryParse(userIdString ?? '') ?? 0;
@@ -69,13 +68,14 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
             state.copyWith(
               status: TimetableStatus.error,
               message: "Jadwal tidak ditemukan",
-              jadwalExist: false
+              jadwalExist: false,
             ),
           );
           return;
         }
 
         final idKoridorShift = todayScheduleData[0].lokasi.koridor;
+        final namaKoridorShift = todayScheduleData[0].lokasi.namaLokasi;
         final idBusShift = todayScheduleData[0].bus.id;
         final idShiftActive = todayScheduleData[0].shift.id;
         final currentNoUnit = todayScheduleData[0].bus.nomorLambung;
@@ -140,7 +140,7 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
         }, (data) => data);
 
         final activeCheckin = timeTableList?.cast<TimetableData?>().firstWhere(
-              (e) => e != null && (e.jamDatang.trim().isEmpty),
+          (e) => e != null && (e.jamDatang.trim().isEmpty),
           orElse: () => null,
         );
 
@@ -179,7 +179,7 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
           (res) => res == "Access Granted",
         );
 
-        final bool isKmAwalExist = allowResults[1].fold(
+        final bool _isAllowCheckOutLocal = allowResults[1].fold(
           (_) => false,
           (res) => res == "Access Granted",
         );
@@ -188,13 +188,16 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
 
         final kmBusListMaster = listMaster.fold((failure) {
           emit(
-            state.copyWith(status: TimetableStatus.error, message: failure.message),
+            state.copyWith(
+              status: TimetableStatus.error,
+              message: failure.message,
+            ),
           );
           return null;
         }, (data) => data);
 
         final activeMasterData = kmBusListMaster?.cast<KmbusData?>().firstWhere(
-              (e) => e != null && e.titikAkhir == null,
+          (e) => e != null && e.titikAkhir == null,
           orElse: () => null,
         );
 
@@ -209,9 +212,10 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
             referenceBus: busList,
             checkinData: updatedCheckinWithPramugara,
             idKoridor: idKoridorShift,
+            namaKoridor: namaKoridorShift,
             idBus: idBusShift,
             noUnit: currentNoUnit,
-            isAllowCheckIn: isAllowCheckIn && !isKmAwalExist,
+            isAllowCheckIn: isAllowCheckIn && !_isAllowCheckOutLocal,
             isAllowCheckOut: (isAllowCheckOut && !isAllowCheckIn),
             status: TimetableStatus.success,
           ),
@@ -228,11 +232,14 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
     on<PageHistoryLoad>((event, emit) async {
       try {
         final list = await timetableRepository.fetchListTimeTable('');
-        final timeTableList = list.fold((failure) {
-          return null;
-        }, (data) {
-          return data;
-        });
+        final timeTableList = list.fold(
+          (failure) {
+            return null;
+          },
+          (data) {
+            return data;
+          },
+        );
 
         timeTableList?.sort((a, b) {
           final jamA = a.jamBerangkat.trim().isEmpty
@@ -249,11 +256,7 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
           return dateTimeB.compareTo(dateTimeA);
         });
 
-        emit(
-          state.copyWith(
-            listTimetable: timeTableList,
-          ),
-        );
+        emit(state.copyWith(listTimetable: timeTableList));
       } catch (e, s) {
         debugPrint(e.toString());
         debugPrint(s.toString());
@@ -305,7 +308,6 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
 
       emit(state.copyWith(status: TimetableStatus.onSubmit));
 
-
       try {
         final result = await timetableRepository.checkinTimeTable(
           state.checkinData!,
@@ -320,7 +322,7 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
               ),
             );
           },
-              (data) {
+          (data) {
             if (data == null) {
               emit(
                 state.copyWith(
@@ -384,7 +386,7 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
         final result = await timetableRepository.checkoutTimeTable(payload);
 
         result.fold(
-              (failure) {
+          (failure) {
             emit(
               state.copyWith(
                 status: TimetableStatus.failedSave,
@@ -392,7 +394,7 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
               ),
             );
           },
-              (data) {
+          (data) {
             emit(
               state.copyWith(
                 status: TimetableStatus.successSave,

@@ -33,74 +33,114 @@ class _SettlementScreenState extends State<SettlementScreen> {
     bloc.add(PageDashboardLoad());
 
     await bloc.stream.firstWhere(
-          (state) => state.status != SettlementStatus.loading,
+      (state) => state.status != SettlementStatus.loading,
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-
     return BlocBuilder<SettlementBloc, SettlementState>(
       builder: (context, state) {
-        final isLoading = state.status == SettlementStatus.loading ||
+        final isLoading =
+            state.status == SettlementStatus.loading ||
             state.status == SettlementStatus.initial;
 
         return Stack(
           children: [
             Scaffold(
+              backgroundColor: const Color(0xFFF5F7FA),
               body: SafeArea(
                 child: Column(
                   children: [
                     const SettlementHeader(),
                     const CoreDateTimeWidget(),
+                    const SizedBox(height: 12),
 
                     Expanded(
                       child: RefreshIndicator(
                         onRefresh: _onRefresh,
+                        color: const Color(0xFF1565C0),
                         child: ListView(
                           physics: const AlwaysScrollableScrollPhysics(
                             parent: BouncingScrollPhysics(),
                           ),
                           children: [
-                            const SizedBox(height: 10),
-
+                            // === NO SCHEDULE WARNING ===
                             if (!state.jadwalExist)
                               Container(
-                                margin: const EdgeInsets.symmetric(horizontal: 20),
-                                padding: const EdgeInsets.symmetric(
+                                margin: const EdgeInsets.symmetric(
                                   horizontal: 20,
-                                  vertical: 14,
                                 ),
+                                padding: const EdgeInsets.all(16),
                                 decoration: BoxDecoration(
-                                  color: Colors.red,
-                                  borderRadius: BorderRadius.circular(10),
+                                  gradient: const LinearGradient(
+                                    colors: [
+                                      Color(0xFFE53935),
+                                      Color(0xFFEF5350),
+                                    ],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
+                                  borderRadius: BorderRadius.circular(14),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: const Color(
+                                        0xFFE53935,
+                                      ).withValues(alpha: 0.3),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
                                 ),
                                 child: Row(
-                                  spacing: 15,
                                   children: [
                                     Container(
-                                      padding: const EdgeInsets.all(3),
+                                      padding: const EdgeInsets.all(8),
                                       decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(999),
-                                        color: Colors.white70,
+                                        color: Colors.white.withValues(
+                                          alpha: 0.2,
+                                        ),
+                                        borderRadius: BorderRadius.circular(10),
                                       ),
-                                      child: Icon(
-                                        Icons.add_alert,
-                                        color: Colors.red,
+                                      child: const Icon(
+                                        Icons.event_busy_rounded,
+                                        color: Colors.white,
+                                        size: 22,
                                       ),
                                     ),
-                                    Text(
-                                      "Tidak ada jadwal anda pada hari ini.",
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 15,
+                                    const SizedBox(width: 14),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          const Text(
+                                            "Tidak Ada Jadwal",
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w700,
+                                              fontSize: 15,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 2),
+                                          Text(
+                                            "Anda tidak memiliki jadwal pada hari ini.",
+                                            style: TextStyle(
+                                              color: Colors.white.withValues(
+                                                alpha: 0.85,
+                                              ),
+                                              fontWeight: FontWeight.w400,
+                                              fontSize: 13,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
                                   ],
                                 ),
                               ),
+
+                            if (!state.jadwalExist) const SizedBox(height: 16),
 
                             if (state.allowInput)
                               DraftSettlementCardSingle(
@@ -111,22 +151,27 @@ class _SettlementScreenState extends State<SettlementScreen> {
                                 ritaseKe: state.ritase,
                               ),
 
-                            const SizedBox(height: 15),
+                            if (state.allowInput) const SizedBox(height: 24),
 
+                            // === HISTORY HEADER ===
                             Padding(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 20,
-                                vertical: 5,
+                                vertical: 8,
                               ),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   const Expanded(
                                     child: Text(
                                       'Riwayat Terakhir',
                                       style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
+                                        fontSize: 17,
+                                        fontWeight: FontWeight.w700,
+                                        color: Color(0xFF1E293B),
+                                        letterSpacing: -0.3,
                                       ),
                                     ),
                                   ),
@@ -140,51 +185,116 @@ class _SettlementScreenState extends State<SettlementScreen> {
                                         );
                                       }
                                     },
-                                    child: const Row(
-                                      children: [
-                                        Text(
-                                          'Lihat Semua',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 13,
-                                            color: Colors.blue,
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 14,
+                                        vertical: 6,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFEFF6FF),
+                                        borderRadius: BorderRadius.circular(20),
+                                        border: Border.all(
+                                          color: const Color(0xFFDBEAFE),
+                                          width: 1,
+                                        ),
+                                      ),
+                                      child: const Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            'Lihat Semua',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 12,
+                                              color: Color(0xFF2563EB),
+                                            ),
                                           ),
-                                        ),
-                                        SizedBox(width: 4),
-                                        Icon(
-                                          Icons.arrow_forward_ios,
-                                          size: 12,
-                                          color: Colors.blue,
-                                        ),
-                                      ],
+                                          SizedBox(width: 4),
+                                          Icon(
+                                            Icons.arrow_forward_ios_rounded,
+                                            size: 10,
+                                            color: Color(0xFF2563EB),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ],
                               ),
                             ),
+                            const SizedBox(height: 12),
 
+                            // === HISTORY LIST / EMPTY STATE ===
                             if (state.listTaskAuditTrail.isEmpty)
-                              Center(child: const Text("Belum ada data tersimpan."),),
-
-                            SizedBox(
-                              height: size.height * 0.4,
-                              child: SingleChildScrollView(
+                              Container(
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                  vertical: 10,
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 40,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(
+                                    color: Colors.grey.withValues(alpha: 0.15),
+                                  ),
+                                ),
                                 child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    ...state.listTaskAuditTrail
-                                        .take(10)
-                                        .map(
-                                          (item) => Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 20,
-                                        ),
-                                        child: HistorySettlementCard(data: item),
+                                    Container(
+                                      padding: const EdgeInsets.all(16),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFF1F5F9),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: const Icon(
+                                        Icons.history_rounded,
+                                        size: 32,
+                                        color: Color(0xFF94A3B8),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 16),
+                                    const Text(
+                                      "Belum Ada Riwayat",
+                                      style: TextStyle(
+                                        color: Color(0xFF334155),
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    const Text(
+                                      "Data settlement akan muncul di sini",
+                                      style: TextStyle(
+                                        color: Color(0xFF64748B),
+                                        fontSize: 13,
                                       ),
                                     ),
                                   ],
                                 ),
+                              )
+                            else
+                              ListView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: state.listTaskAuditTrail.length > 10
+                                    ? 10
+                                    : state.listTaskAuditTrail.length,
+                                itemBuilder: (context, index) {
+                                  final item = state.listTaskAuditTrail[index];
+                                  return Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 20,
+                                      vertical: 6,
+                                    ),
+                                    child: HistorySettlementCard(data: item),
+                                  );
+                                },
                               ),
-                            ),
+                            const SizedBox(height: 24),
                           ],
                         ),
                       ),
@@ -194,14 +304,35 @@ class _SettlementScreenState extends State<SettlementScreen> {
               ),
             ),
 
+            // === LOADING OVERLAY ===
             if (isLoading)
               Positioned.fill(
                 child: Container(
-                  color: Colors.black.withAlpha(120),
-                  child: const Center(
-                    child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        Colors.blue,
+                  color: Colors.black.withValues(alpha: 0.35),
+                  child: Center(
+                    child: Container(
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.1),
+                            blurRadius: 20,
+                          ),
+                        ],
+                      ),
+                      child: const Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Color(0xFF1565C0),
+                            ),
+                            strokeWidth: 3,
+                          ),
+                          SizedBox(height: 16),
+                        ],
                       ),
                     ),
                   ),

@@ -42,13 +42,10 @@ class DraftSettlementCardSingle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final draftDatas = datas
-        .where((task) => task.status.code == 'DFT')
-        .toList();
+    final draftDatas = datas.where((task) => task.status.code == 'DFT').toList();
 
-    final SettlementTaskAuditTrail? latestDraft = draftDatas.isNotEmpty
-        ? draftDatas.last
-        : null;
+    final SettlementTaskAuditTrail? latestDraft =
+        draftDatas.isNotEmpty ? draftDatas.last : null;
 
     return BlocBuilder<SettlementBloc, dynamic>(
       builder: (context, state) {
@@ -56,175 +53,251 @@ class DraftSettlementCardSingle extends StatelessWidget {
 
         if (!isEmpty) {
           return Container(
-            height: 180,
             margin: const EdgeInsets.symmetric(horizontal: 20),
             decoration: BoxDecoration(
-              color: Colors.lightBlue,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(width: 2, color: Colors.blue),
+              gradient: const LinearGradient(
+                colors: [Color(0xFF1E88E5), Color(0xFF1565C0)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF1565C0).withValues(alpha: 0.3),
+                  blurRadius: 12,
+                  offset: const Offset(0, 6),
+                ),
+              ],
             ),
-            child: Stack(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 20,
-                    horizontal: 16,
-                  ),
-                  child: Column(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            spacing: 10,
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: Colors.lightBlue[400],
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: const Icon(
-                                  Icons.bus_alert_sharp,
-                                  color: Colors.white,
-                                ),
+                      Expanded(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.2),
+                                borderRadius: BorderRadius.circular(12),
                               ),
-                              Column(
+                              child: const Icon(
+                                Icons.directions_bus_rounded,
+                                color: Colors.white,
+                                size: 24,
+                              ),
+                            ),
+                            const SizedBox(width: 14),
+                            Expanded(
+                              child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    draftDatas[0].namaKoridor!,
+                                    draftDatas[0].namaKoridor ?? '-',
                                     style: const TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.w700,
                                       fontSize: 16,
                                     ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
+                                  const SizedBox(height: 2),
                                   Text(
-                                    draftDatas[0].noPolisi!,
-                                    style: const TextStyle(
-                                      color: Colors.white70,
+                                    draftDatas[0].noPolisi ?? '-',
+                                    style: TextStyle(
+                                      color: Colors.white.withValues(alpha: 0.85),
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w500,
                                     ),
                                   ),
                                 ],
                               ),
-                            ],
-                          ),
-                          GestureDetector(
-                            onTap: () async {
-                              final direct = _showDirectToEditVerification(
-                                context,
-                              );
-
-                              if (await direct) {
-                                await context.push(
-                                  '/settlement/form',
-                                  extra: SettlementFormArgs(
-                                    idAuditTrail: draftDatas[0].id,
-                                    idShift: null,
-                                    idKoridor: null,
-                                    idBus: null,
-                                    ritaseKe: null,
-                                  ),
-                                );
-
-                                if (context.mounted) {
-                                  context.read<SettlementBloc>().add(
-                                    PageDashboardLoad(),
-                                  );
-                                }
-                              }
-                            },
-                            child: Icon(
-                              Icons.edit,
-                              color: Colors.white,
-                              size: 20,
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 18),
-
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: Colors.lightBlue[400],
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  "Total Pendapatan",
-                                  style: TextStyle(color: Colors.white70),
-                                ),
-                                Text(
-                                  StringFormatter().idrFormatter(
-                                    draftDatas[0].totalPendapatanPertitase!,
-                                  ),
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Text(
-                              StringFormatter().formatHourMinute(
-                                draftDatas[0].createdDate,
-                              ),
-                              style: const TextStyle(color: Colors.white),
                             ),
                           ],
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () async {
+                          final direct = await _showDirectToEditVerification(
+                            context,
+                          );
+
+                          if (direct) {
+                            if (!context.mounted) return;
+                            await context.push(
+                              '/settlement/form',
+                              extra: SettlementFormArgs(
+                                idAuditTrail: draftDatas[0].id,
+                                idShift: null,
+                                idKoridor: null,
+                                idBus: null,
+                                ritaseKe: null,
+                              ),
+                            );
+
+                            if (context.mounted) {
+                              context.read<SettlementBloc>().add(
+                                PageDashboardLoad(),
+                              );
+                            }
+                          }
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.2),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.edit_rounded,
+                            color: Colors.white,
+                            size: 18,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Total Pendapatan",
+                              style: TextStyle(
+                                color: Colors.white.withValues(alpha: 0.8),
+                                fontSize: 12,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              StringFormatter().idrFormatter(
+                                draftDatas[0].totalPendapatanPertitase ?? 0,
+                              ),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 15,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.access_time_rounded,
+                                color: Colors.white,
+                                size: 14,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                StringFormatter().formatHourMinute(
+                                  draftDatas[0].createdDate,
+                                ),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        } else {
+          return Container(
+            margin: const EdgeInsets.symmetric(horizontal: 20),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () async {
+                  await context.push(
+                    '/settlement/form',
+                    extra: SettlementFormArgs(
+                      idAuditTrail: null,
+                      idShift: idShift,
+                      idKoridor: idKoridor,
+                      idBus: idBus,
+                      ritaseKe: ritaseKe,
+                    ),
+                  );
+
+                  if (context.mounted) {
+                    context.read<SettlementBloc>().add(PageDashboardLoad());
+                  }
+                },
+                borderRadius: BorderRadius.circular(12),
+                child: Ink(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF2E7D32), Color(0xFF43A047)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF2E7D32).withValues(alpha: 0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      Icon(
+                        Icons.add_circle_outline_rounded,
+                        color: Colors.white,
+                        size: 22,
+                      ),
+                      SizedBox(width: 10),
+                      Text(
+                        "Input Settlement",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 16,
+                          color: Colors.white,
                         ),
                       ),
                     ],
                   ),
                 ),
-              ],
-            ),
-          );
-        } else {
-          return GestureDetector(
-            onTap: () async {
-              await context.push(
-                '/settlement/form',
-                extra: SettlementFormArgs(
-                  idAuditTrail: null,
-                  idShift: idShift,
-                  idKoridor: idKoridor,
-                  idBus: idBus,
-                  ritaseKe: ritaseKe,
-                ),
-              );
-
-              if (context.mounted) {
-                context.read<SettlementBloc>().add(PageDashboardLoad());
-              }
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-              margin: const EdgeInsets.symmetric(horizontal: 20),
-              decoration: BoxDecoration(
-                color: Colors.blue,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(width: 2, color: Colors.blueAccent),
-              ),
-              child: Row(
-                children: [
-                  Text(
-                    "Input Settlement",
-                    style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                    ),
-                  ),
-                ],
               ),
             ),
           );
