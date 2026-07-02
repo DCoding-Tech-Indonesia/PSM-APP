@@ -334,7 +334,7 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
                               width: size.width * 0.24,
                               borderRadius: 12,
                               backgroundColor:
-                                  (state.steps == 1 && state.ritase == 0 && state.status != SettlementStatus.loading)
+                                  (state.steps == 1 && state.ritase == 0 && state.status == SettlementStatus.loading)
                                   ? const Color(0xFF5E5E5E)
                                   : const Color(0xFF1E3C72),
                               foregroundColor: Colors.white,
