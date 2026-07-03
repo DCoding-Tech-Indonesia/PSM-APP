@@ -142,9 +142,9 @@ class _SettlementScreenState extends State<SettlementScreen> {
 
                             DraftSettlementCardSingle(
                               datas: state.listTaskAuditTrail,
-                              idShift: state.idShift!,
-                              idKoridor: state.idKoridorShift!,
-                              idBus: state.idBusShift!,
+                              idShift: state.idShift ?? 0,
+                              idKoridor: state.idKoridorShift ?? 0,
+                              idBus: state.idBusShift ?? 0,
                               ritaseKe: state.ritase,
                             ),
 

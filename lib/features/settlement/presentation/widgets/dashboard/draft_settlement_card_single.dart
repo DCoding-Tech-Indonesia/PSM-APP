@@ -125,28 +125,21 @@ class DraftSettlementCardSingle extends StatelessWidget {
                       ),
                       GestureDetector(
                         onTap: () async {
-                          final direct = await _showDirectToEditVerification(
-                            context,
+                          final result = await context.push<bool>(
+                            '/settlement/form',
+                            extra: SettlementFormArgs(
+                              idAuditTrail: draftDatas[0].id,
+                              idShift: idShift,
+                              idKoridor: idKoridor,
+                              idBus: idBus,
+                              ritaseKe: ritaseKe,
+                            ),
                           );
 
-                          if (direct) {
-                            if (!context.mounted) return;
-                            await context.push(
-                              '/settlement/form',
-                              extra: SettlementFormArgs(
-                                idAuditTrail: draftDatas[0].id,
-                                idShift: null,
-                                idKoridor: null,
-                                idBus: null,
-                                ritaseKe: null,
-                              ),
-                            );
+                          if (!context.mounted) return;
 
-                            if (context.mounted) {
-                              context.read<SettlementBloc>().add(
-                                PageDashboardLoad(),
-                              );
-                            }
+                          if (result == true) {
+                            context.read<SettlementBloc>().add(PageDashboardLoad());
                           }
                         },
                         child: Container(
@@ -245,7 +238,7 @@ class DraftSettlementCardSingle extends StatelessWidget {
               color: Colors.transparent,
               child: InkWell(
                 onTap: () async {
-                  await context.push(
+                  final result = await context.push<bool>(
                     '/settlement/form',
                     extra: SettlementFormArgs(
                       idAuditTrail: null,
@@ -256,7 +249,9 @@ class DraftSettlementCardSingle extends StatelessWidget {
                     ),
                   );
 
-                  if (context.mounted) {
+                  if (!context.mounted) return;
+
+                  if (result == true) {
                     context.read<SettlementBloc>().add(PageDashboardLoad());
                   }
                 },

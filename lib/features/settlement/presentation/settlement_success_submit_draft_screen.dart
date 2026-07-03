@@ -49,7 +49,7 @@ class _SettlementSuccessSubmitDraftScreenState
         timer.cancel();
 
         if (mounted) {
-          context.pop();
+          context.pop(true);
         }
         return;
       }
@@ -93,9 +93,9 @@ class _SettlementSuccessSubmitDraftScreenState
           );
 
           Future.delayed(const Duration(seconds: 2), () {
-            if (context.mounted) {
-              context.pop();
-            }
+            if (!context.mounted) return;
+
+            context.go('/portal');
           });
         }
       },
@@ -244,7 +244,7 @@ class _SettlementSuccessSubmitDraftScreenState
                             width: double.infinity,
                             onPressed: () {
                               _stopTimer();
-                              context.pop();
+                              context.go('/portal');
                             },
                             backgroundColor: Colors.white,
                             borderColor: Colors.blue,

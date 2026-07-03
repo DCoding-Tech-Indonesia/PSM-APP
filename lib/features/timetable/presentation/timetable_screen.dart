@@ -156,12 +156,12 @@ class _TimetableScreenState extends State<TimetableScreen> {
   }
 
   void _showSuccessCheckoutConfirmation(
-      BuildContext screenContext,
-      int? idShift,
-      int? idKoridorShift,
-      int? idBusShift,
-      double? ritaseKe,
-      ) async {
+    BuildContext screenContext,
+    int? idShift,
+    int? idKoridorShift,
+    int? idBusShift,
+    double? ritaseKe,
+  ) async {
     final isConfirm = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
@@ -192,10 +192,9 @@ class _TimetableScreenState extends State<TimetableScreen> {
     return BlocListener<TimetableBloc, TimetableState>(
       listenWhen: (prev, curr) => prev.status != curr.status,
       listener: (context, state) {
-        print(state.status);
         if (state.status == TimetableStatus.successSave ||
-            state.status == TimetableStatus.successCheckIn) {
-          print("IKO NAN JALAN PANTEK");
+            state.status == TimetableStatus.successCheckIn ||
+            state.status == TimetableStatus.successCheckOut) {
           CoreSnackbar.show(
             context,
             message: state.message,
@@ -218,11 +217,12 @@ class _TimetableScreenState extends State<TimetableScreen> {
           }
 
           if (state.status == TimetableStatus.successCheckOut) {
-            _showSuccessCheckoutConfirmation(context,
+            _showSuccessCheckoutConfirmation(
+              context,
               state.checkinData!.idShift,
               state.idKoridor,
               state.idBus,
-              state.ritaseKe
+              state.ritaseKe,
             );
           }
         } else if (state.status == TimetableStatus.failedSave) {

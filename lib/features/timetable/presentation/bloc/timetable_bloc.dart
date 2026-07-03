@@ -207,6 +207,7 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
           state.copyWith(
             idShift: idShiftActive,
             idKm: idKm,
+            ritaseKe: ritaseValue,
             idCheckin: idCheckin,
             referenceKoridor: koridorList,
             referenceBus: busList,
