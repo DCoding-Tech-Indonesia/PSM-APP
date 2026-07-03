@@ -146,7 +146,7 @@ class TimetableRepositoryImpl implements TimetableRepository {
   }
 
   @override
-  Future<Either<Failure, String?>> checkoutTimeTable(
+  Future<Either<Failure, TimetableCheckinResponse?>> checkoutTimeTable(
     TimetableCheckout request,
   ) async {
     try {

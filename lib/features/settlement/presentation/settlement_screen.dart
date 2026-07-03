@@ -140,18 +140,13 @@ class _SettlementScreenState extends State<SettlementScreen> {
                                 ),
                               ),
 
-                            if (!state.jadwalExist) const SizedBox(height: 16),
-
-                            if (state.allowInput)
-                              DraftSettlementCardSingle(
-                                datas: state.listTaskAuditTrail,
-                                idShift: state.idShift!,
-                                idKoridor: state.idKoridorShift!,
-                                idBus: state.idBusShift!,
-                                ritaseKe: state.ritase,
-                              ),
-
-                            if (state.allowInput) const SizedBox(height: 24),
+                            DraftSettlementCardSingle(
+                              datas: state.listTaskAuditTrail,
+                              idShift: state.idShift!,
+                              idKoridor: state.idKoridorShift!,
+                              idBus: state.idBusShift!,
+                              ritaseKe: state.ritase,
+                            ),
 
                             // === HISTORY HEADER ===
                             Padding(

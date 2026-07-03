@@ -335,8 +335,8 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
 
             emit(
               state.copyWith(
-                status: data.success
-                    ? TimetableStatus.successSave
+                status: data.status
+                    ? TimetableStatus.successCheckIn
                     : TimetableStatus.failedSave,
                 message: data.message,
               ),
@@ -395,10 +395,22 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
             );
           },
           (data) {
+            if (data == null) {
+              emit(
+                state.copyWith(
+                  status: TimetableStatus.failedSave,
+                  message: "Gagal check-out!",
+                ),
+              );
+              return;
+            }
+
             emit(
               state.copyWith(
-                status: TimetableStatus.successSave,
-                message: "Berhasil check-out!",
+                status: data.status
+                    ? TimetableStatus.successCheckOut
+                    : TimetableStatus.failedSave,
+                message: data.message,
               ),
             );
           },

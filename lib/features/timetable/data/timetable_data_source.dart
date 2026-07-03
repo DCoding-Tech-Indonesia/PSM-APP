@@ -105,32 +105,40 @@ class TimetableDataSource {
       debugPrint("Data Server: ${e.response?.data}");
 
       return TimetableCheckinResponse(
-        success: false,
+        status: false,
         message: e.response?.data?['message'] ?? e.message ?? 'Unknown error',
       );
     } catch (e) {
       debugPrint("=== GENERAL ERROR ===");
       debugPrint(e.toString());
 
-      return TimetableCheckinResponse(success: false, message: e.toString());
+      return TimetableCheckinResponse(status: false, message: e.toString());
     }
   }
 
-  Future<String?> checkoutTimeTable(TimetableCheckout request) async {
+  Future<TimetableCheckinResponse?> checkoutTimeTable(TimetableCheckout request) async {
     try {
-      await dio.post('/time-table/check-out', data: request);
+      final result = await dio.post(
+        '/time-table/check-out',
+        data: request.toJson(),
+      );
 
-      return "Berhasil";
+      return TimetableCheckinResponse.fromJson(result.data);
     } on DioException catch (e) {
       debugPrint("=== DIO ERROR ===");
       debugPrint("Status Code: ${e.response?.statusCode}");
       debugPrint("Message: ${e.message}");
       debugPrint("Data Server: ${e.response?.data}");
-      return e.toString();
+
+      return TimetableCheckinResponse(
+        status: false,
+        message: e.response?.data?['message'] ?? e.message ?? 'Unknown error',
+      );
     } catch (e) {
       debugPrint("=== GENERAL ERROR ===");
       debugPrint(e.toString());
-      return e.toString();
+
+      return TimetableCheckinResponse(status: false, message: e.toString());
     }
   }
 

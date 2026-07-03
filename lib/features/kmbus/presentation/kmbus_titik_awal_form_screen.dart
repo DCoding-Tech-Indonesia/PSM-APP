@@ -45,7 +45,7 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
           widget.idShift,
           widget.idKoridorShift,
           widget.idBusShift,
-          widget.idAuditTrail
+          widget.idAuditTrail,
         ),
       );
     });
@@ -126,7 +126,7 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
     final size = MediaQuery.sizeOf(context);
     final theme = Theme.of(context);
 
-    Future<void> _openCamera() async {
+    Future<void> openCamera() async {
       const ratio = 16 / 9;
 
       CameraAccessHelper.checkPermissions(
@@ -220,7 +220,10 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
                         decoration: const BoxDecoration(
                           color: Colors.white,
                           border: Border(
-                            top: BorderSide(color: Color(0xFFB3B3B3), width: .65),
+                            top: BorderSide(
+                              color: Color(0xFFB3B3B3),
+                              width: .65,
+                            ),
                             bottom: BorderSide(
                               color: Color(0xFFB3B3B3),
                               width: .65,
@@ -233,7 +236,7 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
                             BlocBuilder<KmbusBloc, KmbusState>(
                               builder: (context, state) {
                                 ReferenceDetail? selectedKoridor;
-                      
+
                                 if (state.referenceKoridor.isNotEmpty) {
                                   final matched = state.referenceKoridor.where(
                                     (e) => e.id == state.idKoridor,
@@ -242,7 +245,7 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
                                     selectedKoridor = matched.first;
                                   }
                                 }
-                      
+
                                 return CoreDropdownSearch<ReferenceDetail>(
                                   readOnly: true,
                                   label: 'Pilih Koridor',
@@ -265,9 +268,9 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
                                 );
                               },
                             ),
-                      
+
                             const SizedBox(height: 12),
-                      
+
                             BlocBuilder<KmbusBloc, KmbusState>(
                               buildWhen: (prev, curr) =>
                                   prev.idKoridor != curr.idKoridor ||
@@ -276,7 +279,7 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
                                   prev.status != curr.status,
                               builder: (context, state) {
                                 ReferenceDetail? selectedBus;
-                      
+
                                 if (state.referenceBus.isNotEmpty) {
                                   final matched = state.referenceBus.where(
                                     (e) => e.id == state.idBus,
@@ -285,7 +288,7 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
                                     selectedBus = matched.first;
                                   }
                                 }
-                      
+
                                 if (state.referenceBus.isEmpty &&
                                     state.idKoridor != 0 &&
                                     state.status != KmbusStatus.fetching) {
@@ -297,12 +300,12 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
                                     ),
                                   );
                                 }
-                      
+
                                 if (state.idKoridor == 0 ||
                                     state.referenceBus.isEmpty) {
                                   return const SizedBox(height: 0);
                                 }
-                      
+
                                 return CoreDropdownSearch<ReferenceDetail>(
                                   readOnly: true,
                                   label: 'Pilih Bus',
@@ -325,9 +328,9 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
                                 );
                               },
                             ),
-                      
+
                             const SizedBox(height: 12),
-                      
+
                             BlocBuilder<KmbusBloc, KmbusState>(
                               buildWhen: (prev, curr) =>
                                   prev.ocrResult != curr.ocrResult,
@@ -373,9 +376,9 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
                                 }
                               },
                             ),
-                      
+
                             const SizedBox(height: 12),
-                      
+
                             const Text(
                               "Foto Speedometer",
                               style: TextStyle(
@@ -383,9 +386,9 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
-                      
+
                             const SizedBox(height: 12),
-                      
+
                             BlocBuilder<KmbusBloc, KmbusState>(
                               buildWhen: (prev, curr) =>
                                   prev.titikAwalCreate?.document !=
@@ -397,16 +400,17 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
                                     state.documentPreview.firstOrNull;
                                 final apiDoc =
                                     state.titikAwalCreate?.document.firstOrNull;
-                      
-                                final imageUrl = localDoc?.url ?? apiDoc?.urlDoc;
+
+                                final imageUrl =
+                                    localDoc?.url ?? apiDoc?.urlDoc;
                                 final hasImage =
                                     imageUrl != null && imageUrl.isNotEmpty;
-                      
+
                                 final targetIdDocument =
                                     localDoc?.idDocument ??
                                     apiDoc?.idDocument ??
                                     0;
-                      
+
                                 return CoreCameraWidget(
                                   title: "Ambil Foto Speedometer",
                                   imageUrl: imageUrl,
@@ -420,21 +424,25 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
                                         imageUrl: imageUrl,
                                         onDelete: () {
                                           context.read<KmbusBloc>().add(
-                                            RemoveDocumentById(targetIdDocument),
+                                            RemoveDocumentById(
+                                              targetIdDocument,
+                                            ),
                                           );
                                           Navigator.pop(context);
                                         },
                                       );
                                     } else if (state.documentUploadStatus !=
                                         DocumentUploadStatus.uploading) {
-                                      _openCamera();
+                                      openCamera();
                                     }
                                   },
                                   onRemoveImage: !hasImage
                                       ? null
                                       : () {
                                           context.read<KmbusBloc>().add(
-                                            RemoveDocumentById(targetIdDocument),
+                                            RemoveDocumentById(
+                                              targetIdDocument,
+                                            ),
                                           );
                                         },
                                   instructions: const [

@@ -102,14 +102,13 @@ class _TimetableScreenState extends State<TimetableScreen> {
     );
   }
 
-  void _showCheckInOutModal(BuildContext screenContext, bool isCheckIn) async {
+  void _showCheckInConfirmation(BuildContext screenContext) async {
     final isConfirm = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
       builder: (modalContext) {
         return CoreBottomModalVerification(
-          title:
-              'Apakah ingin melakukan ${isCheckIn ? "Check-In" : "Check-Out"}?',
+          title: 'Apakah ingin melakukan Check-In?',
           onCancel: () => Navigator.pop(modalContext, false),
           onConfirm: () => Navigator.pop(modalContext, true),
         );
@@ -117,21 +116,17 @@ class _TimetableScreenState extends State<TimetableScreen> {
     );
 
     if (isConfirm == true) {
-      isCheckIn
-          ? context.read<TimetableBloc>().add(CheckInTimetable())
-          : context.read<TimetableBloc>().add(CheckOutTimetable());
+      context.read<TimetableBloc>().add(CheckInTimetable());
     }
   }
 
-  void _showCheckInOutModalToKM(
+  void _showCheckOutConfirmation(
     BuildContext screenContext,
-    bool isCheckin,
     int? idShift,
     int? idKoridorShift,
     int? idBusShift,
     double long,
     double lat,
-    bool isCheckIn,
     int? idKm,
     int? idAuditTrail,
   ) async {
@@ -140,38 +135,55 @@ class _TimetableScreenState extends State<TimetableScreen> {
       isScrollControlled: true,
       builder: (modalContext) {
         return CoreBottomModalVerification(
-          title: 'Apakah ingin melakukan Check-In?',
+          title: 'Apakah ingin melakukan Check-Out?',
           desc:
-              'Anda akan diminta melakukan foto KM Bus terlebih dahulu untuk ritase pertama kali.',
+              'Anda akan diminta melakukan foto KM Bus terlebih dahulu sebelum melakukan Check-Out.',
           onCancel: () => Navigator.pop(modalContext, false),
           onConfirm: () => Navigator.pop(modalContext, true),
         );
       },
     );
     if (isConfirm == true) {
-      final bool? result = isCheckIn
-          ? await context.push<bool>(
-              '/kmbus/titik-awal/form',
-              extra: ScheduleArgs(
-                idShift: idShift!,
-                idKoridorShift: idKoridorShift!,
-                idBusShift: idBusShift!,
-                long: long,
-                lat: lat,
-              ),
-            )
-          : await context.push<bool>(
-              '/kmbus/titik-akhir/form',
-              extra: TitikAkhirArgs(idKm: idKm!, idAuditTrail: 0),
-            );
+      final bool? result = await context.push<bool>(
+        '/kmbus/titik-akhir/form',
+        extra: TitikAkhirArgs(idKm: idKm!, idAuditTrail: 0),
+      );
 
       if (result == true) {
-        if (isCheckIn) {
-          context.read<TimetableBloc>().add(CheckInTimetable());
-        } else {
-          context.read<TimetableBloc>().add(CheckOutTimetable());
-        }
+        context.read<TimetableBloc>().add(CheckOutTimetable());
       }
+    }
+  }
+
+  void _showSuccessCheckoutConfirmation(
+      BuildContext screenContext,
+      int? idShift,
+      int? idKoridorShift,
+      int? idBusShift,
+      double? ritaseKe,
+      ) async {
+    final isConfirm = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      builder: (modalContext) {
+        return CoreBottomModalVerification(
+          title: 'Apakah ingin langsung melakukan input settlement?',
+          onCancel: () => Navigator.pop(modalContext, false),
+          onConfirm: () => Navigator.pop(modalContext, true),
+        );
+      },
+    );
+    if (isConfirm == true) {
+      context.push(
+        '/settlement/form',
+        extra: SettlementFormArgs(
+          idAuditTrail: null,
+          idShift: idShift,
+          idKoridor: idKoridorShift,
+          idBus: idBusShift,
+          ritaseKe: ritaseKe,
+        ),
+      );
     }
   }
 
@@ -180,7 +192,10 @@ class _TimetableScreenState extends State<TimetableScreen> {
     return BlocListener<TimetableBloc, TimetableState>(
       listenWhen: (prev, curr) => prev.status != curr.status,
       listener: (context, state) {
-        if (state.status == TimetableStatus.successSave) {
+        print(state.status);
+        if (state.status == TimetableStatus.successSave ||
+            state.status == TimetableStatus.successCheckIn) {
+          print("IKO NAN JALAN PANTEK");
           CoreSnackbar.show(
             context,
             message: state.message,
@@ -191,19 +206,24 @@ class _TimetableScreenState extends State<TimetableScreen> {
             context.read<TimetableBloc>().add(PageDashboardLoad());
           });
 
-          if (state.message == "Berhasil check-out!") {
-            Future.delayed(const Duration(milliseconds: 200), () {
-              context.push(
-                '/settlement/form',
-                extra: SettlementFormArgs(
-                  idAuditTrail: null,
-                  idShift: state.idShift,
-                  idKoridor: state.idKoridor,
-                  idBus: state.idBus,
-                  ritaseKe: state.ritaseKe,
-                ),
-              );
-            });
+          if (state.status == TimetableStatus.successCheckIn) {
+            context.push<bool>(
+              '/kmbus/titik-awal/form',
+              extra: ScheduleArgs(
+                idShift: state.idShift!,
+                idKoridorShift: state.idKoridor,
+                idBusShift: state.idBus,
+              ),
+            );
+          }
+
+          if (state.status == TimetableStatus.successCheckOut) {
+            _showSuccessCheckoutConfirmation(context,
+              state.checkinData!.idShift,
+              state.idKoridor,
+              state.idBus,
+              state.ritaseKe
+            );
           }
         } else if (state.status == TimetableStatus.failedSave) {
           CoreSnackbar.show(
@@ -422,22 +442,7 @@ class _TimetableScreenState extends State<TimetableScreen> {
                                   ],
                                   onPressed: () {
                                     if (!state.isAllowCheckIn) return;
-                                    if (state.checkinData!.ritaseKe != 0.5) {
-                                      _showCheckInOutModal(context, true);
-                                    } else {
-                                      _showCheckInOutModalToKM(
-                                        context,
-                                        true,
-                                        state.checkinData!.idShift,
-                                        state.idKoridor,
-                                        state.idBus,
-                                        state.checkinData!.long,
-                                        state.checkinData!.lat,
-                                        true,
-                                        null,
-                                        null,
-                                      );
-                                    }
+                                    _showCheckInConfirmation(context);
                                   },
                                 ),
                               ),
@@ -453,22 +458,16 @@ class _TimetableScreenState extends State<TimetableScreen> {
                                   ],
                                   onPressed: () {
                                     if (!state.isAllowCheckOut) return;
-                                    if (!state.isLastRitase) {
-                                      _showCheckInOutModal(context, false);
-                                    } else {
-                                      _showCheckInOutModalToKM(
-                                        context,
-                                        true,
-                                        state.checkinData!.idShift,
-                                        state.idKoridor,
-                                        state.idBus,
-                                        state.checkinData!.long,
-                                        state.checkinData!.lat,
-                                        false,
-                                        state.idKm,
-                                        null,
-                                      );
-                                    }
+                                    _showCheckOutConfirmation(
+                                      context,
+                                      state.checkinData!.idShift,
+                                      state.idKoridor,
+                                      state.idBus,
+                                      state.checkinData!.long,
+                                      state.checkinData!.lat,
+                                      state.idKm,
+                                      null,
+                                    );
                                   },
                                 ),
                               ),

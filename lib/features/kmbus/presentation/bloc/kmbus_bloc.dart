@@ -19,31 +19,43 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
   KmbusBloc(this.kmbusRepository, this.secureStorageService)
     : super(const KmbusState()) {
     on<PageDashboardLoad>((event, emit) async {
-      emit(state.copyWith(status: KmbusStatus.initial, submitStatus: SubmitStatus.idle, submitWorkflowStatus: SubmitWorkflowStatus.idle));
+      emit(
+        state.copyWith(
+          status: KmbusStatus.initial,
+          submitStatus: SubmitStatus.idle,
+          submitWorkflowStatus: SubmitWorkflowStatus.idle,
+        ),
+      );
 
       try {
         final listMaster = await kmbusRepository.fetchKmbusDataToday('');
-        final listAuditTrail = await kmbusRepository.fetchListKmbusAuditTrail(
-          '',
-        );
+        final listAuditTrail = await kmbusRepository.fetchListKmbusAuditTrail('');
 
         final kmBusListMaster = listMaster.fold((failure) {
           emit(
-            state.copyWith(status: KmbusStatus.error, message: failure.message),
+            state.copyWith(
+              status: KmbusStatus.error,
+              message: failure.message,
+            ),
           );
           return null;
         }, (data) => data);
 
         final kmBusListAuditTrail = listAuditTrail.fold((failure) {
           emit(
-            state.copyWith(status: KmbusStatus.error, message: failure.message),
+            state.copyWith(
+              status: KmbusStatus.error,
+              message: failure.message,
+            ),
           );
           return null;
         }, (data) => data);
 
         if (kmBusListAuditTrail == null) return;
 
-        final activeMasterData = kmBusListMaster?.cast<KmbusData?>().firstWhere(
+        final activeMasterData = kmBusListMaster
+            ?.cast<KmbusData?>()
+            .firstWhere(
               (e) => e != null && e.titikAkhir == null,
           orElse: () => null,
         );
@@ -54,26 +66,31 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
           state.copyWith(
             listKmbusAuditTrail: kmBusListAuditTrail,
             idKm: idKm,
-            status: KmbusStatus.success,
           ),
         );
 
-        final bool hasDraftTitikAkhir = kmBusListAuditTrail.any((data) {
-          final bool isTitikAkhir =
-              data.dataAfter.titikAkhir != null &&
-                  data.dataAfter.titikAkhir != 0;
+        final bool hasDraftTitikAwal = kmBusListAuditTrail.any((data) {
+          final bool isTitikAwal =
+              data.dataAfter.titikAwal != null &&
+                  data.dataAfter.titikAwal != 0;
+
           final bool isDraft = data.status.code == "DFT";
-          return isTitikAkhir && isDraft;
+
+          return isTitikAwal && isDraft;
         });
 
         final userIdString = await secureStorageService.readUserId();
         final userId = int.tryParse(userIdString ?? '') ?? 0;
 
-        final todaySchedule = await kmbusRepository.fetchTodaySchedule(userId);
+        final todaySchedule =
+        await kmbusRepository.fetchTodaySchedule(userId);
 
         final todayScheduleData = todaySchedule.fold((failure) {
           emit(
-            state.copyWith(status: KmbusStatus.error, message: failure.message),
+            state.copyWith(
+              status: KmbusStatus.error,
+              message: failure.message,
+            ),
           );
           return null;
         }, (data) => data);
@@ -95,6 +112,7 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
           idKoridorShift,
           idBusShift!,
         );
+
         final double ritaseValue = nextRitaseResult.fold(
               (_) => 0.0,
               (value) => value.ritaseKe!,
@@ -105,47 +123,37 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
           idBusShift,
           ritaseValue,
         );
-        final checkAkhirFuture = kmbusRepository.checkAllowTitikAkhir(
-          idKoridorShift,
-          idBusShift,
-          ritaseValue,
-        );
 
-        final results = await Future.wait([checkAwalFuture, checkAkhirFuture]);
+        final results = await Future.wait([checkAwalFuture]);
 
         final checkAwalResult = results[0];
-        final checkAkhirResult = results[1];
 
         final bool isAllowTitikAwal = checkAwalResult.fold(
               (_) => false,
-              (res) => res == "Access Granted",
+              (res) =>
+          res == "Access Granted" &&
+              !hasDraftTitikAwal,
         );
-
-        final bool isAllowTitikAkhirCheck = checkAkhirResult.fold(
-              (_) => false,
-              (res) => res == "Access Granted",
-        );
-
-        bool finalAllowTitikAkhir = isAllowTitikAkhirCheck && idKm != 0;
-
-        if (hasDraftTitikAkhir) {
-          finalAllowTitikAkhir = false;
-        }
 
         emit(
           state.copyWith(
             allowTitikAwal: isAllowTitikAwal,
-            allowTitikAkhir: finalAllowTitikAkhir,
             idShift: todayScheduleData[0].shift.id,
             idKoridorShift: idKoridorShift,
             idBusShift: idBusShift,
+            status: KmbusStatus.success,
           ),
         );
       } catch (e, s) {
         debugPrint(e.toString());
         debugPrint(s.toString());
 
-        emit(state.copyWith(status: KmbusStatus.error, message: e.toString()));
+        emit(
+          state.copyWith(
+            status: KmbusStatus.error,
+            message: e.toString(),
+          ),
+        );
       }
     });
 

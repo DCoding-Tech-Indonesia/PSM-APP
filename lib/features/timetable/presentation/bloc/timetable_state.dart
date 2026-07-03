@@ -13,6 +13,8 @@ enum TimetableStatus {
   fetching,
   onSubmit,
   inValid,
+  successCheckIn,
+  successCheckOut
 }
 
 class TimetableState extends Equatable {
@@ -41,6 +43,9 @@ class TimetableState extends Equatable {
 
   final TimetableCheckin? checkinData;
 
+  final double long;
+  final double lat;
+
   const TimetableState({
     this.idShift,
     this.idKm,
@@ -62,6 +67,9 @@ class TimetableState extends Equatable {
     this.idBus = 0,
     this.noUnit = '',
     this.checkinData,
+
+    this.long = 0,
+    this.lat = 0,
   });
 
   TimetableState copyWith({

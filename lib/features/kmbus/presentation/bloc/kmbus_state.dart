@@ -54,7 +54,6 @@ class KmbusState {
   final TimetableCheckin? checkinData;
 
   final bool allowTitikAwal;
-  final bool allowTitikAkhir;
   final int? idKm;
 
   final int? idShift;
@@ -92,7 +91,6 @@ class KmbusState {
     this.checkinData,
 
     this.allowTitikAwal = false,
-    this.allowTitikAkhir = false,
     this.idKm,
 
     this.idShift,
@@ -130,7 +128,6 @@ class KmbusState {
   KmbusState copyWith({
     TimetableCheckin? checkinData,
     bool? allowTitikAwal,
-    bool? allowTitikAkhir,
     int? idKm,
 
     int? idShift,
@@ -168,7 +165,6 @@ class KmbusState {
       checkinData: checkinData ?? this.checkinData,
 
       allowTitikAwal: allowTitikAwal ?? this.allowTitikAwal,
-      allowTitikAkhir: allowTitikAkhir ?? this.allowTitikAkhir,
       idKm: idKm ?? this.idKm,
 
       idShift: idShift ?? this.idShift,

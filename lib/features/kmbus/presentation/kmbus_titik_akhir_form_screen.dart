@@ -48,8 +48,8 @@ class _KmbusTitikAkhirFormScreenState extends State<KmbusTitikAkhirFormScreen> {
         return CoreBottomModalVerification(
           title: "Draft berhasil disimpan.",
           desc: "Ingin langsung melakukan submit data?",
-          onCancel: () => {Navigator.pop(modalContext, false)},
-          onConfirm: () => {Navigator.pop(modalContext, true)},
+          onCancel: () => Navigator.pop(modalContext, false),
+          onConfirm: () => Navigator.pop(modalContext, true),
         );
       },
     );
@@ -57,7 +57,7 @@ class _KmbusTitikAkhirFormScreenState extends State<KmbusTitikAkhirFormScreen> {
     if (isConfirm == true) {
       context.read<KmbusBloc>().add(SubmitWorkflow("Done", id));
     } else {
-      context.pop();
+      context.pop(true);
     }
   }
 
@@ -144,6 +144,7 @@ class _KmbusTitikAkhirFormScreenState extends State<KmbusTitikAkhirFormScreen> {
             message: "Speedometer gagal terdeteksi, coba kembali.",
             type: SnackbarType.failed,
           );
+          return;
         }
 
         if (state.submitStatus == SubmitStatus.success) {
@@ -170,7 +171,7 @@ class _KmbusTitikAkhirFormScreenState extends State<KmbusTitikAkhirFormScreen> {
           await Future.delayed(const Duration(seconds: 2));
 
           if (!context.mounted) return;
-          context.pop();
+          context.pop(true);
           return;
         }
 
@@ -184,7 +185,7 @@ class _KmbusTitikAkhirFormScreenState extends State<KmbusTitikAkhirFormScreen> {
           await Future.delayed(const Duration(seconds: 2));
 
           if (!context.mounted) return;
-          context.pop();
+          context.pop(true);
         }
       },
       child: Scaffold(

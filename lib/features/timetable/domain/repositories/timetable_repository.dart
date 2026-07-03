@@ -30,7 +30,7 @@ abstract class TimetableRepository {
 
   Future<Either<Failure, NextRitaseResponse>> fetchNextRitase(int idKoridor, int idBus);
   Future<Either<Failure, TimetableCheckinResponse?>> checkinTimeTable(TimetableCheckin request);
-  Future<Either<Failure, String?>> checkoutTimeTable(TimetableCheckout request);
+  Future<Either<Failure, TimetableCheckinResponse?>> checkoutTimeTable(TimetableCheckout request);
 
   Future<Either<Failure, List<ReferenceDetail>>> fetchReferenceKoridor(String keyword);
   Future<Either<Failure, List<ReferenceDetail>>> fetchReferenceBus(String keyword, int idKoridor);
