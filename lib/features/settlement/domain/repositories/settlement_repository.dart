@@ -20,6 +20,7 @@ abstract class SettlementRepository {
       double nextRit,
       );
 
+  Future<Either<Failure, List<ReferenceDetail>>> fetchReferenceDocType(String keyword);
   Future<Either<Failure, List<ReferenceDetail>>> fetchReferenceBus(String keyword, int idKoridor);
   Future<Either<Failure, List<ReferenceDetail>>> fetchReferenceKoridor(String keyword);
   Future<Either<Failure, NextRitaseResponse>> fetchNextRitase(int idKoridor, int idBus);

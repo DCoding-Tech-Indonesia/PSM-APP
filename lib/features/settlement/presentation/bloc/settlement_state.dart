@@ -9,6 +9,8 @@ import 'package:psm_mobile/features/settlement/domain/entities/settlement_docume
 enum SettlementStatus { initial, loading, success, error, successSave, failedSave, fetching }
 
 class SettlementState extends Equatable {
+  final int idDocType;
+
   final bool jadwalExist;
   final bool? isLastRitase;
 
@@ -55,6 +57,8 @@ class SettlementState extends Equatable {
   final String? message;
 
   const SettlementState({
+    this.idDocType = 71,
+
     this.jadwalExist = true,
     this.isLastRitase,
 
@@ -100,6 +104,8 @@ class SettlementState extends Equatable {
   });
 
   SettlementState copyWith({
+    int? idDocType,
+
     bool? jadwalExist,
     bool? isLastRitase,
 
@@ -145,6 +151,8 @@ class SettlementState extends Equatable {
     String? message,
   }) {
     return SettlementState(
+      idDocType: idDocType ?? this.idDocType,
+
       jadwalExist: jadwalExist ?? this.jadwalExist,
       isLastRitase: isLastRitase ?? this.isLastRitase,
 
@@ -192,6 +200,7 @@ class SettlementState extends Equatable {
 
   @override
   List<Object?> get props => [
+    idDocType,
     jadwalExist,
     isLastRitase,
 

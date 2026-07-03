@@ -13,6 +13,23 @@ class ReferenceDataSource {
 
   ReferenceDataSource({required this.dio});
 
+  Future<List<ReferenceDetail>> fetchReferenceDocType(
+      String keyword
+      ) async {
+    final response = await dio.get(
+      '/reference/type-document',
+      queryParameters: {
+        'keyword': keyword,
+        'page': 1,
+        'perPage': 999,
+      },
+    );
+
+    final data = response.data['data'] as List;
+
+    return data.map((e) => ReferenceDetail.fromJson(e)).toList();
+  }
+
   Future<List<ReferenceDetail>> fetchReferenceBus(
     String keyword,
     int idKoridor,

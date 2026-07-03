@@ -51,6 +51,8 @@ enum DocumentUploadStatus {
 }
 
 class KmbusState {
+  final int idDocType;
+
   final TimetableCheckin? checkinData;
 
   final bool allowTitikAwal;
@@ -88,6 +90,8 @@ class KmbusState {
   final int idAuditTrail;
 
   const KmbusState({
+    this.idDocType = 71,
+
     this.checkinData,
 
     this.allowTitikAwal = false,
@@ -126,6 +130,8 @@ class KmbusState {
   });
 
   KmbusState copyWith({
+    int? idDocType,
+
     TimetableCheckin? checkinData,
     bool? allowTitikAwal,
     int? idKm,
@@ -162,6 +168,8 @@ class KmbusState {
     int? idAuditTrail,
   }) {
     return KmbusState(
+      idDocType: idDocType ?? this.idDocType,
+
       checkinData: checkinData ?? this.checkinData,
 
       allowTitikAwal: allowTitikAwal ?? this.allowTitikAwal,

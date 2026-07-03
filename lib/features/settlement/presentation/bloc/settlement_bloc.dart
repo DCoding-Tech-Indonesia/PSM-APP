@@ -244,6 +244,29 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
 
         final activeTabLabel = paymentList[0].name;
 
+        final resultRefDocType =
+        await settlementRepository.fetchReferenceDocType('');
+
+        resultRefDocType.fold(
+              (failure) {
+            emit(
+              state.copyWith(
+                status: SettlementStatus.error,
+                message: failure.message,
+              ),
+            );
+          },
+              (docTypes) {
+            final docTypeId = docTypes
+                .firstWhere((e) => e.code == 'BUKTISET')
+                .id;
+
+            emit(state.copyWith(idDocType: docTypeId));
+
+            print(docTypeId);
+          },
+        );
+
         emit(
           state.copyWith(
             idShift: event.idShift,
@@ -537,7 +560,7 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
             ..add(
               SettlementDocument(
                 idDocument: data.idDocument,
-                idDocumentType: data.idDocument,
+                idDocumentType: state.idDocType,
               ),
             );
 

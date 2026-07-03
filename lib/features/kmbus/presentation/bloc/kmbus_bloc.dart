@@ -320,6 +320,29 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
           lat: 0.0,
         );
 
+        final resultRefDocType =
+        await kmbusRepository.fetchReferenceDocType('');
+
+        resultRefDocType.fold(
+              (failure) {
+            emit(
+              state.copyWith(
+                status: KmbusStatus.error,
+                message: failure.message,
+              ),
+            );
+          },
+              (docTypes) {
+            final docTypeId = docTypes
+                .firstWhere((e) => e.code == 'BUKTISET')
+                .id;
+
+            emit(state.copyWith(idDocType: docTypeId));
+
+            print(docTypeId);
+          },
+        );
+
         final initial = _initialTitikAwalCreate.copyWith(
           idPramugara: userRoleId,
           idShift: event.idShift,
@@ -477,7 +500,7 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
               final newDocument = KmbusDocument(
                 idKmDocument: data.idDocument,
                 idDocument: data.idDocument,
-                idDocumentType: 72,
+                idDocumentType: state.idDocType,
               );
 
               final newPreview = DocumentPreview(
