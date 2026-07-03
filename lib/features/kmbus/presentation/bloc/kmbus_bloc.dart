@@ -334,7 +334,7 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
           },
               (docTypes) {
             final docTypeId = docTypes
-                .firstWhere((e) => e.code == 'BUKTISET')
+                .firstWhere((e) => e.code == 'KM')
                 .id;
 
             emit(state.copyWith(idDocType: docTypeId));
