@@ -3,7 +3,10 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:psm_mobile/core/error/failure.dart';
+import 'package:psm_mobile/core/presentations/datasource/core_data_source.dart';
+import 'package:psm_mobile/core/presentations/entity/core_data_source_response.dart';
 import 'package:psm_mobile/core/presentations/entity/core_schedule_model.dart';
+import 'package:psm_mobile/core/presentations/entity/core_status_and_message_response.dart';
 import 'package:psm_mobile/features/reference/domain/entities/next_ritase_response.dart';
 import 'package:psm_mobile/features/reference/reference_data_source.dart';
 import 'package:psm_mobile/features/settlement/data/settlement_data_source.dart';
@@ -16,14 +19,19 @@ import 'package:psm_mobile/features/settlement/domain/repositories/settlement_re
 
 class SettlementRepositoryImpl implements SettlementRepository {
   final SettlementDataSource dataSource;
+  final CoreDataSource dataSourceCore;
   final ReferenceDataSource dataSourceReference;
 
-  SettlementRepositoryImpl({required this.dataSource, required this.dataSourceReference});
+  SettlementRepositoryImpl({
+    required this.dataSource,
+    required this.dataSourceReference,
+    required this.dataSourceCore,
+  });
 
   @override
   Future<Either<Failure, List<CoreScheduleModel>>> fetchTodaySchedule(
-      int userId,
-      ) async {
+    int userId,
+  ) async {
     try {
       final result = await dataSourceReference.fetchTodaySchedule(
         userId: userId,
@@ -41,13 +49,37 @@ class SettlementRepositoryImpl implements SettlementRepository {
   }
 
   @override
-  Future<Either<Failure, String>> checkAllowSettlement(
-      int idKoridor,
-      int idBus,
-      double nextRit,
-      ) async {
+  Future<Either<Failure, CoreDataSourceResponse>> checkAllowSettlement(
+    int idKoridor,
+    int idBus,
+    double nextRit,
+  ) async {
     try {
-      final result = await dataSource.checkAllowSettlement(
+      final result = await dataSourceCore.checkAllowSettlement(
+        idKoridor,
+        idBus,
+        nextRit,
+      );
+
+      return right(result);
+    } on DioException catch (e) {
+      final message =
+          e.response?.data?['message'] ?? 'Terjadi kesalahan server';
+
+      return left(ServerFailure(message));
+    } catch (_) {
+      return left(const ServerFailure('Unexpected error'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, CoreDataSourceResponse>> checkAllowCheckOut(
+    int idKoridor,
+    int idBus,
+    double nextRit,
+  ) async {
+    try {
+      final result = await dataSourceCore.checkAllowCheckOut(
         idKoridor,
         idBus,
         nextRit,
@@ -67,10 +99,13 @@ class SettlementRepositoryImpl implements SettlementRepository {
   @override
   Future<Either<Failure, List<ReferenceDetail>>> fetchReferenceBus(
     String keyword,
-    int idKoridor
+    int idKoridor,
   ) async {
     try {
-      final result = await dataSourceReference.fetchReferenceBus(keyword, idKoridor);
+      final result = await dataSourceReference.fetchReferenceBus(
+        keyword,
+        idKoridor,
+      );
 
       return right(result);
     } on DioException catch (e) {
@@ -103,8 +138,8 @@ class SettlementRepositoryImpl implements SettlementRepository {
 
   @override
   Future<Either<Failure, List<ReferenceDetail>>> fetchReferenceDocType(
-      String keyword,
-      ) async {
+    String keyword,
+  ) async {
     try {
       final result = await dataSourceReference.fetchReferenceDocType(keyword);
 
@@ -121,11 +156,14 @@ class SettlementRepositoryImpl implements SettlementRepository {
 
   @override
   Future<Either<Failure, NextRitaseResponse>> fetchNextRitase(
-      int idKoridor,
-      int idBus
-      ) async {
+    int idKoridor,
+    int idBus,
+  ) async {
     try {
-      final result = await dataSourceReference.fetchNextRitase(idKoridor, idBus);
+      final result = await dataSourceReference.fetchNextRitase(
+        idKoridor,
+        idBus,
+      );
 
       return right(result);
     } on DioException catch (e) {
@@ -229,9 +267,8 @@ class SettlementRepositoryImpl implements SettlementRepository {
   }
 
   @override
-  Future<Either<Failure, List<SettlementTaskAuditTrail>>> fetchTaskAuditTrailList(
-    String keyword,
-  ) async {
+  Future<Either<Failure, List<SettlementTaskAuditTrail>>>
+  fetchTaskAuditTrailList(String keyword) async {
     try {
       final result = await dataSource.fetchTaskAuditTrailList(keyword);
 
@@ -265,7 +302,7 @@ class SettlementRepositoryImpl implements SettlementRepository {
   }
 
   @override
-  Future<Either<Failure, String>> updateSettlement(
+  Future<Either<Failure, CoreStatusAndMessageResponse>> updateSettlement(
     SettlementCreate request,
   ) async {
     try {
@@ -283,7 +320,7 @@ class SettlementRepositoryImpl implements SettlementRepository {
   }
 
   @override
-  Future<Either<Failure, String>> submitWorkflow(
+  Future<Either<Failure, CoreStatusAndMessageResponse>> submitWorkflow(
     int idAuditTrail,
     String reason,
   ) async {
@@ -302,7 +339,7 @@ class SettlementRepositoryImpl implements SettlementRepository {
   }
 
   @override
-  Future<Either<Failure, String>> cancelTaskDraft(int idAuditTrail) async {
+  Future<Either<Failure, CoreStatusAndMessageResponse>> cancelTaskDraft(int idAuditTrail) async {
     try {
       final response = await dataSource.cancelTaskDraft(idAuditTrail);
 

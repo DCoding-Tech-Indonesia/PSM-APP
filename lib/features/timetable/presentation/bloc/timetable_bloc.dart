@@ -100,9 +100,15 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
           idKoridorShift,
           idBusShift!,
         );
+
         final double ritaseValue = nextRitaseResult.fold(
           (_) => 0.0,
           (value) => value.ritaseKe!,
+        );
+
+        final bool isLastRitase = nextRitaseResult.fold(
+              (_) => false,
+              (value) => value.isLastRitase!,
         );
 
         final currentCheckin =
@@ -151,13 +157,8 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
           updatedCheckinWithPramugara.idBus,
           updatedCheckinWithPramugara.ritaseKe,
         );
-        final checkCheckOutFuture = timetableRepository.checkAllowCheckOut(
-          updatedCheckinWithPramugara.idKoridor,
-          updatedCheckinWithPramugara.idBus,
-          updatedCheckinWithPramugara.ritaseKe,
-        );
 
-        final checkAwalFuture = timetableRepository.checkAllowTitikAwal(
+        final checkCheckOutFuture = timetableRepository.checkAllowCheckOut(
           updatedCheckinWithPramugara.idKoridor,
           updatedCheckinWithPramugara.idBus,
           updatedCheckinWithPramugara.ritaseKe,
@@ -166,22 +167,26 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
         final allowResults = await Future.wait([
           checkCheckInFuture,
           checkCheckOutFuture,
-          checkAwalFuture,
         ]);
 
         final bool isAllowCheckIn = allowResults[0].fold(
           (_) => false,
-          (res) => res == "Access Granted",
+          (res) => res.isAllowed,
+        );
+
+        final String checkInMessage = allowResults[0].fold(
+          (_) => '',
+          (res) => res.message,
         );
 
         final bool isAllowCheckOut = allowResults[1].fold(
           (_) => false,
-          (res) => res == "Access Granted",
+          (res) => res.isAllowed,
         );
 
-        final bool _isAllowCheckOutLocal = allowResults[1].fold(
-          (_) => false,
-          (res) => res == "Access Granted",
+        final String checkOutMessage = allowResults[1].fold(
+          (_) => '',
+          (res) => res.message,
         );
 
         final listMaster = await timetableRepository.fetchKmbusDataToday('');
@@ -205,6 +210,7 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
 
         emit(
           state.copyWith(
+            isLastRitase: isLastRitase,
             idShift: idShiftActive,
             idKm: idKm,
             ritaseKe: ritaseValue,
@@ -216,8 +222,10 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
             namaKoridor: namaKoridorShift,
             idBus: idBusShift,
             noUnit: currentNoUnit,
-            isAllowCheckIn: isAllowCheckIn && !_isAllowCheckOutLocal,
-            isAllowCheckOut: (isAllowCheckOut && !isAllowCheckIn),
+            isAllowCheckIn: !isAllowCheckIn,
+            isAllowCheckOut: !isAllowCheckOut,
+            disabledBerangkatMessage: checkInMessage,
+            disabledDatangMessage: checkOutMessage,
             status: TimetableStatus.success,
           ),
         );

@@ -122,6 +122,7 @@ class _TimetableScreenState extends State<TimetableScreen> {
 
   void _showCheckOutConfirmation(
     BuildContext screenContext,
+    isLastRitase,
     int? idShift,
     int? idKoridorShift,
     int? idBusShift,
@@ -136,20 +137,25 @@ class _TimetableScreenState extends State<TimetableScreen> {
       builder: (modalContext) {
         return CoreBottomModalVerification(
           title: 'Apakah ingin melakukan Check-Out?',
-          desc:
-              'Anda akan diminta melakukan foto KM Bus terlebih dahulu sebelum melakukan Check-Out.',
+          desc: isLastRitase
+              ? 'Anda akan diminta melakukan foto KM Bus terlebih dahulu sebelum melakukan Check-Out.'
+              : '',
           onCancel: () => Navigator.pop(modalContext, false),
           onConfirm: () => Navigator.pop(modalContext, true),
         );
       },
     );
     if (isConfirm == true) {
-      final bool? result = await context.push<bool>(
-        '/kmbus/titik-akhir/form',
-        extra: TitikAkhirArgs(idKm: idKm!, idAuditTrail: 0),
-      );
+      if (isLastRitase) {
+        final bool? result = await context.push<bool>(
+          '/kmbus/titik-akhir/form',
+          extra: TitikAkhirArgs(idKm: idKm!, idAuditTrail: 0),
+        );
 
-      if (result == true) {
+        if (result == true) {
+          context.read<TimetableBloc>().add(CheckOutTimetable());
+        }
+      } else {
         context.read<TimetableBloc>().add(CheckOutTimetable());
       }
     }
@@ -441,7 +447,15 @@ class _TimetableScreenState extends State<TimetableScreen> {
                                     Color(0xFF43A047),
                                   ],
                                   onPressed: () {
-                                    if (!state.isAllowCheckIn) return;
+                                    if (!state.isAllowCheckIn) {
+                                      CoreSnackbar.show(
+                                        context,
+                                        message:
+                                            state.disabledBerangkatMessage!,
+                                        type: SnackbarType.warning,
+                                      );
+                                      return;
+                                    }
                                     _showCheckInConfirmation(context);
                                   },
                                 ),
@@ -457,9 +471,18 @@ class _TimetableScreenState extends State<TimetableScreen> {
                                     Color(0xFFE53935),
                                   ],
                                   onPressed: () {
-                                    if (!state.isAllowCheckOut) return;
+                                    if (!state.isAllowCheckOut) {
+                                      CoreSnackbar.show(
+                                        context,
+                                        message: state.disabledDatangMessage!,
+                                        type: SnackbarType.warning,
+                                      );
+
+                                      return;
+                                    }
                                     _showCheckOutConfirmation(
                                       context,
+                                      state.isLastRitase,
                                       state.checkinData!.idShift,
                                       state.idKoridor,
                                       state.idBus,

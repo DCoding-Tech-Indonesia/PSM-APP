@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:psm_mobile/core/network/dio_client.dart';
 import 'package:psm_mobile/core/presentations/cubit/core_tab_cubit.dart';
+import 'package:psm_mobile/core/presentations/datasource/core_data_source.dart';
 import 'package:psm_mobile/core/presentations/entity/schedule_args.dart';
 import 'package:psm_mobile/core/presentations/widgets/widgets.dart';
 import 'package:psm_mobile/core/router/route_observer.dart';
@@ -121,6 +122,10 @@ void setupRouter(String initialLocation) {
                       secureStorageService: secureStorageService,
                     ),
                     dataSourceReference: ReferenceDataSource(dio: dio),
+                    dataSourceCore: CoreDataSource(
+                      dio: dio,
+                      secureStorageService: secureStorageService,
+                    ),
                   ),
                   secureStorageService,
                 ),
@@ -151,6 +156,10 @@ void setupRouter(String initialLocation) {
                       secureStorageService: secureStorageService,
                     ),
                     dataSourceReference: ReferenceDataSource(dio: dio),
+                    dataSourceCore: CoreDataSource(
+                      dio: dio,
+                      secureStorageService: secureStorageService,
+                    ),
                   ),
                   secureStorageService,
                 ),
@@ -187,6 +196,10 @@ void setupRouter(String initialLocation) {
                       secureStorageService: secureStorageService,
                     ),
                     dataSourceReference: ReferenceDataSource(dio: dio),
+                    dataSourceCore: CoreDataSource(
+                      dio: dio,
+                      secureStorageService: secureStorageService,
+                    ),
                   ),
                   secureStorageService,
                 ),
@@ -219,6 +232,10 @@ void setupRouter(String initialLocation) {
                       secureStorageService: secureStorageService,
                     ),
                     dataSourceReference: ReferenceDataSource(dio: dio),
+                    dataSourceCore: CoreDataSource(
+                      dio: dio,
+                      secureStorageService: secureStorageService,
+                    ),
                   ),
                   secureStorageService,
                 ),
@@ -249,6 +266,10 @@ void setupRouter(String initialLocation) {
                       secureStorageService: secureStorageService,
                     ),
                     dataSourceReference: ReferenceDataSource(dio: dio),
+                    dataSourceCore: CoreDataSource(
+                      dio: dio,
+                      secureStorageService: secureStorageService,
+                    ),
                   ),
                   secureStorageService,
                 ),
@@ -279,6 +300,10 @@ void setupRouter(String initialLocation) {
                       secureStorageService: secureStorageService,
                     ),
                     dataSourceReference: ReferenceDataSource(dio: dio),
+                    dataSourceCore: CoreDataSource(
+                      dio: dio,
+                      secureStorageService: secureStorageService,
+                    ),
                   ),
                   secureStorageService,
                 ),
@@ -306,6 +331,10 @@ void setupRouter(String initialLocation) {
                       secureStorageService: secureStorageService,
                     ),
                     dataSourceReference: ReferenceDataSource(dio: dio),
+                    dataSourceCore: CoreDataSource(
+                      dio: dio,
+                      secureStorageService: secureStorageService,
+                    ),
                   ),
                   secureStorageService,
                 ),
@@ -338,6 +367,10 @@ void setupRouter(String initialLocation) {
                       secureStorageService: secureStorageService,
                     ),
                     dataSourceReference: ReferenceDataSource(dio: dio),
+                    dataSourceCore: CoreDataSource(
+                      dio: dio,
+                      secureStorageService: secureStorageService,
+                    ),
                   ),
                   secureStorageService,
                 ),
@@ -366,6 +399,10 @@ void setupRouter(String initialLocation) {
                       secureStorageService: secureStorageService,
                     ),
                     dataSourceReference: ReferenceDataSource(dio: dio),
+                    dataSourceCore: CoreDataSource(
+                      dio: dio,
+                      secureStorageService: secureStorageService,
+                    ),
                   ),
                   secureStorageService,
                 ),
@@ -393,6 +430,10 @@ void setupRouter(String initialLocation) {
                       secureStorageService: secureStorageService,
                     ),
                     dataSourceReference: ReferenceDataSource(dio: dio),
+                    dataSourceCore: CoreDataSource(
+                      dio: dio,
+                      secureStorageService: secureStorageService,
+                    ),
                   ),
                   secureStorageService,
                 ),
@@ -418,6 +459,10 @@ void setupRouter(String initialLocation) {
                       secureStorageService: secureStorageService,
                     ),
                     dataSourceReference: ReferenceDataSource(dio: dio),
+                    dataSourceCore: CoreDataSource(
+                      dio: dio,
+                      secureStorageService: secureStorageService,
+                    ),
                   ),
                   secureStorageService,
                 ),

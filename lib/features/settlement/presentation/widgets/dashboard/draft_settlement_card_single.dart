@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:psm_mobile/core/helper/string_formatter.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_bottom_modal_verification.dart';
+import 'package:psm_mobile/core/presentations/widgets/core_snackbar.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/settlement_task_audit_trail.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/settlement_form_args.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_bloc.dart';
@@ -16,6 +17,8 @@ class DraftSettlementCardSingle extends StatelessWidget {
     required this.idKoridor,
     required this.idBus,
     required this.ritaseKe,
+    required this.isActive,
+    this.ctaDisabledMessage,
   });
 
   final List<SettlementTaskAuditTrail> datas;
@@ -23,6 +26,8 @@ class DraftSettlementCardSingle extends StatelessWidget {
   final int idKoridor;
   final int idBus;
   final double ritaseKe;
+  final bool isActive;
+  final String? ctaDisabledMessage;
 
   Future<bool> _showDirectToEditVerification(BuildContext context) async {
     final isConfirm = await showModalBottomSheet<bool>(
@@ -238,6 +243,16 @@ class DraftSettlementCardSingle extends StatelessWidget {
               color: Colors.transparent,
               child: InkWell(
                 onTap: () async {
+                  if (!isActive) {
+                    CoreSnackbar.show(
+                      context,
+                      message: ctaDisabledMessage!,
+                      type: SnackbarType.warning,
+                    );
+
+                    return;
+                  }
+
                   final result = await context.push<bool>(
                     '/settlement/form',
                     extra: SettlementFormArgs(
@@ -259,8 +274,12 @@ class DraftSettlementCardSingle extends StatelessWidget {
                 child: Ink(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(
+                    gradient: isActive ? const LinearGradient(
                       colors: [Color(0xFF2E7D32), Color(0xFF43A047)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ) : const LinearGradient(
+                      colors: [Color(0xFF454545), Color(0xFF9a9a9a)],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),

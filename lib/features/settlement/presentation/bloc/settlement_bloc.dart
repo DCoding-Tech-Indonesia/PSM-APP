@@ -17,7 +17,18 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
   SettlementBloc(this.settlementRepository, this.secureStorageService)
     : super(const SettlementState()) {
     on<PageInputLoad>((event, emit) async {
-      emit(state.copyWith(status: SettlementStatus.loading, idShift: event.idShift, idKoridor: event.idKoridor, ritase: event.ritaseKe, auditTrailId: event.idAuditTrail, idBus: event.idBus, idKoridorShift: event.idKoridor, idBusShift: event.idBus));
+      emit(
+        state.copyWith(
+          status: SettlementStatus.loading,
+          idShift: event.idShift,
+          idKoridor: event.idKoridor,
+          ritase: event.ritaseKe,
+          auditTrailId: event.idAuditTrail,
+          idBus: event.idBus,
+          idKoridorShift: event.idKoridor,
+          idBusShift: event.idBus,
+        ),
+      );
 
       try {
         final resultKoridor = await settlementRepository.fetchReferenceKoridor(
@@ -99,8 +110,7 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
           );
 
           if (emit.isDone) return;
-        }
-        else {
+        } else {
           auditTrailId = null;
           idKoridor = event.idKoridor;
           idBus = event.idBus;
@@ -244,11 +254,11 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
 
         final activeTabLabel = paymentList[0].name;
 
-        final resultRefDocType =
-        await settlementRepository.fetchReferenceDocType('');
+        final resultRefDocType = await settlementRepository
+            .fetchReferenceDocType('');
 
         resultRefDocType.fold(
-              (failure) {
+          (failure) {
             emit(
               state.copyWith(
                 status: SettlementStatus.error,
@@ -256,7 +266,7 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
               ),
             );
           },
-              (docTypes) {
+          (docTypes) {
             final docTypeId = docTypes
                 .firstWhere((e) => e.code == 'BUKTISET')
                 .id;
@@ -359,7 +369,12 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
 
       final bool allowInputAccess = checkAllowInputResult.fold(
         (_) => false,
-        (res) => res == "Access Granted",
+        (res) => res.isAllowed,
+      );
+
+      final String settlementMessage = checkAllowInputResult.fold(
+        (_) => '',
+        (res) => res.message,
       );
 
       list.fold(
@@ -384,7 +399,8 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
           idKoridorShift: idKoridorShift,
           idBusShift: idBusShift,
           status: SettlementStatus.success,
-          allowInput: allowInputAccess,
+          allowInput: !allowInputAccess,
+          ctaValidationMessage: !allowInputAccess ? null : settlementMessage,
         ),
       );
     });
@@ -455,10 +471,18 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
         },
         (ritaseValue) {
           final updatedDetails = state.detail.map((detail) {
-            return detail.copyWith(idBus: event.id, ritaseKe: ritaseValue.ritaseKe);
+            return detail.copyWith(
+              idBus: event.id,
+              ritaseKe: ritaseValue.ritaseKe,
+            );
           }).toList();
 
-          emit(state.copyWith(ritase: ritaseValue.ritaseKe, detail: updatedDetails));
+          emit(
+            state.copyWith(
+              ritase: ritaseValue.ritaseKe,
+              detail: updatedDetails,
+            ),
+          );
         },
       );
     });
@@ -610,42 +634,51 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
         document: state.document,
       );
 
-      var result;
-
       if (state.auditTrailId.toString() != '0') {
-        if (kDebugMode) {
-          print("UPDATE SETTLEMENT");
-        }
-        result = await settlementRepository.updateSettlement(request);
+        final result = await settlementRepository.updateSettlement(request);
+
+        result.fold(
+              (failure) {
+            emit(
+              state.copyWith(
+                status: SettlementStatus.failedSave,
+                message: failure.message,
+              ),
+            );
+          },
+              (data) {
+            emit(
+              state.copyWith(
+                status: data.status
+                    ? SettlementStatus.successSave
+                    : SettlementStatus.failedSave,
+                message: data.message,
+              ),
+            );
+          },
+        );
       } else {
-        if (kDebugMode) {
-          print("CREATE SETTLEMENT");
-        }
-        result = await settlementRepository.createSettlement(request);
+        final result = await settlementRepository.createSettlement(request);
+
+        result.fold(
+          (failure) {
+            emit(
+              state.copyWith(
+                status: SettlementStatus.failedSave,
+                message: failure.message,
+              ),
+            );
+          },
+          (data) {
+            emit(
+              state.copyWith(
+                status: SettlementStatus.successSave,
+                auditTrailId: int.parse(data),
+              ),
+            );
+          },
+        );
       }
-
-      result.fold(
-        (failure) {
-          emit(
-            state.copyWith(
-              status: SettlementStatus.failedSave,
-              message: failure.message,
-            ),
-          );
-        },
-        (data) {
-          final newAuditTrailId = state.auditTrailId == 0
-              ? int.parse(data)
-              : state.auditTrailId;
-
-          emit(
-            state.copyWith(
-              status: SettlementStatus.successSave,
-              auditTrailId: newAuditTrailId,
-            ),
-          );
-        },
-      );
     });
 
     on<SubmitWorkflow>((event, emit) async {
@@ -657,7 +690,7 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
       );
 
       result.fold(
-        (failure) {
+            (failure) {
           emit(
             state.copyWith(
               status: SettlementStatus.failedSave,
@@ -665,8 +698,15 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
             ),
           );
         },
-        (data) {
-          emit(state.copyWith(status: SettlementStatus.successSave));
+            (data) {
+          emit(
+            state.copyWith(
+              status: data.status
+                  ? SettlementStatus.successSave
+                  : SettlementStatus.failedSave,
+              message: data.message,
+            ),
+          );
         },
       );
     });
@@ -679,7 +719,7 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
       );
 
       result.fold(
-        (failure) {
+            (failure) {
           emit(
             state.copyWith(
               status: SettlementStatus.failedSave,
@@ -687,8 +727,15 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
             ),
           );
         },
-        (data) {
-          emit(state.copyWith(status: SettlementStatus.successSave));
+            (data) {
+          emit(
+            state.copyWith(
+              status: data.status
+                  ? SettlementStatus.successSave
+                  : SettlementStatus.failedSave,
+              message: data.message,
+            ),
+          );
         },
       );
     });

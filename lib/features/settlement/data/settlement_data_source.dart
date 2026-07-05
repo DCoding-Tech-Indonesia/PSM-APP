@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:psm_mobile/core/presentations/entity/core_status_and_message_response.dart';
 import 'package:psm_mobile/core/storage/secure_storage.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/settlement_task_audit_trail.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/settlement_create.dart';
@@ -10,30 +11,6 @@ class SettlementDataSource {
   final SecureStorageService secureStorageService;
 
   SettlementDataSource({required this.dio, required this.secureStorageService});
-
-  Future<String> checkAllowSettlement(
-      int idKoridor,
-      int idBus,
-      double nextRit,
-      ) async {
-    try {
-      final response = await dio.get(
-        '/settelment/check',
-        queryParameters: {
-          'idKoridor': idKoridor,
-          'idBus': idBus,
-          'ritaseKe': nextRit,
-        },
-      );
-
-      bool allow = response.data["data"][0];
-
-      return !allow ? "Access Granted" : "Access Denied";
-    } catch (e) {
-      debugPrint(e.toString());
-      rethrow;
-    }
-  }
 
   Future<String> createSettlement(SettlementCreate request) async {
     try {
@@ -69,7 +46,9 @@ class SettlementDataSource {
     }
   }
 
-  Future<List<SettlementTaskAuditTrail>> fetchTaskAuditTrailList(String keyword) async {
+  Future<List<SettlementTaskAuditTrail>> fetchTaskAuditTrailList(
+    String keyword,
+  ) async {
     try {
       final idUser = await secureStorageService.readUserId();
 
@@ -86,7 +65,9 @@ class SettlementDataSource {
       final List data = response.data['data'] ?? [];
 
       final result = data
-          .map<SettlementTaskAuditTrail>((e) => SettlementTaskAuditTrail.fromJson(e))
+          .map<SettlementTaskAuditTrail>(
+            (e) => SettlementTaskAuditTrail.fromJson(e),
+          )
           .toList();
 
       return result;
@@ -112,9 +93,11 @@ class SettlementDataSource {
     }
   }
 
-  Future<String> updateSettlement(SettlementCreate request) async {
+  Future<CoreStatusAndMessageResponse> updateSettlement(
+    SettlementCreate request,
+  ) async {
     try {
-      await dio.post(
+      final response = await dio.post(
         '/audittrail/task/approval/edit',
         data: {
           "idAuditTrail": request.auditTrailId,
@@ -123,16 +106,19 @@ class SettlementDataSource {
         },
       );
 
-      return "Berhasil Update";
+      return CoreStatusAndMessageResponse.fromJson(response.data);
     } catch (e) {
-      print(e);
-      return e.toString();
+      debugPrint(e.toString());
+      rethrow;
     }
   }
 
-  Future<String> submitWorkflow(int idAuditTrail, String reason) async {
+  Future<CoreStatusAndMessageResponse> submitWorkflow(
+    int idAuditTrail,
+    String reason,
+  ) async {
     try {
-      await dio.post(
+      final response = await dio.post(
         '/workflow/submit',
         data: {
           "idAuditTrail": [idAuditTrail],
@@ -140,26 +126,24 @@ class SettlementDataSource {
         },
       );
 
-      return "Berhasil";
+      return CoreStatusAndMessageResponse.fromJson(response.data);
     } catch (e) {
-      print(e);
-      return e.toString();
+      debugPrint(e.toString());
+      rethrow;
     }
   }
 
-  Future<String> cancelTaskDraft(int idAuditTrail) async {
+  Future<CoreStatusAndMessageResponse> cancelTaskDraft(int idAuditTrail) async {
     try {
-      await dio.post(
+      final response = await dio.post(
         '/audittrail/task/draft/cancel',
-        data: {
-          "idAuditTrail": idAuditTrail,
-        },
+        data: {"idAuditTrail": idAuditTrail},
       );
 
-      return "Berhasil";
+      return CoreStatusAndMessageResponse.fromJson(response.data);
     } catch (e) {
-      print(e);
-      return e.toString();
+      debugPrint(e.toString());
+      rethrow;
     }
   }
 }

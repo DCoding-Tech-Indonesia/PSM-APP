@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:psm_mobile/core/error/failure.dart';
+import 'package:psm_mobile/core/presentations/datasource/core_data_source.dart';
+import 'package:psm_mobile/core/presentations/entity/core_data_source_response.dart';
 import 'package:psm_mobile/core/presentations/entity/core_schedule_model.dart';
 import 'package:psm_mobile/features/kmbus/data/kmbus_data_source.dart';
 import 'package:psm_mobile/features/kmbus/domain/entities/kmbus_data.dart';
@@ -17,11 +19,13 @@ import 'package:psm_mobile/features/timetable/domain/entities/auditTrail/km_task
 
 class KmbusRepositoryImpl implements KmbusRepository {
   final KmbusDataSource dataSource;
+  final CoreDataSource dataSourceCore;
   final ReferenceDataSource dataSourceReference;
 
   KmbusRepositoryImpl({
     required this.dataSource,
     required this.dataSourceReference,
+    required this.dataSourceCore,
   });
 
   @override
@@ -45,13 +49,13 @@ class KmbusRepositoryImpl implements KmbusRepository {
   }
 
   @override
-  Future<Either<Failure, String>> checkAllowTitikAwal(
+  Future<Either<Failure, CoreDataSourceResponse>> checkAllowTitikAwal(
     int idKoridor,
     int idBus,
     double nextRit,
   ) async {
     try {
-      final result = await dataSource.checkAllowTitikAwal(
+      final result = await dataSourceCore.checkAllowTitikAwal(
         idKoridor,
         idBus,
         nextRit,
@@ -74,30 +78,6 @@ class KmbusRepositoryImpl implements KmbusRepository {
       ) async {
     try {
       final result = await dataSourceReference.fetchReferenceDocType(keyword);
-
-      return right(result);
-    } on DioException catch (e) {
-      final message =
-          e.response?.data?['message'] ?? 'Terjadi kesalahan server';
-
-      return left(ServerFailure(message));
-    } catch (_) {
-      return left(const ServerFailure('Unexpected error'));
-    }
-  }
-
-  @override
-  Future<Either<Failure, String>> checkAllowTitikAkhir(
-    int idKoridor,
-    int idBus,
-    double nextRit,
-  ) async {
-    try {
-      final result = await dataSource.checkAllowTitikAkhir(
-        idKoridor,
-        idBus,
-        nextRit,
-      );
 
       return right(result);
     } on DioException catch (e) {

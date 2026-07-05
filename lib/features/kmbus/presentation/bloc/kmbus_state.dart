@@ -51,6 +51,7 @@ enum DocumentUploadStatus {
 }
 
 class KmbusState {
+  final String disabledCtaMessage;
   final int idDocType;
 
   final TimetableCheckin? checkinData;
@@ -90,6 +91,8 @@ class KmbusState {
   final int idAuditTrail;
 
   const KmbusState({
+    this.disabledCtaMessage = '',
+
     this.idDocType = 71,
 
     this.checkinData,
@@ -130,6 +133,8 @@ class KmbusState {
   });
 
   KmbusState copyWith({
+    String? disabledCtaMessage,
+
     int? idDocType,
 
     TimetableCheckin? checkinData,
@@ -168,6 +173,8 @@ class KmbusState {
     int? idAuditTrail,
   }) {
     return KmbusState(
+      disabledCtaMessage: disabledCtaMessage ?? this.disabledCtaMessage,
+
       idDocType: idDocType ?? this.idDocType,
 
       checkinData: checkinData ?? this.checkinData,

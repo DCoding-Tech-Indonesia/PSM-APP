@@ -1,6 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:psm_mobile/core/error/failure.dart';
+import 'package:psm_mobile/core/presentations/datasource/core_data_source.dart';
+import 'package:psm_mobile/core/presentations/entity/core_data_source_response.dart';
 import 'package:psm_mobile/core/presentations/entity/core_schedule_model.dart';
 import 'package:psm_mobile/features/kmbus/domain/entities/kmbus_data.dart';
 import 'package:psm_mobile/features/reference/domain/entities/next_ritase_response.dart';
@@ -15,11 +17,13 @@ import 'package:psm_mobile/features/timetable/domain/repositories/timetable_repo
 
 class TimetableRepositoryImpl implements TimetableRepository {
   final TimetableDataSource dataSource;
+  final CoreDataSource dataSourceCore;
   final ReferenceDataSource dataSourceReference;
 
   TimetableRepositoryImpl({
     required this.dataSource,
     required this.dataSourceReference,
+    required this.dataSourceCore,
   });
 
   @override
@@ -61,13 +65,13 @@ class TimetableRepositoryImpl implements TimetableRepository {
   }
 
   @override
-  Future<Either<Failure, String>> checkAllowCheckIn(
+  Future<Either<Failure, CoreDataSourceResponse>> checkAllowCheckIn(
     int idKoridor,
     int idBus,
     double nextRit,
   ) async {
     try {
-      final result = await dataSource.checkAllowCheckIn(
+      final result = await dataSourceCore.checkAllowCheckIn(
         idKoridor,
         idBus,
         nextRit,
@@ -85,13 +89,13 @@ class TimetableRepositoryImpl implements TimetableRepository {
   }
 
   @override
-  Future<Either<Failure, String>> checkAllowCheckOut(
+  Future<Either<Failure, CoreDataSourceResponse>> checkAllowCheckOut(
     int idKoridor,
     int idBus,
     double nextRit,
   ) async {
     try {
-      final result = await dataSource.checkAllowCheckOut(
+      final result = await dataSourceCore.checkAllowCheckOut(
         idKoridor,
         idBus,
         nextRit,
@@ -182,13 +186,13 @@ class TimetableRepositoryImpl implements TimetableRepository {
   }
 
   @override
-  Future<Either<Failure, String>> checkAllowTitikAwal(
+  Future<Either<Failure, CoreDataSourceResponse>> checkAllowTitikAwal(
       int idKoridor,
       int idBus,
       double nextRit,
       ) async {
     try {
-      final result = await dataSource.checkAllowTitikAwal(
+      final result = await dataSourceCore.checkAllowTitikAwal(
         idKoridor,
         idBus,
         nextRit,

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:fpdart/fpdart.dart';
 import 'package:psm_mobile/core/error/failure.dart';
+import 'package:psm_mobile/core/presentations/entity/core_data_source_response.dart';
 import 'package:psm_mobile/core/presentations/entity/core_schedule_model.dart';
 import 'package:psm_mobile/features/kmbus/domain/entities/kmbus_data.dart';
 import 'package:psm_mobile/features/kmbus/domain/entities/titik_akhir_create.dart';
@@ -16,12 +17,7 @@ abstract class KmbusRepository {
   Future<Either<Failure, List<CoreScheduleModel>>> fetchTodaySchedule(
     int userId,
   );
-  Future<Either<Failure, String>> checkAllowTitikAwal(
-    int idKoridor,
-    int idBus,
-    double nextRit,
-  );
-  Future<Either<Failure, String>> checkAllowTitikAkhir(
+  Future<Either<Failure, CoreDataSourceResponse>> checkAllowTitikAwal(
     int idKoridor,
     int idBus,
     double nextRit,
@@ -34,18 +30,29 @@ abstract class KmbusRepository {
     int idAuditTrail,
   );
 
-  Future<Either<Failure, List<ReferenceDetail>>> fetchReferenceDocType(String keyword);
+  Future<Either<Failure, List<ReferenceDetail>>> fetchReferenceDocType(
+    String keyword,
+  );
   Future<Either<Failure, List<KmbusData>>> fetchListKmbus(String keyword);
   Future<Either<Failure, List<KmbusData>>> fetchKmbusDataToday(String keyword);
   Future<Either<Failure, List<KmTaskAuditTrail>>> fetchListKmbusAuditTrail(
     String keyword,
   );
-  Future<Either<Failure, NextRitaseResponse>> fetchNextRitase(int idKoridor, int idBus);
+  Future<Either<Failure, NextRitaseResponse>> fetchNextRitase(
+    int idKoridor,
+    int idBus,
+  );
 
   Future<Either<Failure, String>> createTitikAwal(TitikAwalCreate request);
-  Future<Either<Failure, String>> updateTitikAwal(TitikAwalCreate request, int idAuditTrail);
+  Future<Either<Failure, String>> updateTitikAwal(
+    TitikAwalCreate request,
+    int idAuditTrail,
+  );
   Future<Either<Failure, String>> createTitikAkhir(TitikAkhirCreate request);
-  Future<Either<Failure, String>> updateTitikAkhir(TitikAkhirCreate request, int idAuditTrail);
+  Future<Either<Failure, String>> updateTitikAkhir(
+    TitikAkhirCreate request,
+    int idAuditTrail,
+  );
   Future<Either<Failure, String>> uploadOcr(File file);
   Future<Either<Failure, DocumentPreview>> uploadDocument(File file);
 

@@ -99,79 +99,94 @@ class _KmbusScreenState extends State<KmbusScreen> {
                         ),
                         const CoreDateTimeWidget(),
 
-                        if (state.allowTitikAwal)
-                          const SizedBox(height: 15),
-
-                        if (state.allowTitikAwal)
-                          Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 20),
-                            child: Material(
-                              color: Colors.transparent,
-                              child: InkWell(
-                                onTap: () async {
-                                  await context.push(
-                                    '/kmbus/titik-awal/form',
-                                    extra: ScheduleArgs(
-                                      idShift: state.idShift ?? 0,
-                                      idKoridorShift: state.idKoridorShift ?? 0,
-                                      idBusShift: state.idBusShift ?? 0,
-                                      idAuditTrail: null,
-                                    ),
+                        Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 20),
+                          child: Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              onTap: () async {
+                                if (!state.allowTitikAwal) {
+                                  CoreSnackbar.show(
+                                    context,
+                                    message: state.disabledCtaMessage,
+                                    type: SnackbarType.warning,
                                   );
 
-                                  if (context.mounted) {
-                                    context.read<KmbusBloc>().add(
-                                      PageDashboardLoad(),
-                                    );
-                                  }
-                                },
-                                borderRadius: BorderRadius.circular(12),
-                                child: Ink(
-                                  padding: const EdgeInsets.symmetric(vertical: 16),
-                                  decoration: BoxDecoration(
-                                    gradient: const LinearGradient(
-                                      colors: [Color(0xFF2E7D32), Color(0xFF43A047)],
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                    ),
-                                    borderRadius: BorderRadius.circular(12),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: const Color(0xFF2E7D32).withValues(alpha: 0.3),
-                                        blurRadius: 8,
-                                        offset: const Offset(0, 4),
-                                      ),
-                                    ],
+                                  return;
+                                }
+                                await context.push(
+                                  '/kmbus/titik-awal/form',
+                                  extra: ScheduleArgs(
+                                    idShift: state.idShift ?? 0,
+                                    idKoridorShift: state.idKoridorShift ?? 0,
+                                    idBusShift: state.idBusShift ?? 0,
+                                    idAuditTrail: null,
                                   ),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: const [
-                                      Icon(
-                                        Icons.add_circle_outline_rounded,
-                                        color: Colors.white,
-                                        size: 22,
-                                      ),
-                                      SizedBox(width: 10),
-                                      Text(
-                                        "Input KM Keberangkatan",
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w700,
-                                          fontSize: 16,
-                                          color: Colors.white,
+                                );
+
+                                if (context.mounted) {
+                                  context.read<KmbusBloc>().add(
+                                    PageDashboardLoad(),
+                                  );
+                                }
+                              },
+                              borderRadius: BorderRadius.circular(12),
+                              child: Ink(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 16,
+                                ),
+                                decoration: BoxDecoration(
+                                  gradient: state.allowTitikAwal
+                                      ? const LinearGradient(
+                                          colors: [
+                                            Color(0xFF2E7D32),
+                                            Color(0xFF43A047),
+                                          ],
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                        )
+                                      : const LinearGradient(
+                                          colors: [
+                                            Color(0xFF454545),
+                                            Color(0xFF9a9a9a),
+                                          ],
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
                                         ),
+                                  borderRadius: BorderRadius.circular(12),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: const Color(
+                                        0xFF2E7D32,
+                                      ).withValues(alpha: 0.3),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: const [
+                                    Icon(
+                                      Icons.add_circle_outline_rounded,
+                                      color: Colors.white,
+                                      size: 22,
+                                    ),
+                                    SizedBox(width: 10),
+                                    Text(
+                                      "Input KM Keberangkatan",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 16,
+                                        color: Colors.white,
                                       ),
-                                    ],
-                                  ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
                           ),
-
-                        if (state.allowTitikAwal)
-                          const SizedBox(height: 15),
-
-                        if (!state.allowTitikAwal)
-                          const SizedBox(height: 10),
+                        ),
 
                         Padding(
                           padding: const EdgeInsets.symmetric(

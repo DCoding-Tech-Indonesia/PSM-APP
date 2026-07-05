@@ -1,5 +1,6 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:psm_mobile/core/error/failure.dart';
+import 'package:psm_mobile/core/presentations/entity/core_data_source_response.dart';
 import 'package:psm_mobile/core/presentations/entity/core_schedule_model.dart';
 import 'package:psm_mobile/features/kmbus/domain/entities/kmbus_data.dart';
 import 'package:psm_mobile/features/reference/domain/entities/next_ritase_response.dart';
@@ -13,12 +14,12 @@ abstract class TimetableRepository {
   Future<Either<Failure, List<CoreScheduleModel>>> fetchTodaySchedule(
       int userId,
       );
-  Future<Either<Failure, String>> checkAllowCheckIn(
+  Future<Either<Failure, CoreDataSourceResponse>> checkAllowCheckIn(
       int idKoridor,
       int idBus,
       double nextRit,
       );
-  Future<Either<Failure, String>> checkAllowCheckOut(
+  Future<Either<Failure, CoreDataSourceResponse>> checkAllowCheckOut(
       int idKoridor,
       int idBus,
       double nextRit,
@@ -35,7 +36,7 @@ abstract class TimetableRepository {
   Future<Either<Failure, List<ReferenceDetail>>> fetchReferenceKoridor(String keyword);
   Future<Either<Failure, List<ReferenceDetail>>> fetchReferenceBus(String keyword, int idKoridor);
 
-  Future<Either<Failure, String>> checkAllowTitikAwal(
+  Future<Either<Failure, CoreDataSourceResponse>> checkAllowTitikAwal(
       int idKoridor,
       int idBus,
       double nextRit,

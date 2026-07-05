@@ -146,6 +146,8 @@ class _SettlementScreenState extends State<SettlementScreen> {
                               idKoridor: state.idKoridorShift ?? 0,
                               idBus: state.idBusShift ?? 0,
                               ritaseKe: state.ritase,
+                              isActive: state.allowInput,
+                              ctaDisabledMessage: state.ctaValidationMessage,
                             ),
 
                             // === HISTORY HEADER ===

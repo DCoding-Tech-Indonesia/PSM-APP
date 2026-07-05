@@ -29,50 +29,40 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
 
       try {
         final listMaster = await kmbusRepository.fetchKmbusDataToday('');
-        final listAuditTrail = await kmbusRepository.fetchListKmbusAuditTrail('');
+        final listAuditTrail = await kmbusRepository.fetchListKmbusAuditTrail(
+          '',
+        );
 
         final kmBusListMaster = listMaster.fold((failure) {
           emit(
-            state.copyWith(
-              status: KmbusStatus.error,
-              message: failure.message,
-            ),
+            state.copyWith(status: KmbusStatus.error, message: failure.message),
           );
           return null;
         }, (data) => data);
 
         final kmBusListAuditTrail = listAuditTrail.fold((failure) {
           emit(
-            state.copyWith(
-              status: KmbusStatus.error,
-              message: failure.message,
-            ),
+            state.copyWith(status: KmbusStatus.error, message: failure.message),
           );
           return null;
         }, (data) => data);
 
         if (kmBusListAuditTrail == null) return;
 
-        final activeMasterData = kmBusListMaster
-            ?.cast<KmbusData?>()
-            .firstWhere(
-              (e) => e != null && e.titikAkhir == null,
+        final activeMasterData = kmBusListMaster?.cast<KmbusData?>().firstWhere(
+          (e) => e != null && e.titikAkhir == null,
           orElse: () => null,
         );
 
         final idKm = activeMasterData?.id ?? 0;
 
         emit(
-          state.copyWith(
-            listKmbusAuditTrail: kmBusListAuditTrail,
-            idKm: idKm,
-          ),
+          state.copyWith(listKmbusAuditTrail: kmBusListAuditTrail, idKm: idKm),
         );
 
         final bool hasDraftTitikAwal = kmBusListAuditTrail.any((data) {
           final bool isTitikAwal =
-              data.dataAfter.titikAwal != null &&
-                  data.dataAfter.titikAwal != 0;
+              data.dataAfter.titikAwal != null && data.dataAfter.titikAwal != 0;
 
           final bool isDraft = data.status.code == "DFT";
 
@@ -82,15 +72,11 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
         final userIdString = await secureStorageService.readUserId();
         final userId = int.tryParse(userIdString ?? '') ?? 0;
 
-        final todaySchedule =
-        await kmbusRepository.fetchTodaySchedule(userId);
+        final todaySchedule = await kmbusRepository.fetchTodaySchedule(userId);
 
         final todayScheduleData = todaySchedule.fold((failure) {
           emit(
-            state.copyWith(
-              status: KmbusStatus.error,
-              message: failure.message,
-            ),
+            state.copyWith(status: KmbusStatus.error, message: failure.message),
           );
           return null;
         }, (data) => data);
@@ -114,8 +100,8 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
         );
 
         final double ritaseValue = nextRitaseResult.fold(
-              (_) => 0.0,
-              (value) => value.ritaseKe!,
+          (_) => 0.0,
+          (value) => value.ritaseKe!,
         );
 
         final checkAwalFuture = kmbusRepository.checkAllowTitikAwal(
@@ -129,15 +115,19 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
         final checkAwalResult = results[0];
 
         final bool isAllowTitikAwal = checkAwalResult.fold(
-              (_) => false,
-              (res) =>
-          res == "Access Granted" &&
-              !hasDraftTitikAwal,
+          (_) => false,
+          (res) => res.isAllowed && !hasDraftTitikAwal,
+        );
+
+        final String titikAwalMessage = checkAwalResult.fold(
+          (_) => '',
+          (res) => res.message,
         );
 
         emit(
           state.copyWith(
-            allowTitikAwal: isAllowTitikAwal,
+            disabledCtaMessage: titikAwalMessage,
+            allowTitikAwal: !isAllowTitikAwal,
             idShift: todayScheduleData[0].shift.id,
             idKoridorShift: idKoridorShift,
             idBusShift: idBusShift,
@@ -148,12 +138,7 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
         debugPrint(e.toString());
         debugPrint(s.toString());
 
-        emit(
-          state.copyWith(
-            status: KmbusStatus.error,
-            message: e.toString(),
-          ),
-        );
+        emit(state.copyWith(status: KmbusStatus.error, message: e.toString()));
       }
     });
 
@@ -171,10 +156,12 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
         }, (data) => data);
 
         kmBusListMaster?.sort((a, b) {
-          final dateA =
-          a.tanggalKm != null ? DateTime.tryParse(a.tanggalKm!) : DateTime(1970);
-          final dateB =
-          b.tanggalKm != null ? DateTime.tryParse(b.tanggalKm!) : DateTime(1970);
+          final dateA = a.tanggalKm != null
+              ? DateTime.tryParse(a.tanggalKm!)
+              : DateTime(1970);
+          final dateB = b.tanggalKm != null
+              ? DateTime.tryParse(b.tanggalKm!)
+              : DateTime(1970);
 
           return dateB!.compareTo(dateA!);
         });
@@ -202,18 +189,14 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
 
         final resultKoridor = await kmbusRepository.fetchReferenceKoridor('');
 
-        final koridorList = resultKoridor.fold<List<ReferenceDetail>?>(
-              (failure) {
-            emit(
-              state.copyWith(
-                status: KmbusStatus.error,
-                message: failure.message,
-              ),
-            );
-            return null;
-          },
-              (data) => data,
-        );
+        final koridorList = resultKoridor.fold<List<ReferenceDetail>?>((
+          failure,
+        ) {
+          emit(
+            state.copyWith(status: KmbusStatus.error, message: failure.message),
+          );
+          return null;
+        }, (data) => data);
 
         if (event.idAuditTrail != null) {
           final result = await kmbusRepository.fetchDetailAuditTrailAwal(
@@ -221,7 +204,7 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
           );
 
           await result.fold(
-                (failure) async {
+            (failure) async {
               emit(
                 state.copyWith(
                   status: KmbusStatus.error,
@@ -229,24 +212,21 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
                 ),
               );
             },
-                (titikAwalData) async {
+            (titikAwalData) async {
               final resultBus = await kmbusRepository.fetchReferenceBus(
                 '',
                 titikAwalData.idKoridor,
               );
 
-              final busList = resultBus.fold<List<ReferenceDetail>?>(
-                    (failure) {
-                  emit(
-                    state.copyWith(
-                      status: KmbusStatus.error,
-                      message: failure.message,
-                    ),
-                  );
-                  return null;
-                },
-                    (data) => data,
-              );
+              final busList = resultBus.fold<List<ReferenceDetail>?>((failure) {
+                emit(
+                  state.copyWith(
+                    status: KmbusStatus.error,
+                    message: failure.message,
+                  ),
+                );
+                return null;
+              }, (data) => data);
 
               emit(
                 state.copyWith(
@@ -266,10 +246,10 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
                   documentPreview: titikAwalData.document
                       .map(
                         (e) => DocumentPreview(
-                      idDocument: e.idDocument,
-                      url: e.urlDoc!,
-                    ),
-                  )
+                          idDocument: e.idDocument,
+                          url: e.urlDoc!,
+                        ),
+                      )
                       .toList(),
                 ),
               );
@@ -284,18 +264,12 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
           event.idKoridorShift,
         );
 
-        final busList = resultBus.fold<List<ReferenceDetail>?>(
-              (failure) {
-            emit(
-              state.copyWith(
-                status: KmbusStatus.error,
-                message: failure.message,
-              ),
-            );
-            return null;
-          },
-              (data) => data,
-        );
+        final busList = resultBus.fold<List<ReferenceDetail>?>((failure) {
+          emit(
+            state.copyWith(status: KmbusStatus.error, message: failure.message),
+          );
+          return null;
+        }, (data) => data);
 
         final nextRitase = await kmbusRepository.fetchNextRitase(
           event.idKoridorShift,
@@ -303,8 +277,8 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
         );
 
         final ritaseValue = nextRitase.fold<double>(
-              (_) => 0.0,
-              (value) => value.ritaseKe ?? 0.0,
+          (_) => 0.0,
+          (value) => value.ritaseKe ?? 0.0,
         );
 
         final tanggal = DateTime.now().toIso8601String().split('T')[0];
@@ -320,11 +294,12 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
           lat: 0.0,
         );
 
-        final resultRefDocType =
-        await kmbusRepository.fetchReferenceDocType('');
+        final resultRefDocType = await kmbusRepository.fetchReferenceDocType(
+          '',
+        );
 
         resultRefDocType.fold(
-              (failure) {
+          (failure) {
             emit(
               state.copyWith(
                 status: KmbusStatus.error,
@@ -332,10 +307,8 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
               ),
             );
           },
-              (docTypes) {
-            final docTypeId = docTypes
-                .firstWhere((e) => e.code == 'KM')
-                .id;
+          (docTypes) {
+            final docTypeId = docTypes.firstWhere((e) => e.code == 'KM').id;
 
             emit(state.copyWith(idDocType: docTypeId));
 
@@ -375,12 +348,7 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
         debugPrint(e.toString());
         debugPrint(s.toString());
 
-        emit(
-          state.copyWith(
-            status: KmbusStatus.error,
-            message: e.toString(),
-          ),
-        );
+        emit(state.copyWith(status: KmbusStatus.error, message: e.toString()));
       }
     });
 
@@ -418,8 +386,7 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
               );
             },
           );
-        }
-        else {
+        } else {
           emit(
             state.copyWith(
               status: KmbusStatus.success,
@@ -648,9 +615,10 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
             document: updatedDocsAkhir,
           ),
 
-          ocrResult: updatedPreview.isEmpty &&
-              updatedDocsAwal.isEmpty &&
-              updatedDocsAkhir.isEmpty
+          ocrResult:
+              updatedPreview.isEmpty &&
+                  updatedDocsAwal.isEmpty &&
+                  updatedDocsAkhir.isEmpty
               ? null
               : state.ocrResult,
         ),
@@ -864,5 +832,4 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
     ritaseKe: 0.5,
     document: const [],
   );
-
 }

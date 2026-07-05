@@ -18,6 +18,9 @@ enum TimetableStatus {
 }
 
 class TimetableState extends Equatable {
+  final String? disabledBerangkatMessage;
+  final String? disabledDatangMessage;
+
   final int? idShift;
   final int? idKm;
   final double? ritaseKe;
@@ -47,6 +50,9 @@ class TimetableState extends Equatable {
   final double lat;
 
   const TimetableState({
+    this.disabledBerangkatMessage,
+    this.disabledDatangMessage,
+
     this.idShift,
     this.idKm,
     this.ritaseKe,
@@ -73,6 +79,9 @@ class TimetableState extends Equatable {
   });
 
   TimetableState copyWith({
+    String? disabledBerangkatMessage,
+    String? disabledDatangMessage,
+
     int? idShift,
     int? idKm,
     double? ritaseKe,
@@ -95,6 +104,8 @@ class TimetableState extends Equatable {
     TimetableCheckin? checkinData,
   }) {
     return TimetableState(
+      disabledBerangkatMessage: disabledBerangkatMessage ?? this.disabledBerangkatMessage,
+      disabledDatangMessage: disabledDatangMessage ?? this.disabledDatangMessage,
       idShift: idShift ?? this.idShift,
       idKm: idKm ?? this.idKm,
       ritaseKe: ritaseKe ?? this.ritaseKe,
@@ -118,6 +129,8 @@ class TimetableState extends Equatable {
 
   @override
   List<Object?> get props => [
+    disabledBerangkatMessage,
+    disabledDatangMessage,
     idShift,
     idKm,
     isLastRitase,
