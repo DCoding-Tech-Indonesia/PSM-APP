@@ -274,6 +274,12 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
                   padding: const EdgeInsets.fromLTRB(23, 16, 23, 25),
                   child: BlocBuilder<SettlementBloc, SettlementState>(
                     builder: (context, state) {
+                      final isDisabled =
+                          (state.steps == 1 &&
+                              state.ritase == 0 &&
+                              state.status == SettlementStatus.loading) ||
+                              (state.steps == 3 && state.document.isEmpty);
+
                       return Row(
                         spacing: 10,
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -312,18 +318,16 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
                                 text: "Sebelumnya",
                               ),
                             ),
+
                           Expanded(
                             child: CoreButton(
-                              onPressed: () async {
-                                if (state.steps == 1 &&
-                                    state.ritase == 0 &&
-                                    state.status == SettlementStatus.loading) {
-                                  return;
-                                }
-
+                              onPressed: isDisabled
+                                  ? null
+                                  : () async {
                                 if (state.steps == 2) {
                                   if (!state.allowLastStep) {
-                                    final nextIndex = state.activeTabIndex + 1;
+                                    final nextIndex =
+                                        state.activeTabIndex + 1;
 
                                     context.read<SettlementBloc>().add(
                                       ChangeTabDetail(nextIndex),
@@ -349,10 +353,7 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
                               },
                               width: size.width * 0.24,
                               borderRadius: 12,
-                              backgroundColor:
-                                  (state.steps == 1 &&
-                                      state.ritase == 0 &&
-                                      state.status == SettlementStatus.loading)
+                              backgroundColor: isDisabled
                                   ? const Color(0xFF5E5E5E)
                                   : const Color(0xFF1E3C72),
                               foregroundColor: Colors.white,
@@ -367,8 +368,7 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
                       );
                     },
                   ),
-                ),
-              ],
+                ),              ],
             ),
           ),
         ),
