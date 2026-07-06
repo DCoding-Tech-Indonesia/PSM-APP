@@ -68,7 +68,9 @@ class TimetableDataSource {
     }
   }
 
-  Future<TimetableCheckinResponse?> checkoutTimeTable(TimetableCheckout request) async {
+  Future<TimetableCheckinResponse?> checkoutTimeTable(
+    TimetableCheckout request,
+  ) async {
     try {
       final result = await dio.post(
         '/time-table/check-out',
@@ -120,6 +122,39 @@ class TimetableDataSource {
     } catch (e) {
       debugPrint(e.toString());
       rethrow;
+    }
+  }
+
+  @override
+  Future<bool?> getAttendanceDetail({
+    required double lat,
+    required double lon,
+  }) async {
+    try {
+      final idUser = await secureStorageService.readUserId();
+
+      final response = await dio.get(
+        '/absensi/detail',
+        queryParameters: {'userId': idUser, 'lat': lat, 'lon': lon},
+      );
+
+      if (response.data != null && response.data['status'] == true) {
+        final listData = response.data['data'] as List?;
+
+        if (listData != null && listData.isNotEmpty) {
+          final firstData = listData[0];
+
+          if (firstData['checkIn'] != null) {
+            return true;
+          } else {
+            return false;
+          }
+        }
+      }
+
+      return null;
+    } catch (e) {
+      return null;
     }
   }
 }

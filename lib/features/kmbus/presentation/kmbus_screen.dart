@@ -114,7 +114,7 @@ class _KmbusScreenState extends State<KmbusScreen> {
 
                                   return;
                                 }
-                                await context.push(
+                                final result = await context.push(
                                   '/kmbus/titik-awal/form',
                                   extra: ScheduleArgs(
                                     idShift: state.idShift ?? 0,
@@ -124,7 +124,7 @@ class _KmbusScreenState extends State<KmbusScreen> {
                                   ),
                                 );
 
-                                if (context.mounted) {
+                                if (context.mounted || result == true) {
                                   context.read<KmbusBloc>().add(
                                     PageDashboardLoad(),
                                   );

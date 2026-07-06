@@ -41,4 +41,6 @@ abstract class TimetableRepository {
       int idBus,
       double nextRit,
       );
+
+  Future<Either<Failure, bool?>> checkAbsenceExist(double long, double lat);
 }

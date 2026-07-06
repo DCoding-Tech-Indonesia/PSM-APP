@@ -250,5 +250,23 @@ class TimetableRepositoryImpl implements TimetableRepository {
     }
   }
 
+  @override
+  Future<Either<Failure, bool?>> checkAbsenceExist(double long, double lat) async {
+    try {
+      final result = await dataSource.getAttendanceDetail(
+        lon: long,
+        lat: lat,
+      );
+
+      return right(result);
+    } on DioException catch (e) {
+      final message =
+          e.response?.data?['message'] ?? 'Terjadi kesalahan server';
+
+      return left(ServerFailure(message));
+    } catch (_) {
+      return left(const ServerFailure('Unexpected error'));
+    }
+  }
   // endregion
 }

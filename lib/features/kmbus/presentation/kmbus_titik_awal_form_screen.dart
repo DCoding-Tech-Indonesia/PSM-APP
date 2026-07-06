@@ -58,7 +58,7 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
       builder: (modalContext) {
         return CoreBottomModalVerification(
           title: "Draft berhasil disimpan.",
-          desc: "Ingin langsung melakukan submit data?",
+          desc: "Ingin langsung melakukan submit data? ${id}",
           onCancel: () => {Navigator.pop(modalContext, false)},
           onConfirm: () => {Navigator.pop(modalContext, true)},
         );
@@ -148,7 +148,8 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
       listenWhen: (prev, curr) =>
           prev.uploadStatus != curr.uploadStatus ||
           prev.submitStatus != curr.submitStatus ||
-          prev.submitWorkflowStatus != curr.submitWorkflowStatus,
+          prev.submitWorkflowStatus != curr.submitWorkflowStatus ||
+          prev.idAuditTrail != curr.idAuditTrail,
       listener: (context, state) async {
         if (state.uploadStatus == UploadStatus.errorOcr) {
           CoreSnackbar.show(
@@ -182,7 +183,7 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
           await Future.delayed(const Duration(seconds: 2));
 
           if (!context.mounted) return;
-          context.pop();
+          context.pop(true);
           return;
         }
 
@@ -489,7 +490,9 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
                           width: double.infinity,
                           onPressed: () {
                             if (!isSubmitable) return;
-                            context.read<KmbusBloc>().add(SubmitTitikAwal());
+                            context.read<KmbusBloc>().add(
+                              SubmitTitikAwal(state.idAuditTrail),
+                            );
                           },
                           backgroundColor: isSubmitable
                               ? theme.colorScheme.primary

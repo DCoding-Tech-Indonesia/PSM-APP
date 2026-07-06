@@ -120,8 +120,8 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
               idShift: idShiftActive,
               idPramugara: userId,
               ritaseKe: ritaseValue,
-              long: 0.0,
-              lat: 0.0,
+              long: state.long,
+              lat: state.lat,
             );
 
         final updatedCheckinWithPramugara = currentCheckin.copyWith(
@@ -208,6 +208,18 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
 
         final idKm = activeMasterData?.id ?? 0;
 
+        final isAlreadyTakeAttendance = await timetableRepository.checkAbsenceExist(state.long, state.lat);
+
+        final isAlreadyTakeAttendanceRestule = isAlreadyTakeAttendance.fold((failure) {
+          emit(
+            state.copyWith(
+              status: TimetableStatus.error,
+              message: failure.message,
+            ),
+          );
+          return null;
+        }, (data) => data);
+
         emit(
           state.copyWith(
             isLastRitase: isLastRitase,
@@ -222,9 +234,9 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
             namaKoridor: namaKoridorShift,
             idBus: idBusShift,
             noUnit: currentNoUnit,
-            isAllowCheckIn: !isAllowCheckIn,
+            isAllowCheckIn: !isAllowCheckIn && isAlreadyTakeAttendanceRestule!,
             isAllowCheckOut: !isAllowCheckOut,
-            disabledBerangkatMessage: checkInMessage,
+            disabledBerangkatMessage: isAlreadyTakeAttendanceRestule! ? "Harap ambil absensi terlebih dahulu." : checkInMessage,
             disabledDatangMessage: checkOutMessage,
             status: TimetableStatus.success,
           ),
@@ -291,6 +303,8 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
 
       emit(
         state.copyWith(
+          lat: event.lat,
+          long: event.long,
           checkinData: currentCheckin.copyWith(
             idKoridor: state.idKoridor,
             idBus: state.idBus,

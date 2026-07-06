@@ -198,7 +198,7 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
           return null;
         }, (data) => data);
 
-        if (event.idAuditTrail != null) {
+        if (event.idAuditTrail != null && event.idAuditTrail != 0) {
           final result = await kmbusRepository.fetchDetailAuditTrailAwal(
             event.idAuditTrail!,
           );
@@ -355,13 +355,16 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
     on<KmbusTitikAkhirInputLoad>((event, emit) async {
       emit(state.copyWith(status: KmbusStatus.initial));
 
+      print("event.idKm = ${event.idKm}");
+      print("event.idAuditTrail = ${event.idAuditTrail}");
+
       try {
         final initial = _initialTitikAkhirCreate.copyWith(
           idKm: event.idKm,
           auditTrailId: event.idAuditTrail,
         );
 
-        if (event.idAuditTrail != null) {
+        if (event.idAuditTrail != null && event.idAuditTrail != 0) {
           final result = await kmbusRepository.fetchDetailAuditTrailAkhir(
             event.idAuditTrail!,
           );
@@ -650,9 +653,16 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
     on<SubmitTitikAwal>((event, emit) async {
       emit(state.copyWith(submitStatus: SubmitStatus.submitting));
 
-      final result = await kmbusRepository.createTitikAwal(
-        state.titikAwalCreate!,
-      );
+      var result;
+
+      if (event.idAuditTrail != null && event.idAuditTrail != 0) {
+        result = await kmbusRepository.updateTitikAwal(
+          state.titikAwalCreate!,
+          event.idAuditTrail!,
+        );
+      } else {
+        result = await kmbusRepository.createTitikAwal(state.titikAwalCreate!);
+      }
 
       result.fold(
         (failure) {
@@ -667,7 +677,10 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
           emit(
             state.copyWith(
               submitStatus: SubmitStatus.success,
-              idAuditTrail: int.parse(data),
+              idAuditTrail:
+                  (event.idAuditTrail == null || event.idAuditTrail == 0)
+                  ? int.parse(data)
+                  : state.idAuditTrail,
             ),
           );
         },
@@ -679,7 +692,7 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
 
       var result;
 
-      if (event.idAuditTrail != null) {
+      if (event.idAuditTrail != null && event.idAuditTrail != 0) {
         result = await kmbusRepository.updateTitikAkhir(
           state.titikAkhirCreate!,
           event.idAuditTrail!,
@@ -703,7 +716,10 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
           emit(
             state.copyWith(
               submitStatus: SubmitStatus.success,
-              idAuditTrail: event.idAuditTrail ?? int.parse(data),
+              idAuditTrail:
+                  (event.idAuditTrail == null || event.idAuditTrail == 0)
+                  ? int.parse(data)
+                  : state.idAuditTrail,
             ),
           );
         },
@@ -719,7 +735,7 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
       );
 
       final result = await kmbusRepository.submitWorkflow(
-        event.idAuditTrail,
+        event.idAuditTrail != 0 ? event.idAuditTrail : state.idAuditTrail,
         event.reason != '' ? event.reason : 'Done',
       );
 

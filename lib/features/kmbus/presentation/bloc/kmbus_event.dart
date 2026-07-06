@@ -66,12 +66,17 @@ class RemoveDocumentById extends KmbusEvent {
   RemoveDocumentById(this.idDocument);
 }
 
-class SubmitTitikAwal extends KmbusEvent {}
-
-class SubmitTitikAkhir extends KmbusEvent {
+class SubmitTitikAwal extends KmbusEvent {
   final int? idAuditTrail;
 
-  SubmitTitikAkhir(this.idAuditTrail);
+  SubmitTitikAwal(this.idAuditTrail);
+}
+
+class SubmitTitikAkhir extends KmbusEvent {
+  final int? idKm;
+  final int? idAuditTrail;
+
+  SubmitTitikAkhir(this.idKm, this.idAuditTrail);
 }
 
 class SubmitWorkflow extends KmbusEvent {

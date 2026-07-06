@@ -102,6 +102,9 @@ class TimetableState extends Equatable {
     int? idBus,
     String? noUnit,
     TimetableCheckin? checkinData,
+
+    double? long,
+    double? lat,
   }) {
     return TimetableState(
       disabledBerangkatMessage: disabledBerangkatMessage ?? this.disabledBerangkatMessage,
@@ -124,6 +127,8 @@ class TimetableState extends Equatable {
       idBus: idBus ?? this.idBus,
       noUnit: noUnit ?? this.noUnit,
       checkinData: checkinData ?? this.checkinData,
+      long: long ?? this.long,
+      lat: lat ?? this.lat,
     );
   }
 
@@ -148,5 +153,7 @@ class TimetableState extends Equatable {
     idBus,
     noUnit,
     checkinData,
+    long,
+    lat,
   ];
 }

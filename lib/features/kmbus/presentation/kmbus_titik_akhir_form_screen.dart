@@ -136,7 +136,8 @@ class _KmbusTitikAkhirFormScreenState extends State<KmbusTitikAkhirFormScreen> {
       listenWhen: (prev, curr) =>
           prev.uploadStatus != curr.uploadStatus ||
           prev.submitStatus != curr.submitStatus ||
-          prev.submitWorkflowStatus != curr.submitWorkflowStatus,
+          prev.submitWorkflowStatus != curr.submitWorkflowStatus ||
+          prev.idAuditTrail != curr.idAuditTrail,
       listener: (context, state) async {
         if (state.uploadStatus == UploadStatus.errorOcr) {
           CoreSnackbar.show(
@@ -369,7 +370,7 @@ class _KmbusTitikAkhirFormScreenState extends State<KmbusTitikAkhirFormScreen> {
                           onPressed: () {
                             if (!isSubmitable) return;
                             context.read<KmbusBloc>().add(
-                              SubmitTitikAkhir(widget.idAuditTrail),
+                              SubmitTitikAkhir(widget.idKm, widget.idAuditTrail),
                             );
                           },
                           backgroundColor: isSubmitable

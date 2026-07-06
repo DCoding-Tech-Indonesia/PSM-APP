@@ -211,7 +211,8 @@ class _TimetableScreenState extends State<TimetableScreen> {
             context.read<TimetableBloc>().add(PageDashboardLoad());
           });
 
-          if (state.status == TimetableStatus.successCheckIn) {
+          if (state.status == TimetableStatus.successCheckIn &&
+              state.ritaseKe == 0.5) {
             context.push<bool>(
               '/kmbus/titik-awal/form',
               extra: ScheduleArgs(
