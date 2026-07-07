@@ -412,7 +412,7 @@ class _ShiftReplacementFormSheetState
                 isItemSelected: (s) => s.id == _jadwalId,
                 items: widget.schedules,
                 itemAsString: (s) =>
-                    '${_formatDateStr(s.tanggal)} - ${s.shift.name} - ${s.lokasi.namaLokasi}',
+                    '${_formatDateStr(s.tanggal)} - ${s.shift.name} - ${s.lokasi.name}',
                 compareFn: (a, b) => a.id == b.id,
                 onSelected: _onJadwalSelected,
               ),

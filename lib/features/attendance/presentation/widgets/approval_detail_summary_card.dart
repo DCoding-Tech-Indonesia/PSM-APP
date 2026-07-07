@@ -197,7 +197,7 @@ class ApprovalDetailSummaryCard extends StatelessWidget {
           const SizedBox(height: 12),
           _buildHighlight(
             label: 'Lokasi',
-            value: detail.lokasi.namaLokasi,
+            value: detail.lokasi.name,
             icon: Icons.location_on_outlined,
           ),
           // Show reject reason if rejected

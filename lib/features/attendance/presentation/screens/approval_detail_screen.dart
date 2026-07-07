@@ -246,7 +246,7 @@ class ApprovalDetailView extends StatelessWidget {
             rows: [
               ApprovalDetailInfoRow(
                 label: 'Nama',
-                value: detail.requester.fullName,
+                value: detail.requester.name,
                 icon: Icons.person_outline,
               ),
             ],
@@ -260,7 +260,7 @@ class ApprovalDetailView extends StatelessWidget {
             rows: [
               ApprovalDetailInfoRow(
                 label: 'Lokasi',
-                value: detail.lokasi.namaLokasi,
+                value: detail.lokasi.name,
                 icon: Icons.location_on_outlined,
               ),
               ApprovalDetailInfoRow(
@@ -290,7 +290,7 @@ class ApprovalDetailView extends StatelessWidget {
             rows: [
               ApprovalDetailInfoRow(
                 label: 'Nama',
-                value: detail.replacement.fullName,
+                value: detail.replacement.name,
                 icon: Icons.person_add_alt_1_outlined,
               ),
             ],

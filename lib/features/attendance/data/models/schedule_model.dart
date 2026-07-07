@@ -29,19 +29,15 @@ class ScheduleModel {
 class ScheduleLocation {
   final int id;
   final String code;
-  final String namaLokasi;
+  final String name;
 
-  ScheduleLocation({
-    required this.id,
-    required this.code,
-    required this.namaLokasi,
-  });
+  ScheduleLocation({required this.id, required this.code, required this.name});
 
   factory ScheduleLocation.fromJson(Map<String, dynamic> json) {
     return ScheduleLocation(
       id: json['id'] ?? 0,
       code: json['code'] ?? '',
-      namaLokasi: json['namaLokasi'] ?? '',
+      name: json['name'] ?? json['namaLokasi'] ?? '',
     );
   }
 }

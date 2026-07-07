@@ -418,7 +418,7 @@ class _ScheduleCalendarScreenState extends State<ScheduleCalendarScreen> {
                                             ),
                                           ),
                                           Text(
-                                            s.lokasi.namaLokasi,
+                                            s.lokasi.name,
                                             style: const TextStyle(
                                               fontSize: 12,
                                               color: Colors.grey,

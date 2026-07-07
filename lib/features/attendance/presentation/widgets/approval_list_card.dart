@@ -31,10 +31,7 @@ class ApprovalListCard extends StatelessWidget {
         child: InkWell(
           onTap: () => context.push(
             '/approval-detail',
-            extra: {
-              'id': approval.id,
-              'hideActions': hideActions,
-            },
+            extra: {'id': approval.id, 'hideActions': hideActions},
           ),
           borderRadius: BorderRadius.circular(16),
           child: Container(
@@ -85,7 +82,7 @@ class ApprovalListCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            approval.requester.fullName,
+                            approval.requester.name,
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -95,7 +92,7 @@ class ApprovalListCard extends StatelessWidget {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'Pengganti: ${approval.replacement.fullName}',
+                            'Pengganti: ${approval.replacement.name}',
                             style: TextStyle(
                               fontSize: 13,
                               color: theme.textTheme.bodySmall?.color,
@@ -128,7 +125,7 @@ class ApprovalListCard extends StatelessWidget {
                 _buildInfoRow(
                   icon: Icons.location_on_outlined,
                   label: 'Lokasi',
-                  value: approval.lokasi.namaLokasi,
+                  value: approval.lokasi.name,
                   color: Colors.green,
                 ),
                 // if (approval.alasan.isNotEmpty) ...[

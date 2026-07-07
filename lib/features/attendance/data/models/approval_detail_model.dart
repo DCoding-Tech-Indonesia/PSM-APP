@@ -36,7 +36,7 @@ class ApprovalDetailModel {
       isCadangan: jadwalJson['isCadangan'] ?? false,
       lokasi: jadwalJson['lokasi'] != null
           ? ScheduleLocation.fromJson(jadwalJson['lokasi'])
-          : ScheduleLocation(id: 0, namaLokasi: '', code: ''),
+          : ScheduleLocation(id: 0, name: '', code: ''),
       shift: jadwalJson['shift'] != null
           ? GeneralModel.fromJson(jadwalJson['shift'])
           : GeneralModel(id: 0, name: '', code: ''),
@@ -62,19 +62,19 @@ class ApprovalDetailModel {
 class UserApprovalModel {
   final int id;
   final String userName;
-  final String fullName;
+  final String name;
 
   UserApprovalModel({
     required this.id,
     required this.userName,
-    required this.fullName,
+    required this.name,
   });
 
   factory UserApprovalModel.fromJson(Map<String, dynamic> json) {
     return UserApprovalModel(
       id: json['id'] ?? 0,
       userName: json['userName'] ?? '',
-      fullName: json['fullName'] ?? '',
+      name: json['name'] ?? json['fullName'] ?? '',
     );
   }
 }
