@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_date_time_widget.dart';
+import 'package:psm_mobile/core/presentations/widgets/core_skeleton_widget.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_state.dart';
 import 'package:psm_mobile/features/settlement/presentation/widgets/dashboard/draft_settlement_card_single.dart';
 import 'package:psm_mobile/features/settlement/presentation/widgets/history_settlement_card.dart';
@@ -41,30 +42,33 @@ class _SettlementScreenState extends State<SettlementScreen> {
   Widget build(BuildContext context) {
     return BlocBuilder<SettlementBloc, SettlementState>(
       builder: (context, state) {
-        final isLoading =
-            state.status == SettlementStatus.loading ||
-            state.status == SettlementStatus.initial;
+          final isInitialLoading = (state.status == SettlementStatus.loading ||
+                  state.status == SettlementStatus.initial) &&
+              (state.listTaskAuditTrail?.isEmpty ?? true);
+          final isLoading = false; // No blocking overlay needed for initial loading anymore
 
-        return Stack(
-          children: [
-            Scaffold(
-              backgroundColor: const Color(0xFFF5F7FA),
-              body: SafeArea(
-                child: Column(
-                  children: [
-                    const SettlementHeader(),
-                    const CoreDateTimeWidget(),
-                    const SizedBox(height: 12),
-
-                    Expanded(
-                      child: RefreshIndicator(
-                        onRefresh: _onRefresh,
-                        color: const Color(0xFF1565C0),
-                        child: ListView(
-                          physics: const AlwaysScrollableScrollPhysics(
-                            parent: BouncingScrollPhysics(),
-                          ),
-                          children: [
+          return Stack(
+            children: [
+              Scaffold(
+                backgroundColor: const Color(0xFFF5F7FA),
+                body: SafeArea(
+                  child: Column(
+                    children: [
+                      const SettlementHeader(),
+                      const CoreDateTimeWidget(),
+                      const SizedBox(height: 12),
+                      Expanded(
+                        child: RefreshIndicator(
+                          onRefresh: _onRefresh,
+                          color: const Color(0xFF1565C0),
+                          child: ListView(
+                            physics: const AlwaysScrollableScrollPhysics(
+                              parent: BouncingScrollPhysics(),
+                            ),
+                            children: [
+                              if (isInitialLoading)
+                                ..._buildSkeletonItems()
+                              else ...[
                             // === NO SCHEDULE WARNING ===
                             if (!state.jadwalExist)
                               Container(
@@ -289,12 +293,13 @@ class _SettlementScreenState extends State<SettlementScreen> {
                                     ),
                                     child: HistorySettlementCard(data: item),
                                   );
-                                },
-                              ),
-                            const SizedBox(height: 24),
-                          ],
+                                  },
+                                ),
+                              ],
+                              const SizedBox(height: 24),
+                            ],
+                          ),
                         ),
-                      ),
                     ),
                   ],
                 ),
@@ -339,5 +344,113 @@ class _SettlementScreenState extends State<SettlementScreen> {
         );
       },
     );
+  }
+
+  List<Widget> _buildSkeletonItems() {
+    return [
+      Padding(
+        padding: const EdgeInsets.all(20),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.04),
+                blurRadius: 16,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  const CoreSkeletonWidget(width: 44, height: 44, borderRadius: BorderRadius.all(Radius.circular(12))),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: const [
+                        CoreSkeletonWidget(width: 140, height: 16),
+                        SizedBox(height: 8),
+                        CoreSkeletonWidget(width: 80, height: 12),
+                      ],
+                    ),
+                  ),
+                  const CoreSkeletonWidget(width: 32, height: 32, borderRadius: BorderRadius.all(Radius.circular(16))),
+                ],
+              ),
+              const SizedBox(height: 20),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade50,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: const [
+                        CoreSkeletonWidget(width: 80, height: 10),
+                        SizedBox(height: 6),
+                        CoreSkeletonWidget(width: 120, height: 16),
+                      ],
+                    ),
+                    const CoreSkeletonWidget(width: 60, height: 24, borderRadius: BorderRadius.all(Radius.circular(12))),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      const SizedBox(height: 12),
+      ...List.generate(3, (index) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.02),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    CoreSkeletonWidget(width: 100, height: 14),
+                    CoreSkeletonWidget(width: 60, height: 20, borderRadius: BorderRadius.circular(6)),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                CoreSkeletonWidget(width: 180, height: 18),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    CoreSkeletonWidget(width: 120, height: 12),
+                    CoreSkeletonWidget(width: 60, height: 16),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      }),
+      const SizedBox(height: 24),
+    ];
   }
 }

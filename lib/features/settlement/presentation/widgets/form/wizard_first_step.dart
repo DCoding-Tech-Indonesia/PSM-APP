@@ -28,26 +28,44 @@ class WizardFirstStep extends StatelessWidget {
               return Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
+                  const Text(
                     "Ritase",
-                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 20),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 18,
+                      color: Color(0xFF2D3748),
+                    ),
                   ),
                   Container(
-                    width: 40,
-                    height: 40,
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     decoration: BoxDecoration(
-                      color: Colors.greenAccent,
-                      borderRadius: BorderRadius.circular(999),
-                      border: Border.all(width: 1, color: Colors.green),
-                    ),
-                    child: Center(
-                      child: Text(
-                        state.ritase != 0 ? state.ritase.toString() : "RIT",
-                        style: TextStyle(
-                          fontWeight: FontWeight.w800,
-                          fontSize: 16,
-                        ),
+                      color: const Color(0xFF1565C0).withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: const Color(0xFF1565C0).withValues(alpha: 0.15),
+                        width: 1,
                       ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.directions_transit_rounded,
+                          color: Color(0xFF1565C0),
+                          size: 16,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          state.ritase != 0 
+                              ? 'Ritase ${state.ritase % 1 == 0 ? state.ritase.toInt() : state.ritase}'
+                              : "Belum Ditentukan",
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w800,
+                            fontSize: 13,
+                            color: Color(0xFF1565C0),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],

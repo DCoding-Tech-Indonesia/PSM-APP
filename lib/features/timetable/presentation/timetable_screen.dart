@@ -242,10 +242,10 @@ class _TimetableScreenState extends State<TimetableScreen> {
       },
       child: BlocBuilder<TimetableBloc, TimetableState>(
         builder: (context, state) {
-          final isLoading =
-              state.status == TimetableStatus.loading ||
-              state.status == TimetableStatus.initial ||
-              state.status == TimetableStatus.onSubmit;
+          final isInitialLoading = (state.status == TimetableStatus.loading ||
+                  state.status == TimetableStatus.initial) &&
+              (state.listTimetable?.isEmpty ?? true);
+          final isLoading = state.status == TimetableStatus.onSubmit;
 
           return Stack(
             children: [
@@ -257,110 +257,101 @@ class _TimetableScreenState extends State<TimetableScreen> {
                     child: ListView(
                       physics: const AlwaysScrollableScrollPhysics(),
                       children: [
-                        CoreHeader(
+                        const CoreHeader(
                           title: "Time Table",
                           subtitle: "Jadwal kamu hari ini",
                         ),
                         const CoreDateTimeWidget(),
                         const SizedBox(height: 12),
-
-                        // === SCHEDULE INFO CARD ===
-                        if (state.jadwalExist && state.noUnit.isNotEmpty)
-                          Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 20),
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              gradient: const LinearGradient(
-                                colors: [Color(0xFF1565C0), Color(0xFF1E88E5)],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
+                        if (isInitialLoading)
+                          ..._buildSkeletonItems()
+                        else ...[
+                          // === SCHEDULE INFO CARD ===
+                          if (state.jadwalExist && state.noUnit.isNotEmpty)
+                            Container(
+                              margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [Color(0xFF1565C0), Color(0xFF1E88E5)],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: const Color(0xFF1565C0).withValues(alpha: 0.35),
+                                    blurRadius: 12,
+                                    offset: const Offset(0, 6),
+                                  ),
+                                ],
                               ),
-                              borderRadius: BorderRadius.circular(16),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: const Color(
-                                    0xFF1565C0,
-                                  ).withValues(alpha: 0.3),
-                                  blurRadius: 12,
-                                  offset: const Offset(0, 6),
-                                ),
-                              ],
-                            ),
-                            child: Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(10),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withValues(alpha: 0.2),
-                                    borderRadius: BorderRadius.circular(12),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(10),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withValues(alpha: 0.2),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: const Icon(
+                                      Icons.directions_bus_rounded,
+                                      color: Colors.white,
+                                      size: 28,
+                                    ),
                                   ),
-                                  child: const Icon(
-                                    Icons.directions_bus_rounded,
-                                    color: Colors.white,
-                                    size: 28,
+                                  const SizedBox(width: 14),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Unit ${state.noUnit}',
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          state.namaKoridor.isNotEmpty
+                                              ? state.namaKoridor
+                                              : 'Memuat koridor...',
+                                          style: TextStyle(
+                                            color: Colors.white.withValues(alpha: 0.85),
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(width: 14),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Unit ${state.noUnit}',
+                                  if (state.checkinData != null)
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 6,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withValues(alpha: 0.2),
+                                        borderRadius: BorderRadius.circular(20),
+                                        border: Border.all(
+                                          color: Colors.white.withValues(alpha: 0.3),
+                                        ),
+                                      ),
+                                      child: Text(
+                                        'Ritase ${state.checkinData!.ritaseKe % 1 == 0 ? state.checkinData!.ritaseKe.toInt() : state.checkinData!.ritaseKe}',
                                         style: const TextStyle(
                                           color: Colors.white,
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 2),
-                                      Text(
-                                        state.namaKoridor.isNotEmpty
-                                            ? state.namaKoridor
-                                            : 'Memuat koridor...',
-                                        style: TextStyle(
-                                          color: Colors.white.withValues(
-                                            alpha: 0.85,
-                                          ),
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                if (state.checkinData != null)
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 6,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white.withValues(
-                                        alpha: 0.2,
-                                      ),
-                                      borderRadius: BorderRadius.circular(20),
-                                      border: Border.all(
-                                        color: Colors.white.withValues(
-                                          alpha: 0.3,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600,
                                         ),
                                       ),
                                     ),
-                                    child: Text(
-                                      'Ritase ${state.checkinData!.ritaseKe % 1 == 0 ? state.checkinData!.ritaseKe.toInt() : state.checkinData!.ritaseKe}',
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ),
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
-
-                        if (state.jadwalExist && state.noUnit.isNotEmpty)
                           const SizedBox(height: 16),
 
                         // === NO SCHEDULE WARNING ===
@@ -598,6 +589,7 @@ class _TimetableScreenState extends State<TimetableScreen> {
                               return _buildHistoryCard(data);
                             },
                           ),
+                        ],
                         const SizedBox(height: 20),
                       ],
                     ),
@@ -988,5 +980,105 @@ class _TimetableScreenState extends State<TimetableScreen> {
         ),
       ),
     );
+  }
+
+  List<Widget> _buildSkeletonItems() {
+    return [
+      Padding(
+        padding: const EdgeInsets.all(20),
+        child: Container(
+          height: 180,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.04),
+                blurRadius: 16,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const CoreSkeletonWidget(width: 140, height: 18),
+              const SizedBox(height: 12),
+              const CoreSkeletonWidget(width: double.infinity, height: 32, borderRadius: BorderRadius.all(Radius.circular(16))),
+              const SizedBox(height: 12),
+              Row(
+                children: const [
+                  CoreSkeletonWidget(width: 80, height: 24, borderRadius: BorderRadius.all(Radius.circular(12))),
+                  SizedBox(width: 12),
+                  CoreSkeletonWidget(width: 80, height: 24, borderRadius: BorderRadius.all(Radius.circular(12))),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: Row(
+          children: [
+            Expanded(child: CoreSkeletonWidget(width: double.infinity, height: 50, borderRadius: BorderRadius.circular(14))),
+            const SizedBox(width: 12),
+            Expanded(child: CoreSkeletonWidget(width: double.infinity, height: 50, borderRadius: BorderRadius.circular(14))),
+          ],
+        ),
+      ),
+      const SizedBox(height: 24),
+      const Padding(
+        padding: EdgeInsets.symmetric(horizontal: 20.0),
+        child: Align(
+          alignment: Alignment.centerLeft,
+          child: CoreSkeletonWidget(width: 120, height: 16),
+        ),
+      ),
+      const SizedBox(height: 12),
+      ...List.generate(3, (index) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.02),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const CoreSkeletonWidget(width: 100, height: 14),
+                    CoreSkeletonWidget(width: 60, height: 20, borderRadius: BorderRadius.circular(6)),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                const CoreSkeletonWidget(width: 180, height: 18),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const CoreSkeletonWidget(width: 120, height: 12),
+                    CoreSkeletonWidget(width: 60, height: 16),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      }),
+      const SizedBox(height: 24),
+    ];
   }
 }

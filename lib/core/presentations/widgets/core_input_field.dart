@@ -130,6 +130,7 @@ class _CoreInputFieldState extends State<CoreInputField> {
       case InputRule.text:
         return null;
     }
+    return null;
   }
 
   String _processValue(String value) {

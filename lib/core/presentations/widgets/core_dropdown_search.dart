@@ -67,14 +67,19 @@ class CoreDropdownSearch<T> extends StatelessWidget {
           children: [
             Text(
               label,
-              style: const TextStyle(fontSize: 18),
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF4A5568),
+              ),
             ),
             if (isRequired)
               const Text(
                 ' *',
                 style: TextStyle(
                   color: Colors.redAccent,
-                  fontSize: 18,
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
           ],
@@ -83,7 +88,7 @@ class CoreDropdownSearch<T> extends StatelessWidget {
         const SizedBox(height: 8),
 
         DropdownSearch<T>(
-          enabled: !readOnly, // 🛠️ Lock interaksi jika readOnly aktif
+          enabled: !readOnly,
           items: (filter, _) => items
               .where(
                 (item) => itemAsString(item)
@@ -98,29 +103,35 @@ class CoreDropdownSearch<T> extends StatelessWidget {
           decoratorProps: DropDownDecoratorProps(
             decoration: InputDecoration(
               hintText: hintText ?? '',
-              filled: readOnly, // Memberikan warna background jika readOnly
-              fillColor: readOnly ? Colors.grey.withValues(alpha: 0.12) : null,
+              filled: true,
+              fillColor: readOnly ? Colors.grey.withValues(alpha: 0.12) : Colors.grey.shade50,
               contentPadding: const EdgeInsets.symmetric(
-                vertical: 10,
-                horizontal: 12,
+                vertical: 12,
+                horizontal: 14,
               ),
-              // Border ketika status dinonaktifkan / readOnly
               disabledBorder: OutlineInputBorder(
                 borderSide: BorderSide(
-                  color: Colors.grey.shade400,
-                  width: .5,
+                  color: Colors.grey.shade300,
+                  width: 1,
                 ),
-                borderRadius: BorderRadius.circular(4),
+                borderRadius: BorderRadius.circular(12),
               ),
               enabledBorder: OutlineInputBorder(
-                borderSide: const BorderSide(
-                  color: Colors.grey,
-                  width: .5,
+                borderSide: BorderSide(
+                  color: Colors.grey.shade300,
+                  width: 1.2,
                 ),
-                borderRadius: BorderRadius.circular(4),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderSide: const BorderSide(
+                  color: Color(0xFF1565C0),
+                  width: 1.5,
+                ),
+                borderRadius: BorderRadius.circular(12),
               ),
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(4),
+                borderRadius: BorderRadius.circular(12),
               ),
             ),
           ),

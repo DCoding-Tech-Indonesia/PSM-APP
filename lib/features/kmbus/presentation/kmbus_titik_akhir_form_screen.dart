@@ -9,6 +9,7 @@ import 'package:psm_mobile/core/presentations/widgets/core_button.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_camera_widget.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_header.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_snackbar.dart';
+import 'package:psm_mobile/core/presentations/widgets/core_blur_dialog.dart';
 import 'package:psm_mobile/features/kmbus/presentation/bloc/kmbus_bloc.dart';
 import 'package:psm_mobile/features/kmbus/presentation/bloc/kmbus_state.dart';
 
@@ -59,6 +60,89 @@ class _KmbusTitikAkhirFormScreenState extends State<KmbusTitikAkhirFormScreen> {
     } else {
       context.pop(true);
     }
+  }
+
+  void _showOcrValidationDialog(
+    BuildContext context,
+    String ocrValue,
+    VoidCallback onRetake,
+  ) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return CoreBlurDialog(
+          title: "Validasi Odometer",
+          message:
+              "Hasil pemindaian speedometer: $ocrValue KM.\nApakah angka ini sudah sesuai dengan speedometer fisik?",
+          badgeColor: Colors.blue,
+          badgeText: 'KONFIRMASI',
+          badgeIcon: Icons.camera_alt_outlined,
+          buttonColor: Colors.blue[600]!,
+          confirmText: "Ya, Benar",
+          onConfirm: () {
+            CoreSnackbar.show(
+              context,
+              message: "Angka odometer dikonfirmasi.",
+              type: SnackbarType.success,
+            );
+          },
+          contentWidget: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                height: 44,
+                child: OutlinedButton(
+                  onPressed: () {
+                    Navigator.pop(dialogContext);
+                    _showEditOdometerDialog(context, ocrValue);
+                  },
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: Colors.orange),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    "Ubah Manual",
+                    style: TextStyle(
+                      color: Colors.orange,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              SizedBox(
+                width: double.infinity,
+                height: 44,
+                child: OutlinedButton(
+                  onPressed: () {
+                    Navigator.pop(dialogContext);
+                    onRetake();
+                  },
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: Colors.blue),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    "Foto Ulang",
+                    style: TextStyle(
+                      color: Colors.blue,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   void _showEditOdometerDialog(BuildContext context, String? currentOcr) {
@@ -114,7 +198,7 @@ class _KmbusTitikAkhirFormScreenState extends State<KmbusTitikAkhirFormScreen> {
     final size = MediaQuery.sizeOf(context);
     final theme = Theme.of(context);
 
-    Future<void> _openCamera() async {
+    Future<void> openCamera() async {
       const ratio = 16 / 9;
 
       CameraAccessHelper.checkPermissions(
@@ -146,6 +230,10 @@ class _KmbusTitikAkhirFormScreenState extends State<KmbusTitikAkhirFormScreen> {
             type: SnackbarType.failed,
           );
           return;
+        }
+
+        if (state.uploadStatus == UploadStatus.successOcr) {
+          _showOcrValidationDialog(context, state.ocrResult ?? '-', openCamera);
         }
 
         if (state.submitStatus == SubmitStatus.success) {
@@ -190,6 +278,7 @@ class _KmbusTitikAkhirFormScreenState extends State<KmbusTitikAkhirFormScreen> {
         }
       },
       child: Scaffold(
+        backgroundColor: Colors.grey.shade50,
         body: SafeArea(
           child: Stack(
             children: [
@@ -201,22 +290,26 @@ class _KmbusTitikAkhirFormScreenState extends State<KmbusTitikAkhirFormScreen> {
                     withBorder: true,
                   ),
                   Expanded(
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: size.width * 0.05,
-                        vertical: size.height * 0.03,
-                      ),
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        border: Border(
-                          top: BorderSide(color: Color(0xFFB3B3B3), width: .65),
-                          bottom: BorderSide(
-                            color: Color(0xFFB3B3B3),
-                            width: .65,
+                    child: SingleChildScrollView(
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: Colors.grey.withValues(alpha: 0.15),
+                            width: 1,
                           ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.03),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
                         ),
-                      ),
-                      child: Column(
+                        child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           BlocBuilder<KmbusBloc, KmbusState>(
@@ -319,7 +412,7 @@ class _KmbusTitikAkhirFormScreenState extends State<KmbusTitikAkhirFormScreen> {
                                     );
                                   } else if (state.documentUploadStatus !=
                                       DocumentUploadStatus.uploading) {
-                                    _openCamera();
+                                    openCamera();
                                   }
                                 },
                                 onRemoveImage: !hasImage
@@ -336,10 +429,7 @@ class _KmbusTitikAkhirFormScreenState extends State<KmbusTitikAkhirFormScreen> {
                               );
                             },
                           ),
-                        ],
-                      ),
-                    ),
-                  ),
+                          const SizedBox(height: 24),
                   BlocBuilder<KmbusBloc, KmbusState>(
                     buildWhen: (prev, curr) =>
                         prev.ocrResult != curr.ocrResult ||
@@ -370,7 +460,10 @@ class _KmbusTitikAkhirFormScreenState extends State<KmbusTitikAkhirFormScreen> {
                           onPressed: () {
                             if (!isSubmitable) return;
                             context.read<KmbusBloc>().add(
-                              SubmitTitikAkhir(widget.idKm, widget.idAuditTrail),
+                              SubmitTitikAkhir(
+                                widget.idKm,
+                                widget.idAuditTrail,
+                              ),
                             );
                           },
                           backgroundColor: isSubmitable
@@ -388,8 +481,13 @@ class _KmbusTitikAkhirFormScreenState extends State<KmbusTitikAkhirFormScreen> {
                       );
                     },
                   ),
-                ],
-              ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    ],
+  ),
 
               BlocBuilder<KmbusBloc, KmbusState>(
                 buildWhen: (prev, curr) =>

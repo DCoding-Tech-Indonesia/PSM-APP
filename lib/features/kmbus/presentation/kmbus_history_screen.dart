@@ -76,7 +76,15 @@ class _KmbusHistoryScreenState extends State<KmbusHistoryScreen> {
             ),
 
             Container(
-              color: Colors.white,
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                border: Border(
+                  bottom: BorderSide(
+                    color: Color(0xFFEDF2F7),
+                    width: 1,
+                  ),
+                ),
+              ),
               child: Row(
                 children: _tabs.map((tab) {
                   final active = _activeTab == tab;
@@ -84,29 +92,32 @@ class _KmbusHistoryScreenState extends State<KmbusHistoryScreen> {
                   return Expanded(
                     child: InkWell(
                       onTap: () => _changeTab(tab),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 250),
-                        padding: const EdgeInsets.symmetric(vertical: 15),
-                        decoration: BoxDecoration(
-                          border: Border(
-                            bottom: BorderSide(
-                              width: 3,
-                              color: active ? Colors.blue : Colors.transparent,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              tab,
+                              style: TextStyle(
+                                color: active
+                                    ? const Color(0xFF1565C0)
+                                    : const Color(0xFF718096),
+                                fontWeight: active ? FontWeight.w900 : FontWeight.w700,
+                                fontSize: 13,
+                              ),
                             ),
-                          ),
-                        ),
-                        child: Center(
-                          child: AnimatedDefaultTextStyle(
-                            duration: const Duration(milliseconds: 250),
-                            style: TextStyle(
-                              color: active
-                                  ? Colors.blue
-                                  : Colors.grey.shade500,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 16,
+                            const SizedBox(height: 6),
+                            AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              width: active ? 28 : 0,
+                              height: 3,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF1565C0),
+                                borderRadius: BorderRadius.circular(2),
+                              ),
                             ),
-                            child: Text(tab),
-                          ),
+                          ],
                         ),
                       ),
                     ),
@@ -134,7 +145,7 @@ class _KmbusHistoryScreenState extends State<KmbusHistoryScreen> {
                     itemBuilder: (context, index) {
                       final currentTab = _tabs[index];
 
-                      if (currentTab == "Semua") {
+                       if (currentTab == "Semua") {
                         final dataList = state.listKmbus;
 
                         return RefreshIndicator(
@@ -156,7 +167,7 @@ class _KmbusHistoryScreenState extends State<KmbusHistoryScreen> {
                           onRefresh: _onRefresh,
                           child: dataList.isEmpty
                               ? _buildEmptyState()
-                              : _buildKmListView(dataList, currentTab),
+                              : _buildSemuaListView(dataList, filterType: currentTab),
                         );
                       }
                     },
@@ -185,25 +196,25 @@ class _KmbusHistoryScreenState extends State<KmbusHistoryScreen> {
     );
   }
 
-  Widget _buildSemuaListView(List<dynamic> dataList) {
+  Widget _buildSemuaListView(List<dynamic> dataList, {String? filterType}) {
     return ListView.separated(
       physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
       itemCount: dataList.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      separatorBuilder: (_, _) => const SizedBox(height: 12),
       itemBuilder: (context, i) {
         final item = dataList[i];
 
         return Container(
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: Colors.grey.shade200),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.grey.withValues(alpha: 0.15)),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.02),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
+                color: Colors.black.withValues(alpha: 0.03),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
               ),
             ],
           ),
@@ -212,249 +223,223 @@ class _KmbusHistoryScreenState extends State<KmbusHistoryScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(item.tanggalKm, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),),
-                const Divider(),
+                // Header: Date | Unit Badge
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      item.code ?? "NO CODE",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey.shade600,
-                        fontSize: 12,
-                      ),
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.calendar_today_rounded,
+                          size: 14,
+                          color: Color(0xFF718096),
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          item.tanggalKm,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF2D3748),
+                            fontSize: 13,
+                          ),
+                        ),
+                      ],
                     ),
                     Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
-                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: Colors.blue.withValues(alpha: 0.08),
-                        borderRadius: BorderRadius.circular(6),
+                        color: const Color(0xFFF7FAFC),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: const Color(0xFFE2E8F0)),
                       ),
                       child: Text(
-                        item.bus?.nomorLambung,
+                        "${item.bus?.platNomor ?? '-'} • ${item.bus?.nomorLambung ?? '-'}",
                         style: const TextStyle(
-                          color: Colors.blue,
                           fontWeight: FontWeight.w700,
+                          color: Color(0xFF4A5568),
                           fontSize: 11,
                         ),
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 10),
-                Text(
-                  item.koridor?.name ?? "Koridor N/A",
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                    color: Colors.black87,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  "Bus: (${item.bus?.platNomor ?? '-'})",
-                  style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
-                ),
-                const SizedBox(height: 4),
-                Row(
-                  spacing: 8,
-                  children: [
-                    Expanded(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 5,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.greenAccent.shade200,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(width: 1, color: Colors.green),
-                        ),
-                        child: Column(
-                          children: [
-                            Icon(Icons.start, size: 20),
-                            Text(item.titikAwal.toString(), style: TextStyle(fontWeight: FontWeight.w700),),
-                          ],
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 5,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.redAccent.shade200,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(width: 1, color: Colors.red),
-                        ),
-                        child: Column(
-                          children: [
-                            Icon(Icons.flag, size: 20, color: Colors.white),
-                            Text(item.titikAkhir != null ? item.titikAkhir.toString() : "-", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700),),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const Divider(height: 24, thickness: 0.8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "Ritase Ke-${item.ritaseKe.toString()}",
-                      style: TextStyle(
-                        color: Colors.grey.shade700,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 13,
-                      ),
-                    ),
-                    Text(
-                      "${item.totalTempuh ?? 0} km",
-                      style: const TextStyle(
-                        color: Colors.blue,
-                        fontWeight: FontWeight.w800,
-                        fontSize: 16,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
 
-  Widget _buildKmListView(List<dynamic> dataList, String type) {
-    final isAwal = type == "Awal";
-    final mainColor = isAwal ? Colors.teal : Colors.deepOrange;
-
-    return ListView.separated(
-      physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
-      itemCount: dataList.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 12),
-      itemBuilder: (context, i) {
-        final item = dataList[i];
-
-        final targetKm = isAwal
-            ? (item.titikAwal ?? 0)
-            : (item.titikAkhir ?? 0);
-
-        return Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: Colors.grey.shade200),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.02),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: IntrinsicHeight(
-            child: Row(
-              children: [
-                Container(
-                  width: 5,
-                  decoration: BoxDecoration(
-                    color: mainColor,
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(14),
-                      bottomLeft: Radius.circular(14),
-                    ),
-                  ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 12),
+                  child: Divider(height: 1, thickness: 1, color: Color(0xFFEDF2F7)),
                 ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
+                 // Timeline KM Route / Single KM Dashboard Callout
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: (filterType == "Awal" || filterType == "Akhir")
+                      ? Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Row(
                               children: [
                                 Icon(
-                                  isAwal
-                                      ? Icons.login_rounded
-                                      : Icons.logout_rounded,
+                                  filterType == "Awal"
+                                      ? Icons.play_arrow_rounded
+                                      : Icons.flag_rounded,
+                                  color: filterType == "Awal"
+                                      ? const Color(0xFF2E7D32)
+                                      : const Color(0xFFC62828),
                                   size: 16,
-                                  color: mainColor,
                                 ),
-                                const SizedBox(width: 6),
+                                const SizedBox(width: 8),
                                 Text(
-                                  "KM ${type.toUpperCase()}",
-                                  style: TextStyle(
-                                    color: mainColor,
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 12,
+                                  filterType == "Awal"
+                                      ? "KM Keberangkatan (Awal)"
+                                      : "KM Kedatangan (Akhir)",
+                                  style: const TextStyle(
+                                    fontSize: 12.5,
+                                    color: Color(0xFF4A5568),
+                                    fontWeight: FontWeight.w600,
                                   ),
                                 ),
                               ],
                             ),
                             Text(
-                              "Ritase ${item.ritaseKe}",
+                              filterType == "Awal"
+                                  ? "${item.titikAwal} KM"
+                                  : (item.titikAkhir != null ? "${item.titikAkhir} KM" : "-"),
                               style: TextStyle(
-                                color: Colors.grey.shade500,
-                                fontSize: 12,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w800,
+                                color: filterType == "Awal"
+                                    ? const Color(0xFF2E7D32)
+                                    : const Color(0xFFC62828),
                               ),
                             ),
                           ],
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          item.koridor?.name ?? "-",
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          "Bus: ${item.bus?.nomorLambung ?? '-'} (${item.bus?.platNomor ?? '-'})",
-                          style: TextStyle(
-                            color: Colors.grey.shade600,
-                            fontSize: 13,
-                          ),
-                        ),
-                        const Divider(height: 20),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        )
+                      : Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Expanded(
-                              child: Text(
-                                item.code ?? "-",
-                                style: TextStyle(
-                                  color: Colors.grey.shade500,
-                                  fontSize: 12,
+                            // Timeline indicator line
+                            Column(
+                              children: [
+                                const Icon(Icons.circle, size: 8, color: Color(0xFF2E7D32)),
+                                Container(
+                                  width: 1.5,
+                                  height: 28,
+                                  color: const Color(0xFFE2E8F0),
                                 ),
-                              ),
+                                const Icon(Icons.circle, size: 8, color: Color(0xFFC62828)),
+                              ],
                             ),
-                            Text(
-                              "$targetKm KM",
-                              style: TextStyle(
-                                color: mainColor,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
+                            const SizedBox(width: 14),
+                            // KM Info Texts
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      const Text(
+                                        "KM Awal (Mulai)",
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Color(0xFF718096),
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      Text(
+                                        "${item.titikAwal} KM",
+                                        style: const TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w800,
+                                          color: Color(0xFF2E7D32),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 18),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      const Text(
+                                        "KM Akhir (Selesai)",
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Color(0xFF718096),
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      Text(
+                                        item.titikAkhir != null ? '${item.titikAkhir} KM' : '-',
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w800,
+                                          color: item.titikAkhir != null
+                                              ? const Color(0xFFC62828)
+                                              : const Color(0xFFA0AEC0),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ),
                             ),
                           ],
                         ),
-                      ],
+                ),
+
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 12),
+                  child: Divider(height: 1, thickness: 1, color: Color(0xFFEDF2F7)),
+                ),
+
+                // Footer: Corridor + Total Distance
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.directions_bus_rounded,
+                            size: 15,
+                            color: Color(0xFF1565C0),
+                          ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              item.koridor?.name ?? "Koridor N/A",
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w800,
+                                fontSize: 13,
+                                color: Color(0xFF2D3748),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF1565C0).withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: const Color(0xFF1565C0).withValues(alpha: 0.15),
+                        ),
+                      ),
+                      child: Text(
+                        "Total: ${item.totalTempuh ?? 0} km",
+                        style: const TextStyle(
+                          color: Color(0xFF1565C0),
+                          fontWeight: FontWeight.w800,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

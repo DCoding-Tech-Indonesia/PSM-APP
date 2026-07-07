@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fpdart/src/either.dart';
+import 'package:psm_mobile/core/error/failure.dart';
 import 'package:psm_mobile/core/storage/secure_storage.dart';
 import 'package:psm_mobile/features/kmbus/domain/entities/kmbus_data.dart';
 import 'package:psm_mobile/features/kmbus/domain/entities/kmbus_document.dart';
@@ -127,7 +129,7 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
         emit(
           state.copyWith(
             disabledCtaMessage: titikAwalMessage,
-            allowTitikAwal: !isAllowTitikAwal,
+            allowTitikAwal: isAllowTitikAwal,
             idShift: todayScheduleData[0].shift.id,
             idKoridorShift: idKoridorShift,
             idBusShift: idBusShift,
@@ -359,9 +361,38 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
       print("event.idAuditTrail = ${event.idAuditTrail}");
 
       try {
+        int idKoridor = state.idKoridorShift ?? 0;
+        int idBus = state.idBusShift ?? 0;
+
+        if (idKoridor == 0 || idBus == 0) {
+          final userIdString = await secureStorageService.readUserId();
+          final userId = int.tryParse(userIdString ?? '') ?? 0;
+          final todaySchedule = await kmbusRepository.fetchTodaySchedule(
+            userId,
+          );
+          todaySchedule.fold((_) {}, (data) {
+            if (data.isNotEmpty) {
+              idKoridor = data[0].lokasi.koridor;
+              idBus = data[0].bus.id ?? 0;
+            }
+          });
+        }
+
+        double ritaseValue = 0.5;
+        if (idKoridor != 0 && idBus != 0) {
+          final nextRitaseResult = await kmbusRepository.fetchNextRitase(
+            idKoridor,
+            idBus,
+          );
+          nextRitaseResult.fold((_) {}, (value) {
+            ritaseValue = value.ritaseKe ?? 0.5;
+          });
+        }
+
         final initial = _initialTitikAkhirCreate.copyWith(
           idKm: event.idKm,
           auditTrailId: event.idAuditTrail,
+          ritaseKe: ritaseValue,
         );
 
         if (event.idAuditTrail != null && event.idAuditTrail != 0) {
@@ -383,7 +414,12 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
               emit(
                 state.copyWith(
                   status: KmbusStatus.success,
-                  titikAkhirCreate: titikAkhirData.copyWith(idKm: event.idKm),
+                  titikAkhirCreate: titikAkhirData.copyWith(
+                    idKm: event.idKm,
+                    ritaseKe: ritaseValue != 0.5
+                        ? ritaseValue
+                        : (titikAkhirData.ritaseKe ?? 0.5),
+                  ),
                   ocrResult: titikAkhirData.titikAkhir.toString(),
                 ),
               );
@@ -653,7 +689,7 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
     on<SubmitTitikAwal>((event, emit) async {
       emit(state.copyWith(submitStatus: SubmitStatus.submitting));
 
-      var result;
+      Either<Failure, String> result;
 
       if (event.idAuditTrail != null && event.idAuditTrail != 0) {
         result = await kmbusRepository.updateTitikAwal(
@@ -690,7 +726,7 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
     on<SubmitTitikAkhir>((event, emit) async {
       emit(state.copyWith(submitStatus: SubmitStatus.submitting));
 
-      var result;
+      Either<Failure, String> result;
 
       if (event.idAuditTrail != null && event.idAuditTrail != 0) {
         result = await kmbusRepository.updateTitikAkhir(

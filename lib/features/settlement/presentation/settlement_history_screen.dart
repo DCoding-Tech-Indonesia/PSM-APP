@@ -202,7 +202,7 @@ class _SettlementHistoryScreenState extends State<SettlementHistoryScreen> {
                                         20,
                                       ),
                                       itemCount: filtered.length,
-                                      separatorBuilder: (_, __) =>
+                                      separatorBuilder: (_, _) =>
                                           const SizedBox(height: 12),
                                       itemBuilder: (context, i) {
                                         return HistoryListCard(

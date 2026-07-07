@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:psm_mobile/core/presentations/entity/schedule_args.dart';
+import 'package:psm_mobile/core/presentations/widgets/core_bottom_modal_verification.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_date_time_widget.dart';
+import 'package:psm_mobile/core/presentations/widgets/core_skeleton_widget.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_header.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_snackbar.dart';
 import 'package:psm_mobile/features/kmbus/domain/entities/titik_akhir_args.dart';
 import 'package:psm_mobile/features/kmbus/presentation/bloc/kmbus_state.dart';
+import 'package:psm_mobile/features/reference/domain/entities/reference_detail.dart';
 
 import 'bloc/kmbus_bloc.dart';
 import 'bloc/kmbus_event.dart';
@@ -79,14 +82,25 @@ class _KmbusScreenState extends State<KmbusScreen> {
         buildWhen: (prev, curr) =>
             prev.status != curr.status || prev.listKmbus != curr.listKmbus,
         builder: (context, state) {
-          final isLoading =
-              state.status == KmbusStatus.loading ||
-              state.status == KmbusStatus.initial ||
-              state.status == KmbusStatus.onSubmit;
+          final isInitialLoading = (state.status == KmbusStatus.loading ||
+                  state.status == KmbusStatus.initial) &&
+              (state.listKmbus?.isEmpty ?? true);
+          final isLoading = state.status == KmbusStatus.onSubmit;
+
+          final activeBus = state.referenceBus.firstWhere(
+            (e) => e.id == (state.idBusShift ?? state.idBus),
+            orElse: () => const ReferenceDetail(id: 0, code: '', name: '-'),
+          );
+
+          final activeKoridor = state.referenceKoridor.firstWhere(
+            (e) => e.id == (state.idKoridorShift ?? state.idKoridor),
+            orElse: () => const ReferenceDetail(id: 0, code: '', name: '-'),
+          );
 
           return Stack(
             children: [
-              Scaffold(
+               Scaffold(
+                backgroundColor: Colors.grey.shade50,
                 body: SafeArea(
                   child: RefreshIndicator(
                     onRefresh: _onRefresh,
@@ -98,20 +112,175 @@ class _KmbusScreenState extends State<KmbusScreen> {
                           subtitle: "Data KM Bus",
                         ),
                         const CoreDateTimeWidget(),
+                        const SizedBox(height: 12),
+                        if (isInitialLoading)
+                          ..._buildSkeletonItems()
+                        else ...[
+                          // === VEHICLE INFO CARD ===
+                          if (state.checkinData != null)
+                            Container(
+                              margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [Color(0xFF1565C0), Color(0xFF1E88E5)],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                borderRadius: BorderRadius.circular(20),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: const Color(0xFF1565C0).withValues(alpha: 0.15),
+                                    blurRadius: 15,
+                                    offset: const Offset(0, 6),
+                                  ),
+                                ],
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(10),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withValues(alpha: 0.2),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: const Icon(
+                                      Icons.directions_bus_rounded,
+                                      color: Colors.white,
+                                      size: 28,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 14),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Unit ${activeBus.name}',
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          activeKoridor.name,
+                                          style: TextStyle(
+                                            color: Colors.white.withValues(alpha: 0.85),
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  if (state.checkinData?.ritaseKe != null)
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 6,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withValues(alpha: 0.2),
+                                        borderRadius: BorderRadius.circular(20),
+                                        border: Border.all(
+                                          color: Colors.white.withValues(alpha: 0.3),
+                                        ),
+                                      ),
+                                      child: Text(
+                                        'Ritase ${state.checkinData!.ritaseKe % 1 == 0 ? state.checkinData!.ritaseKe.toInt() : state.checkinData!.ritaseKe}',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            )
+                          else
+                            Container(
+                              margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [Color(0xFF718096), Color(0xFF4A5568)],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                borderRadius: BorderRadius.circular(20),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: const Color(0xFF4A5568).withValues(alpha: 0.15),
+                                    blurRadius: 15,
+                                    offset: const Offset(0, 6),
+                                  ),
+                                ],
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withValues(alpha: 0.2),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: const Icon(
+                                      Icons.directions_bus_rounded,
+                                      color: Colors.white,
+                                      size: 22,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 14),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        const Text(
+                                          "Belum Check-In",
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 15,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          "Silakan lakukan Check-In di Time Table terlebih dahulu.",
+                                          style: TextStyle(
+                                            color: Colors.white.withValues(alpha: 0.85),
+                                            fontWeight: FontWeight.w400,
+                                            fontSize: 13,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          const SizedBox(height: 16),
 
-                        Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 20),
-                          child: Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              onTap: () async {
+                          // === ACTION BUTTON ===
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: _buildActionButton(
+                              icon: Icons.add_circle_outline_rounded,
+                              label: 'Input KM Keberangkatan',
+                              isEnabled: state.allowTitikAwal,
+                              enabledColors: const [
+                                Color(0xFF2E7D32),
+                                Color(0xFF43A047),
+                              ],
+                              onPressed: () async {
                                 if (!state.allowTitikAwal) {
                                   CoreSnackbar.show(
                                     context,
                                     message: state.disabledCtaMessage,
                                     type: SnackbarType.warning,
                                   );
-
                                   return;
                                 }
                                 final result = await context.push(
@@ -130,67 +299,13 @@ class _KmbusScreenState extends State<KmbusScreen> {
                                   );
                                 }
                               },
-                              borderRadius: BorderRadius.circular(12),
-                              child: Ink(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 16,
-                                ),
-                                decoration: BoxDecoration(
-                                  gradient: state.allowTitikAwal
-                                      ? const LinearGradient(
-                                          colors: [
-                                            Color(0xFF2E7D32),
-                                            Color(0xFF43A047),
-                                          ],
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                        )
-                                      : const LinearGradient(
-                                          colors: [
-                                            Color(0xFF454545),
-                                            Color(0xFF9a9a9a),
-                                          ],
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                        ),
-                                  borderRadius: BorderRadius.circular(12),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: const Color(
-                                        0xFF2E7D32,
-                                      ).withValues(alpha: 0.3),
-                                      blurRadius: 8,
-                                      offset: const Offset(0, 4),
-                                    ),
-                                  ],
-                                ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: const [
-                                    Icon(
-                                      Icons.add_circle_outline_rounded,
-                                      color: Colors.white,
-                                      size: 22,
-                                    ),
-                                    SizedBox(width: 10),
-                                    Text(
-                                      "Input KM Keberangkatan",
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 16,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
                             ),
                           ),
-                        ),
+                          const SizedBox(height: 24),
 
-                        Padding(
+                         Padding(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 20,
+                            horizontal: 24,
                             vertical: 5,
                           ),
                           child: Row(
@@ -201,7 +316,8 @@ class _KmbusScreenState extends State<KmbusScreen> {
                                   'Riwayat Terakhir',
                                   style: TextStyle(
                                     fontSize: 18,
-                                    fontWeight: FontWeight.bold,
+                                    fontWeight: FontWeight.w700,
+                                    color: Color(0xFF212121),
                                   ),
                                 ),
                               ),
@@ -214,23 +330,34 @@ class _KmbusScreenState extends State<KmbusScreen> {
                                     );
                                   }
                                 },
-                                child: const Row(
-                                  children: [
-                                    Text(
-                                      'Lihat Semua',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 13,
-                                        color: Colors.blue,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 6,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFE3F2FD),
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: const Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        'Lihat Semua',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 12,
+                                          color: Color(0xFF1565C0),
+                                        ),
                                       ),
-                                    ),
-                                    SizedBox(width: 4),
-                                    Icon(
-                                      Icons.arrow_forward_ios,
-                                      size: 12,
-                                      color: Colors.blue,
-                                    ),
-                                  ],
+                                      SizedBox(width: 4),
+                                      Icon(
+                                        Icons.arrow_forward_ios_rounded,
+                                        size: 11,
+                                        color: Color(0xFF1565C0),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ],
@@ -247,7 +374,7 @@ class _KmbusScreenState extends State<KmbusScreen> {
                             physics: const NeverScrollableScrollPhysics(),
                             padding: const EdgeInsets.symmetric(vertical: 10),
                             itemCount: state.listKmbusAuditTrail.length,
-                            separatorBuilder: (_, __) =>
+                            separatorBuilder: (_, _) =>
                                 const SizedBox(height: 12),
                             itemBuilder: (context, index) {
                               final data = state.listKmbusAuditTrail[index];
@@ -296,119 +423,136 @@ class _KmbusScreenState extends State<KmbusScreen> {
                                 badgeBorderColor = Colors.yellow;
                               }
 
-                              Widget cardItem = Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 12,
-                                ),
+                               Widget cardItem = Container(
                                 decoration: BoxDecoration(
                                   color: Colors.white,
-                                  borderRadius: BorderRadius.circular(16),
-                                  border: Border.all(
-                                    color: Colors.grey.withValues(alpha: 0.3),
-                                  ),
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(color: Colors.grey.withValues(alpha: 0.15)),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withValues(
-                                        alpha: 0.05,
-                                      ),
-                                      blurRadius: 20,
-                                      offset: const Offset(0, 10),
+                                      color: Colors.black.withValues(alpha: 0.03),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 4),
                                     ),
                                   ],
                                 ),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      // Header: Bus Icon + No Polisi | Time
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Text(
-                                            tipeTitik == "TITIK AWAL" ||
-                                                    (index + 1) >=
-                                                        state
-                                                            .listKmbusAuditTrail
-                                                            .length
-                                                ? data.noPolisi
-                                                : state
-                                                      .listKmbusAuditTrail[index +
-                                                          1]
-                                                      .noPolisi,
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 15,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 4),
                                           Row(
-                                            spacing: 6,
                                             children: [
-                                              Icon(
-                                                tipeTitik == "TITIK AWAL"
-                                                    ? Icons.start
-                                                    : Icons.flag,
-                                                size: 18,
-                                                color: tipeTitik == "TITIK AWAL"
-                                                    ? Colors.green
-                                                    : Colors.red,
+                                              const Icon(
+                                                Icons.directions_bus_rounded,
+                                                size: 16,
+                                                color: Color(0xFF1565C0),
                                               ),
+                                              const SizedBox(width: 6),
                                               Text(
-                                                "$nilaiKm KM",
-                                                style: TextStyle(
-                                                  fontWeight: FontWeight.w600,
-                                                  color:
-                                                      tipeTitik == "TITIK AWAL"
-                                                      ? Colors.green
-                                                      : Colors.red,
+                                                tipeTitik == "TITIK AWAL" ||
+                                                        (index + 1) >= state.listKmbusAuditTrail.length
+                                                    ? data.noPolisi
+                                                    : state.listKmbusAuditTrail[index + 1].noPolisi,
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.w800,
+                                                  color: Color(0xFF2D3748),
+                                                  fontSize: 13.5,
                                                 ),
                                               ),
                                             ],
                                           ),
+                                          Text(
+                                            hourMinute,
+                                            style: const TextStyle(
+                                              fontSize: 12.5,
+                                              fontWeight: FontWeight.w700,
+                                              color: Color(0xFF718096),
+                                            ),
+                                          ),
                                         ],
                                       ),
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            vertical: 2,
-                                            horizontal: 8,
+                                      const Padding(
+                                        padding: EdgeInsets.symmetric(vertical: 10),
+                                        child: Divider(height: 1, thickness: 1, color: Color(0xFFEDF2F7)),
+                                      ),
+                                      // Body: KM Info (Left) | Status Badge (Right)
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Icon(
+                                                tipeTitik == "TITIK AWAL"
+                                                    ? Icons.play_arrow_rounded
+                                                    : Icons.flag_rounded,
+                                                color: tipeTitik == "TITIK AWAL"
+                                                    ? const Color(0xFF2E7D32)
+                                                    : const Color(0xFFC62828),
+                                                size: 16,
+                                              ),
+                                              const SizedBox(width: 8),
+                                              Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    tipeTitik == "TITIK AWAL"
+                                                        ? "KM Keberangkatan (Awal)"
+                                                        : "KM Kedatangan (Akhir)",
+                                                    style: const TextStyle(
+                                                      fontSize: 11,
+                                                      color: Color(0xFF718096),
+                                                      fontWeight: FontWeight.w500,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(height: 2),
+                                                  Text(
+                                                    "$nilaiKm KM",
+                                                    style: TextStyle(
+                                                      fontSize: 14.5,
+                                                      fontWeight: FontWeight.w800,
+                                                      color: tipeTitik == "TITIK AWAL"
+                                                          ? const Color(0xFF2E7D32)
+                                                          : const Color(0xFFC62828),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
                                           ),
-                                          decoration: BoxDecoration(
-                                            color: badgeBgColor,
-                                            borderRadius: BorderRadius.circular(
-                                              99,
+                                          // Badge
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                            decoration: BoxDecoration(
+                                              color: data.status.code == "APR"
+                                                  ? const Color(0xFFE8F5E9)
+                                                  : const Color(0xFFFFFDE7),
+                                              borderRadius: BorderRadius.circular(8),
+                                              border: Border.all(
+                                                color: data.status.code == "APR"
+                                                    ? const Color(0xFFC8E6C9)
+                                                    : const Color(0xFFFFF9C4),
+                                              ),
                                             ),
-                                            border: Border.all(
-                                              width: 1,
-                                              color: badgeBorderColor,
+                                            child: Text(
+                                              data.status.name,
+                                              style: TextStyle(
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.w700,
+                                                color: data.status.code == "APR"
+                                                    ? const Color(0xFF2E7D32)
+                                                    : const Color(0xFFF57F17),
+                                              ),
                                             ),
                                           ),
-                                          child: Text(
-                                            data.status.name,
-                                            style: const TextStyle(
-                                              fontSize: 10,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(height: 6),
-                                        Text(
-                                          hourMinute,
-                                          style: const TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w700,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
+                                        ],
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               );
 
@@ -419,249 +563,40 @@ class _KmbusScreenState extends State<KmbusScreen> {
                                   confirmDismiss: (direction) async {
                                     if (direction ==
                                         DismissDirection.endToStart) {
-                                      final bool?
-                                      shouldSubmit = await showModalBottomSheet<bool>(
+                                      final bool? shouldSubmit =
+                                          await showModalBottomSheet<bool>(
                                         context: context,
-                                        shape: const RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.vertical(
-                                            top: Radius.circular(24),
-                                          ),
-                                        ),
+                                        isScrollControlled: true,
                                         builder: (BuildContext ctx) {
-                                          return Padding(
-                                            padding: const EdgeInsets.all(24.0),
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                Container(
-                                                  width: 40,
-                                                  height: 4,
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.grey.shade300,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          2,
-                                                        ),
-                                                  ),
-                                                ),
-                                                const SizedBox(height: 20),
-                                                const Icon(
-                                                  Icons.cloud_upload_outlined,
-                                                  size: 48,
-                                                  color: Colors.blue,
-                                                ),
-                                                const SizedBox(height: 16),
-                                                const Text(
-                                                  "Submit Data KM Bus",
-                                                  style: TextStyle(
-                                                    fontSize: 18,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                                const SizedBox(height: 8),
-                                                Text(
-                                                  "Apakah Anda yakin ingin melakukan submit untuk data $tipeTitik ($nilaiKm KM)?",
-                                                  textAlign: TextAlign.center,
-                                                  style: TextStyle(
-                                                    color: Colors.grey.shade600,
-                                                    fontSize: 14,
-                                                  ),
-                                                ),
-                                                const SizedBox(height: 24),
-                                                Row(
-                                                  children: [
-                                                    Expanded(
-                                                      child: OutlinedButton(
-                                                        style: OutlinedButton.styleFrom(
-                                                          padding:
-                                                              const EdgeInsets.symmetric(
-                                                                vertical: 14,
-                                                              ),
-                                                          side:
-                                                              const BorderSide(
-                                                                color:
-                                                                    Colors.blue,
-                                                              ),
-                                                          shape: RoundedRectangleBorder(
-                                                            borderRadius:
-                                                                BorderRadius.circular(
-                                                                  12,
-                                                                ),
-                                                          ),
-                                                        ),
-                                                        onPressed: () =>
-                                                            Navigator.of(
-                                                              ctx,
-                                                            ).pop(false),
-                                                        child: const Text(
-                                                          "Batal",
-                                                          style: TextStyle(
-                                                            color: Colors.blue,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    const SizedBox(width: 12),
-                                                    Expanded(
-                                                      child: ElevatedButton(
-                                                        style: ElevatedButton.styleFrom(
-                                                          backgroundColor:
-                                                              Colors.blue,
-                                                          padding:
-                                                              const EdgeInsets.symmetric(
-                                                                vertical: 14,
-                                                              ),
-                                                          shape: RoundedRectangleBorder(
-                                                            borderRadius:
-                                                                BorderRadius.circular(
-                                                                  12,
-                                                                ),
-                                                          ),
-                                                        ),
-                                                        onPressed: () =>
-                                                            Navigator.of(
-                                                              ctx,
-                                                            ).pop(true),
-                                                        child: const Text(
-                                                          "Ya, Submit",
-                                                          style: TextStyle(
-                                                            color: Colors.white,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ],
-                                            ),
+                                          return CoreBottomModalVerification(
+                                            title: "Submit Data KM Bus",
+                                            desc:
+                                                "Apakah Anda yakin ingin melakukan submit untuk data $tipeTitik ($nilaiKm KM)?",
+                                            confirmText: "Ya, Submit",
+                                            cancelText: "Batal",
                                           );
                                         },
                                       );
 
                                       if (shouldSubmit == true) {
                                         context.read<KmbusBloc>().add(
-                                          SubmitWorkflow('Done', data.id),
-                                        );
+                                              SubmitWorkflow('Done', data.id),
+                                            );
                                       }
                                       return false;
                                     } else if (direction ==
                                         DismissDirection.startToEnd) {
-                                      final bool?
-                                      shouldEdit = await showModalBottomSheet<bool>(
+                                      final bool? shouldEdit =
+                                          await showModalBottomSheet<bool>(
                                         context: context,
-                                        shape: const RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.vertical(
-                                            top: Radius.circular(24),
-                                          ),
-                                        ),
+                                        isScrollControlled: true,
                                         builder: (BuildContext ctx) {
-                                          return Padding(
-                                            padding: const EdgeInsets.all(24.0),
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                Container(
-                                                  width: 40,
-                                                  height: 4,
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.grey.shade300,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          2,
-                                                        ),
-                                                  ),
-                                                ),
-                                                const SizedBox(height: 20),
-                                                const Icon(
-                                                  Icons.edit_note_rounded,
-                                                  size: 48,
-                                                  color: Colors.orange,
-                                                ),
-                                                const SizedBox(height: 16),
-                                                const Text(
-                                                  "Edit Draft Data KM Bus",
-                                                  style: TextStyle(
-                                                    fontSize: 18,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                                const SizedBox(height: 8),
-                                                Text(
-                                                  "Apakah Anda yakin ingin mengubah draft $tipeTitik ini?",
-                                                  textAlign: TextAlign.center,
-                                                  style: TextStyle(
-                                                    color: Colors.grey.shade600,
-                                                    fontSize: 14,
-                                                  ),
-                                                ),
-                                                const SizedBox(height: 24),
-                                                Row(
-                                                  children: [
-                                                    Expanded(
-                                                      child: OutlinedButton(
-                                                        style: OutlinedButton.styleFrom(
-                                                          padding:
-                                                              const EdgeInsets.symmetric(
-                                                                vertical: 14,
-                                                              ),
-                                                          side:
-                                                              const BorderSide(
-                                                                color: Colors
-                                                                    .orange,
-                                                              ),
-                                                          shape: RoundedRectangleBorder(
-                                                            borderRadius:
-                                                                BorderRadius.circular(
-                                                                  12,
-                                                                ),
-                                                          ),
-                                                        ),
-                                                        onPressed: () =>
-                                                            Navigator.of(
-                                                              ctx,
-                                                            ).pop(false),
-                                                        child: const Text(
-                                                          "Batal",
-                                                          style: TextStyle(
-                                                            color:
-                                                                Colors.orange,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    const SizedBox(width: 12),
-                                                    Expanded(
-                                                      child: ElevatedButton(
-                                                        style: ElevatedButton.styleFrom(
-                                                          backgroundColor:
-                                                              Colors.orange,
-                                                          padding:
-                                                              const EdgeInsets.symmetric(
-                                                                vertical: 14,
-                                                              ),
-                                                          shape: RoundedRectangleBorder(
-                                                            borderRadius:
-                                                                BorderRadius.circular(
-                                                                  12,
-                                                                ),
-                                                          ),
-                                                        ),
-                                                        onPressed: () =>
-                                                            Navigator.of(
-                                                              ctx,
-                                                            ).pop(true),
-                                                        child: const Text(
-                                                          "Ya, Edit",
-                                                          style: TextStyle(
-                                                            color: Colors.white,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ],
-                                            ),
+                                          return CoreBottomModalVerification(
+                                            title: "Edit Draft Data KM Bus",
+                                            desc:
+                                                "Apakah Anda yakin ingin mengubah draft $tipeTitik ini?",
+                                            confirmText: "Ya, Ubah",
+                                            cancelText: "Batal",
                                           );
                                         },
                                       );
@@ -703,7 +638,7 @@ class _KmbusScreenState extends State<KmbusScreen> {
                                     padding: const EdgeInsets.only(left: 24),
                                     decoration: BoxDecoration(
                                       color: Colors.orange.shade600,
-                                      borderRadius: BorderRadius.circular(16),
+                                      borderRadius: BorderRadius.circular(20),
                                     ),
                                     child: const Row(
                                       children: [
@@ -724,7 +659,7 @@ class _KmbusScreenState extends State<KmbusScreen> {
                                     padding: const EdgeInsets.only(right: 24),
                                     decoration: BoxDecoration(
                                       color: Colors.blue.shade600,
-                                      borderRadius: BorderRadius.circular(16),
+                                      borderRadius: BorderRadius.circular(20),
                                     ),
                                     child: const Row(
                                       mainAxisAlignment: MainAxisAlignment.end,
@@ -754,32 +689,21 @@ class _KmbusScreenState extends State<KmbusScreen> {
                                   children: [
                                     if (showHeaderTanggal)
                                       Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 5,
-                                          vertical: 8,
-                                        ),
+                                        padding: const EdgeInsets.only(left: 4, top: 16, bottom: 8),
                                         child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
                                           children: [
+                                            const Icon(
+                                              Icons.calendar_today_rounded,
+                                              size: 13,
+                                              color: Color(0xFF718096),
+                                            ),
+                                            const SizedBox(width: 6),
                                             Text(
                                               tanggalHariIni,
                                               style: const TextStyle(
-                                                fontWeight: FontWeight.w900,
-                                                fontSize: 15,
-                                              ),
-                                            ),
-                                            Container(
-                                              padding: const EdgeInsets.all(5),
-                                              decoration: BoxDecoration(
-                                                color: Colors.blue,
-                                                borderRadius:
-                                                    BorderRadius.circular(4),
-                                              ),
-                                              child: const Icon(
-                                                Icons.calendar_today,
-                                                size: 16,
-                                                color: Colors.white,
+                                                fontWeight: FontWeight.w800,
+                                                fontSize: 13,
+                                                color: Color(0xFF4A5568),
                                               ),
                                             ),
                                           ],
@@ -791,6 +715,7 @@ class _KmbusScreenState extends State<KmbusScreen> {
                               );
                             },
                           ),
+                        ],
                       ],
                     ),
                   ),
@@ -811,6 +736,145 @@ class _KmbusScreenState extends State<KmbusScreen> {
             ],
           );
         },
+      ),
+    );
+  }
+
+  List<Widget> _buildSkeletonItems() {
+    return [
+      Padding(
+        padding: const EdgeInsets.all(20),
+        child: Container(
+          height: 120,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.04),
+                blurRadius: 16,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CoreSkeletonWidget(width: 140, height: 18),
+              const SizedBox(height: 12),
+              CoreSkeletonWidget(width: double.infinity, height: 20),
+            ],
+          ),
+        ),
+      ),
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: Row(
+          children: [
+            Expanded(child: CoreSkeletonWidget(width: double.infinity, height: 50, borderRadius: BorderRadius.circular(14))),
+            const SizedBox(width: 12),
+            Expanded(child: CoreSkeletonWidget(width: double.infinity, height: 50, borderRadius: BorderRadius.circular(14))),
+          ],
+        ),
+      ),
+      const SizedBox(height: 24),
+      ...List.generate(3, (index) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.02),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    CoreSkeletonWidget(width: 100, height: 14),
+                    CoreSkeletonWidget(width: 60, height: 20, borderRadius: BorderRadius.circular(6)),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                CoreSkeletonWidget(width: 180, height: 18),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    CoreSkeletonWidget(width: 120, height: 12),
+                    CoreSkeletonWidget(width: 60, height: 16),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      }),
+      const SizedBox(height: 24),
+    ];
+  }
+
+  Widget _buildActionButton({
+    required IconData icon,
+    required String label,
+    required bool isEnabled,
+    required List<Color> enabledColors,
+    required VoidCallback onPressed,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          decoration: BoxDecoration(
+            gradient: isEnabled
+                ? LinearGradient(
+                    colors: enabledColors,
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  )
+                : null,
+            color: isEnabled ? null : const Color(0xFFBDBDBD),
+            borderRadius: BorderRadius.circular(14),
+            boxShadow: isEnabled
+                ? [
+                    BoxShadow(
+                      color: enabledColors.first.withValues(alpha: 0.35),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    ),
+                  ]
+                : null,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, color: Colors.white, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                label,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 15,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

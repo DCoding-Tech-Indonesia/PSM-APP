@@ -60,19 +60,13 @@ class CoreCameraWidget extends StatelessWidget {
                   children: [
                     const Padding(
                       padding: EdgeInsets.only(top: 6),
-                      child: Icon(
-                        Icons.circle,
-                        size: 8,
-                        color: Colors.grey,
-                      ),
+                      child: Icon(Icons.circle, size: 8, color: Colors.grey),
                     ),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
                         instruction,
-                        style: TextStyle(
-                          color: Colors.grey.shade600,
-                        ),
+                        style: TextStyle(color: Colors.grey.shade600),
                       ),
                     ),
                   ],
@@ -90,9 +84,7 @@ class CoreCameraWidget extends StatelessWidget {
 
     // Uploading
     if (isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
+      return const Center(child: CircularProgressIndicator());
     }
 
     // Has Image
@@ -108,16 +100,11 @@ class CoreCameraWidget extends StatelessWidget {
               loadingBuilder: (context, child, progress) {
                 if (progress == null) return child;
 
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
+                return const Center(child: CircularProgressIndicator());
               },
-              errorBuilder: (_, __, ___) {
+              errorBuilder: (_, _, _) {
                 return const Center(
-                  child: Icon(
-                    Icons.broken_image_outlined,
-                    size: 48,
-                  ),
+                  child: Icon(Icons.broken_image_outlined, size: 48),
                 );
               },
             ),
@@ -167,10 +154,7 @@ class CoreCameraWidget extends StatelessWidget {
                 ),
                 child: IconButton(
                   onPressed: onRemoveImage,
-                  icon: const Icon(
-                    Icons.close,
-                    color: Colors.white,
-                  ),
+                  icon: const Icon(Icons.close, color: Colors.white),
                 ),
               ),
             ),
@@ -218,10 +202,7 @@ class CoreCameraWidget extends StatelessWidget {
               ClipRRect(
                 borderRadius: BorderRadius.circular(20),
                 child: InteractiveViewer(
-                  child: Image.network(
-                    imageUrl,
-                    fit: BoxFit.contain,
-                  ),
+                  child: Image.network(imageUrl, fit: BoxFit.contain),
                 ),
               ),
 
@@ -246,8 +227,7 @@ class CoreCameraWidget extends StatelessWidget {
                       ),
                     ),
 
-                  if (onDelete != null)
-                    const SizedBox(width: 12),
+                  if (onDelete != null) const SizedBox(width: 12),
 
                   Expanded(
                     child: OutlinedButton.icon(

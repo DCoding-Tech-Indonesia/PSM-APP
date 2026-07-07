@@ -230,8 +230,8 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
 
                     billingValue: int.tryParse(billingData.first.value) ?? 0,
 
-                    total: oldData?.total,
-                    value: oldData?.value,
+                    total: oldData?.total ?? 0,
+                    value: oldData?.value ?? 0,
                   ),
                 );
               },
