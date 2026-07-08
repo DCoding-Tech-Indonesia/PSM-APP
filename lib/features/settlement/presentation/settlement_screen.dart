@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_date_time_widget.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_skeleton_widget.dart';
+import 'package:psm_mobile/core/presentations/widgets/core_snackbar.dart';
+import 'package:psm_mobile/features/settlement/domain/entities/settlement_form_args.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_state.dart';
 import 'package:psm_mobile/features/settlement/presentation/widgets/dashboard/draft_settlement_card_single.dart';
 import 'package:psm_mobile/features/settlement/presentation/widgets/history_settlement_card.dart';
@@ -47,6 +49,11 @@ class _SettlementScreenState extends State<SettlementScreen> {
               (state.listTaskAuditTrail?.isEmpty ?? true);
           final isLoading = false; // No blocking overlay needed for initial loading anymore
 
+          final draftDatas = (state.listTaskAuditTrail ?? [])
+              .where((task) => task.status.code == 'DFT')
+              .toList();
+          final hasDraft = draftDatas.isNotEmpty;
+
           return Stack(
             children: [
               Scaffold(
@@ -56,7 +63,7 @@ class _SettlementScreenState extends State<SettlementScreen> {
                     children: [
                       const SettlementHeader(),
                       const CoreDateTimeWidget(),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 4),
                       Expanded(
                         child: RefreshIndicator(
                           onRefresh: _onRefresh,
@@ -126,7 +133,7 @@ class _SettlementScreenState extends State<SettlementScreen> {
                                               fontSize: 15,
                                             ),
                                           ),
-                                          const SizedBox(height: 2),
+                                          const SizedBox(height: 4),
                                           Text(
                                             "Anda tidak memiliki jadwal pada hari ini.",
                                             style: TextStyle(
@@ -158,7 +165,7 @@ class _SettlementScreenState extends State<SettlementScreen> {
                             Padding(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 20,
-                                vertical: 8,
+                                vertical: 4,
                               ),
                               child: Row(
                                 mainAxisAlignment:
@@ -169,15 +176,15 @@ class _SettlementScreenState extends State<SettlementScreen> {
                                     child: Text(
                                       'Riwayat Terakhir',
                                       style: TextStyle(
-                                        fontSize: 17,
-                                        fontWeight: FontWeight.w700,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
                                         color: Color(0xFF1E293B),
                                         letterSpacing: -0.3,
                                       ),
                                     ),
                                   ),
-                                  GestureDetector(
-                                    onTap: () async {
+                                  TextButton(
+                                    onPressed: () async {
                                       await context.push('/settlement/history');
 
                                       if (context.mounted) {
@@ -186,36 +193,29 @@ class _SettlementScreenState extends State<SettlementScreen> {
                                         );
                                       }
                                     },
-                                    child: Container(
+                                    style: TextButton.styleFrom(
+                                      foregroundColor: Colors.blue[700],
                                       padding: const EdgeInsets.symmetric(
-                                        horizontal: 14,
-                                        vertical: 6,
+                                        horizontal: 8,
+                                        vertical: 4,
                                       ),
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFFEFF6FF),
-                                        borderRadius: BorderRadius.circular(20),
-                                        border: Border.all(
-                                          color: const Color(0xFFDBEAFE),
-                                          width: 1,
-                                        ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
                                       ),
-                                      child: const Row(
-                                        mainAxisSize: MainAxisSize.min,
+                                    ),
+                                    child: const FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      child: Row(
                                         children: [
                                           Text(
                                             'Lihat Semua',
                                             style: TextStyle(
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 12,
-                                              color: Color(0xFF2563EB),
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 13,
                                             ),
                                           ),
                                           SizedBox(width: 4),
-                                          Icon(
-                                            Icons.arrow_forward_ios_rounded,
-                                            size: 10,
-                                            color: Color(0xFF2563EB),
-                                          ),
+                                          Icon(Icons.arrow_forward_ios, size: 12),
                                         ],
                                       ),
                                     ),
@@ -223,7 +223,7 @@ class _SettlementScreenState extends State<SettlementScreen> {
                                 ],
                               ),
                             ),
-                            const SizedBox(height: 12),
+                            const SizedBox(height: 4),
 
                             // === HISTORY LIST / EMPTY STATE ===
                             if (state.listTaskAuditTrail.isEmpty)
@@ -289,7 +289,7 @@ class _SettlementScreenState extends State<SettlementScreen> {
                                   return Padding(
                                     padding: const EdgeInsets.symmetric(
                                       horizontal: 20,
-                                      vertical: 6,
+                                      vertical: 4,
                                     ),
                                     child: HistorySettlementCard(data: item),
                                   );
@@ -304,7 +304,39 @@ class _SettlementScreenState extends State<SettlementScreen> {
                   ],
                 ),
               ),
-            ),
+              floatingActionButton: !hasDraft
+                    ? FloatingActionButton(
+                        onPressed: () async {
+                          if (!state.allowInput) {
+                            CoreSnackbar.show(
+                              context,
+                              message: state.ctaValidationMessage ?? "Tidak dapat melakukan input",
+                              type: SnackbarType.warning,
+                            );
+                            return;
+                          }
+                          final result = await context.push<bool>(
+                            '/settlement/form',
+                            extra: SettlementFormArgs(
+                              idAuditTrail: null,
+                              idShift: state.idShift ?? 0,
+                              idKoridor: state.idKoridorShift ?? 0,
+                              idBus: state.idBusShift ?? 0,
+                              ritaseKe: state.ritase,
+                            ),
+                          );
+
+                          if (!context.mounted) return;
+
+                          if (result == true) {
+                            context.read<SettlementBloc>().add(PageDashboardLoad());
+                          }
+                        },
+                        backgroundColor: Theme.of(context).primaryColor,
+                        child: const Icon(Icons.add, color: Colors.white),
+                      )
+                    : null,
+              ),
 
             // === LOADING OVERLAY ===
             if (isLoading)
@@ -348,17 +380,18 @@ class _SettlementScreenState extends State<SettlementScreen> {
 
   List<Widget> _buildSkeletonItems() {
     return [
+      // Draft Card Skeleton (matches DraftSettlementCardSingle)
       Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
         child: Container(
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.04),
-                blurRadius: 16,
-                offset: const Offset(0, 8),
+                color: const Color(0xFF1565C0).withValues(alpha: 0.15),
+                blurRadius: 12,
+                offset: const Offset(0, 6),
               ),
             ],
           ),
@@ -366,9 +399,14 @@ class _SettlementScreenState extends State<SettlementScreen> {
           child: Column(
             children: [
               Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const CoreSkeletonWidget(width: 44, height: 44, borderRadius: BorderRadius.all(Radius.circular(12))),
-                  const SizedBox(width: 12),
+                  CoreSkeletonWidget(
+                    width: 44,
+                    height: 44,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  const SizedBox(width: 14),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -379,14 +417,21 @@ class _SettlementScreenState extends State<SettlementScreen> {
                       ],
                     ),
                   ),
-                  const CoreSkeletonWidget(width: 32, height: 32, borderRadius: BorderRadius.all(Radius.circular(16))),
+                  CoreSkeletonWidget(
+                    width: 32,
+                    height: 32,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                 ],
               ),
               const SizedBox(height: 20),
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade50,
+                  color: const Color(0xFFF5F7FA),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
@@ -397,10 +442,14 @@ class _SettlementScreenState extends State<SettlementScreen> {
                       children: const [
                         CoreSkeletonWidget(width: 80, height: 10),
                         SizedBox(height: 6),
-                        CoreSkeletonWidget(width: 120, height: 16),
+                        CoreSkeletonWidget(width: 120, height: 15),
                       ],
                     ),
-                    const CoreSkeletonWidget(width: 60, height: 24, borderRadius: BorderRadius.all(Radius.circular(12))),
+                    CoreSkeletonWidget(
+                      width: 60,
+                      height: 24,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
                   ],
                 ),
               ),
@@ -409,40 +458,69 @@ class _SettlementScreenState extends State<SettlementScreen> {
         ),
       ),
       const SizedBox(height: 12),
+      // History Header Skeleton
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const CoreSkeletonWidget(width: 150, height: 18),
+            CoreSkeletonWidget(
+              width: 80,
+              height: 24,
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ],
+        ),
+      ),
+      const SizedBox(height: 4),
+      // History Cards Skeleton (matches HistorySettlementCard)
       ...List.generate(3, (index) {
         return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 4),
           child: Container(
+            margin: const EdgeInsets.symmetric(vertical: 5),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.02),
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 20,
+                  offset: const Offset(0, 10),
                 ),
               ],
             ),
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    CoreSkeletonWidget(width: 100, height: 14),
-                    CoreSkeletonWidget(width: 60, height: 20, borderRadius: BorderRadius.circular(6)),
-                  ],
+                CoreSkeletonWidget(
+                  width: 28,
+                  height: 28,
+                  borderRadius: BorderRadius.circular(14),
                 ),
-                const SizedBox(height: 16),
-                CoreSkeletonWidget(width: 180, height: 18),
-                const SizedBox(height: 12),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    CoreSkeletonWidget(width: 120, height: 12),
-                    CoreSkeletonWidget(width: 60, height: 16),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: const [
+                      CoreSkeletonWidget(width: 120, height: 16),
+                      SizedBox(height: 4),
+                      CoreSkeletonWidget(width: 70, height: 10),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisSize: MainAxisSize.min,
+                  children: const [
+                    CoreSkeletonWidget(width: 50, height: 18),
+                    SizedBox(height: 4),
+                    CoreSkeletonWidget(width: 40, height: 14),
                   ],
                 ),
               ],

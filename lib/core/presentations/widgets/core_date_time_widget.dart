@@ -54,7 +54,7 @@ class _CoreDateTimeWidgetState extends State<CoreDateTimeWidget> {
     final hasShift = shiftIndex != null;
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      margin: const EdgeInsets.fromLTRB(20, 0, 20, 6),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -125,10 +125,7 @@ class _CoreDateTimeWidgetState extends State<CoreDateTimeWidget> {
             decoration: BoxDecoration(
               color: const Color(0xFFF0F4F8),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: const Color(0xFFD3E2F2),
-                width: 1,
-              ),
+              border: Border.all(color: const Color(0xFFD3E2F2), width: 1),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -137,12 +134,17 @@ class _CoreDateTimeWidgetState extends State<CoreDateTimeWidget> {
                   width: 7,
                   height: 7,
                   decoration: BoxDecoration(
-                    color: hasShift ? const Color(0xFF00E676) : const Color(0xFFEF5350),
+                    color: hasShift
+                        ? const Color(0xFF00E676)
+                        : const Color(0xFFEF5350),
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: (hasShift ? const Color(0xFF00E676) : const Color(0xFFEF5350))
-                            .withValues(alpha: 0.4),
+                        color:
+                            (hasShift
+                                    ? const Color(0xFF00E676)
+                                    : const Color(0xFFEF5350))
+                                .withValues(alpha: 0.4),
                         blurRadius: 4,
                         spreadRadius: 1,
                       ),

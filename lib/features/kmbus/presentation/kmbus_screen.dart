@@ -111,15 +111,15 @@ class _KmbusScreenState extends State<KmbusScreen> {
                           title: "KM Bus",
                           subtitle: "Data KM Bus",
                         ),
-                        const CoreDateTimeWidget(),
-                        const SizedBox(height: 12),
+                         const CoreDateTimeWidget(),
+                         const SizedBox(height: 4),
                         if (isInitialLoading)
                           ..._buildSkeletonItems()
                         else ...[
                           // === VEHICLE INFO CARD ===
                           if (state.checkinData != null)
                             Container(
-                              margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                              margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
                                 gradient: const LinearGradient(
@@ -202,7 +202,7 @@ class _KmbusScreenState extends State<KmbusScreen> {
                             )
                           else
                             Container(
-                              margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                              margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
                                 gradient: const LinearGradient(
@@ -261,110 +261,65 @@ class _KmbusScreenState extends State<KmbusScreen> {
                                 ],
                               ),
                             ),
-                          const SizedBox(height: 16),
-
-                          // === ACTION BUTTON ===
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: _buildActionButton(
-                              icon: Icons.add_circle_outline_rounded,
-                              label: 'Input KM Keberangkatan',
-                              isEnabled: state.allowTitikAwal,
-                              enabledColors: const [
-                                Color(0xFF2E7D32),
-                                Color(0xFF43A047),
-                              ],
-                              onPressed: () async {
-                                if (!state.allowTitikAwal) {
-                                  CoreSnackbar.show(
-                                    context,
-                                    message: state.disabledCtaMessage,
-                                    type: SnackbarType.warning,
-                                  );
-                                  return;
-                                }
-                                final result = await context.push(
-                                  '/kmbus/titik-awal/form',
-                                  extra: ScheduleArgs(
-                                    idShift: state.idShift ?? 0,
-                                    idKoridorShift: state.idKoridorShift ?? 0,
-                                    idBusShift: state.idBusShift ?? 0,
-                                    idAuditTrail: null,
-                                  ),
-                                );
-
-                                if (context.mounted || result == true) {
-                                  context.read<KmbusBloc>().add(
-                                    PageDashboardLoad(),
-                                  );
-                                }
-                              },
-                            ),
-                          ),
-                          const SizedBox(height: 24),
-
-                         Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 24,
-                            vertical: 5,
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Expanded(
-                                child: Text(
-                                  'Riwayat Terakhir',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w700,
-                                    color: Color(0xFF212121),
-                                  ),
-                                ),
-                              ),
-                              GestureDetector(
-                                onTap: () async {
-                                  await context.push('/kmbus/history');
-                                  if (context.mounted) {
-                                    context.read<KmbusBloc>().add(
-                                      PageDashboardLoad(),
-                                    );
-                                  }
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 6,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFE3F2FD),
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: const Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                        'Lihat Semua',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w600,
-                                          fontSize: 12,
-                                          color: Color(0xFF1565C0),
-                                        ),
-                                      ),
-                                      SizedBox(width: 4),
-                                      Icon(
-                                        Icons.arrow_forward_ios_rounded,
-                                        size: 11,
-                                        color: Color(0xFF1565C0),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        const SizedBox(height: 10),
+                           const SizedBox(height: 8),
+                           Padding(
+                             padding: const EdgeInsets.symmetric(
+                               horizontal: 24,
+                               vertical: 4,
+                             ),
+                             child: Row(
+                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                               children: [
+                                 const Expanded(
+                                   child: Text(
+                                     'Riwayat Terakhir',
+                                     style: TextStyle(
+                                       fontSize: 18,
+                                       fontWeight: FontWeight.bold,
+                                       color: Color(0xFF212121),
+                                     ),
+                                   ),
+                                 ),
+                                 TextButton(
+                                   onPressed: () async {
+                                     await context.push('/kmbus/history');
+                                     if (context.mounted) {
+                                       context.read<KmbusBloc>().add(
+                                         PageDashboardLoad(),
+                                       );
+                                     }
+                                   },
+                                   style: TextButton.styleFrom(
+                                     foregroundColor: Colors.blue[700],
+                                     padding: const EdgeInsets.symmetric(
+                                       horizontal: 8,
+                                       vertical: 4,
+                                     ),
+                                     shape: RoundedRectangleBorder(
+                                       borderRadius: BorderRadius.circular(8),
+                                     ),
+                                   ),
+                                   child: const FittedBox(
+                                     fit: BoxFit.scaleDown,
+                                     child: Row(
+                                       children: [
+                                         Text(
+                                           'Lihat Semua',
+                                           style: TextStyle(
+                                             fontWeight: FontWeight.bold,
+                                             fontSize: 13,
+                                           ),
+                                         ),
+                                         SizedBox(width: 4),
+                                         Icon(Icons.arrow_forward_ios, size: 12),
+                                       ],
+                                     ),
+                                   ),
+                                 ),
+                               ],
+                             ),
+                           ),
+                           const SizedBox(height: 4),
 
                         if (state.listKmbusAuditTrail.isEmpty)
                           const Center(child: Text("Belum ada data tersimpan."))
@@ -374,8 +329,8 @@ class _KmbusScreenState extends State<KmbusScreen> {
                             physics: const NeverScrollableScrollPhysics(),
                             padding: const EdgeInsets.symmetric(vertical: 10),
                             itemCount: state.listKmbusAuditTrail.length,
-                            separatorBuilder: (_, _) =>
-                                const SizedBox(height: 12),
+                             separatorBuilder: (_, _) =>
+                                 const SizedBox(height: 8),
                             itemBuilder: (context, index) {
                               final data = state.listKmbusAuditTrail[index];
 
@@ -717,8 +672,37 @@ class _KmbusScreenState extends State<KmbusScreen> {
                           ),
                         ],
                       ],
-                    ),
                   ),
+                ),
+              ),
+              floatingActionButton: FloatingActionButton(
+                  onPressed: () async {
+                    if (!state.allowTitikAwal) {
+                      CoreSnackbar.show(
+                        context,
+                        message: state.disabledCtaMessage,
+                        type: SnackbarType.warning,
+                      );
+                      return;
+                    }
+                    final result = await context.push(
+                      '/kmbus/titik-awal/form',
+                      extra: ScheduleArgs(
+                        idShift: state.idShift ?? 0,
+                        idKoridorShift: state.idKoridorShift ?? 0,
+                        idBusShift: state.idBusShift ?? 0,
+                        idAuditTrail: null,
+                      ),
+                    );
+
+                    if (context.mounted || result == true) {
+                      context.read<KmbusBloc>().add(
+                        PageDashboardLoad(),
+                      );
+                    }
+                  },
+                  backgroundColor: Theme.of(context).primaryColor,
+                  child: const Icon(Icons.add, color: Colors.white),
                 ),
               ),
 
@@ -742,55 +726,82 @@ class _KmbusScreenState extends State<KmbusScreen> {
 
   List<Widget> _buildSkeletonItems() {
     return [
+      // Vehicle Info Card Skeleton (matches VEHICLE INFO CARD)
       Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
         child: Container(
-          height: 120,
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.grey.withValues(alpha: 0.12)),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.04),
-                blurRadius: 16,
-                offset: const Offset(0, 8),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
               ),
             ],
           ),
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
+          padding: const EdgeInsets.all(16),
+          child: Row(
             children: [
-              CoreSkeletonWidget(width: 140, height: 18),
-              const SizedBox(height: 12),
-              CoreSkeletonWidget(width: double.infinity, height: 20),
+              CoreSkeletonWidget(
+                width: 48,
+                height: 48,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const CoreSkeletonWidget(width: 100, height: 18),
+                    const SizedBox(height: 6),
+                    const CoreSkeletonWidget(width: 150, height: 13),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 14),
+              CoreSkeletonWidget(
+                width: 70,
+                height: 24,
+                borderRadius: BorderRadius.circular(20),
+              ),
             ],
           ),
         ),
       ),
+      const SizedBox(height: 8),
+      // History Header Skeleton
       Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Expanded(child: CoreSkeletonWidget(width: double.infinity, height: 50, borderRadius: BorderRadius.circular(14))),
-            const SizedBox(width: 12),
-            Expanded(child: CoreSkeletonWidget(width: double.infinity, height: 50, borderRadius: BorderRadius.circular(14))),
+            const CoreSkeletonWidget(width: 150, height: 18),
+            CoreSkeletonWidget(
+              width: 80,
+              height: 24,
+              borderRadius: BorderRadius.circular(8),
+            ),
           ],
         ),
       ),
-      const SizedBox(height: 24),
+      const SizedBox(height: 4),
+      // History Cards Skeleton (matches KM Bus card items)
       ...List.generate(3, (index) {
         return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 4),
           child: Container(
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: Colors.grey.withValues(alpha: 0.12)),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.02),
-                  blurRadius: 8,
+                  color: Colors.black.withValues(alpha: 0.04),
+                  blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),
               ],
@@ -802,18 +813,54 @@ class _KmbusScreenState extends State<KmbusScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    CoreSkeletonWidget(width: 100, height: 14),
-                    CoreSkeletonWidget(width: 60, height: 20, borderRadius: BorderRadius.circular(6)),
+                    Row(
+                      children: const [
+                        CoreSkeletonWidget(
+                          width: 16,
+                          height: 16,
+                          borderRadius: BorderRadius.all(Radius.circular(4)),
+                        ),
+                        SizedBox(width: 6),
+                        CoreSkeletonWidget(width: 90, height: 14),
+                      ],
+                    ),
+                    const CoreSkeletonWidget(width: 40, height: 14),
                   ],
                 ),
-                const SizedBox(height: 16),
-                CoreSkeletonWidget(width: 180, height: 18),
-                const SizedBox(height: 12),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 10),
+                  child: Divider(
+                    height: 1,
+                    thickness: 1,
+                    color: Color(0xFFEDF2F7),
+                  ),
+                ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    CoreSkeletonWidget(width: 120, height: 12),
-                    CoreSkeletonWidget(width: 60, height: 16),
+                    Row(
+                      children: [
+                        CoreSkeletonWidget(
+                          width: 16,
+                          height: 16,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        const SizedBox(width: 8),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: const [
+                            CoreSkeletonWidget(width: 120, height: 11),
+                            SizedBox(height: 4),
+                            CoreSkeletonWidget(width: 60, height: 14),
+                          ],
+                        ),
+                      ],
+                    ),
+                    CoreSkeletonWidget(
+                      width: 60,
+                      height: 20,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ],
                 ),
               ],

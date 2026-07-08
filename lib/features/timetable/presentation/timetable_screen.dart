@@ -262,14 +262,14 @@ class _TimetableScreenState extends State<TimetableScreen> {
                           subtitle: "Jadwal kamu hari ini",
                         ),
                         const CoreDateTimeWidget(),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 4),
                         if (isInitialLoading)
                           ..._buildSkeletonItems()
                         else ...[
                           // === SCHEDULE INFO CARD ===
                           if (state.jadwalExist && state.noUnit.isNotEmpty)
                             Container(
-                              margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                              margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
                                 gradient: const LinearGradient(
@@ -352,7 +352,7 @@ class _TimetableScreenState extends State<TimetableScreen> {
                                 ],
                               ),
                             ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 8),
 
                         // === NO SCHEDULE WARNING ===
                         if (!state.jadwalExist)
@@ -422,7 +422,7 @@ class _TimetableScreenState extends State<TimetableScreen> {
                             ),
                           ),
 
-                        if (!state.jadwalExist) const SizedBox(height: 16),
+                        if (!state.jadwalExist) const SizedBox(height: 8),
 
                         // === ACTION BUTTONS ===
                         Padding(
@@ -489,7 +489,7 @@ class _TimetableScreenState extends State<TimetableScreen> {
                             ],
                           ),
                         ),
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 14),
 
                         // === HISTORY HEADER ===
                         Padding(
@@ -505,13 +505,13 @@ class _TimetableScreenState extends State<TimetableScreen> {
                                   'Riwayat Perjalanan',
                                   style: TextStyle(
                                     fontSize: 18,
-                                    fontWeight: FontWeight.w700,
+                                    fontWeight: FontWeight.bold,
                                     color: Color(0xFF212121),
                                   ),
                                 ),
                               ),
-                              GestureDetector(
-                                onTap: () async {
+                              TextButton(
+                                onPressed: () async {
                                   await context.push('/timetable/history');
 
                                   if (context.mounted) {
@@ -520,32 +520,29 @@ class _TimetableScreenState extends State<TimetableScreen> {
                                     );
                                   }
                                 },
-                                child: Container(
+                                style: TextButton.styleFrom(
+                                  foregroundColor: Colors.blue[700],
                                   padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 6,
+                                    horizontal: 8,
+                                    vertical: 4,
                                   ),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFE3F2FD),
-                                    borderRadius: BorderRadius.circular(20),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
                                   ),
-                                  child: const Row(
-                                    mainAxisSize: MainAxisSize.min,
+                                ),
+                                child: const FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Row(
                                     children: [
                                       Text(
                                         'Lihat Semua',
                                         style: TextStyle(
-                                          fontWeight: FontWeight.w600,
-                                          fontSize: 12,
-                                          color: Color(0xFF1565C0),
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 13,
                                         ),
                                       ),
                                       SizedBox(width: 4),
-                                      Icon(
-                                        Icons.arrow_forward_ios_rounded,
-                                        size: 11,
-                                        color: Color(0xFF1565C0),
-                                      ),
+                                      Icon(Icons.arrow_forward_ios, size: 12),
                                     ],
                                   ),
                                 ),
@@ -553,7 +550,7 @@ class _TimetableScreenState extends State<TimetableScreen> {
                             ],
                           ),
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 4),
 
                         // === HISTORY LIST / EMPTY STATE ===
                         if (state.listTimetable.isEmpty)
@@ -706,7 +703,7 @@ class _TimetableScreenState extends State<TimetableScreen> {
     final isCompleted = data.jamDatang.isNotEmpty;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 4),
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
@@ -984,101 +981,241 @@ class _TimetableScreenState extends State<TimetableScreen> {
 
   List<Widget> _buildSkeletonItems() {
     return [
+      // Schedule Card Skeleton (matches the real gradient card)
       Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
         child: Container(
-          height: 180,
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.grey.withValues(alpha: 0.12)),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.04),
-                blurRadius: 16,
-                offset: const Offset(0, 8),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
               ),
             ],
           ),
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          padding: const EdgeInsets.all(16),
+          child: Row(
             children: [
-              const CoreSkeletonWidget(width: 140, height: 18),
-              const SizedBox(height: 12),
-              const CoreSkeletonWidget(width: double.infinity, height: 32, borderRadius: BorderRadius.all(Radius.circular(16))),
-              const SizedBox(height: 12),
-              Row(
-                children: const [
-                  CoreSkeletonWidget(width: 80, height: 24, borderRadius: BorderRadius.all(Radius.circular(12))),
-                  SizedBox(width: 12),
-                  CoreSkeletonWidget(width: 80, height: 24, borderRadius: BorderRadius.all(Radius.circular(12))),
-                ],
+              CoreSkeletonWidget(
+                width: 48,
+                height: 48,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const CoreSkeletonWidget(width: 100, height: 18),
+                    const SizedBox(height: 6),
+                    const CoreSkeletonWidget(width: 150, height: 13),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 14),
+              CoreSkeletonWidget(
+                width: 70,
+                height: 24,
+                borderRadius: BorderRadius.circular(20),
               ),
             ],
           ),
         ),
       ),
+      const SizedBox(height: 8),
+      // Action Buttons Skeleton
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Row(
           children: [
-            Expanded(child: CoreSkeletonWidget(width: double.infinity, height: 50, borderRadius: BorderRadius.circular(14))),
+            Expanded(
+              child: CoreSkeletonWidget(
+                width: double.infinity,
+                height: 50,
+                borderRadius: BorderRadius.circular(14),
+              ),
+            ),
             const SizedBox(width: 12),
-            Expanded(child: CoreSkeletonWidget(width: double.infinity, height: 50, borderRadius: BorderRadius.circular(14))),
+            Expanded(
+              child: CoreSkeletonWidget(
+                width: double.infinity,
+                height: 50,
+                borderRadius: BorderRadius.circular(14),
+              ),
+            ),
           ],
         ),
       ),
-      const SizedBox(height: 24),
-      const Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20.0),
-        child: Align(
-          alignment: Alignment.centerLeft,
-          child: CoreSkeletonWidget(width: 120, height: 16),
+      const SizedBox(height: 14),
+      // History Header Skeleton
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 5),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const CoreSkeletonWidget(width: 150, height: 18),
+            CoreSkeletonWidget(
+              width: 80,
+              height: 24,
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ],
         ),
       ),
-      const SizedBox(height: 12),
+      const SizedBox(height: 4),
+      // History Cards Skeleton
       ...List.generate(3, (index) {
         return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 4),
           child: Container(
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.grey.withValues(alpha: 0.12)),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.02),
-                  blurRadius: 8,
+                  color: Colors.black.withValues(alpha: 0.04),
+                  blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),
               ],
             ),
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const CoreSkeletonWidget(width: 100, height: 14),
-                    CoreSkeletonWidget(width: 60, height: 20, borderRadius: BorderRadius.circular(6)),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                const CoreSkeletonWidget(width: 180, height: 18),
-                const SizedBox(height: 12),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const CoreSkeletonWidget(width: 120, height: 12),
-                    CoreSkeletonWidget(width: 60, height: 16),
-                  ],
-                ),
-              ],
+            child: IntrinsicHeight(
+              child: Row(
+                children: [
+                  Container(
+                    width: 4,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFE0E0E0),
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(16),
+                        bottomLeft: Radius.circular(16),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(14),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const CoreSkeletonWidget(width: 100, height: 14),
+                              const Spacer(),
+                              CoreSkeletonWidget(
+                                width: 60,
+                                height: 20,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          Row(
+                            children: [
+                              const CoreSkeletonWidget(width: 150, height: 16),
+                              const Spacer(),
+                              CoreSkeletonWidget(
+                                width: 40,
+                                height: 20,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          const CoreSkeletonWidget(width: 200, height: 14),
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                    vertical: 8,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFF5F5F5),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      CoreSkeletonWidget(
+                                        width: 16,
+                                        height: 16,
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      const SizedBox(width: 6),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: const [
+                                            CoreSkeletonWidget(
+                                                width: 50, height: 10),
+                                            SizedBox(height: 4),
+                                            CoreSkeletonWidget(
+                                                width: 40, height: 14),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                    vertical: 8,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFF5F5F5),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      CoreSkeletonWidget(
+                                        width: 16,
+                                        height: 16,
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      const SizedBox(width: 6),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: const [
+                                            CoreSkeletonWidget(
+                                                width: 50, height: 10),
+                                            SizedBox(height: 4),
+                                            CoreSkeletonWidget(
+                                                width: 40, height: 14),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         );
       }),
-      const SizedBox(height: 24),
+      const SizedBox(height: 20),
     ];
   }
 }

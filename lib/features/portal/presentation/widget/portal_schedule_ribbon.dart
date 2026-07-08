@@ -343,7 +343,7 @@ class _PortalScheduleRibbonState extends State<PortalScheduleRibbon> {
                                     const SizedBox(width: 4),
                                     Expanded(
                                       child: Text(
-                                        currentSchedule.lokasi.namaLokasi,
+                                        currentSchedule.lokasi.name,
                                         style: TextStyle(
                                           color: isDark
                                               ? Colors.white54

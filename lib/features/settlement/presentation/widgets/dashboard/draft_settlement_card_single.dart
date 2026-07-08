@@ -58,7 +58,7 @@ class DraftSettlementCardSingle extends StatelessWidget {
 
         if (!isEmpty) {
           return Container(
-            margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+            margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
             decoration: BoxDecoration(
               gradient: const LinearGradient(
                 colors: [Color(0xFF1E88E5), Color(0xFF1565C0)],
@@ -237,84 +237,7 @@ class DraftSettlementCardSingle extends StatelessWidget {
             ),
           );
         } else {
-          return Container(
-            margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: () async {
-                  if (!isActive) {
-                    CoreSnackbar.show(
-                      context,
-                      message: ctaDisabledMessage!,
-                      type: SnackbarType.warning,
-                    );
-
-                    return;
-                  }
-
-                  final result = await context.push<bool>(
-                    '/settlement/form',
-                    extra: SettlementFormArgs(
-                      idAuditTrail: null,
-                      idShift: idShift,
-                      idKoridor: idKoridor,
-                      idBus: idBus,
-                      ritaseKe: ritaseKe,
-                    ),
-                  );
-
-                  if (!context.mounted) return;
-
-                  if (result == true) {
-                    context.read<SettlementBloc>().add(PageDashboardLoad());
-                  }
-                },
-                borderRadius: BorderRadius.circular(12),
-                child: Ink(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  decoration: BoxDecoration(
-                    gradient: isActive ? const LinearGradient(
-                      colors: [Color(0xFF2E7D32), Color(0xFF43A047)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ) : const LinearGradient(
-                      colors: [Color(0xFF454545), Color(0xFF9a9a9a)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFF2E7D32).withValues(alpha: 0.3),
-                        blurRadius: 8,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      Icon(
-                        Icons.add_circle_outline_rounded,
-                        color: Colors.white,
-                        size: 22,
-                      ),
-                      SizedBox(width: 10),
-                      Text(
-                        "Input Settlement",
-                        style: TextStyle(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 16,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          );
+          return const SizedBox.shrink();
         }
       },
     );
