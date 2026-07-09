@@ -309,7 +309,7 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
     });
 
     on<PageDashboardLoad>((event, emit) async {
-      emit(state.copyWith(status: SettlementStatus.loading));
+      emit(state.copyWith(status: SettlementStatus.initial));
 
       final list = await settlementRepository.fetchTaskAuditTrailList('');
 

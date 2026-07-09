@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_header.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_snackbar.dart';
+import 'package:psm_mobile/core/presentations/widgets/init_loading_screen.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_state.dart';
 import 'package:psm_mobile/features/settlement/presentation/widgets/history/history_list_card.dart';
 
@@ -105,132 +106,143 @@ class _SettlementHistoryScreenState extends State<SettlementHistoryScreen> {
           context.read<SettlementBloc>().add(PageDashboardLoad());
         }
       },
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        body: SafeArea(
-          child: Column(
-            children: [
-              const CoreHeader(
-                title: "History Settlement",
-                customBgColor: Colors.white,
-                withBorder: true,
-              ),
+      child: BlocBuilder<SettlementBloc, SettlementState>(
+        builder: (context, state) {
+          if (state.status == SettlementStatus.initial) {
+            return Scaffold(
+              body: const InitLoadingScreen(menuName: "History Settlement"),
+            );
+          }
+          return Scaffold(
+            backgroundColor: Colors.white,
+            body: SafeArea(
+              child: Column(
+                children: [
+                  const CoreHeader(
+                    title: "History Settlement",
+                    customBgColor: Colors.white,
+                    withBorder: true,
+                  ),
 
-              Row(
-                children: _tabs.map((tab) {
-                  final active = _activeTab == tab;
+                  Row(
+                    children: _tabs.map((tab) {
+                      final active = _activeTab == tab;
 
-                  return Expanded(
-                    child: InkWell(
-                      onTap: () => _changeTab(tab),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 250),
-                        padding: const EdgeInsets.symmetric(vertical: 15),
-                        decoration: BoxDecoration(
-                          border: Border(
-                            bottom: BorderSide(
-                              width: 3,
-                              color: active ? Colors.blue : Colors.transparent,
-                            ),
-                          ),
-                        ),
-                        child: Center(
-                          child: AnimatedDefaultTextStyle(
+                      return Expanded(
+                        child: InkWell(
+                          onTap: () => _changeTab(tab),
+                          child: AnimatedContainer(
                             duration: const Duration(milliseconds: 250),
-                            style: TextStyle(
-                              color: active ? Colors.blue : Colors.grey,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 16,
+                            padding: const EdgeInsets.symmetric(vertical: 15),
+                            decoration: BoxDecoration(
+                              border: Border(
+                                bottom: BorderSide(
+                                  width: 3,
+                                  color: active
+                                      ? Colors.blue
+                                      : Colors.transparent,
+                                ),
+                              ),
                             ),
-                            child: Text(tab),
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                }).toList(),
-              ),
-
-              Expanded(
-                child: BlocBuilder<SettlementBloc, SettlementState>(
-                  buildWhen: (prev, curr) =>
-                      prev.listTaskAuditTrail != curr.listTaskAuditTrail ||
-                      prev.status != curr.status,
-                  builder: (context, state) {
-                    return Stack(
-                      children: [
-                        PageView.builder(
-                          controller: _pageController,
-                          onPageChanged: (index) {
-                            setState(() {
-                              _activeTab = _tabs[index];
-                            });
-                          },
-                          itemCount: _tabs.length,
-                          itemBuilder: (context, index) {
-                            final tab = _tabs[index];
-                            final filtered = _filterData(
-                              state.listTaskAuditTrail,
-                              tab,
-                            );
-
-                            return RefreshIndicator(
-                              onRefresh: _onRefresh,
-                              child: filtered.isEmpty
-                                  ? ListView(
-                                      physics:
-                                          const AlwaysScrollableScrollPhysics(),
-                                      children: const [
-                                        SizedBox(height: 200),
-                                        Center(
-                                          child: Text(
-                                            "Tidak ada data",
-                                            style: TextStyle(
-                                              color: Colors.grey,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    )
-                                  : ListView.separated(
-                                      physics:
-                                          const AlwaysScrollableScrollPhysics(),
-                                      padding: const EdgeInsets.fromLTRB(
-                                        26,
-                                        20,
-                                        26,
-                                        20,
-                                      ),
-                                      itemCount: filtered.length,
-                                      separatorBuilder: (_, __) =>
-                                          const SizedBox(height: 12),
-                                      itemBuilder: (context, i) {
-                                        return HistoryListCard(
-                                          data: filtered[i],
-                                        );
-                                      },
-                                    ),
-                            );
-                          },
-                        ),
-
-                        if (state.status == SettlementStatus.loading)
-                          Positioned.fill(
-                            child: Container(
-                              color: Colors.black.withValues(alpha: .15),
-                              child: const Center(
-                                child: CircularProgressIndicator(),
+                            child: Center(
+                              child: AnimatedDefaultTextStyle(
+                                duration: const Duration(milliseconds: 250),
+                                style: TextStyle(
+                                  color: active ? Colors.blue : Colors.grey,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 16,
+                                ),
+                                child: Text(tab),
                               ),
                             ),
                           ),
-                      ],
-                    );
-                  },
-                ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+
+                  Expanded(
+                    child: BlocBuilder<SettlementBloc, SettlementState>(
+                      buildWhen: (prev, curr) =>
+                          prev.listTaskAuditTrail != curr.listTaskAuditTrail ||
+                          prev.status != curr.status,
+                      builder: (context, state) {
+                        return Stack(
+                          children: [
+                            PageView.builder(
+                              controller: _pageController,
+                              onPageChanged: (index) {
+                                setState(() {
+                                  _activeTab = _tabs[index];
+                                });
+                              },
+                              itemCount: _tabs.length,
+                              itemBuilder: (context, index) {
+                                final tab = _tabs[index];
+                                final filtered = _filterData(
+                                  state.listTaskAuditTrail,
+                                  tab,
+                                );
+
+                                return RefreshIndicator(
+                                  onRefresh: _onRefresh,
+                                  child: filtered.isEmpty
+                                      ? ListView(
+                                          physics:
+                                              const AlwaysScrollableScrollPhysics(),
+                                          children: const [
+                                            SizedBox(height: 200),
+                                            Center(
+                                              child: Text(
+                                                "Tidak ada data",
+                                                style: TextStyle(
+                                                  color: Colors.grey,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        )
+                                      : ListView.separated(
+                                          physics:
+                                              const AlwaysScrollableScrollPhysics(),
+                                          padding: const EdgeInsets.fromLTRB(
+                                            26,
+                                            20,
+                                            26,
+                                            20,
+                                          ),
+                                          itemCount: filtered.length,
+                                          separatorBuilder: (_, __) =>
+                                              const SizedBox(height: 12),
+                                          itemBuilder: (context, i) {
+                                            return HistoryListCard(
+                                              data: filtered[i],
+                                            );
+                                          },
+                                        ),
+                                );
+                              },
+                            ),
+
+                            if (state.status == SettlementStatus.loading)
+                              Positioned.fill(
+                                child: Container(
+                                  color: Colors.black.withValues(alpha: .15),
+                                  child: const Center(
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        );
+                      },
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }

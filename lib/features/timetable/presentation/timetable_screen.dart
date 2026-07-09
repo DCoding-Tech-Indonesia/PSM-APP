@@ -7,6 +7,7 @@ import 'package:psm_mobile/core/presentations/entity/schedule_args.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_bottom_modal_verification.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_date_time_widget.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_snackbar.dart';
+import 'package:psm_mobile/core/presentations/widgets/init_loading_screen.dart';
 import 'package:psm_mobile/core/presentations/widgets/widgets.dart';
 import 'package:psm_mobile/features/kmbus/domain/entities/titik_akhir_args.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/settlement_form_args.dart';
@@ -242,9 +243,12 @@ class _TimetableScreenState extends State<TimetableScreen> {
       },
       child: BlocBuilder<TimetableBloc, TimetableState>(
         builder: (context, state) {
+          if (state.status == TimetableStatus.initial) {
+            return Scaffold(body: const InitLoadingScreen(menuName: "Timetable", menuDesc: "Sedang memuat data lokasi saat ini.",));
+          }
+
           final isLoading =
               state.status == TimetableStatus.loading ||
-              state.status == TimetableStatus.initial ||
               state.status == TimetableStatus.onSubmit;
 
           return Stack(

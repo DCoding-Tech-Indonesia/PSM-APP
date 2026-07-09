@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:psm_mobile/core/helper/string_formatter.dart';
 import 'package:psm_mobile/core/presentations/entity/schedule_args.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_date_time_widget.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_header.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_snackbar.dart';
+import 'package:psm_mobile/core/presentations/widgets/init_loading_screen.dart';
 import 'package:psm_mobile/features/kmbus/domain/entities/titik_akhir_args.dart';
 import 'package:psm_mobile/features/kmbus/presentation/bloc/kmbus_state.dart';
 
@@ -79,9 +81,12 @@ class _KmbusScreenState extends State<KmbusScreen> {
         buildWhen: (prev, curr) =>
             prev.status != curr.status || prev.listKmbus != curr.listKmbus,
         builder: (context, state) {
+          if (state.status == KmbusStatus.initial) {
+            return Scaffold(body: const InitLoadingScreen(menuName: "KM Bus"));
+          }
+
           final isLoading =
               state.status == KmbusStatus.loading ||
-              state.status == KmbusStatus.initial ||
               state.status == KmbusStatus.onSubmit;
 
           return Stack(
@@ -105,15 +110,15 @@ class _KmbusScreenState extends State<KmbusScreen> {
                             color: Colors.transparent,
                             child: InkWell(
                               onTap: () async {
-                                if (!state.allowTitikAwal) {
-                                  CoreSnackbar.show(
-                                    context,
-                                    message: state.disabledCtaMessage,
-                                    type: SnackbarType.warning,
-                                  );
-
-                                  return;
-                                }
+                                // if (!state.allowTitikAwal) {
+                                //   CoreSnackbar.show(
+                                //     context,
+                                //     message: state.disabledCtaMessage,
+                                //     type: SnackbarType.warning,
+                                //   );
+                                //
+                                //   return;
+                                // }
                                 final result = await context.push(
                                   '/kmbus/titik-awal/form',
                                   extra: ScheduleArgs(
@@ -373,7 +378,7 @@ class _KmbusScreenState extends State<KmbusScreen> {
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
                                       crossAxisAlignment:
-                                          CrossAxisAlignment.center,
+                                          CrossAxisAlignment.end,
                                       children: [
                                         Container(
                                           padding: const EdgeInsets.symmetric(
@@ -400,7 +405,7 @@ class _KmbusScreenState extends State<KmbusScreen> {
                                         ),
                                         const SizedBox(height: 6),
                                         Text(
-                                          hourMinute,
+                                          StringFormatter().formatDateTime2(data.createdDate.toString()),
                                           style: const TextStyle(
                                             fontSize: 14,
                                             fontWeight: FontWeight.w700,

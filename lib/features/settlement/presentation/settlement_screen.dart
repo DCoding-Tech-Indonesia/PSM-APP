@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_date_time_widget.dart';
+import 'package:psm_mobile/core/presentations/widgets/init_loading_screen.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_state.dart';
 import 'package:psm_mobile/features/settlement/presentation/widgets/dashboard/draft_settlement_card_single.dart';
 import 'package:psm_mobile/features/settlement/presentation/widgets/history_settlement_card.dart';
@@ -41,9 +42,11 @@ class _SettlementScreenState extends State<SettlementScreen> {
   Widget build(BuildContext context) {
     return BlocBuilder<SettlementBloc, SettlementState>(
       builder: (context, state) {
-        final isLoading =
-            state.status == SettlementStatus.loading ||
-            state.status == SettlementStatus.initial;
+        if (state.status == SettlementStatus.initial) {
+          return Scaffold(body: const InitLoadingScreen(menuName: "Settlement"));
+        }
+
+        final isLoading = state.status == SettlementStatus.loading;
 
         return Stack(
           children: [
@@ -150,6 +153,8 @@ class _SettlementScreenState extends State<SettlementScreen> {
                               ctaDisabledMessage: state.ctaValidationMessage,
                             ),
 
+                            const SizedBox(height: 8),
+
                             // === HISTORY HEADER ===
                             Padding(
                               padding: const EdgeInsets.symmetric(
@@ -219,7 +224,6 @@ class _SettlementScreenState extends State<SettlementScreen> {
                                 ],
                               ),
                             ),
-                            const SizedBox(height: 12),
 
                             // === HISTORY LIST / EMPTY STATE ===
                             if (state.listTaskAuditTrail.isEmpty)
@@ -285,7 +289,7 @@ class _SettlementScreenState extends State<SettlementScreen> {
                                   return Padding(
                                     padding: const EdgeInsets.symmetric(
                                       horizontal: 20,
-                                      vertical: 6,
+                                      vertical: 2,
                                     ),
                                     child: HistorySettlementCard(data: item),
                                   );

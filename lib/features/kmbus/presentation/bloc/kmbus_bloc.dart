@@ -341,7 +341,9 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
             titikAwalCreate: initial,
 
             documentPreview: const [],
-            ocrResult: null,
+            // ocrResult: null,
+            ocrResult: "10000",
+
           ),
         );
       } catch (e, s) {
