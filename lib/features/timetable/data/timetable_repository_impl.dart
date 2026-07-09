@@ -28,10 +28,11 @@ class TimetableRepositoryImpl implements TimetableRepository {
 
   @override
   Future<Either<Failure, List<TimetableData>>> fetchListTimeTable(
-    String keyword,
-  ) async {
+    String keyword, {
+    int page = 1,
+  }) async {
     try {
-      final result = await dataSource.fetchTimetableDataList(keyword);
+      final result = await dataSource.fetchTimetableDataList(keyword, page: page);
 
       return right(result);
     } on DioException catch (e) {

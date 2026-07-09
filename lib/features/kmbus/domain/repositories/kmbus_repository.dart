@@ -23,6 +23,12 @@ abstract class KmbusRepository {
     double nextRit,
   );
 
+  Future<Either<Failure, CoreDataSourceResponse>> checkAllowCheckIn(
+    int idKoridor,
+    int idBus,
+    double nextRit,
+  );
+
   Future<Either<Failure, TitikAwalCreate>> fetchDetailAuditTrailAwal(
     int idAuditTrail,
   );
@@ -33,10 +39,10 @@ abstract class KmbusRepository {
   Future<Either<Failure, List<ReferenceDetail>>> fetchReferenceDocType(
     String keyword,
   );
-  Future<Either<Failure, List<KmbusData>>> fetchListKmbus(String keyword);
+  Future<Either<Failure, List<KmbusData>>> fetchListKmbus(String keyword, {int page = 1});
   Future<Either<Failure, List<KmbusData>>> fetchKmbusDataToday(String keyword);
   Future<Either<Failure, List<KmTaskAuditTrail>>> fetchListKmbusAuditTrail(
-    String keyword,
+    String keyword, {int page = 1}
   );
   Future<Either<Failure, NextRitaseResponse>> fetchNextRitase(
     int idKoridor,

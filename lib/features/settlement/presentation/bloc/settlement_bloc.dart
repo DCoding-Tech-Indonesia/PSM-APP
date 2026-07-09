@@ -309,9 +309,15 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
     });
 
     on<PageDashboardLoad>((event, emit) async {
-      emit(state.copyWith(status: SettlementStatus.loading));
+      emit(
+        state.copyWith(
+          status: SettlementStatus.loading,
+          page: 1,
+          hasReachedMax: false,
+        ),
+      );
 
-      final list = await settlementRepository.fetchTaskAuditTrailList('');
+      final list = await settlementRepository.fetchTaskAuditTrailList('', page: 1);
 
       final userIdString = await secureStorageService.readUserId();
       final userId = int.tryParse(userIdString ?? '') ?? 0;
@@ -332,15 +338,31 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
       }, (data) => data);
 
       if (todayScheduleData == null || todayScheduleData.isEmpty) {
-        emit(
-          state.copyWith(
-            status: SettlementStatus.error,
-            message: "Jadwal tidak ditemukan",
-          ),
+        list.fold(
+          (failure) {
+            emit(
+              state.copyWith(
+                status: SettlementStatus.error,
+                message: failure.message,
+                jadwalExist: false,
+              ),
+            );
+          },
+          (data) {
+            emit(
+              state.copyWith(
+                status: SettlementStatus.success,
+                listTaskAuditTrail: data,
+                jadwalExist: false,
+                hasReachedMax: data.length < 10,
+              ),
+            );
+          },
         );
+        return;
       }
 
-      final idKoridorShift = todayScheduleData![0].lokasi.koridor;
+      final idKoridorShift = todayScheduleData[0].lokasi.koridor;
       final idShiftActive = todayScheduleData[0].shift.id;
       final idBusShift = todayScheduleData[0].bus.id;
 
@@ -381,27 +403,63 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
         (failure) {
           emit(
             state.copyWith(
+              isLastRitase: isLastRitase,
+              ritase: ritaseValue,
+              idShift: idShiftActive,
+              idKoridorShift: idKoridorShift,
+              idBusShift: idBusShift,
               status: SettlementStatus.error,
               message: failure.message,
+              allowInput: !allowInputAccess,
+              ctaValidationMessage: !allowInputAccess ? null : settlementMessage,
             ),
           );
         },
         (data) {
-          emit(state.copyWith(listTaskAuditTrail: data));
+          emit(
+            state.copyWith(
+              isLastRitase: isLastRitase,
+              ritase: ritaseValue,
+              idShift: idShiftActive,
+              idKoridorShift: idKoridorShift,
+              idBusShift: idBusShift,
+              listTaskAuditTrail: data,
+              status: SettlementStatus.success,
+              allowInput: !allowInputAccess,
+              ctaValidationMessage: !allowInputAccess ? null : settlementMessage,
+              hasReachedMax: data.length < 10,
+            ),
+          );
         },
       );
+    });
 
-      emit(
-        state.copyWith(
-          isLastRitase: isLastRitase,
-          ritase: ritaseValue,
-          idShift: idShiftActive,
-          idKoridorShift: idKoridorShift,
-          idBusShift: idBusShift,
-          status: SettlementStatus.success,
-          allowInput: !allowInputAccess,
-          ctaValidationMessage: !allowInputAccess ? null : settlementMessage,
-        ),
+    on<PageDashboardLoadNextPage>((event, emit) async {
+      if (state.hasReachedMax || state.status == SettlementStatus.fetching) return;
+
+      emit(state.copyWith(status: SettlementStatus.fetching));
+
+      final nextPage = state.page + 1;
+      final result = await settlementRepository.fetchTaskAuditTrailList('', page: nextPage);
+
+      result.fold(
+        (failure) {
+          emit(state.copyWith(status: SettlementStatus.success));
+        },
+        (data) {
+          if (data.isEmpty) {
+            emit(state.copyWith(hasReachedMax: true, status: SettlementStatus.success));
+          } else {
+            emit(
+              state.copyWith(
+                listTaskAuditTrail: List.of(state.listTaskAuditTrail)..addAll(data),
+                page: nextPage,
+                hasReachedMax: data.length < 10,
+                status: SettlementStatus.success,
+              ),
+            );
+          }
+        },
       );
     });
 

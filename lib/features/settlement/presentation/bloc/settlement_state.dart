@@ -56,6 +56,9 @@ class SettlementState extends Equatable {
   final List<SettlementDocument> document;
   final List<DocumentPreview> documentPreview;
 
+  final int page;
+  final bool hasReachedMax;
+
   final String? message;
 
   const SettlementState({
@@ -104,6 +107,8 @@ class SettlementState extends Equatable {
     this.detailInput = const [],
     this.document = const [],
     this.documentPreview = const [],
+    this.page = 1,
+    this.hasReachedMax = false,
     this.message,
   });
 
@@ -154,6 +159,8 @@ class SettlementState extends Equatable {
     List<SettlementDetailInput>? detailInput,
     List<SettlementDocument>? document,
     List<DocumentPreview>? documentPreview,
+    int? page,
+    bool? hasReachedMax,
     String? message,
   }) {
     return SettlementState(
@@ -202,6 +209,8 @@ class SettlementState extends Equatable {
       detailInput: detailInput ?? this.detailInput,
       document: document ?? this.document,
       documentPreview: documentPreview ?? this.documentPreview,
+      page: page ?? this.page,
+      hasReachedMax: hasReachedMax ?? this.hasReachedMax,
       message: message,
     );
   }
@@ -244,6 +253,8 @@ class SettlementState extends Equatable {
     detailInput,
     document,
     documentPreview,
+    page,
+    hasReachedMax,
     message,
   ];
 }

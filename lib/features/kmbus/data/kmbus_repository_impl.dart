@@ -73,6 +73,30 @@ class KmbusRepositoryImpl implements KmbusRepository {
   }
 
   @override
+  Future<Either<Failure, CoreDataSourceResponse>> checkAllowCheckIn(
+    int idKoridor,
+    int idBus,
+    double nextRit,
+  ) async {
+    try {
+      final result = await dataSourceCore.checkAllowCheckIn(
+        idKoridor,
+        idBus,
+        nextRit,
+      );
+
+      return right(result);
+    } on DioException catch (e) {
+      final message =
+          e.response?.data?['message'] ?? 'Terjadi kesalahan server';
+
+      return left(ServerFailure(message));
+    } catch (_) {
+      return left(const ServerFailure('Unexpected error'));
+    }
+  }
+
+  @override
   Future<Either<Failure, List<ReferenceDetail>>> fetchReferenceDocType(
       String keyword,
       ) async {
@@ -128,10 +152,11 @@ class KmbusRepositoryImpl implements KmbusRepository {
 
   @override
   Future<Either<Failure, List<KmbusData>>> fetchListKmbus(
-    String keyword,
-  ) async {
+    String keyword, {
+    int page = 1,
+  }) async {
     try {
-      final result = await dataSource.fetchKmbusData(keyword);
+      final result = await dataSource.fetchKmbusData(keyword, page: page);
 
       return right(result);
     } on DioException catch (e) {
@@ -164,10 +189,11 @@ class KmbusRepositoryImpl implements KmbusRepository {
 
   @override
   Future<Either<Failure, List<KmTaskAuditTrail>>> fetchListKmbusAuditTrail(
-    String keyword,
-  ) async {
+    String keyword, {
+    int page = 1,
+  }) async {
     try {
-      final result = await dataSource.fetchKmbusDataListAuditTrail(keyword);
+      final result = await dataSource.fetchKmbusDataListAuditTrail(keyword, page: page);
 
       return right(result);
     } on DioException catch (e) {

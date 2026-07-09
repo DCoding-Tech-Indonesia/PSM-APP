@@ -105,133 +105,172 @@ class _SettlementHistoryScreenState extends State<SettlementHistoryScreen> {
           context.read<SettlementBloc>().add(PageDashboardLoad());
         }
       },
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        body: SafeArea(
-          child: Column(
-            children: [
-              const CoreHeader(
-                title: "History Settlement",
-                customBgColor: Colors.white,
-                withBorder: true,
-              ),
+        child: Scaffold(
+          backgroundColor: Colors.grey.shade50,
+          body: SafeArea(
+            child: Column(
+              children: [
+                const CoreHeader(
+                  title: "History Settlement",
+                  customBgColor: Colors.white,
+                  withBorder: true,
+                ),
 
-              Row(
-                children: _tabs.map((tab) {
-                  final active = _activeTab == tab;
-
-                  return Expanded(
-                    child: InkWell(
-                      onTap: () => _changeTab(tab),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 250),
-                        padding: const EdgeInsets.symmetric(vertical: 15),
-                        decoration: BoxDecoration(
-                          border: Border(
-                            bottom: BorderSide(
-                              width: 3,
-                              color: active ? Colors.blue : Colors.transparent,
-                            ),
-                          ),
-                        ),
-                        child: Center(
-                          child: AnimatedDefaultTextStyle(
-                            duration: const Duration(milliseconds: 250),
-                            style: TextStyle(
-                              color: active ? Colors.blue : Colors.grey,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 16,
-                            ),
-                            child: Text(tab),
-                          ),
-                        ),
+                Container(
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    border: Border(
+                      bottom: BorderSide(
+                        color: Color(0xFFEDF2F7),
+                        width: 1,
                       ),
                     ),
-                  );
-                }).toList(),
-              ),
+                  ),
+                  child: Row(
+                    children: _tabs.map((tab) {
+                      final active = _activeTab == tab;
 
-              Expanded(
-                child: BlocBuilder<SettlementBloc, SettlementState>(
-                  buildWhen: (prev, curr) =>
-                      prev.listTaskAuditTrail != curr.listTaskAuditTrail ||
-                      prev.status != curr.status,
-                  builder: (context, state) {
-                    return Stack(
-                      children: [
-                        PageView.builder(
-                          controller: _pageController,
-                          onPageChanged: (index) {
-                            setState(() {
-                              _activeTab = _tabs[index];
-                            });
-                          },
-                          itemCount: _tabs.length,
-                          itemBuilder: (context, index) {
-                            final tab = _tabs[index];
-                            final filtered = _filterData(
-                              state.listTaskAuditTrail,
-                              tab,
-                            );
-
-                            return RefreshIndicator(
-                              onRefresh: _onRefresh,
-                              child: filtered.isEmpty
-                                  ? ListView(
-                                      physics:
-                                          const AlwaysScrollableScrollPhysics(),
-                                      children: const [
-                                        SizedBox(height: 200),
-                                        Center(
-                                          child: Text(
-                                            "Tidak ada data",
-                                            style: TextStyle(
-                                              color: Colors.grey,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    )
-                                  : ListView.separated(
-                                      physics:
-                                          const AlwaysScrollableScrollPhysics(),
-                                      padding: const EdgeInsets.fromLTRB(
-                                        26,
-                                        20,
-                                        26,
-                                        20,
-                                      ),
-                                      itemCount: filtered.length,
-                                      separatorBuilder: (_, _) =>
-                                          const SizedBox(height: 12),
-                                      itemBuilder: (context, i) {
-                                        return HistoryListCard(
-                                          data: filtered[i],
-                                        );
-                                      },
-                                    ),
-                            );
-                          },
-                        ),
-
-                        if (state.status == SettlementStatus.loading)
-                          Positioned.fill(
-                            child: Container(
-                              color: Colors.black.withValues(alpha: .15),
-                              child: const Center(
-                                child: CircularProgressIndicator(),
-                              ),
+                      return Expanded(
+                        child: InkWell(
+                          onTap: () => _changeTab(tab),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  tab,
+                                  style: TextStyle(
+                                    color: active
+                                        ? const Color(0xFF1565C0)
+                                        : const Color(0xFF718096),
+                                    fontWeight: active ? FontWeight.w900 : FontWeight.w700,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                AnimatedContainer(
+                                  duration: const Duration(milliseconds: 200),
+                                  width: active ? 28 : 0,
+                                  height: 3,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF1565C0),
+                                    borderRadius: BorderRadius.circular(2),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                      ],
-                    );
-                  },
+                        ),
+                      );
+                    }).toList(),
+                  ),
                 ),
-              ),
-            ],
+
+                Expanded(
+                  child: BlocBuilder<SettlementBloc, SettlementState>(
+                    buildWhen: (prev, curr) =>
+                        prev.listTaskAuditTrail != curr.listTaskAuditTrail ||
+                        prev.status != curr.status,
+                    builder: (context, state) {
+                      return Stack(
+                        children: [
+                          PageView.builder(
+                            controller: _pageController,
+                            onPageChanged: (index) {
+                              setState(() {
+                                _activeTab = _tabs[index];
+                              });
+                            },
+                            itemCount: _tabs.length,
+                            itemBuilder: (context, index) {
+                              final tab = _tabs[index];
+                              final filtered = _filterData(
+                                state.listTaskAuditTrail,
+                                tab,
+                              );
+
+                              return NotificationListener<ScrollNotification>(
+                                onNotification: (ScrollNotification scrollInfo) {
+                                  if (scrollInfo.metrics.pixels >=
+                                          scrollInfo.metrics.maxScrollExtent - 200 &&
+                                      state.status != SettlementStatus.fetching &&
+                                      !state.hasReachedMax) {
+                                    context.read<SettlementBloc>().add(PageDashboardLoadNextPage());
+                                  }
+                                  return true;
+                                },
+                                child: RefreshIndicator(
+                                  onRefresh: _onRefresh,
+                                  child: filtered.isEmpty
+                                      ? ListView(
+                                          physics:
+                                              const AlwaysScrollableScrollPhysics(),
+                                          children: const [
+                                            SizedBox(height: 200),
+                                            Center(
+                                              child: Text(
+                                                "Tidak ada data",
+                                                style: TextStyle(
+                                                  color: Colors.grey,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        )
+                                      : ListView.separated(
+                                          physics:
+                                              const AlwaysScrollableScrollPhysics(),
+                                          padding: const EdgeInsets.fromLTRB(
+                                            26,
+                                            20,
+                                            26,
+                                            20,
+                                          ),
+                                          itemCount: filtered.length + (state.status == SettlementStatus.fetching ? 1 : 0),
+                                          separatorBuilder: (_, _) =>
+                                              const SizedBox(height: 12),
+                                          itemBuilder: (context, i) {
+                                            if (i == filtered.length) {
+                                              return const Padding(
+                                                padding: EdgeInsets.symmetric(vertical: 16),
+                                                child: Center(
+                                                  child: SizedBox(
+                                                    width: 24,
+                                                    height: 24,
+                                                    child: CircularProgressIndicator(strokeWidth: 2.5),
+                                                  ),
+                                                ),
+                                              );
+                                            }
+                                            return HistoryListCard(
+                                              data: filtered[i],
+                                            );
+                                          },
+                                        ),
+                                ),
+                              );
+                            },
+                          ),
+
+                          if (state.status == SettlementStatus.loading)
+                            Positioned.fill(
+                              child: Container(
+                                color: Colors.black.withValues(alpha: .15),
+                                child: const Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                              ),
+                            ),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-      ),
-    );
+      );
   }
 }

@@ -107,3 +107,5 @@ class PageHistoryLoad extends SettlementEvent {
 
   PageHistoryLoad(this.idAuditTrail);
 }
+
+class PageDashboardLoadNextPage extends SettlementEvent {}

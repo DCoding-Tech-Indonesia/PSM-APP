@@ -233,11 +233,33 @@ class _TimetableScreenState extends State<TimetableScreen> {
             );
           }
         } else if (state.status == TimetableStatus.failedSave) {
-          CoreSnackbar.show(
-            context,
-            message: state.message,
-            type: SnackbarType.failed,
-          );
+          if (state.message.trim().toLowerCase().contains("titik akhir belum dibuat")) {
+            CoreSnackbar.show(
+              context,
+              message: "Harap isi Titik Akhir KM Bus terlebih dahulu.",
+              type: SnackbarType.warning,
+            );
+
+            Future.delayed(const Duration(milliseconds: 500), () async {
+              if (!context.mounted) return;
+              final bool? result = await context.push<bool>(
+                '/kmbus/titik-akhir/form',
+                extra: TitikAkhirArgs(idKm: state.idKm ?? 0, idAuditTrail: 0),
+              );
+
+              if (result == true) {
+                if (context.mounted) {
+                  context.read<TimetableBloc>().add(CheckOutTimetable());
+                }
+              }
+            });
+          } else {
+            CoreSnackbar.show(
+              context,
+              message: state.message,
+              type: SnackbarType.failed,
+            );
+          }
         }
       },
       child: BlocBuilder<TimetableBloc, TimetableState>(
@@ -341,7 +363,7 @@ class _TimetableScreenState extends State<TimetableScreen> {
                                         ),
                                       ),
                                       child: Text(
-                                        'Ritase ${state.checkinData!.ritaseKe % 1 == 0 ? state.checkinData!.ritaseKe.toInt() : state.checkinData!.ritaseKe}',
+                                        'Ritase ${state.checkinData!.ritaseKe % 1 == 0 ? state.checkinData!.ritaseKe.toInt() : state.checkinData!.ritaseKe}${state.isLastRitase ? " (Terakhir)" : ""}',
                                         style: const TextStyle(
                                           color: Colors.white,
                                           fontSize: 12,

@@ -84,7 +84,21 @@ class CoreCameraWidget extends StatelessWidget {
 
     // Uploading
     if (isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const CircularProgressIndicator(),
+          const SizedBox(height: 12),
+          Text(
+            "Mengunggah & Memproses Gambar...",
+            style: TextStyle(
+              color: theme.colorScheme.primary,
+              fontWeight: FontWeight.w600,
+              fontSize: 14,
+            ),
+          ),
+        ],
+      );
     }
 
     // Has Image

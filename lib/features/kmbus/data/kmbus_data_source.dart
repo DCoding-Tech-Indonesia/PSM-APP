@@ -44,7 +44,7 @@ class KmbusDataSource {
     }
   }
 
-  Future<List<KmbusData>> fetchKmbusData(String keyword) async {
+  Future<List<KmbusData>> fetchKmbusData(String keyword, {int page = 1, int perPage = 10}) async {
     try {
       final idUserRole = await secureStorageService.readUserRoleId();
 
@@ -52,8 +52,8 @@ class KmbusDataSource {
         '/km/list',
         queryParameters: {
           'keyword': keyword,
-          'page': 1,
-          'perPage': 99,
+          'page': page,
+          'perPage': perPage,
           'idPramugara': idUserRole,
         },
       );
@@ -70,7 +70,7 @@ class KmbusDataSource {
   }
 
   Future<List<KmTaskAuditTrail>> fetchKmbusDataListAuditTrail(
-    String keyword,
+    String keyword, {int page = 1, int perPage = 10}
   ) async {
     try {
       final idUser = await secureStorageService.readUserId();
@@ -79,9 +79,8 @@ class KmbusDataSource {
         '/audittrail/task/km/list',
         queryParameters: {
           'keyword': keyword,
-          'page': 1,
-          'perPage': 99,
-          'createdBy': idUser,
+          'page': page,
+          'perPage': perPage,
         },
       );
 

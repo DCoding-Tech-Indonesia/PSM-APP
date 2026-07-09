@@ -13,7 +13,11 @@ class TimetableDataSource {
 
   TimetableDataSource({required this.dio, required this.secureStorageService});
 
-  Future<List<TimetableData>> fetchTimetableDataList(String keyword) async {
+  Future<List<TimetableData>> fetchTimetableDataList(
+    String keyword, {
+    int page = 1,
+    int perPage = 10,
+  }) async {
     try {
       final idUser = await secureStorageService.readUserId();
 
@@ -21,8 +25,8 @@ class TimetableDataSource {
         '/time-table/detail/list',
         queryParameters: {
           'keyword': keyword,
-          'page': 1,
-          'perPage': 99,
+          'page': page,
+          'perPage': perPage,
           'idUser': idUser,
         },
       );

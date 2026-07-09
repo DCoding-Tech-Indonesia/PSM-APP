@@ -2,7 +2,11 @@ abstract class TimetableEvent {}
 
 class PageDashboardLoad extends TimetableEvent {}
 
+class PageDashboardLoadNextPage extends TimetableEvent {}
+
 class PageHistoryLoad extends TimetableEvent {}
+
+class PageHistoryLoadNextPage extends TimetableEvent {}
 
 class LocationLoaded extends TimetableEvent {
   final double lat;

@@ -153,11 +153,12 @@ class _CustomCameraWidgetState extends State<CustomCameraWidget> {
       isScrollControlled: true,
       backgroundColor: Colors.black,
       builder: (modalContext) {
+        final screenHeight = MediaQuery.of(modalContext).size.height;
         return SafeArea(
-          child: Padding(
+          child: Container(
+            height: screenHeight * 0.8, // Batasi tinggi maksimum sheet agar muat di semua layar
             padding: const EdgeInsets.all(16),
             child: Column(
-              mainAxisSize: MainAxisSize.min,
               children: [
                 Row(
                   children: [
@@ -185,13 +186,18 @@ class _CustomCameraWidgetState extends State<CustomCameraWidget> {
 
                 const SizedBox(height: 12),
 
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(16),
-                  child: AspectRatio(
-                    aspectRatio: widget.ratio,
-                    child: Image.file(
-                      imageFile,
-                      fit: BoxFit.cover,
+                // Bungkus gambar dengan Expanded & BoxFit.contain agar menyesuaikan sisa area yang ada secara aman
+                Expanded(
+                  child: Center(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: AspectRatio(
+                        aspectRatio: widget.ratio,
+                        child: Image.file(
+                          imageFile,
+                          fit: BoxFit.contain,
+                        ),
+                      ),
                     ),
                   ),
                 ),

@@ -62,6 +62,8 @@ class KmbusState {
   final int? idShift;
   final int? idKoridorShift;
   final int? idBusShift;
+  final String? noUnit;
+  final String? namaKoridor;
 
   final KmbusStatus status;
   final String? message;
@@ -83,6 +85,9 @@ class KmbusState {
   final List<KmbusData> listKmbus;
   final List<KmTaskAuditTrail> listKmbusAuditTrail;
 
+  final int kmbusPage;
+  final bool kmbusHasReachedMax;
+
   final List<DocumentPreview> documentPreview;
 
   final SubmitStatus submitStatus;
@@ -103,6 +108,8 @@ class KmbusState {
     this.idShift,
     this.idKoridorShift,
     this.idBusShift,
+    this.noUnit,
+    this.namaKoridor,
 
     this.status = KmbusStatus.initial,
     this.message,
@@ -124,6 +131,9 @@ class KmbusState {
     this.listKmbus = const [],
     this.listKmbusAuditTrail = const [],
 
+    this.kmbusPage = 1,
+    this.kmbusHasReachedMax = false,
+
     this.documentPreview = const [],
 
     this.submitStatus = SubmitStatus.idle,
@@ -144,6 +154,8 @@ class KmbusState {
     int? idShift,
     int? idKoridorShift,
     int? idBusShift,
+    String? noUnit,
+    String? namaKoridor,
 
     KmbusStatus? status,
     String? message,
@@ -165,6 +177,9 @@ class KmbusState {
     List<KmbusData>? listKmbus,
     List<KmTaskAuditTrail>? listKmbusAuditTrail,
 
+    int? kmbusPage,
+    bool? kmbusHasReachedMax,
+
     List<DocumentPreview>? documentPreview,
 
     SubmitStatus? submitStatus,
@@ -185,6 +200,8 @@ class KmbusState {
       idShift: idShift ?? this.idShift,
       idKoridorShift: idKoridorShift ?? this.idKoridorShift,
       idBusShift: idBusShift ?? this.idBusShift,
+      noUnit: noUnit ?? this.noUnit,
+      namaKoridor: namaKoridor ?? this.namaKoridor,
 
       status: status ?? this.status,
       message: message ?? this.message,
@@ -206,6 +223,9 @@ class KmbusState {
 
       listKmbus: listKmbus ?? this.listKmbus,
       listKmbusAuditTrail: listKmbusAuditTrail ?? this.listKmbusAuditTrail,
+
+      kmbusPage: kmbusPage ?? this.kmbusPage,
+      kmbusHasReachedMax: kmbusHasReachedMax ?? this.kmbusHasReachedMax,
 
       documentPreview: documentPreview ?? this.documentPreview,
 

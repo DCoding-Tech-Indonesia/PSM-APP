@@ -91,9 +91,9 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
         final checkInAllowResult = checkResults[0] as Either<Failure, CoreDataSourceResponse>;
         final checkOutAllowResult = checkResults[1] as Either<Failure, CoreDataSourceResponse>;
 
-        final bool isAllowCheckIn = checkInAllowResult.fold((_) => false, (res) => res.isAllowed);
+        final bool hasCheckedIn = checkInAllowResult.fold((_) => false, (res) => res.isAllowed);
         final String checkInMessage = checkInAllowResult.fold((_) => '', (res) => res.message);
-        final bool isAllowCheckOut = checkOutAllowResult.fold((_) => false, (res) => res.isAllowed);
+        final bool hasCheckedOut = checkOutAllowResult.fold((_) => false, (res) => res.isAllowed);
         final String checkOutMessage = checkOutAllowResult.fold((_) => '', (res) => res.message);
 
         final kmBusListMaster = listMasterResult.fold((_) => null, (data) => data);
@@ -128,31 +128,66 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
           lat: state.lat,
         );
 
+        final bool isLastRitaseCompleted = isLastRitase &&
+            (timeTableList?.any((e) => e.ritaseKe == ritaseValue && e.jamDatang.trim().isNotEmpty) ?? false);
+
+        // Cari ritase tertinggi yang sudah selesai sepenuhnya (sudah check-in dan sudah check-out)
+        double highestCompletedRitase = 0.0;
+        if (timeTableList != null) {
+          for (var e in timeTableList) {
+            if (e.jamBerangkat.trim().isNotEmpty && e.jamDatang.trim().isNotEmpty) {
+              if (e.ritaseKe != null && e.ritaseKe! > highestCompletedRitase) {
+                highestCompletedRitase = e.ritaseKe!;
+              }
+            }
+          }
+        }
+
+        double displayRitase = ritaseValue;
+        bool finalAllowCheckIn = !isLastRitaseCompleted && !hasCheckedIn && isAlreadyTakeAttendanceRestule;
+        bool finalAllowCheckOut = hasCheckedIn && !hasCheckedOut;
+
+        if (activeCheckin != null) {
+          // Ada ritase yang sedang berjalan (sudah check-in tapi belum check-out)
+          displayRitase = activeCheckin.ritaseKe;
+          finalAllowCheckIn = false;
+          finalAllowCheckOut = true;
+        } else if (highestCompletedRitase > 0.0) {
+          // Ada ritase yang sudah selesai sepenuhnya, maka ritase berikutnya adalah tertinggi + 0.5
+          displayRitase = highestCompletedRitase + 0.5;
+          finalAllowCheckIn = !isLastRitaseCompleted && isAlreadyTakeAttendanceRestule;
+          finalAllowCheckOut = false;
+        } else {
+          // Tidak ada ritase berjalan atau selesai, gunakan logic normal
+          if (hasCheckedIn && hasCheckedOut && !isLastRitase) {
+            displayRitase = ritaseValue + 0.5;
+            finalAllowCheckIn = isAlreadyTakeAttendanceRestule;
+            finalAllowCheckOut = false;
+          }
+        }
+
         final updatedCheckinWithPramugara = currentCheckin.copyWith(
           idKoridor: idKoridorShift,
           idBus: idBusShift,
           idShift: idShiftActive,
           idPramugara: userId,
-          ritaseKe: ritaseValue,
+          ritaseKe: displayRitase,
         );
-
-        final bool isLastRitaseCompleted = isLastRitase &&
-            (timeTableList?.any((e) => e.ritaseKe == ritaseValue && e.jamDatang.trim().isNotEmpty) ?? false);
 
         emit(
           state.copyWith(
             isLastRitase: isLastRitase,
             idShift: idShiftActive,
             idKm: idKm,
-            ritaseKe: ritaseValue,
+            ritaseKe: displayRitase,
             idCheckin: idCheckin,
             checkinData: updatedCheckinWithPramugara,
             idKoridor: idKoridorShift,
             namaKoridor: namaKoridorShift,
             idBus: idBusShift,
             noUnit: currentNoUnit,
-            isAllowCheckIn: !isLastRitaseCompleted && isAllowCheckIn && isAlreadyTakeAttendanceRestule,
-            isAllowCheckOut: isAllowCheckOut,
+            isAllowCheckIn: finalAllowCheckIn,
+            isAllowCheckOut: finalAllowCheckOut,
             disabledBerangkatMessage: isLastRitaseCompleted
                 ? "Semua ritase hari ini telah diselesaikan."
                 : (!isAlreadyTakeAttendanceRestule ? "Harap ambil absensi terlebih dahulu." : checkInMessage),
@@ -168,8 +203,16 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
     });
 
     on<PageHistoryLoad>((event, emit) async {
+      emit(
+        state.copyWith(
+          status: TimetableStatus.loading,
+          page: 1,
+          hasReachedMax: false,
+        ),
+      );
+
       try {
-        final list = await timetableRepository.fetchListTimeTable('');
+        final list = await timetableRepository.fetchListTimeTable('', page: 1);
         final timeTableList = list.fold(
           (failure) {
             return null;
@@ -179,7 +222,9 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
           },
         );
 
-        timeTableList?.sort((a, b) {
+        if (timeTableList == null) return;
+
+        timeTableList.sort((a, b) {
           final jamA = a.jamBerangkat.trim().isEmpty
               ? '00:00:00'
               : a.jamBerangkat.split('.').first;
@@ -194,13 +239,75 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
           return dateTimeB.compareTo(dateTimeA);
         });
 
-        emit(state.copyWith(listTimetable: timeTableList));
+        emit(
+          state.copyWith(
+            status: TimetableStatus.success,
+            listTimetable: timeTableList,
+            hasReachedMax: timeTableList.length < 10,
+          ),
+        );
       } catch (e, s) {
         debugPrint(e.toString());
         debugPrint(s.toString());
-        emit(
-          state.copyWith(status: TimetableStatus.error, message: e.toString()),
+        emit(state.copyWith(status: TimetableStatus.error, message: e.toString()));
+      }
+    });
+
+    on<PageHistoryLoadNextPage>((event, emit) async {
+      if (state.hasReachedMax || state.status == TimetableStatus.fetching) return;
+
+      emit(state.copyWith(status: TimetableStatus.fetching));
+
+      final nextPage = state.page + 1;
+
+      try {
+        final list = await timetableRepository.fetchListTimeTable('', page: nextPage);
+        final timeTableList = list.fold(
+          (failure) {
+            return null;
+          },
+          (data) {
+            return data;
+          },
         );
+
+        if (timeTableList == null) {
+          emit(state.copyWith(status: TimetableStatus.success));
+          return;
+        }
+
+        if (timeTableList.isEmpty) {
+          emit(state.copyWith(hasReachedMax: true, status: TimetableStatus.success));
+          return;
+        }
+
+        timeTableList.sort((a, b) {
+          final jamA = a.jamBerangkat.trim().isEmpty
+              ? '00:00:00'
+              : a.jamBerangkat.split('.').first;
+
+          final jamB = b.jamBerangkat.trim().isEmpty
+              ? '00:00:00'
+              : b.jamBerangkat.split('.').first;
+
+          final dateTimeA = DateTime.parse('${a.tanggal} $jamA');
+          final dateTimeB = DateTime.parse('${b.tanggal} $jamB');
+
+          return dateTimeB.compareTo(dateTimeA);
+        });
+
+        emit(
+          state.copyWith(
+            listTimetable: List.of(state.listTimetable)..addAll(timeTableList),
+            page: nextPage,
+            hasReachedMax: timeTableList.length < 10,
+            status: TimetableStatus.success,
+          ),
+        );
+      } catch (e, s) {
+        debugPrint(e.toString());
+        debugPrint(s.toString());
+        emit(state.copyWith(status: TimetableStatus.success));
       }
     });
 
@@ -273,12 +380,14 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
               return;
             }
 
-            emit(
+             emit(
               state.copyWith(
                 status: data.status
                     ? TimetableStatus.successCheckIn
                     : TimetableStatus.failedSave,
                 message: data.message,
+                isAllowCheckIn: data.status ? false : state.isAllowCheckIn,
+                isAllowCheckOut: data.status ? true : state.isAllowCheckOut,
               ),
             );
           },
@@ -330,7 +439,7 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
             emit(
               state.copyWith(
                 status: TimetableStatus.failedSave,
-                message: "Gagal check-out!",
+                message: failure.message,
               ),
             );
           },
@@ -345,12 +454,13 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
               return;
             }
 
-            emit(
+             emit(
               state.copyWith(
                 status: data.status
                     ? TimetableStatus.successCheckOut
                     : TimetableStatus.failedSave,
                 message: data.message,
+                isAllowCheckOut: data.status ? false : state.isAllowCheckOut,
               ),
             );
           },

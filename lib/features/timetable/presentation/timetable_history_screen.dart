@@ -153,37 +153,32 @@ class _TimetableHistoryScreenState extends State<TimetableHistoryScreen> {
 
                       if (currentTab == "All") {
                         dataList = state.listTimetable;
-
-                        return RefreshIndicator(
-                          onRefresh: _onRefresh,
-                          child: dataList.isEmpty
-                              ? _buildEmptyState()
-                              : _buildTimetableList(dataList),
-                        );
-                      }
-
-                      if (currentTab == "Berangkat") {
+                      } else if (currentTab == "Berangkat") {
                         dataList = state.listTimetable.where((e) {
                           return e.jamBerangkat.trim().isNotEmpty;
                         }).toList();
+                      } else {
+                        dataList = state.listTimetable.where((e) {
+                          return e.jamDatang.trim().isNotEmpty;
+                        }).toList();
+                      }
 
-                        return RefreshIndicator(
+                      return NotificationListener<ScrollNotification>(
+                        onNotification: (ScrollNotification scrollInfo) {
+                          if (scrollInfo.metrics.pixels >=
+                                  scrollInfo.metrics.maxScrollExtent - 200 &&
+                              state.status != TimetableStatus.fetching &&
+                              !state.hasReachedMax) {
+                            context.read<TimetableBloc>().add(PageHistoryLoadNextPage());
+                          }
+                          return true;
+                        },
+                        child: RefreshIndicator(
                           onRefresh: _onRefresh,
                           child: dataList.isEmpty
                               ? _buildEmptyState()
-                              : _buildTimetableList(dataList, filterType: "Berangkat"),
-                        );
-                      }
-
-                      dataList = state.listTimetable.where((e) {
-                        return e.jamDatang.trim().isNotEmpty;
-                      }).toList();
-
-                      return RefreshIndicator(
-                        onRefresh: _onRefresh,
-                        child: dataList.isEmpty
-                            ? _buildEmptyState()
-                            : _buildTimetableList(dataList, filterType: "Datang"),
+                              : _buildTimetableList(dataList, filterType: currentTab == "All" ? null : currentTab),
+                        ),
                       );
                     },
                   );
@@ -211,13 +206,29 @@ class _TimetableHistoryScreenState extends State<TimetableHistoryScreen> {
     );
   }
 
-   Widget _buildTimetableList(List<TimetableData> dataList, {String? filterType}) {
+  Widget _buildTimetableList(List<TimetableData> dataList, {String? filterType}) {
+    final status = context.watch<TimetableBloc>().state.status;
+    final isFetching = status == TimetableStatus.fetching;
+
     return ListView.separated(
       physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
-      itemCount: dataList.length,
+      itemCount: dataList.length + (isFetching ? 1 : 0),
       separatorBuilder: (_, _) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
+        if (index == dataList.length) {
+          return const Padding(
+            padding: EdgeInsets.symmetric(vertical: 16),
+            child: Center(
+              child: SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(strokeWidth: 2.5),
+              ),
+            ),
+          );
+        }
+
         final data = dataList[index];
 
         return Container(

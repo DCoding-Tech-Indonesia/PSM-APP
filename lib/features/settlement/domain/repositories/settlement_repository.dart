@@ -55,7 +55,7 @@ abstract class SettlementRepository {
   Future<Either<Failure, DocumentPreview>> uploadDocument(File file);
   Future<Either<Failure, String>> createSettlement(SettlementCreate request);
   Future<Either<Failure, List<SettlementTaskAuditTrail>>>
-  fetchTaskAuditTrailList(String keyword);
+  fetchTaskAuditTrailList(String keyword, {int page = 1});
   Future<Either<Failure, SettlementCreate>> fetchTaskAuditTrailDetail(
     int idAuditTrail,
   );

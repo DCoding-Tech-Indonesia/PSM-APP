@@ -268,9 +268,9 @@ class SettlementRepositoryImpl implements SettlementRepository {
 
   @override
   Future<Either<Failure, List<SettlementTaskAuditTrail>>>
-  fetchTaskAuditTrailList(String keyword) async {
+  fetchTaskAuditTrailList(String keyword, {int page = 1}) async {
     try {
-      final result = await dataSource.fetchTaskAuditTrailList(keyword);
+      final result = await dataSource.fetchTaskAuditTrailList(keyword, page: page);
 
       return right(result);
     } on DioException catch (e) {
@@ -339,7 +339,9 @@ class SettlementRepositoryImpl implements SettlementRepository {
   }
 
   @override
-  Future<Either<Failure, CoreStatusAndMessageResponse>> cancelTaskDraft(int idAuditTrail) async {
+  Future<Either<Failure, CoreStatusAndMessageResponse>> cancelTaskDraft(
+    int idAuditTrail,
+  ) async {
     try {
       final response = await dataSource.cancelTaskDraft(idAuditTrail);
 

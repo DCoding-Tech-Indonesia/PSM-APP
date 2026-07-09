@@ -27,7 +27,7 @@ abstract class TimetableRepository {
 
   Future<Either<Failure, List<KmbusData>>> fetchKmbusDataToday(String keyword);
 
-  Future<Either<Failure, List<TimetableData>>> fetchListTimeTable(String keyword);
+  Future<Either<Failure, List<TimetableData>>> fetchListTimeTable(String keyword, {int page = 1});
 
   Future<Either<Failure, NextRitaseResponse>> fetchNextRitase(int idKoridor, int idBus);
   Future<Either<Failure, TimetableCheckinResponse?>> checkinTimeTable(TimetableCheckin request);

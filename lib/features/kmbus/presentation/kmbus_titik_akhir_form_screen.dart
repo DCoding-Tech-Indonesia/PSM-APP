@@ -31,6 +31,10 @@ class KmbusTitikAkhirFormScreen extends StatefulWidget {
 }
 
 class _KmbusTitikAkhirFormScreenState extends State<KmbusTitikAkhirFormScreen> {
+  UploadStatus? _lastHandledUploadStatus;
+  SubmitStatus? _lastHandledSubmitStatus;
+  SubmitWorkflowStatus? _lastHandledSubmitWorkflowStatus;
+
   @override
   void initState() {
     super.initState();
@@ -223,7 +227,9 @@ class _KmbusTitikAkhirFormScreenState extends State<KmbusTitikAkhirFormScreen> {
           prev.submitWorkflowStatus != curr.submitWorkflowStatus ||
           prev.idAuditTrail != curr.idAuditTrail,
       listener: (context, state) async {
-        if (state.uploadStatus == UploadStatus.errorOcr) {
+        if (state.uploadStatus == UploadStatus.errorOcr &&
+            _lastHandledUploadStatus != state.uploadStatus) {
+          _lastHandledUploadStatus = state.uploadStatus;
           CoreSnackbar.show(
             context,
             message: "Speedometer gagal terdeteksi, coba kembali.",
@@ -232,16 +238,22 @@ class _KmbusTitikAkhirFormScreenState extends State<KmbusTitikAkhirFormScreen> {
           return;
         }
 
-        if (state.uploadStatus == UploadStatus.successOcr) {
+        if (state.uploadStatus == UploadStatus.successDocs &&
+            _lastHandledUploadStatus != state.uploadStatus) {
+          _lastHandledUploadStatus = state.uploadStatus;
           _showOcrValidationDialog(context, state.ocrResult ?? '-', openCamera);
         }
 
-        if (state.submitStatus == SubmitStatus.success) {
+        if (state.submitStatus == SubmitStatus.success &&
+            _lastHandledSubmitStatus != state.submitStatus) {
+          _lastHandledSubmitStatus = state.submitStatus;
           await _showSubmitDraftModal(context, state.idAuditTrail);
           return;
         }
 
-        if (state.submitStatus == SubmitStatus.failed) {
+        if (state.submitStatus == SubmitStatus.failed &&
+            _lastHandledSubmitStatus != state.submitStatus) {
+          _lastHandledSubmitStatus = state.submitStatus;
           CoreSnackbar.show(
             context,
             message: state.message ?? "Gagal menyimpan data.",
@@ -250,7 +262,9 @@ class _KmbusTitikAkhirFormScreenState extends State<KmbusTitikAkhirFormScreen> {
           return;
         }
 
-        if (state.submitWorkflowStatus == SubmitWorkflowStatus.success) {
+        if (state.submitWorkflowStatus == SubmitWorkflowStatus.success &&
+            _lastHandledSubmitWorkflowStatus != state.submitWorkflowStatus) {
+          _lastHandledSubmitWorkflowStatus = state.submitWorkflowStatus;
           CoreSnackbar.show(
             context,
             message: "Data berhasil disubmit.",
@@ -264,7 +278,9 @@ class _KmbusTitikAkhirFormScreenState extends State<KmbusTitikAkhirFormScreen> {
           return;
         }
 
-        if (state.submitWorkflowStatus == SubmitWorkflowStatus.failed) {
+        if (state.submitWorkflowStatus == SubmitWorkflowStatus.failed &&
+            _lastHandledSubmitWorkflowStatus != state.submitWorkflowStatus) {
+          _lastHandledSubmitWorkflowStatus = state.submitWorkflowStatus;
           CoreSnackbar.show(
             context,
             message: state.message ?? "Gagal submit data.",

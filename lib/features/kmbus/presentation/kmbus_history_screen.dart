@@ -145,31 +145,33 @@ class _KmbusHistoryScreenState extends State<KmbusHistoryScreen> {
                     itemBuilder: (context, index) {
                       final currentTab = _tabs[index];
 
-                       if (currentTab == "Semua") {
-                        final dataList = state.listKmbus;
+                      final dataList = currentTab == "Semua"
+                          ? state.listKmbus
+                          : state.listKmbus.where((item) {
+                              if (currentTab == "Awal") {
+                                return item.titikAwal != null;
+                              } else {
+                                return item.titikAkhir != null;
+                              }
+                            }).toList();
 
-                        return RefreshIndicator(
-                          onRefresh: _onRefresh,
-                          child: dataList.isEmpty
-                              ? _buildEmptyState()
-                              : _buildSemuaListView(dataList),
-                        );
-                      } else {
-                        final dataList = state.listKmbus.where((item) {
-                          if (currentTab == "Awal") {
-                            return item.titikAwal != null;
-                          } else {
-                            return item.titikAkhir != null;
+                      return NotificationListener<ScrollNotification>(
+                        onNotification: (ScrollNotification scrollInfo) {
+                          if (scrollInfo.metrics.pixels >=
+                                  scrollInfo.metrics.maxScrollExtent - 200 &&
+                              state.status != KmbusStatus.fetching &&
+                              !state.kmbusHasReachedMax) {
+                            context.read<KmbusBloc>().add(PageHistoryLoadNextPage());
                           }
-                        }).toList();
-
-                        return RefreshIndicator(
+                          return true;
+                        },
+                        child: RefreshIndicator(
                           onRefresh: _onRefresh,
                           child: dataList.isEmpty
                               ? _buildEmptyState()
                               : _buildSemuaListView(dataList, filterType: currentTab),
-                        );
-                      }
+                        ),
+                      );
                     },
                   );
                 },
@@ -197,12 +199,28 @@ class _KmbusHistoryScreenState extends State<KmbusHistoryScreen> {
   }
 
   Widget _buildSemuaListView(List<dynamic> dataList, {String? filterType}) {
+    final status = context.watch<KmbusBloc>().state.status;
+    final isFetching = status == KmbusStatus.fetching;
+
     return ListView.separated(
       physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
-      itemCount: dataList.length,
+      itemCount: dataList.length + (isFetching ? 1 : 0),
       separatorBuilder: (_, _) => const SizedBox(height: 12),
       itemBuilder: (context, i) {
+        if (i == dataList.length) {
+          return const Padding(
+            padding: EdgeInsets.symmetric(vertical: 16),
+            child: Center(
+              child: SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(strokeWidth: 2.5),
+              ),
+            ),
+          );
+        }
+
         final item = dataList[i];
 
         return Container(

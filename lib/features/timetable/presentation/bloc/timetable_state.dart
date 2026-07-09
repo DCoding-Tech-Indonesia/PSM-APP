@@ -49,6 +49,9 @@ class TimetableState extends Equatable {
   final double long;
   final double lat;
 
+  final int page;
+  final bool hasReachedMax;
+
   const TimetableState({
     this.disabledBerangkatMessage,
     this.disabledDatangMessage,
@@ -76,6 +79,8 @@ class TimetableState extends Equatable {
 
     this.long = 0,
     this.lat = 0,
+    this.page = 1,
+    this.hasReachedMax = false,
   });
 
   TimetableState copyWith({
@@ -105,6 +110,8 @@ class TimetableState extends Equatable {
 
     double? long,
     double? lat,
+    int? page,
+    bool? hasReachedMax,
   }) {
     return TimetableState(
       disabledBerangkatMessage: disabledBerangkatMessage ?? this.disabledBerangkatMessage,
@@ -129,6 +136,8 @@ class TimetableState extends Equatable {
       checkinData: checkinData ?? this.checkinData,
       long: long ?? this.long,
       lat: lat ?? this.lat,
+      page: page ?? this.page,
+      hasReachedMax: hasReachedMax ?? this.hasReachedMax,
     );
   }
 
@@ -155,5 +164,7 @@ class TimetableState extends Equatable {
     checkinData,
     long,
     lat,
+    page,
+    hasReachedMax,
   ];
 }
