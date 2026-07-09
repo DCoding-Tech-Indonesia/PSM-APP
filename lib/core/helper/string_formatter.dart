@@ -41,6 +41,10 @@ class StringFormatter {
     return DateFormat('HH:mm').format(DateTime.parse(value));
   }
 
+  String formatDateTime2(String value) {
+    return DateFormat('dd-MM-yyyy (HH:mm)').format(DateTime.parse(value));
+  }
+
   String formatLongTimeToMedium(String value) {
     return value.split('.').first;
   }

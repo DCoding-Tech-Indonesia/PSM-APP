@@ -22,7 +22,7 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
   TimetableBloc(this.timetableRepository, this.secureStorageService)
     : super(const TimetableState()) {
     on<PageDashboardLoad>((event, emit) async {
-      emit(state.copyWith(status: TimetableStatus.loading));
+      emit(state.copyWith(status: TimetableStatus.initial));
 
       try {
         final userIdString = await secureStorageService.readUserId();
@@ -327,6 +327,7 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
 
       emit(
         state.copyWith(
+          status: TimetableStatus.initial,
           lat: event.lat,
           long: event.long,
           checkinData: currentCheckin.copyWith(

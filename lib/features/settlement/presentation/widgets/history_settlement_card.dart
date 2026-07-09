@@ -105,12 +105,16 @@ class HistorySettlementCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 4),
-              Text(
-                StringFormatter().formatHourMinute(data.createdDate),
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                ),
+              Row(
+                children: [
+                  Text(
+                    StringFormatter().formatDateTime2(data.createdDate),
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
