@@ -10,7 +10,6 @@ import 'package:psm_mobile/features/portal/presentation/bloc/portal_bloc.dart';
 import 'package:psm_mobile/features/portal/presentation/bloc/portal_state.dart';
 import 'package:psm_mobile/core/network/dio_client.dart';
 import 'package:psm_mobile/core/helper/location_service.dart';
-// import 'package:psm_mobile/features/portal/presentation/widget/portal_schedule_ribbon.dart';
 import 'package:psm_mobile/features/attendance/presentation/widgets/widgets.dart';
 
 class AttendanceScreen extends StatelessWidget {

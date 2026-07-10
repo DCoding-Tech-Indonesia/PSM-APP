@@ -17,6 +17,7 @@ class AuthState extends Equatable {
   final bool pageLoaded;
   final String? usernameError;
   final String? passwordError;
+  final bool firstLogin;
 
   const AuthState({
     this.email = const Email.pure(),
@@ -32,6 +33,7 @@ class AuthState extends Equatable {
     this.pageLoaded = false,
     this.usernameError,
     this.passwordError,
+    this.firstLogin = false,
   });
 
   bool get isValid => Formz.validate([email, password]);
@@ -52,6 +54,7 @@ class AuthState extends Equatable {
     bool? pageLoaded,
     String? usernameError,
     String? passwordError,
+    bool? firstLogin,
     bool clearErrors = false,
   }) {
     return AuthState(
@@ -68,6 +71,7 @@ class AuthState extends Equatable {
       pageLoaded: pageLoaded ?? this.pageLoaded,
       usernameError: clearErrors ? null : (usernameError ?? this.usernameError),
       passwordError: clearErrors ? null : (passwordError ?? this.passwordError),
+      firstLogin: firstLogin ?? this.firstLogin,
     );
   }
 
@@ -86,5 +90,6 @@ class AuthState extends Equatable {
     pageLoaded,
     usernameError,
     passwordError,
+    firstLogin,
   ];
 }

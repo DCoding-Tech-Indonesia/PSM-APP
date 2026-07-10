@@ -69,7 +69,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     on<UsernameChanged>((event, emit) {
       final username = event.value;
-      print("AuthBloc UsernameChanged: $username");
+      if (kDebugMode) print("AuthBloc UsernameChanged: $username");
       emit(
         state.copyWith(
           username: username,
@@ -81,7 +81,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     on<PasswordChanged>((event, emit) {
       final password = Password.dirty(event.value);
-      print("AuthBloc PasswordChanged: ${password.value}");
+      if (kDebugMode) print("AuthBloc PasswordChanged: ${password.value}");
       emit(
         state.copyWith(
           password: password,
@@ -106,9 +106,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           ? 'Password tidak boleh kosong'
           : null;
 
-      print(
-        "AuthBloc AuthSubmitted: username='$username', password='${password.value}', usernameErr=$usernameErr, passwordErr=$passwordErr",
-      );
+      if (kDebugMode) {
+        print(
+          "AuthBloc AuthSubmitted: username='$username', password='${password.value}', usernameErr=$usernameErr, passwordErr=$passwordErr",
+        );
+      }
 
       if (usernameErr != null || passwordErr != null) {
         emit(
@@ -133,7 +135,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       try {
         fcmToken = await FirebaseMessaging.instance.getToken();
       } catch (e) {
-        print("Error getting FCM token: $e");
+        if (kDebugMode) print("Error getting FCM token: $e");
       }
 
       final result = await authRepository.login(
@@ -162,6 +164,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
               loginSuccess: response.isSuccess,
               loginMessage: response.message,
               popup: true,
+              firstLogin: response.firstLogin,
             ),
           );
         },
@@ -196,7 +199,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       try {
         fcmToken = await FirebaseMessaging.instance.getToken();
       } catch (e) {
-        print("Error getting FCM token: $e");
+        if (kDebugMode) print("Error getting FCM token: $e");
       }
 
       final result = await authRepository.login(
@@ -227,6 +230,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
                   ? 'Welcome Back!'
                   : response.message,
               popup: true,
+              firstLogin: response.firstLogin,
             ),
           );
         },

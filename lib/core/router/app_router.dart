@@ -17,6 +17,8 @@ import 'package:psm_mobile/features/attendance/data/models/schedule_model.dart';
 import 'package:psm_mobile/features/auth/domain/repositories/auth_repository.dart';
 import 'package:psm_mobile/features/auth/presentation/auth_screen.dart';
 import 'package:psm_mobile/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:psm_mobile/features/auth/presentation/forgot_password_screen.dart';
+import 'package:psm_mobile/features/auth/presentation/first_login_password_screen.dart';
 import 'package:psm_mobile/features/checklist/presentation/checklist_screen.dart';
 import 'package:psm_mobile/features/checklist/presentation/screens/checklist_input_screen.dart';
 import 'package:psm_mobile/features/kmbus/data/kmbus_data_source.dart';
@@ -93,6 +95,17 @@ void setupRouter(String initialLocation) {
             ),
             child: const AuthScreen(),
           );
+        },
+      ),
+      GoRoute(
+        path: '/forgot-password',
+        builder: (context, state) => const ForgotPasswordScreen(),
+      ),
+      GoRoute(
+        path: '/first-login-password',
+        builder: (context, state) {
+          final oldPassword = state.extra as String?;
+          return FirstLoginPasswordScreen(oldPassword: oldPassword ?? '');
         },
       ),
 

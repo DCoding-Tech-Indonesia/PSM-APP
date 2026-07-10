@@ -15,9 +15,12 @@ class DateTimeCard extends StatelessWidget {
     final double screenWidth = size.width;
 
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: (screenWidth * 0.04).clamp(12.0, 16.0),
-        vertical: size.height * 0.005,
+      margin: EdgeInsets.symmetric(horizontal: size.width * 0.045),
+      padding: EdgeInsets.fromLTRB(
+        size.width * 0.001,
+        0,
+        size.width * 0.001,
+        size.width * 0.03,
       ),
       child: Wrap(
         alignment: WrapAlignment.spaceBetween,

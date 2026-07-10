@@ -87,7 +87,7 @@ class AttendanceActionButtons extends StatelessWidget {
                     Icon(state.isCheckedIn ? Icons.check_circle : Icons.login),
                     const SizedBox(width: 8),
                     Text(
-                      state.isCheckedIn ? 'Check-in OK' : 'Check-in',
+                      state.isCheckedIn ? 'Check-in' : 'Check-in',
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ],
@@ -145,9 +145,7 @@ class AttendanceActionButtons extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      state.checkOutTime.isNotEmpty
-                          ? 'Check-out OK'
-                          : 'Check-out',
+                      state.checkOutTime.isNotEmpty ? 'Check-out' : 'Check-out',
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ],

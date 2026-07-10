@@ -97,7 +97,11 @@ class _AuthScreenState extends State<AuthScreen> {
         if (isSuccess) {
           Future.delayed(const Duration(seconds: 1), () {
             if (context.mounted) {
-              context.go('/portal');
+              if (state.firstLogin) {
+                context.go('/first-login-password', extra: state.password.value);
+              } else {
+                context.go('/portal');
+              }
             }
           });
         }
@@ -160,7 +164,7 @@ class _AuthScreenState extends State<AuthScreen> {
                               ],
                             ),
                             child: const Text(
-                              "PSM",
+                              "TRAVIS",
                               style: TextStyle(
                                 fontSize: 48,
                                 fontWeight: FontWeight.w900,
@@ -174,7 +178,7 @@ class _AuthScreenState extends State<AuthScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                "Padang",
+                                "Trans Padang",
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 24,
@@ -183,7 +187,15 @@ class _AuthScreenState extends State<AuthScreen> {
                                 ),
                               ),
                               Text(
-                                "Sejahtera Mandiri.",
+                                "Vehicle and Information",
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                              Text(
+                                "System.",
                                 style: TextStyle(
                                   color: Colors.white70,
                                   fontSize: 18,
@@ -242,7 +254,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                         ),
                                         const SizedBox(height: 8),
                                         Text(
-                                          "Aplikasi PSM Mobile.",
+                                          "Aplikasi TRAVIS.",
                                           style: TextStyle(
                                             fontSize: 13,
                                             color: Colors.grey[600],
@@ -262,8 +274,8 @@ class _AuthScreenState extends State<AuthScreen> {
                                               curr.usernameError,
                                       builder: (context, state) {
                                         return CoreInputFieldNew(
-                                          label: "Username",
-                                          hintText: "Username",
+                                          label: "Username / Email",
+                                          hintText: "Username / Email",
                                           isRequired: true,
                                           rule: InputRuleSuffixNew.text,
                                           initValue: state.username,
@@ -339,7 +351,9 @@ class _AuthScreenState extends State<AuthScreen> {
                                           },
                                         ),
                                         TextButton(
-                                          onPressed: () {},
+                                          onPressed: () {
+                                            context.go('/forgot-password');
+                                          },
                                           child: const Text(
                                             "Lupa password?",
                                             style: TextStyle(

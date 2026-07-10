@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-// import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:psm_mobile/core/presentations/widgets/widgets.dart';
-// import 'package:psm_mobile/features/attendance/presentation/bloc/approval_bloc.dart';
-// import 'package:psm_mobile/features/attendance/presentation/bloc/approval_state.dart';
 
 class ApprovalDetailHeader extends StatelessWidget {
   final int approvalId;

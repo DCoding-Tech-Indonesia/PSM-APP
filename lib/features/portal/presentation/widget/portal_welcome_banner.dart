@@ -25,7 +25,11 @@ class PortalWelcomeBanner extends StatelessWidget {
               color: Colors.purple.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(16),
             ),
-            child: Icon(Icons.business_center, size: 30, color: Colors.purple[600]),
+            child: Icon(
+              Icons.business_center,
+              size: 30,
+              color: Colors.purple[600],
+            ),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -33,7 +37,7 @@ class PortalWelcomeBanner extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'PSM Mobile',
+                  'TRAVIS',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,

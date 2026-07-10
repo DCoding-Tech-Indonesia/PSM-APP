@@ -16,7 +16,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final List<OnboardingItem> _items = [
     OnboardingItem(
       icon: Icons.dashboard_rounded,
-      title: 'Selamat Datang di PSM',
+      title: 'Selamat Datang di TRAVIS',
       description:
           'Portal System Management terintegrasi untuk mengelola semua modul dalam satu aplikasi.',
       color: Colors.blue,
