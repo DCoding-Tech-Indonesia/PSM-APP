@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:psm_mobile/core/presentations/entity/core_status_and_message_response.dart';
-import 'package:psm_mobile/core/storage/secure_storage.dart';
-import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/settlement_task_audit_trail.dart';
-import 'package:psm_mobile/features/settlement/domain/entities/settlement_create.dart';
+import 'package:travis/core/presentations/entity/core_status_and_message_response.dart';
+import 'package:travis/core/storage/secure_storage.dart';
+import 'package:travis/features/settlement/domain/entities/auditTrail/settlement_task_audit_trail.dart';
+import 'package:travis/features/settlement/domain/entities/settlement_create.dart';
 
 class SettlementDataSource {
   final Dio dio;
@@ -14,13 +14,21 @@ class SettlementDataSource {
 
   Future<String> createSettlement(SettlementCreate request) async {
     try {
-      final response = await dio.post(
-        '/settelment/create',
-        data: request.toJson(),
-      );
+      final requestJson = request.toJson();
 
       if (kDebugMode) {
-        print("========== RESPONSE ==========");
+        print("========== CREATE SETTLEMENT REQUEST ==========");
+        print("ENDPOINT: POST /settelment/create");
+        print("PAYLOAD:");
+        print(const JsonEncoder.withIndent('  ').convert(requestJson));
+        print("RITASE KE VALUE: ${requestJson['ritaseKe']}");
+        print("==============================================");
+      }
+
+      final response = await dio.post('/settelment/create', data: requestJson);
+
+      if (kDebugMode) {
+        print("========== CREATE SETTLEMENT RESPONSE ==========");
 
         print("PATH:");
         print(response.requestOptions.path);
@@ -34,7 +42,7 @@ class SettlementDataSource {
         print("DATA:");
         print(const JsonEncoder.withIndent('  ').convert(response.data));
 
-        print("================================");
+        print("================================================");
       }
 
       final idAuditTrail = response.data["data"][0]["auditTrailId"].toString();
@@ -99,6 +107,37 @@ class SettlementDataSource {
     SettlementCreate request,
   ) async {
     try {
+      final requestPayload = request.toJson();
+
+      // Log detail items
+      if (kDebugMode) {
+        print("========== UPDATE SETTLEMENT REQUEST ==========");
+        print("ENDPOINT: POST /audittrail/task/approval/edit");
+        print("Audit Trail ID: ${request.auditTrailId}");
+        print("Ritase Ke (Top Level): ${requestPayload['ritaseKe']}");
+        print(
+          "Detail Items Count: ${(requestPayload['detail'] as List?)?.length ?? 0}",
+        );
+
+        final details = requestPayload['detail'] as List?;
+        if (details != null) {
+          for (int i = 0; i < details.length; i++) {
+            final detail = details[i] as Map<String, dynamic>;
+            print("  Detail[$i] ritaseKe: ${detail['ritaseKe']}");
+          }
+        }
+
+        print("FULL REQUEST BODY:");
+        print(
+          const JsonEncoder.withIndent('  ').convert({
+            "idAuditTrail": request.auditTrailId,
+            "payload": requestPayload,
+            "reason": "UPDATE",
+          }),
+        );
+        print("==============================================");
+      }
+
       final response = await dio.post(
         '/audittrail/task/approval/edit',
         data: {

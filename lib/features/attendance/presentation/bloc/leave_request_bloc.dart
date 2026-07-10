@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:psm_mobile/features/attendance/domain/repositories/leave_request_repository.dart';
-import 'package:psm_mobile/features/attendance/presentation/bloc/leave_request_event.dart';
-import 'package:psm_mobile/features/attendance/presentation/bloc/leave_request_state.dart';
+import 'package:travis/features/attendance/domain/repositories/leave_request_repository.dart';
+import 'package:travis/features/attendance/presentation/bloc/leave_request_event.dart';
+import 'package:travis/features/attendance/presentation/bloc/leave_request_state.dart';
 
 class LeaveRequestBloc extends Bloc<LeaveRequestEvent, LeaveRequestState> {
   final LeaveRequestRepository repository;
@@ -146,18 +146,22 @@ class LeaveRequestBloc extends Bloc<LeaveRequestEvent, LeaveRequestState> {
         );
 
         if (!isClosed && state is LeaveRequestDetailLoaded) {
-          emit((state as LeaveRequestDetailLoaded).copyWith(
-            isLoading: false,
-            isActionSuccess: true,
-            actionSuccessMessage: successMessage,
-          ));
+          emit(
+            (state as LeaveRequestDetailLoaded).copyWith(
+              isLoading: false,
+              isActionSuccess: true,
+              actionSuccessMessage: successMessage,
+            ),
+          );
         }
       } catch (e) {
         if (!isClosed && state is LeaveRequestDetailLoaded) {
-          emit((state as LeaveRequestDetailLoaded).copyWith(
-            isLoading: false,
-            actionErrorMessage: e.toString(),
-          ));
+          emit(
+            (state as LeaveRequestDetailLoaded).copyWith(
+              isLoading: false,
+              actionErrorMessage: e.toString(),
+            ),
+          );
         }
       }
     }

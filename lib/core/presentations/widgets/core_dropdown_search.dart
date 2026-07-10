@@ -1,6 +1,6 @@
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_selected_dropdown_indicator.dart';
+import 'package:travis/core/presentations/widgets/core_selected_dropdown_indicator.dart';
 
 /// A generic reusable dropdown with search, styled for the app's design system.
 ///
@@ -91,10 +91,10 @@ class CoreDropdownSearch<T> extends StatelessWidget {
           enabled: !readOnly,
           items: (filter, _) => items
               .where(
-                (item) => itemAsString(item)
-                .toLowerCase()
-                .contains(filter.toLowerCase()),
-          )
+                (item) => itemAsString(
+                  item,
+                ).toLowerCase().contains(filter.toLowerCase()),
+              )
               .toList(),
           selectedItem: selectedItem,
           itemAsString: itemAsString,
@@ -104,23 +104,19 @@ class CoreDropdownSearch<T> extends StatelessWidget {
             decoration: InputDecoration(
               hintText: hintText ?? '',
               filled: true,
-              fillColor: readOnly ? Colors.grey.withValues(alpha: 0.12) : Colors.grey.shade50,
+              fillColor: readOnly
+                  ? Colors.grey.withValues(alpha: 0.12)
+                  : Colors.grey.shade50,
               contentPadding: const EdgeInsets.symmetric(
                 vertical: 12,
                 horizontal: 14,
               ),
               disabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(
-                  color: Colors.grey.shade300,
-                  width: 1,
-                ),
+                borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
                 borderRadius: BorderRadius.circular(12),
               ),
               enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(
-                  color: Colors.grey.shade300,
-                  width: 1.2,
-                ),
+                borderSide: BorderSide(color: Colors.grey.shade300, width: 1.2),
                 borderRadius: BorderRadius.circular(12),
               ),
               focusedBorder: OutlineInputBorder(
@@ -191,12 +187,12 @@ class CoreDropdownSearch<T> extends StatelessWidget {
               ),
             ),
             modalBottomSheetProps: const ModalBottomSheetProps(
-                enableDrag: true,
-                barrierDismissible: true,
-                clipBehavior: Clip.antiAlias,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(24)),
-                )
+              enableDrag: true,
+              barrierDismissible: true,
+              clipBehavior: Clip.antiAlias,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(24)),
+              ),
             ),
             itemBuilder: (context, item, isSelected, _) {
               final theme = Theme.of(context);
@@ -207,7 +203,10 @@ class CoreDropdownSearch<T> extends StatelessWidget {
                 color: selected
                     ? theme.colorScheme.primary.withValues(alpha: 0.1)
                     : Colors.transparent,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 16,
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [

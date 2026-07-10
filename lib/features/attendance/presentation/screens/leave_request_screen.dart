@@ -3,15 +3,15 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:psm_mobile/core/notification/approval_refresh_notifier.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_header.dart';
-import 'package:psm_mobile/features/attendance/presentation/bloc/leave_request_bloc.dart';
-import 'package:psm_mobile/features/portal/presentation/bloc/portal_bloc.dart';
-import 'package:psm_mobile/features/attendance/presentation/bloc/leave_request_event.dart';
-import 'package:psm_mobile/features/attendance/presentation/bloc/leave_request_state.dart';
-import 'package:psm_mobile/features/attendance/presentation/widgets/leave_request_list_card.dart';
-import 'package:psm_mobile/features/attendance/presentation/widgets/leave_request_form_sheet.dart';
-import 'package:psm_mobile/features/portal/presentation/bloc/portal_state.dart';
+import 'package:travis/core/notification/approval_refresh_notifier.dart';
+import 'package:travis/core/presentations/widgets/core_header.dart';
+import 'package:travis/features/attendance/presentation/bloc/leave_request_bloc.dart';
+import 'package:travis/features/portal/presentation/bloc/portal_bloc.dart';
+import 'package:travis/features/attendance/presentation/bloc/leave_request_event.dart';
+import 'package:travis/features/attendance/presentation/bloc/leave_request_state.dart';
+import 'package:travis/features/attendance/presentation/widgets/leave_request_list_card.dart';
+import 'package:travis/features/attendance/presentation/widgets/leave_request_form_sheet.dart';
+import 'package:travis/features/portal/presentation/bloc/portal_state.dart';
 
 class LeaveRequestScreen extends StatefulWidget {
   final String title;
@@ -52,9 +52,7 @@ class _LeaveRequestScreenState extends State<LeaveRequestScreen> {
         userId = int.tryParse(portalState.profile.id);
       }
     }
-    context.read<LeaveRequestBloc>().add(
-      LoadLeaveRequestList(userId: userId),
-    );
+    context.read<LeaveRequestBloc>().add(LoadLeaveRequestList(userId: userId));
   }
 
   @override
@@ -96,9 +94,7 @@ class _LeaveRequestScreenState extends State<LeaveRequestScreen> {
                         }
 
                         final bloc = context.read<LeaveRequestBloc>();
-                        bloc.add(
-                          LoadLeaveRequestList(userId: userId),
-                        );
+                        bloc.add(LoadLeaveRequestList(userId: userId));
                         await bloc.stream.firstWhere(
                           (s) => s is LeaveRequestLoaded && !s.isLoading,
                         );
@@ -112,7 +108,9 @@ class _LeaveRequestScreenState extends State<LeaveRequestScreen> {
                                 SizedBox(
                                   height:
                                       MediaQuery.of(context).size.height * 0.7,
-                                  child: _LeaveRequestEmptyState(isApproval: widget.isApproval),
+                                  child: _LeaveRequestEmptyState(
+                                    isApproval: widget.isApproval,
+                                  ),
                                 ),
                               ],
                             )

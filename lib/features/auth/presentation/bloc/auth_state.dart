@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:formz/formz.dart';
-import 'package:psm_mobile/features/auth/domain/entities/email.dart';
-import 'package:psm_mobile/features/auth/domain/entities/password.dart';
+import 'package:travis/features/auth/domain/entities/email.dart';
+import 'package:travis/features/auth/domain/entities/password.dart';
 
 class AuthState extends Equatable {
   final Email email;

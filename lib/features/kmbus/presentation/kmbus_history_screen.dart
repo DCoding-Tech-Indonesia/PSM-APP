@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_header.dart';
-import 'package:psm_mobile/features/kmbus/presentation/bloc/kmbus_event.dart';
+import 'package:travis/core/presentations/widgets/core_header.dart';
+import 'package:travis/features/kmbus/presentation/bloc/kmbus_event.dart';
 
 import 'bloc/kmbus_bloc.dart';
 import 'bloc/kmbus_state.dart';
@@ -79,10 +79,7 @@ class _KmbusHistoryScreenState extends State<KmbusHistoryScreen> {
               decoration: const BoxDecoration(
                 color: Colors.white,
                 border: Border(
-                  bottom: BorderSide(
-                    color: Color(0xFFEDF2F7),
-                    width: 1,
-                  ),
+                  bottom: BorderSide(color: Color(0xFFEDF2F7), width: 1),
                 ),
               ),
               child: Row(
@@ -103,7 +100,9 @@ class _KmbusHistoryScreenState extends State<KmbusHistoryScreen> {
                                 color: active
                                     ? const Color(0xFF1565C0)
                                     : const Color(0xFF718096),
-                                fontWeight: active ? FontWeight.w900 : FontWeight.w700,
+                                fontWeight: active
+                                    ? FontWeight.w900
+                                    : FontWeight.w700,
                                 fontSize: 13,
                               ),
                             ),
@@ -161,7 +160,9 @@ class _KmbusHistoryScreenState extends State<KmbusHistoryScreen> {
                                   scrollInfo.metrics.maxScrollExtent - 200 &&
                               state.status != KmbusStatus.fetching &&
                               !state.kmbusHasReachedMax) {
-                            context.read<KmbusBloc>().add(PageHistoryLoadNextPage());
+                            context.read<KmbusBloc>().add(
+                              PageHistoryLoadNextPage(),
+                            );
                           }
                           return true;
                         },
@@ -169,7 +170,10 @@ class _KmbusHistoryScreenState extends State<KmbusHistoryScreen> {
                           onRefresh: _onRefresh,
                           child: dataList.isEmpty
                               ? _buildEmptyState()
-                              : _buildSemuaListView(dataList, filterType: currentTab),
+                              : _buildSemuaListView(
+                                  dataList,
+                                  filterType: currentTab,
+                                ),
                         ),
                       );
                     },
@@ -264,7 +268,10 @@ class _KmbusHistoryScreenState extends State<KmbusHistoryScreen> {
                       ],
                     ),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: const Color(0xFFF7FAFC),
                         borderRadius: BorderRadius.circular(8),
@@ -281,12 +288,15 @@ class _KmbusHistoryScreenState extends State<KmbusHistoryScreen> {
                     ),
                   ],
                 ),
-
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 12),
-                  child: Divider(height: 1, thickness: 1, color: Color(0xFFEDF2F7)),
+                  child: Divider(
+                    height: 1,
+                    thickness: 1,
+                    color: Color(0xFFEDF2F7),
+                  ),
                 ),
-                 // Timeline KM Route / Single KM Dashboard Callout
+                // Timeline KM Route / Single KM Dashboard Callout
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 4),
                   child: (filterType == "Awal" || filterType == "Akhir")
@@ -320,7 +330,9 @@ class _KmbusHistoryScreenState extends State<KmbusHistoryScreen> {
                             Text(
                               filterType == "Awal"
                                   ? "${item.titikAwal} KM"
-                                  : (item.titikAkhir != null ? "${item.titikAkhir} KM" : "-"),
+                                  : (item.titikAkhir != null
+                                        ? "${item.titikAkhir} KM"
+                                        : "-"),
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w800,
@@ -337,13 +349,21 @@ class _KmbusHistoryScreenState extends State<KmbusHistoryScreen> {
                             // Timeline indicator line
                             Column(
                               children: [
-                                const Icon(Icons.circle, size: 8, color: Color(0xFF2E7D32)),
+                                const Icon(
+                                  Icons.circle,
+                                  size: 8,
+                                  color: Color(0xFF2E7D32),
+                                ),
                                 Container(
                                   width: 1.5,
                                   height: 28,
                                   color: const Color(0xFFE2E8F0),
                                 ),
-                                const Icon(Icons.circle, size: 8, color: Color(0xFFC62828)),
+                                const Icon(
+                                  Icons.circle,
+                                  size: 8,
+                                  color: Color(0xFFC62828),
+                                ),
                               ],
                             ),
                             const SizedBox(width: 14),
@@ -353,7 +373,8 @@ class _KmbusHistoryScreenState extends State<KmbusHistoryScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       const Text(
                                         "KM Awal (Mulai)",
@@ -375,7 +396,8 @@ class _KmbusHistoryScreenState extends State<KmbusHistoryScreen> {
                                   ),
                                   const SizedBox(height: 18),
                                   Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       const Text(
                                         "KM Akhir (Selesai)",
@@ -386,7 +408,9 @@ class _KmbusHistoryScreenState extends State<KmbusHistoryScreen> {
                                         ),
                                       ),
                                       Text(
-                                        item.titikAkhir != null ? '${item.titikAkhir} KM' : '-',
+                                        item.titikAkhir != null
+                                            ? '${item.titikAkhir} KM'
+                                            : '-',
                                         style: TextStyle(
                                           fontSize: 13,
                                           fontWeight: FontWeight.w800,
@@ -403,12 +427,14 @@ class _KmbusHistoryScreenState extends State<KmbusHistoryScreen> {
                           ],
                         ),
                 ),
-
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 12),
-                  child: Divider(height: 1, thickness: 1, color: Color(0xFFEDF2F7)),
+                  child: Divider(
+                    height: 1,
+                    thickness: 1,
+                    color: Color(0xFFEDF2F7),
+                  ),
                 ),
-
                 // Footer: Corridor + Total Distance
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -445,7 +471,9 @@ class _KmbusHistoryScreenState extends State<KmbusHistoryScreen> {
                         color: const Color(0xFF1565C0).withValues(alpha: 0.08),
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
-                          color: const Color(0xFF1565C0).withValues(alpha: 0.15),
+                          color: const Color(
+                            0xFF1565C0,
+                          ).withValues(alpha: 0.15),
                         ),
                       ),
                       child: Text(

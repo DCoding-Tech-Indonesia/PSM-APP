@@ -5,8 +5,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:intl/intl.dart';
-import 'package:psm_mobile/core/notification/approval_refresh_notifier.dart';
-import 'package:psm_mobile/core/router/app_router.dart';
+import 'package:travis/core/notification/approval_refresh_notifier.dart';
+import 'package:travis/core/router/app_router.dart';
 
 // Fungsi global untuk handle notifikasi saat aplikasi mati (terminated) atau di background
 @pragma('vm:entry-point')

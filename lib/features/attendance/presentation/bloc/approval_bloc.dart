@@ -1,8 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:psm_mobile/core/storage/secure_storage.dart';
-import 'package:psm_mobile/features/attendance/data/models/approval_model.dart';
-import 'package:psm_mobile/features/attendance/domain/repositories/approval_repository.dart';
-import 'package:psm_mobile/features/attendance/presentation/bloc/approval_state.dart';
+import 'package:travis/core/storage/secure_storage.dart';
+import 'package:travis/features/attendance/data/models/approval_model.dart';
+import 'package:travis/features/attendance/domain/repositories/approval_repository.dart';
+import 'package:travis/features/attendance/presentation/bloc/approval_state.dart';
 
 class ApprovalBloc extends Bloc<ApprovalEvent, ApprovalState> {
   final ApprovalRepository repository;
@@ -97,11 +97,13 @@ class ApprovalBloc extends Bloc<ApprovalEvent, ApprovalState> {
       );
 
       if (!isClosed && state is ApprovalDetailLoaded) {
-        emit((state as ApprovalDetailLoaded).copyWith(
-          isLoading: false,
-          isActionSuccess: true,
-          actionSuccessMessage: successMessage,
-        ));
+        emit(
+          (state as ApprovalDetailLoaded).copyWith(
+            isLoading: false,
+            isActionSuccess: true,
+            actionSuccessMessage: successMessage,
+          ),
+        );
       }
     } catch (e) {
       if (!isClosed && state is ApprovalDetailLoaded) {

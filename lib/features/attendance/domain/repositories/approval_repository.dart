@@ -1,5 +1,5 @@
-import 'package:psm_mobile/features/attendance/data/models/approval_detail_model.dart';
-import 'package:psm_mobile/features/attendance/data/models/approval_model.dart';
+import 'package:travis/features/attendance/data/models/approval_detail_model.dart';
+import 'package:travis/features/attendance/data/models/approval_model.dart';
 
 abstract class ApprovalRepository {
   Future<List<ApprovalModel>> getApprovalList(String type);

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:psm_mobile/features/attendance/presentation/bloc/attendance_state.dart';
+import 'package:travis/features/attendance/presentation/bloc/attendance_state.dart';
 
 class LocationStatusCard extends StatelessWidget {
   final AttendanceLoaded state;

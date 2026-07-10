@@ -1,10 +1,10 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:psm_mobile/core/storage/secure_storage.dart';
-import 'package:psm_mobile/core/network/dio_client.dart';
-import 'package:psm_mobile/features/auth/domain/repositories/auth_repository.dart';
-import 'package:psm_mobile/features/portal/domain/repositories/portal_repository.dart';
-import 'package:psm_mobile/features/portal/presentation/bloc/portal_event.dart';
-import 'package:psm_mobile/features/portal/presentation/bloc/portal_state.dart';
+import 'package:travis/core/storage/secure_storage.dart';
+import 'package:travis/core/network/dio_client.dart';
+import 'package:travis/features/auth/domain/repositories/auth_repository.dart';
+import 'package:travis/features/portal/domain/repositories/portal_repository.dart';
+import 'package:travis/features/portal/presentation/bloc/portal_event.dart';
+import 'package:travis/features/portal/presentation/bloc/portal_state.dart';
 
 class PortalBloc extends Bloc<PortalEvent, PortalState> {
   final AuthRepository authRepository;

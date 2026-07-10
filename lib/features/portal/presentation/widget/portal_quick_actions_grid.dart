@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:psm_mobile/features/portal/presentation/bloc/portal_state.dart';
+import 'package:travis/features/portal/presentation/bloc/portal_state.dart';
 import 'portal_dialogs.dart';
 
 class PortalQuickActionsGrid extends StatelessWidget {

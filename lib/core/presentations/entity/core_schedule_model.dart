@@ -1,5 +1,5 @@
-import 'package:psm_mobile/features/attendance/data/models/general_model.dart';
-import 'package:psm_mobile/features/reference/domain/entities/reference_bus.dart';
+import 'package:travis/features/attendance/data/models/general_model.dart';
+import 'package:travis/features/reference/domain/entities/reference_bus.dart';
 
 class CoreScheduleModel {
   final int id;

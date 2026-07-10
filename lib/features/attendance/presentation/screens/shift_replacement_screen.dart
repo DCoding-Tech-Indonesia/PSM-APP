@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:psm_mobile/core/network/dio_client.dart';
-import 'package:psm_mobile/core/presentations/widgets/widgets.dart';
-import 'package:psm_mobile/features/attendance/data/datasources/approval_remote_data_source.dart';
-import 'package:psm_mobile/features/attendance/data/models/approval_model.dart';
-import 'package:psm_mobile/features/attendance/data/models/schedule_model.dart';
-import 'package:psm_mobile/features/attendance/data/repositories/approval_repository_impl.dart';
-import 'package:psm_mobile/features/attendance/presentation/bloc/approval_bloc.dart';
-import 'package:psm_mobile/features/attendance/presentation/bloc/approval_state.dart';
-import 'package:psm_mobile/features/attendance/presentation/widgets/approval_list_card.dart';
+import 'package:travis/core/network/dio_client.dart';
+import 'package:travis/core/presentations/widgets/widgets.dart';
+import 'package:travis/features/attendance/data/datasources/approval_remote_data_source.dart';
+import 'package:travis/features/attendance/data/models/approval_model.dart';
+import 'package:travis/features/attendance/data/models/schedule_model.dart';
+import 'package:travis/features/attendance/data/repositories/approval_repository_impl.dart';
+import 'package:travis/features/attendance/presentation/bloc/approval_bloc.dart';
+import 'package:travis/features/attendance/presentation/bloc/approval_state.dart';
+import 'package:travis/features/attendance/presentation/widgets/approval_list_card.dart';
 
 class ShiftReplacementScreen extends StatelessWidget {
   final List<ScheduleModel> schedules;

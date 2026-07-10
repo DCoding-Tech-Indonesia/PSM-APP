@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:psm_mobile/core/helper/string_formatter.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_bottom_modal_verification.dart';
-import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/settlement_task_audit_trail.dart';
-import 'package:psm_mobile/features/settlement/domain/entities/settlement_form_args.dart';
-import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_bloc.dart';
-import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_event.dart';
+import 'package:travis/core/helper/string_formatter.dart';
+import 'package:travis/core/presentations/widgets/core_bottom_modal_verification.dart';
+import 'package:travis/features/settlement/domain/entities/auditTrail/settlement_task_audit_trail.dart';
+import 'package:travis/features/settlement/domain/entities/settlement_form_args.dart';
+import 'package:travis/features/settlement/presentation/bloc/settlement_bloc.dart';
+import 'package:travis/features/settlement/presentation/bloc/settlement_event.dart';
 
 class DraftSettlementCardSingle extends StatelessWidget {
   const DraftSettlementCardSingle({

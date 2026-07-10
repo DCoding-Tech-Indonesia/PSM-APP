@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:psm_mobile/core/presentations/widgets/widgets.dart';
+import 'package:travis/core/presentations/widgets/widgets.dart';
 
 class ApprovalDetailActionButtons extends StatelessWidget {
   final VoidCallback? onApprove;

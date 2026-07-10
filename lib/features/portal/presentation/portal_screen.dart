@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:psm_mobile/features/portal/presentation/bloc/portal_bloc.dart';
-import 'package:psm_mobile/features/portal/presentation/bloc/portal_state.dart';
+import 'package:travis/features/portal/presentation/bloc/portal_bloc.dart';
+import 'package:travis/features/portal/presentation/bloc/portal_state.dart';
 
 import 'bloc/portal_event.dart';
 import 'widget/portal_header.dart';

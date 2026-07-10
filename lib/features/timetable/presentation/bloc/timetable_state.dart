@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
-import 'package:psm_mobile/features/reference/domain/entities/reference_detail.dart';
-import 'package:psm_mobile/features/timetable/domain/entities/timetable_checkin.dart';
-import 'package:psm_mobile/features/timetable/domain/entities/timetable_data.dart';
+import 'package:travis/features/reference/domain/entities/reference_detail.dart';
+import 'package:travis/features/timetable/domain/entities/timetable_checkin.dart';
+import 'package:travis/features/timetable/domain/entities/timetable_data.dart';
 
 enum TimetableStatus {
   initial,
@@ -14,7 +14,7 @@ enum TimetableStatus {
   onSubmit,
   inValid,
   successCheckIn,
-  successCheckOut
+  successCheckOut,
 }
 
 class TimetableState extends Equatable {
@@ -114,8 +114,10 @@ class TimetableState extends Equatable {
     bool? hasReachedMax,
   }) {
     return TimetableState(
-      disabledBerangkatMessage: disabledBerangkatMessage ?? this.disabledBerangkatMessage,
-      disabledDatangMessage: disabledDatangMessage ?? this.disabledDatangMessage,
+      disabledBerangkatMessage:
+          disabledBerangkatMessage ?? this.disabledBerangkatMessage,
+      disabledDatangMessage:
+          disabledDatangMessage ?? this.disabledDatangMessage,
       idShift: idShift ?? this.idShift,
       idKm: idKm ?? this.idKm,
       ritaseKe: ritaseKe ?? this.ritaseKe,

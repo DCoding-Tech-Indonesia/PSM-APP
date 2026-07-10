@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:psm_mobile/core/helper/string_formatter.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_header.dart';
-import 'package:psm_mobile/features/timetable/domain/entities/timetable_data.dart';
-import 'package:psm_mobile/features/timetable/presentation/bloc/timetable_bloc.dart';
-import 'package:psm_mobile/features/timetable/presentation/bloc/timetable_event.dart';
-import 'package:psm_mobile/features/timetable/presentation/bloc/timetable_state.dart';
+import 'package:travis/core/helper/string_formatter.dart';
+import 'package:travis/core/presentations/widgets/core_header.dart';
+import 'package:travis/features/timetable/domain/entities/timetable_data.dart';
+import 'package:travis/features/timetable/presentation/bloc/timetable_bloc.dart';
+import 'package:travis/features/timetable/presentation/bloc/timetable_event.dart';
+import 'package:travis/features/timetable/presentation/bloc/timetable_state.dart';
 
 class TimetableHistoryScreen extends StatefulWidget {
   const TimetableHistoryScreen({super.key});
@@ -83,10 +83,7 @@ class _TimetableHistoryScreenState extends State<TimetableHistoryScreen> {
               decoration: const BoxDecoration(
                 color: Colors.white,
                 border: Border(
-                  bottom: BorderSide(
-                    color: Color(0xFFEDF2F7),
-                    width: 1,
-                  ),
+                  bottom: BorderSide(color: Color(0xFFEDF2F7), width: 1),
                 ),
               ),
               child: Row(
@@ -107,7 +104,9 @@ class _TimetableHistoryScreenState extends State<TimetableHistoryScreen> {
                                 color: active
                                     ? const Color(0xFF1565C0)
                                     : const Color(0xFF718096),
-                                fontWeight: active ? FontWeight.w900 : FontWeight.w700,
+                                fontWeight: active
+                                    ? FontWeight.w900
+                                    : FontWeight.w700,
                                 fontSize: 13,
                               ),
                             ),
@@ -169,7 +168,9 @@ class _TimetableHistoryScreenState extends State<TimetableHistoryScreen> {
                                   scrollInfo.metrics.maxScrollExtent - 200 &&
                               state.status != TimetableStatus.fetching &&
                               !state.hasReachedMax) {
-                            context.read<TimetableBloc>().add(PageHistoryLoadNextPage());
+                            context.read<TimetableBloc>().add(
+                              PageHistoryLoadNextPage(),
+                            );
                           }
                           return true;
                         },
@@ -177,7 +178,12 @@ class _TimetableHistoryScreenState extends State<TimetableHistoryScreen> {
                           onRefresh: _onRefresh,
                           child: dataList.isEmpty
                               ? _buildEmptyState()
-                              : _buildTimetableList(dataList, filterType: currentTab == "All" ? null : currentTab),
+                              : _buildTimetableList(
+                                  dataList,
+                                  filterType: currentTab == "All"
+                                      ? null
+                                      : currentTab,
+                                ),
                         ),
                       );
                     },
@@ -206,7 +212,10 @@ class _TimetableHistoryScreenState extends State<TimetableHistoryScreen> {
     );
   }
 
-  Widget _buildTimetableList(List<TimetableData> dataList, {String? filterType}) {
+  Widget _buildTimetableList(
+    List<TimetableData> dataList, {
+    String? filterType,
+  }) {
     final status = context.watch<TimetableBloc>().state.status;
     final isFetching = status == TimetableStatus.fetching;
 
@@ -272,7 +281,10 @@ class _TimetableHistoryScreenState extends State<TimetableHistoryScreen> {
                       ],
                     ),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: const Color(0xFFF7FAFC),
                         borderRadius: BorderRadius.circular(8),
@@ -292,7 +304,11 @@ class _TimetableHistoryScreenState extends State<TimetableHistoryScreen> {
 
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 12),
-                  child: Divider(height: 1, thickness: 1, color: Color(0xFFEDF2F7)),
+                  child: Divider(
+                    height: 1,
+                    thickness: 1,
+                    color: Color(0xFFEDF2F7),
+                  ),
                 ),
 
                 // Timeline Route / Single Time Dashboard Callout
@@ -329,11 +345,17 @@ class _TimetableHistoryScreenState extends State<TimetableHistoryScreen> {
                             Text(
                               filterType == "Berangkat"
                                   ? (data.jamBerangkat.trim().isEmpty
-                                      ? "--:--:--"
-                                      : StringFormatter().formatLongTimeToMedium(data.jamBerangkat))
+                                        ? "--:--:--"
+                                        : StringFormatter()
+                                              .formatLongTimeToMedium(
+                                                data.jamBerangkat,
+                                              ))
                                   : (data.jamDatang.trim().isEmpty
-                                      ? "--:--:--"
-                                      : StringFormatter().formatLongTimeToMedium(data.jamDatang)),
+                                        ? "--:--:--"
+                                        : StringFormatter()
+                                              .formatLongTimeToMedium(
+                                                data.jamDatang,
+                                              )),
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w800,
@@ -350,13 +372,21 @@ class _TimetableHistoryScreenState extends State<TimetableHistoryScreen> {
                             // Timeline indicator line
                             Column(
                               children: [
-                                const Icon(Icons.circle, size: 8, color: Color(0xFF2E7D32)),
+                                const Icon(
+                                  Icons.circle,
+                                  size: 8,
+                                  color: Color(0xFF2E7D32),
+                                ),
                                 Container(
                                   width: 1.5,
                                   height: 28,
                                   color: const Color(0xFFE2E8F0),
                                 ),
-                                const Icon(Icons.circle, size: 8, color: Color(0xFFC62828)),
+                                const Icon(
+                                  Icons.circle,
+                                  size: 8,
+                                  color: Color(0xFFC62828),
+                                ),
                               ],
                             ),
                             const SizedBox(width: 14),
@@ -366,7 +396,8 @@ class _TimetableHistoryScreenState extends State<TimetableHistoryScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       const Text(
                                         "Berangkat (Check-In)",
@@ -379,11 +410,15 @@ class _TimetableHistoryScreenState extends State<TimetableHistoryScreen> {
                                       Text(
                                         data.jamBerangkat.trim().isEmpty
                                             ? "--:--:--"
-                                            : StringFormatter().formatLongTimeToMedium(data.jamBerangkat),
+                                            : StringFormatter()
+                                                  .formatLongTimeToMedium(
+                                                    data.jamBerangkat,
+                                                  ),
                                         style: TextStyle(
                                           fontSize: 13,
                                           fontWeight: FontWeight.w800,
-                                          color: data.jamBerangkat.trim().isEmpty
+                                          color:
+                                              data.jamBerangkat.trim().isEmpty
                                               ? const Color(0xFFA0AEC0)
                                               : const Color(0xFF2E7D32),
                                         ),
@@ -392,7 +427,8 @@ class _TimetableHistoryScreenState extends State<TimetableHistoryScreen> {
                                   ),
                                   const SizedBox(height: 18),
                                   Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       const Text(
                                         "Datang (Check-Out)",
@@ -405,7 +441,10 @@ class _TimetableHistoryScreenState extends State<TimetableHistoryScreen> {
                                       Text(
                                         data.jamDatang.trim().isEmpty
                                             ? "--:--:--"
-                                            : StringFormatter().formatLongTimeToMedium(data.jamDatang),
+                                            : StringFormatter()
+                                                  .formatLongTimeToMedium(
+                                                    data.jamDatang,
+                                                  ),
                                         style: TextStyle(
                                           fontSize: 13,
                                           fontWeight: FontWeight.w800,
@@ -425,7 +464,11 @@ class _TimetableHistoryScreenState extends State<TimetableHistoryScreen> {
 
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 12),
-                  child: Divider(height: 1, thickness: 1, color: Color(0xFFEDF2F7)),
+                  child: Divider(
+                    height: 1,
+                    thickness: 1,
+                    color: Color(0xFFEDF2F7),
+                  ),
                 ),
 
                 // Footer: Corridor + Ritase
@@ -464,7 +507,9 @@ class _TimetableHistoryScreenState extends State<TimetableHistoryScreen> {
                         color: const Color(0xFF1565C0).withValues(alpha: 0.08),
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
-                          color: const Color(0xFF1565C0).withValues(alpha: 0.15),
+                          color: const Color(
+                            0xFF1565C0,
+                          ).withValues(alpha: 0.15),
                         ),
                       ),
                       child: Text(

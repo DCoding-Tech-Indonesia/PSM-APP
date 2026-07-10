@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:psm_mobile/core/presentations/entity/core_schedule_model.dart';
+import 'package:travis/core/presentations/entity/core_schedule_model.dart';
 
 import 'domain/entities/document_preview.dart';
 import 'domain/entities/next_ritase_response.dart';

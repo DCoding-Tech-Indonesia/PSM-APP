@@ -1,18 +1,18 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fpdart/src/either.dart';
-import 'package:psm_mobile/core/error/failure.dart';
-import 'package:psm_mobile/core/storage/secure_storage.dart';
-import 'package:psm_mobile/features/kmbus/domain/entities/kmbus_data.dart';
-import 'package:psm_mobile/features/kmbus/domain/entities/kmbus_document.dart';
-import 'package:psm_mobile/features/kmbus/domain/entities/titik_akhir_create.dart';
-import 'package:psm_mobile/features/kmbus/domain/entities/titik_awal_create.dart';
-import 'package:psm_mobile/features/kmbus/domain/repositories/kmbus_repository.dart';
-import 'package:psm_mobile/features/kmbus/presentation/bloc/kmbus_event.dart';
-import 'package:psm_mobile/features/kmbus/presentation/bloc/kmbus_state.dart';
-import 'package:psm_mobile/features/reference/domain/entities/document_preview.dart';
-import 'package:psm_mobile/features/reference/domain/entities/reference_detail.dart';
-import 'package:psm_mobile/features/timetable/domain/entities/timetable_checkin.dart';
+import 'package:travis/core/error/failure.dart';
+import 'package:travis/core/storage/secure_storage.dart';
+import 'package:travis/features/kmbus/domain/entities/kmbus_data.dart';
+import 'package:travis/features/kmbus/domain/entities/kmbus_document.dart';
+import 'package:travis/features/kmbus/domain/entities/titik_akhir_create.dart';
+import 'package:travis/features/kmbus/domain/entities/titik_awal_create.dart';
+import 'package:travis/features/kmbus/domain/repositories/kmbus_repository.dart';
+import 'package:travis/features/kmbus/presentation/bloc/kmbus_event.dart';
+import 'package:travis/features/kmbus/presentation/bloc/kmbus_state.dart';
+import 'package:travis/features/reference/domain/entities/document_preview.dart';
+import 'package:travis/features/reference/domain/entities/reference_detail.dart';
+import 'package:travis/features/timetable/domain/entities/timetable_checkin.dart';
 
 class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
   final KmbusRepository kmbusRepository;
@@ -523,6 +523,8 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
       try {
         int idKoridor = state.idKoridorShift ?? 0;
         int idBus = state.idBusShift ?? 0;
+        String namaKoridor = state.namaKoridor ?? '';
+        String noUnit = state.noUnit ?? '';
 
         if (idKoridor == 0 || idBus == 0) {
           final userIdString = await secureStorageService.readUserId();
@@ -534,6 +536,8 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
             if (data.isNotEmpty) {
               idKoridor = data[0].lokasi.koridor;
               idBus = data[0].bus.id ?? 0;
+              namaKoridor = data[0].lokasi.namaLokasi;
+              noUnit = data[0].bus.nomorLambung;
             }
           });
         }
@@ -581,6 +585,10 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
                         : (titikAkhirData.ritaseKe ?? 0.5),
                   ),
                   ocrResult: titikAkhirData.titikAkhir.toString(),
+                  namaKoridor: namaKoridor,
+                  noUnit: noUnit,
+                  idKoridorShift: idKoridor,
+                  idBusShift: idBus,
                 ),
               );
             },
@@ -590,6 +598,10 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
             state.copyWith(
               status: KmbusStatus.success,
               titikAkhirCreate: initial,
+              namaKoridor: namaKoridor,
+              noUnit: noUnit,
+              idKoridorShift: idKoridor,
+              idBusShift: idBus,
             ),
           );
         }

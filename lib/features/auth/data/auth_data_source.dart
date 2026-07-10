@@ -1,10 +1,10 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:psm_mobile/core/helper/auth_token_helper.dart';
-import 'package:psm_mobile/core/helper/error_helper_parser.dart';
-import 'package:psm_mobile/core/network/dio_client.dart';
-import 'package:psm_mobile/core/storage/secure_storage.dart';
-import 'package:psm_mobile/features/auth/domain/entities/login_response.dart';
+import 'package:travis/core/helper/auth_token_helper.dart';
+import 'package:travis/core/helper/error_helper_parser.dart';
+import 'package:travis/core/network/dio_client.dart';
+import 'package:travis/core/storage/secure_storage.dart';
+import 'package:travis/features/auth/domain/entities/login_response.dart';
 
 class AuthDataSource {
   final Dio dio;

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 // import 'package:go_router/go_router.dart';
-import 'package:psm_mobile/core/presentations/widgets/widgets.dart';
+import 'package:travis/core/presentations/widgets/widgets.dart';
 
 class AttendanceHeader extends StatelessWidget {
   const AttendanceHeader({super.key});

@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_bottom_modal_verification.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_snackbar.dart';
-import 'package:psm_mobile/core/presentations/widgets/widgets.dart';
-import 'package:psm_mobile/core/helper/string_formatter.dart';
-import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_bloc.dart';
-import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_event.dart';
-import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_state.dart';
-import 'package:psm_mobile/features/settlement/presentation/widgets/form/wizard_detail_step.dart';
-import 'package:psm_mobile/features/settlement/presentation/widgets/form/wizard_first_step.dart';
-import 'package:psm_mobile/features/settlement/presentation/widgets/form/wizard_last_step.dart';
+import 'package:travis/core/presentations/widgets/core_bottom_modal_verification.dart';
+import 'package:travis/core/presentations/widgets/core_snackbar.dart';
+import 'package:travis/core/presentations/widgets/widgets.dart';
+import 'package:travis/core/helper/string_formatter.dart';
+import 'package:travis/features/settlement/presentation/bloc/settlement_bloc.dart';
+import 'package:travis/features/settlement/presentation/bloc/settlement_event.dart';
+import 'package:travis/features/settlement/presentation/bloc/settlement_state.dart';
+import 'package:travis/features/settlement/presentation/widgets/form/wizard_detail_step.dart';
+import 'package:travis/features/settlement/presentation/widgets/form/wizard_first_step.dart';
+import 'package:travis/features/settlement/presentation/widgets/form/wizard_last_step.dart';
 
 class SettlementFormScreen extends StatefulWidget {
   const SettlementFormScreen({
@@ -203,18 +203,20 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
                                     previous.totalSteps != current.totalSteps,
                                 builder: (context, state) {
                                   return Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
                                         children: [
                                           Expanded(
                                             child: Text(
                                               state.steps == 1
                                                   ? "Pilih Bus dan Koridor"
                                                   : (state.steps == 2
-                                                      ? "Detail Settlement"
-                                                      : "Ringkasan"),
+                                                        ? "Detail Settlement"
+                                                        : "Ringkasan"),
                                               style: const TextStyle(
                                                 fontWeight: FontWeight.w800,
                                                 fontSize: 16,
@@ -223,10 +225,16 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
                                             ),
                                           ),
                                           Container(
-                                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 10,
+                                              vertical: 4,
+                                            ),
                                             decoration: BoxDecoration(
-                                              color: const Color(0xFF1565C0).withValues(alpha: 0.08),
-                                              borderRadius: BorderRadius.circular(20),
+                                              color: const Color(
+                                                0xFF1565C0,
+                                              ).withValues(alpha: 0.08),
+                                              borderRadius:
+                                                  BorderRadius.circular(20),
                                             ),
                                             child: Text(
                                               "${state.steps}/${state.totalSteps}",
@@ -241,27 +249,43 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
                                       ),
                                       const SizedBox(height: 10),
                                       Row(
-                                        children: List.generate(state.totalSteps, (index) {
-                                          final isCurrent = index + 1 == state.steps;
-                                          final isPassed = index + 1 < state.steps;
-                                          return Expanded(
-                                            child: Container(
-                                              margin: EdgeInsets.only(
-                                                left: index == 0 ? 0 : 4,
-                                                right: index == state.totalSteps - 1 ? 0 : 4,
+                                        children: List.generate(
+                                          state.totalSteps,
+                                          (index) {
+                                            final isCurrent =
+                                                index + 1 == state.steps;
+                                            final isPassed =
+                                                index + 1 < state.steps;
+                                            return Expanded(
+                                              child: Container(
+                                                margin: EdgeInsets.only(
+                                                  left: index == 0 ? 0 : 4,
+                                                  right:
+                                                      index ==
+                                                          state.totalSteps - 1
+                                                      ? 0
+                                                      : 4,
+                                                ),
+                                                height: 3,
+                                                decoration: BoxDecoration(
+                                                  color: isCurrent
+                                                      ? const Color(0xFF1565C0)
+                                                      : (isPassed
+                                                            ? const Color(
+                                                                0xFF1565C0,
+                                                              ).withValues(
+                                                                alpha: 0.4,
+                                                              )
+                                                            : Colors
+                                                                  .grey
+                                                                  .shade200),
+                                                  borderRadius:
+                                                      BorderRadius.circular(2),
+                                                ),
                                               ),
-                                              height: 3,
-                                              decoration: BoxDecoration(
-                                                color: isCurrent
-                                                    ? const Color(0xFF1565C0)
-                                                    : (isPassed
-                                                        ? const Color(0xFF1565C0).withValues(alpha: 0.4)
-                                                        : Colors.grey.shade200),
-                                                borderRadius: BorderRadius.circular(2),
-                                              ),
-                                            ),
-                                          );
-                                        }),
+                                            );
+                                          },
+                                        ),
                                       ),
                                     ],
                                   );
@@ -318,7 +342,7 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
                               state.ritase == 0 &&
                               state.status == SettlementStatus.loading) ||
                           (state.steps == 3 && state.document.isEmpty);
- 
+
                       return Row(
                         spacing: 12,
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -338,7 +362,7 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
                                       );
                                       return;
                                     }
- 
+
                                     context.read<SettlementBloc>().add(
                                       MoveStepWizard(state.steps - 1),
                                     );
@@ -355,7 +379,7 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
                                 text: "Sebelumnya",
                               ),
                             ),
- 
+
                           Expanded(
                             child: CoreButton(
                               onPressed: isDisabled
@@ -365,18 +389,18 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
                                         if (!state.allowLastStep) {
                                           final nextIndex =
                                               state.activeTabIndex + 1;
- 
+
                                           context.read<SettlementBloc>().add(
                                             ChangeTabDetail(nextIndex),
                                           );
- 
+
                                           return;
                                         } else {
                                           await _showStep2Confirmation(context);
                                           return;
                                         }
                                       }
- 
+
                                       if (state.steps < state.totalSteps) {
                                         context.read<SettlementBloc>().add(
                                           MoveStepWizard(state.steps + 1),

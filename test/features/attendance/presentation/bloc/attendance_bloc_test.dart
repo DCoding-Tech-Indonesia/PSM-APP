@@ -1,11 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:psm_mobile/features/attendance/domain/repositories/attendance_repository.dart';
-import 'package:psm_mobile/features/attendance/presentation/bloc/attendance_bloc.dart';
-import 'package:psm_mobile/features/attendance/presentation/bloc/attendance_state.dart';
-import 'package:psm_mobile/core/helper/location_service.dart';
+import 'package:travis/features/attendance/domain/repositories/attendance_repository.dart';
+import 'package:travis/features/attendance/presentation/bloc/attendance_bloc.dart';
+import 'package:travis/features/attendance/presentation/bloc/attendance_state.dart';
+import 'package:travis/core/helper/location_service.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:psm_mobile/features/attendance/data/models/attendance_request.dart';
+import 'package:travis/features/attendance/data/models/attendance_request.dart';
 import 'package:bloc_test/bloc_test.dart';
 
 class MockAttendanceRepository extends Mock implements AttendanceRepository {}

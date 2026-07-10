@@ -1,7 +1,7 @@
 import 'package:fpdart/fpdart.dart';
-import 'package:psm_mobile/core/error/failure.dart';
-import 'package:psm_mobile/features/auth/domain/entities/login_response.dart';
-import 'package:psm_mobile/features/auth/domain/repositories/auth_repository.dart';
+import 'package:travis/core/error/failure.dart';
+import 'package:travis/features/auth/domain/entities/login_response.dart';
+import 'package:travis/features/auth/domain/repositories/auth_repository.dart';
 
 class LoginUseCase {
   final AuthRepository authRepository;

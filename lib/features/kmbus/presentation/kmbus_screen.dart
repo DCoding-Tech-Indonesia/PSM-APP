@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:psm_mobile/core/presentations/entity/schedule_args.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_bottom_modal_verification.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_date_time_widget.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_skeleton_widget.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_header.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_snackbar.dart';
-import 'package:psm_mobile/features/kmbus/domain/entities/titik_akhir_args.dart';
-import 'package:psm_mobile/features/kmbus/presentation/bloc/kmbus_state.dart';
-import 'package:psm_mobile/features/reference/domain/entities/reference_detail.dart';
+import 'package:travis/core/presentations/entity/schedule_args.dart';
+import 'package:travis/core/presentations/widgets/core_bottom_modal_verification.dart';
+import 'package:travis/core/presentations/widgets/core_date_time_widget.dart';
+import 'package:travis/core/presentations/widgets/core_skeleton_widget.dart';
+import 'package:travis/core/presentations/widgets/core_header.dart';
+import 'package:travis/core/presentations/widgets/core_snackbar.dart';
+import 'package:travis/features/kmbus/domain/entities/titik_akhir_args.dart';
+import 'package:travis/features/kmbus/presentation/bloc/kmbus_state.dart';
+import 'package:travis/features/reference/domain/entities/reference_detail.dart';
 
 import 'bloc/kmbus_bloc.dart';
 import 'bloc/kmbus_event.dart';
@@ -475,6 +475,10 @@ class _KmbusScreenState extends State<KmbusScreen> {
                                 final item = state.listKmbus[index];
 
                                 return Container(
+                                  margin: const EdgeInsets.symmetric(
+                                    horizontal: 20,
+                                    vertical: 6,
+                                  ),
                                   decoration: BoxDecoration(
                                     color: Colors.white,
                                     borderRadius: BorderRadius.circular(20),
@@ -760,6 +764,67 @@ class _KmbusScreenState extends State<KmbusScreen> {
                 ),
                 floatingActionButton: FloatingActionButton(
                   onPressed: () async {
+                    // 1. Check if there's a draft KM Awal to continue editing
+                    final draftAuditTrail = state.listKmbusAuditTrail
+                        .where((e) {
+                          final todayString = DateTime.now()
+                              .toIso8601String()
+                              .split('T')[0];
+                          final createdDateString = e.createdDate
+                              .toLocal()
+                              .toIso8601String()
+                              .split('T')[0];
+                          final bool isSubmitted =
+                              e.dataAfter.isSubmit ?? false;
+                          return e.status.code == "DFT" &&
+                              createdDateString == todayString &&
+                              !isSubmitted;
+                        })
+                        .firstOrNull;
+
+                    if (draftAuditTrail != null) {
+                      // Continue editing existing draft
+                      final result = await context.push<bool>(
+                        '/kmbus/titik-awal/form',
+                        extra: ScheduleArgs(
+                          idShift: state.idShift ?? 0,
+                          idKoridorShift: state.idKoridorShift ?? 0,
+                          idBusShift: state.idBusShift ?? 0,
+                          idAuditTrail: draftAuditTrail.id,
+                        ),
+                      );
+
+                      if (context.mounted && result == true) {
+                        context.read<KmbusBloc>().add(PageDashboardLoad());
+                      }
+                      return;
+                    }
+
+                    // 2. Check if there's a KM entry with titik_awal but no titik_akhir (needs completion)
+                    final kmNeedingAkhir = state.listKmbus
+                        .where(
+                          (km) => (km.titikAkhir == null || km.titikAkhir == 0) &&
+                              (km.titikAwal != null && km.titikAwal != 0),
+                        )
+                        .firstOrNull;
+
+                    if (kmNeedingAkhir != null) {
+                      // Navigate to input titik_akhir for this KM
+                      final result = await context.push<bool>(
+                        '/kmbus/titik-akhir/form',
+                        extra: TitikAkhirArgs(
+                          idKm: kmNeedingAkhir.id ?? 0,
+                          idAuditTrail: 0,
+                        ),
+                      );
+
+                      if (context.mounted && result == true) {
+                        context.read<KmbusBloc>().add(PageDashboardLoad());
+                      }
+                      return;
+                    }
+
+                    // 3. Default: Create new KM entry
                     if (!state.allowTitikAwal) {
                       CoreSnackbar.show(
                         context,

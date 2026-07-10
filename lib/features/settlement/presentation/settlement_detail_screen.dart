@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:psm_mobile/core/helper/string_formatter.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_bottom_modal_verification.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_button.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_header.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_snackbar.dart';
-import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_event.dart';
+import 'package:travis/core/helper/string_formatter.dart';
+import 'package:travis/core/presentations/widgets/core_bottom_modal_verification.dart';
+import 'package:travis/core/presentations/widgets/core_button.dart';
+import 'package:travis/core/presentations/widgets/core_header.dart';
+import 'package:travis/core/presentations/widgets/core_snackbar.dart';
+import 'package:travis/features/settlement/presentation/bloc/settlement_event.dart';
 
 import '../domain/entities/settlement_detail.dart';
 import 'bloc/settlement_bloc.dart';

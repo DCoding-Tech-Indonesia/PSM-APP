@@ -3,14 +3,14 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:psm_mobile/core/helper/camera_access_helper.dart';
-import 'package:psm_mobile/core/helper/string_formatter.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_camera_widget.dart';
-import 'package:psm_mobile/features/settlement/domain/entities/settlement_detail.dart';
-import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_bloc.dart';
-import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_event.dart';
-import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_state.dart';
-import 'package:psm_mobile/features/settlement/presentation/widgets/form/wizard_last_step_date_time.dart';
+import 'package:travis/core/helper/camera_access_helper.dart';
+import 'package:travis/core/helper/string_formatter.dart';
+import 'package:travis/core/presentations/widgets/core_camera_widget.dart';
+import 'package:travis/features/settlement/domain/entities/settlement_detail.dart';
+import 'package:travis/features/settlement/presentation/bloc/settlement_bloc.dart';
+import 'package:travis/features/settlement/presentation/bloc/settlement_event.dart';
+import 'package:travis/features/settlement/presentation/bloc/settlement_state.dart';
+import 'package:travis/features/settlement/presentation/widgets/form/wizard_last_step_date_time.dart';
 
 class WizardLastStep extends StatefulWidget {
   const WizardLastStep({super.key});
@@ -119,7 +119,9 @@ class _WizardLastStepState extends State<WizardLastStep> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                state.namaKoridor != '' ? state.namaKoridor : '-',
+                                state.namaKoridor != ''
+                                    ? state.namaKoridor
+                                    : '-',
                                 style: const TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.w800,
@@ -140,12 +142,19 @@ class _WizardLastStepState extends State<WizardLastStep> {
                         ),
                         const SizedBox(width: 12),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 6,
+                          ),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF1565C0).withValues(alpha: 0.08),
+                            color: const Color(
+                              0xFF1565C0,
+                            ).withValues(alpha: 0.08),
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(
-                              color: const Color(0xFF1565C0).withValues(alpha: 0.15),
+                              color: const Color(
+                                0xFF1565C0,
+                              ).withValues(alpha: 0.15),
                             ),
                           ),
                           child: Row(
@@ -173,7 +182,11 @@ class _WizardLastStepState extends State<WizardLastStep> {
 
                     const Padding(
                       padding: EdgeInsets.symmetric(vertical: 14),
-                      child: Divider(height: 1, thickness: 1, color: Color(0xFFEDF2F7)),
+                      child: Divider(
+                        height: 1,
+                        thickness: 1,
+                        color: Color(0xFFEDF2F7),
+                      ),
                     ),
 
                     Row(
@@ -218,7 +231,10 @@ class _WizardLastStepState extends State<WizardLastStep> {
                 );
 
                 return Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 8,
+                  ),
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -245,7 +261,9 @@ class _WizardLastStepState extends State<WizardLastStep> {
                             height: 32,
                             padding: const EdgeInsets.all(6),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF1565C0).withValues(alpha: 0.08),
+                              color: const Color(
+                                0xFF1565C0,
+                              ).withValues(alpha: 0.08),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Image.asset(
@@ -322,7 +340,11 @@ class _WizardLastStepState extends State<WizardLastStep> {
 
                       const Padding(
                         padding: EdgeInsets.symmetric(vertical: 8),
-                        child: Divider(height: 1, thickness: 1, color: Color(0xFFEDF2F7)),
+                        child: Divider(
+                          height: 1,
+                          thickness: 1,
+                          color: Color(0xFFEDF2F7),
+                        ),
                       ),
 
                       Row(

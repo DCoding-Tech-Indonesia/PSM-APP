@@ -1,11 +1,13 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:psm_mobile/core/helper/auth_token_helper.dart';
-import 'package:psm_mobile/core/config/app_config.dart';
-import 'package:psm_mobile/core/helper/jwt_helper.dart';
-import 'package:psm_mobile/core/storage/secure_storage.dart';
+import 'package:travis/core/helper/auth_token_helper.dart';
+import 'package:travis/core/config/app_config.dart';
+import 'package:travis/core/helper/jwt_helper.dart';
+import 'package:travis/core/error/global_error_handler.dart';
+import 'package:travis/core/storage/secure_storage.dart';
 
 class DioClient {
   DioClient._internal();
@@ -15,9 +17,16 @@ class DioClient {
   late final Dio _dio;
   Dio get instance => _dio;
   VoidCallback? onUnauthorized;
+  Function(int statusCode, String? message)? onServerError;
 
-  void init({String? baseUrl, String? token, VoidCallback? onUnauthorized}) {
+  void init({
+    String? baseUrl,
+    String? token,
+    VoidCallback? onUnauthorized,
+    Function(int statusCode, String? message)? onServerError,
+  }) {
     this.onUnauthorized = onUnauthorized;
+    this.onServerError = onServerError;
     final resolvedBaseUrl = baseUrl ?? AppConfig.apiBaseUrl;
 
     _dio = Dio(
@@ -320,6 +329,37 @@ class DioClient {
                 _isRefreshing = false;
               }
             }
+          }
+
+          // Handle server errors (5xx) or connection errors
+          if (e.response?.statusCode != null &&
+              e.response!.statusCode! >= 500 &&
+              e.response!.statusCode! < 600) {
+            if (kDebugMode) {
+              debugPrint(
+                '[SERVER ERROR] ${e.response?.statusCode} ${e.message}',
+              );
+            }
+            final statusCode = e.response!.statusCode!;
+            final message = e.response?.data is Map
+                ? e.response!.data['message'] as String?
+                : null;
+            GlobalErrorHandler().handleServerError(statusCode, message);
+          }
+          // Handle connection and timeout errors
+          else if (e.type == DioExceptionType.connectionTimeout ||
+              e.type == DioExceptionType.receiveTimeout ||
+              e.type == DioExceptionType.sendTimeout ||
+              (e.type == DioExceptionType.unknown &&
+                  e.error is SocketException)) {
+            if (kDebugMode) {
+              debugPrint('[CONNECTION ERROR] ${e.type} ${e.message}');
+            }
+            // Treat connection errors as service unavailable (503)
+            GlobalErrorHandler().handleServerError(
+              503,
+              'Koneksi gagal. Layanan mungkin sedang maintenance.',
+            );
           }
 
           handler.next(e);

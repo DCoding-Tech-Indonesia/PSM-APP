@@ -1,19 +1,19 @@
 import 'package:dio/dio.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:psm_mobile/core/error/failure.dart';
-import 'package:psm_mobile/core/presentations/datasource/core_data_source.dart';
-import 'package:psm_mobile/core/presentations/entity/core_data_source_response.dart';
-import 'package:psm_mobile/core/presentations/entity/core_schedule_model.dart';
-import 'package:psm_mobile/features/kmbus/domain/entities/kmbus_data.dart';
-import 'package:psm_mobile/features/reference/domain/entities/next_ritase_response.dart';
-import 'package:psm_mobile/features/reference/domain/entities/reference_detail.dart';
-import 'package:psm_mobile/features/reference/reference_data_source.dart';
-import 'package:psm_mobile/features/timetable/data/timetable_data_source.dart';
-import 'package:psm_mobile/features/timetable/domain/entities/response/timetable_checkin_response.dart';
-import 'package:psm_mobile/features/timetable/domain/entities/timetable_checkin.dart';
-import 'package:psm_mobile/features/timetable/domain/entities/timetable_checkout.dart';
-import 'package:psm_mobile/features/timetable/domain/entities/timetable_data.dart';
-import 'package:psm_mobile/features/timetable/domain/repositories/timetable_repository.dart';
+import 'package:travis/core/error/failure.dart';
+import 'package:travis/core/presentations/datasource/core_data_source.dart';
+import 'package:travis/core/presentations/entity/core_data_source_response.dart';
+import 'package:travis/core/presentations/entity/core_schedule_model.dart';
+import 'package:travis/features/kmbus/domain/entities/kmbus_data.dart';
+import 'package:travis/features/reference/domain/entities/next_ritase_response.dart';
+import 'package:travis/features/reference/domain/entities/reference_detail.dart';
+import 'package:travis/features/reference/reference_data_source.dart';
+import 'package:travis/features/timetable/data/timetable_data_source.dart';
+import 'package:travis/features/timetable/domain/entities/response/timetable_checkin_response.dart';
+import 'package:travis/features/timetable/domain/entities/timetable_checkin.dart';
+import 'package:travis/features/timetable/domain/entities/timetable_checkout.dart';
+import 'package:travis/features/timetable/domain/entities/timetable_data.dart';
+import 'package:travis/features/timetable/domain/repositories/timetable_repository.dart';
 
 class TimetableRepositoryImpl implements TimetableRepository {
   final TimetableDataSource dataSource;
@@ -32,7 +32,10 @@ class TimetableRepositoryImpl implements TimetableRepository {
     int page = 1,
   }) async {
     try {
-      final result = await dataSource.fetchTimetableDataList(keyword, page: page);
+      final result = await dataSource.fetchTimetableDataList(
+        keyword,
+        page: page,
+      );
 
       return right(result);
     } on DioException catch (e) {
@@ -119,7 +122,10 @@ class TimetableRepositoryImpl implements TimetableRepository {
     int idBus,
   ) async {
     try {
-      final result = await dataSourceReference.fetchNextRitase(idKoridor, idBus);
+      final result = await dataSourceReference.fetchNextRitase(
+        idKoridor,
+        idBus,
+      );
 
       return right(result);
     } on DioException catch (e) {
@@ -170,8 +176,8 @@ class TimetableRepositoryImpl implements TimetableRepository {
 
   @override
   Future<Either<Failure, List<KmbusData>>> fetchKmbusDataToday(
-      String keyword,
-      ) async {
+    String keyword,
+  ) async {
     try {
       final result = await dataSource.fetchKmbusDataToday(keyword);
 
@@ -188,10 +194,10 @@ class TimetableRepositoryImpl implements TimetableRepository {
 
   @override
   Future<Either<Failure, CoreDataSourceResponse>> checkAllowTitikAwal(
-      int idKoridor,
-      int idBus,
-      double nextRit,
-      ) async {
+    int idKoridor,
+    int idBus,
+    double nextRit,
+  ) async {
     try {
       final result = await dataSourceCore.checkAllowTitikAwal(
         idKoridor,
@@ -252,12 +258,12 @@ class TimetableRepositoryImpl implements TimetableRepository {
   }
 
   @override
-  Future<Either<Failure, bool?>> checkAbsenceExist(double long, double lat) async {
+  Future<Either<Failure, bool?>> checkAbsenceExist(
+    double long,
+    double lat,
+  ) async {
     try {
-      final result = await dataSource.getAttendanceDetail(
-        lon: long,
-        lat: lat,
-      );
+      final result = await dataSource.getAttendanceDetail(lon: long, lat: lat);
 
       return right(result);
     } on DioException catch (e) {
@@ -269,5 +275,6 @@ class TimetableRepositoryImpl implements TimetableRepository {
       return left(const ServerFailure('Unexpected error'));
     }
   }
+
   // endregion
 }

@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
-import 'package:psm_mobile/core/network/dio_client.dart';
-import 'package:psm_mobile/features/attendance/data/models/attendance_record.dart';
-import 'package:psm_mobile/features/attendance/data/models/attendance_request.dart';
-import 'package:psm_mobile/features/attendance/data/models/schedule_model.dart';
+import 'package:travis/core/network/dio_client.dart';
+import 'package:travis/features/attendance/data/models/attendance_record.dart';
+import 'package:travis/features/attendance/data/models/attendance_request.dart';
+import 'package:travis/features/attendance/data/models/schedule_model.dart';
 
 abstract class AttendanceRemoteDataSource {
   Future<bool> postAttendance(AttendanceRequest request);

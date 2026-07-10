@@ -2,11 +2,11 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:psm_mobile/core/config/app_config.dart';
-import 'package:psm_mobile/core/helper/auth_token_helper.dart';
-import 'package:psm_mobile/core/helper/jwt_helper.dart';
-import 'package:psm_mobile/core/network/dio_client.dart';
-import 'package:psm_mobile/core/storage/secure_storage.dart';
+import 'package:travis/core/config/app_config.dart';
+import 'package:travis/core/helper/auth_token_helper.dart';
+import 'package:travis/core/helper/jwt_helper.dart';
+import 'package:travis/core/network/dio_client.dart';
+import 'package:travis/core/storage/secure_storage.dart';
 import '../../../core/storage/onboarding_storage.dart';
 
 class SplashScreen extends StatefulWidget {

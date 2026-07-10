@@ -3,23 +3,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:psm_mobile/core/config/app_config.dart';
-import 'package:psm_mobile/core/network/dio_client.dart';
-import 'package:psm_mobile/core/notification/notification_service.dart';
-import 'package:psm_mobile/core/permission/permission_cubit.dart';
-import 'package:psm_mobile/core/presentations/cubit/core_tab_cubit.dart';
-import 'package:psm_mobile/core/router/app_router.dart';
-import 'package:psm_mobile/core/storage/secure_storage.dart';
-import 'package:psm_mobile/core/storage/shared_preferences.dart';
-import 'package:psm_mobile/core/theme/app_theme.dart';
-import 'package:psm_mobile/features/auth/data/auth_data_source.dart';
-import 'package:psm_mobile/features/auth/data/auth_repository_impl.dart';
-import 'package:psm_mobile/features/auth/domain/repositories/auth_repository.dart';
-import 'package:psm_mobile/features/portal/data/datasources/portal_data_source.dart';
-import 'package:psm_mobile/features/portal/data/repositories/portal_repository_impl.dart';
-import 'package:psm_mobile/features/portal/domain/repositories/portal_repository.dart';
-import 'package:psm_mobile/features/portal/presentation/bloc/portal_bloc.dart';
-import 'package:psm_mobile/firebase_options.dart';
+import 'package:travis/core/config/app_config.dart';
+import 'package:travis/core/network/dio_client.dart';
+import 'package:travis/core/notification/notification_service.dart';
+import 'package:travis/core/permission/permission_cubit.dart';
+import 'package:travis/core/presentations/cubit/core_tab_cubit.dart';
+import 'package:travis/core/router/app_router.dart';
+import 'package:travis/core/storage/secure_storage.dart';
+import 'package:travis/core/storage/shared_preferences.dart';
+import 'package:travis/core/theme/app_theme.dart';
+import 'package:travis/features/auth/data/auth_data_source.dart';
+import 'package:travis/features/auth/data/auth_repository_impl.dart';
+import 'package:travis/features/auth/domain/repositories/auth_repository.dart';
+import 'package:travis/features/portal/data/datasources/portal_data_source.dart';
+import 'package:travis/features/portal/data/repositories/portal_repository_impl.dart';
+import 'package:travis/features/portal/domain/repositories/portal_repository.dart';
+import 'package:travis/core/error/global_error_handler.dart';
+import 'package:travis/features/portal/presentation/bloc/portal_bloc.dart';
+import 'package:travis/firebase_options.dart';
 import 'notification_service.dart';
 
 void main() async {
@@ -61,6 +62,19 @@ void main() async {
         // Router mungkin belum diinisialisasi saat startup
       }
     },
+    onServerError: (statusCode, message) {
+      try {
+        appRouter.go(
+          '/maintenance-error',
+          extra: {
+            'statusCode': statusCode,
+            'errorMessage': message,
+          },
+        );
+      } catch (e) {
+        // Router mungkin belum diinisialisasi saat startup
+      }
+    },
   );
 
   // Arahkan rute pertama kali ke SplashScreen
@@ -97,8 +111,38 @@ void main() async {
   );
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  void initState() {
+    super.initState();
+    GlobalErrorHandler().serverErrorNotifier.addListener(_handleServerError);
+  }
+
+  @override
+  void dispose() {
+    GlobalErrorHandler().serverErrorNotifier.removeListener(_handleServerError);
+    super.dispose();
+  }
+
+  void _handleServerError() {
+    final error = GlobalErrorHandler().serverErrorNotifier.value;
+    if (error != null && mounted) {
+      appRouter.go(
+        '/maintenance-error',
+        extra: {
+          'statusCode': error.statusCode,
+          'errorMessage': error.message,
+        },
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

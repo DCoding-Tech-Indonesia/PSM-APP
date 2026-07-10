@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_date_time_widget.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_skeleton_widget.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_snackbar.dart';
-import 'package:psm_mobile/features/settlement/domain/entities/settlement_form_args.dart';
-import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_state.dart';
-import 'package:psm_mobile/features/settlement/presentation/widgets/dashboard/draft_settlement_card_single.dart';
-import 'package:psm_mobile/features/settlement/presentation/widgets/history_settlement_card.dart';
-import 'package:psm_mobile/features/settlement/presentation/widgets/settlement_header.dart';
+import 'package:travis/core/presentations/widgets/core_date_time_widget.dart';
+import 'package:travis/core/presentations/widgets/core_skeleton_widget.dart';
+import 'package:travis/core/presentations/widgets/core_snackbar.dart';
+import 'package:travis/features/settlement/domain/entities/settlement_form_args.dart';
+import 'package:travis/features/settlement/presentation/bloc/settlement_state.dart';
+import 'package:travis/features/settlement/presentation/widgets/dashboard/draft_settlement_card_single.dart';
+import 'package:travis/features/settlement/presentation/widgets/history_settlement_card.dart';
+import 'package:travis/features/settlement/presentation/widgets/settlement_header.dart';
 
 import 'bloc/settlement_bloc.dart';
 import 'bloc/settlement_event.dart';

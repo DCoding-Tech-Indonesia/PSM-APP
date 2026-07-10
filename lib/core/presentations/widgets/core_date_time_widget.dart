@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:psm_mobile/core/helper/date_time_helper.dart';
+import 'package:travis/core/helper/date_time_helper.dart';
 
 class CoreDateTimeWidget extends StatefulWidget {
   const CoreDateTimeWidget({super.key});

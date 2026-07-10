@@ -1,5 +1,5 @@
-import 'package:psm_mobile/core/network/dio_client.dart';
-import 'package:psm_mobile/features/attendance/data/models/leave_request_model.dart';
+import 'package:travis/core/network/dio_client.dart';
+import 'package:travis/features/attendance/data/models/leave_request_model.dart';
 
 abstract class LeaveRequestRemoteDataSource {
   Future<List<LeaveRequestModel>> getLeaveRequestList({
@@ -87,10 +87,7 @@ class LeaveRequestRemoteDataSourceImpl implements LeaveRequestRemoteDataSource {
         "alasan": alasan,
       };
 
-      final response = await _dioClient.instance.post(
-        '/pengajuan',
-        data: data,
-      );
+      final response = await _dioClient.instance.post('/pengajuan', data: data);
 
       if (response.data != null) {
         if (response.data['status'] == true) {

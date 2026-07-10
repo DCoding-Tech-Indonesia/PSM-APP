@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:psm_mobile/features/attendance/data/models/approval_detail_model.dart';
+import 'package:travis/features/attendance/data/models/approval_detail_model.dart';
 
 class ApprovalDetailFlowCard extends StatelessWidget {
   final ApprovalDetailModel detail;

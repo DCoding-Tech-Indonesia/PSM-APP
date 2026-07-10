@@ -3,16 +3,16 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:psm_mobile/core/helper/camera_access_helper.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_bottom_modal_verification.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_button.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_camera_widget.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_dropdown_search.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_header.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_snackbar.dart';
-import 'package:psm_mobile/features/kmbus/presentation/bloc/kmbus_bloc.dart';
-import 'package:psm_mobile/features/kmbus/presentation/bloc/kmbus_state.dart';
-import 'package:psm_mobile/features/reference/domain/entities/reference_detail.dart';
+import 'package:travis/core/helper/camera_access_helper.dart';
+import 'package:travis/core/presentations/widgets/core_bottom_modal_verification.dart';
+import 'package:travis/core/presentations/widgets/core_button.dart';
+import 'package:travis/core/presentations/widgets/core_camera_widget.dart';
+import 'package:travis/core/presentations/widgets/core_dropdown_search.dart';
+import 'package:travis/core/presentations/widgets/core_header.dart';
+import 'package:travis/core/presentations/widgets/core_snackbar.dart';
+import 'package:travis/features/kmbus/presentation/bloc/kmbus_bloc.dart';
+import 'package:travis/features/kmbus/presentation/bloc/kmbus_state.dart';
+import 'package:travis/features/reference/domain/entities/reference_detail.dart';
 
 import 'bloc/kmbus_event.dart';
 
@@ -156,7 +156,7 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
                 ),
               ),
             ),
-            ElevatedButton(
+            ElevatedButton.icon(
               onPressed: () {
                 final newValue = int.tryParse(controller.text);
                 if (newValue != null) {
@@ -182,7 +182,8 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
-              child: const Text("Simpan"),
+              icon: const Icon(Icons.check),
+              label: const Text("Simpan"),
             ),
           ],
         );
@@ -337,8 +338,7 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
                 children: [
                   CoreHeader(
                     title: 'Submit Titik Awal',
-                    customBgColor: Colors.white,
-                    withBorder: true,
+                    subtitle: 'Isian KM awal perjalanan',
                   ),
                   Expanded(
                     child: SingleChildScrollView(
@@ -496,8 +496,9 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
                               buildWhen: (prev, curr) =>
                                   prev.ocrResult != curr.ocrResult,
                               builder: (context, state) {
-                                if (state.ocrResult == null)
+                                if (state.ocrResult == null) {
                                   return const SizedBox.shrink();
+                                }
                                 return Container(
                                   margin: const EdgeInsets.only(bottom: 14),
                                   padding: const EdgeInsets.all(18),
@@ -782,36 +783,6 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
                     },
                   ),
                 ],
-              ),
-
-              BlocBuilder<KmbusBloc, KmbusState>(
-                buildWhen: (prev, curr) =>
-                    prev.status != curr.status ||
-                    prev.submitStatus != curr.submitStatus ||
-                    prev.submitWorkflowStatus != curr.submitWorkflowStatus,
-                builder: (context, state) {
-                  final isLoading =
-                      state.status == KmbusStatus.initial ||
-                      state.status == KmbusStatus.fetching ||
-                      state.submitStatus == SubmitStatus.submitting ||
-                      state.submitWorkflowStatus ==
-                          SubmitWorkflowStatus.submitting;
-
-                  if (!isLoading) return const SizedBox.shrink();
-
-                  return Positioned.fill(
-                    child: Container(
-                      color: Colors.black.withAlpha(120),
-                      child: const Center(
-                        child: CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.blue,
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                },
               ),
             ],
           ),

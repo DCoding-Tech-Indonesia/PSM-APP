@@ -1,5 +1,5 @@
-import 'package:psm_mobile/features/settlement/domain/entities/settlement_detail.dart';
-import 'package:psm_mobile/features/settlement/domain/entities/settlement_document.dart';
+import 'package:travis/features/settlement/domain/entities/settlement_detail.dart';
+import 'package:travis/features/settlement/domain/entities/settlement_document.dart';
 
 class SettlementCreate {
   final bool? isSubmit;
@@ -7,6 +7,7 @@ class SettlementCreate {
   final int? auditTrailId;
   final int idKoridor;
   final int idShift;
+  final double? ritaseKe;
   final List<SettlementDetail> detail;
   final List<SettlementDocument> document;
 
@@ -16,6 +17,7 @@ class SettlementCreate {
     this.auditTrailId,
     required this.idKoridor,
     required this.idShift,
+    this.ritaseKe,
     required this.detail,
     required this.document,
   });
@@ -27,6 +29,7 @@ class SettlementCreate {
       auditTrailId: json['auditTrailId'],
       idKoridor: json['idKoridor'] ?? 0,
       idShift: json['idShift'] ?? 0,
+      ritaseKe: (json['ritaseKe'] as num?)?.toDouble(),
       detail: (json['detail'] as List<dynamic>? ?? [])
           .map((e) => SettlementDetail.fromJson(e))
           .toList(),
@@ -42,6 +45,7 @@ class SettlementCreate {
     "auditTrailId": auditTrailId,
     "idKoridor": idKoridor,
     "idShift": idShift,
+    "ritaseKe": ritaseKe,
     "detail": detail.map((e) => e.toJson()).toList(),
     "document": document.map((e) => e.toJson()).toList(),
   };

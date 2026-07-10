@@ -3,10 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:psm_mobile/features/attendance/presentation/bloc/attendance_state.dart';
-import 'package:psm_mobile/features/portal/presentation/bloc/portal_bloc.dart';
-import 'package:psm_mobile/features/portal/presentation/bloc/portal_state.dart';
-import 'package:psm_mobile/features/portal/presentation/widget/portal_dialogs.dart';
+import 'package:travis/features/attendance/presentation/bloc/attendance_state.dart';
+import 'package:travis/features/portal/presentation/bloc/portal_bloc.dart';
+import 'package:travis/features/portal/presentation/bloc/portal_state.dart';
+import 'package:travis/features/portal/presentation/widget/portal_dialogs.dart';
 
 class AttendanceMenuGrid extends StatelessWidget {
   final AttendanceLoaded state;

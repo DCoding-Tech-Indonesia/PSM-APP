@@ -1,12 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:psm_mobile/core/storage/secure_storage.dart';
-import 'package:psm_mobile/features/reference/domain/entities/document_preview.dart';
-import 'package:psm_mobile/features/reference/domain/entities/reference_detail.dart';
-import 'package:psm_mobile/features/settlement/domain/entities/settlement_create.dart';
-import 'package:psm_mobile/features/settlement/domain/entities/settlement_detail.dart';
-import 'package:psm_mobile/features/settlement/domain/entities/settlement_document.dart';
-import 'package:psm_mobile/features/settlement/domain/repositories/settlement_repository.dart';
+import 'package:travis/core/storage/secure_storage.dart';
+import 'package:travis/features/reference/domain/entities/document_preview.dart';
+import 'package:travis/features/reference/domain/entities/reference_detail.dart';
+import 'package:travis/features/settlement/domain/entities/settlement_create.dart';
+import 'package:travis/features/settlement/domain/entities/settlement_detail.dart';
+import 'package:travis/features/settlement/domain/entities/settlement_document.dart';
+import 'package:travis/features/settlement/domain/repositories/settlement_repository.dart';
 import 'settlement_event.dart';
 import 'settlement_state.dart';
 
@@ -45,7 +45,7 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
         int? auditTrailId;
         int? idKoridor;
         int? idBus;
-        double? ritaseKe;
+        double? ritaseKe = event.ritaseKe;
         String? namaKoridor;
         String? noUnit;
 
@@ -137,6 +137,24 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
 
             if (emit.isDone) return;
           }
+        }
+
+        // Fetch the latest ritase ke value from endpoint for new forms
+        if (event.idAuditTrail == null && idKoridor != null && idBus != null) {
+          final nextRitaseResult = await settlementRepository.fetchNextRitase(
+            idKoridor!,
+            idBus!,
+          );
+
+          nextRitaseResult.fold(
+            (failure) {
+              debugPrint("Failed to fetch next ritase: ${failure.message}");
+            },
+            (value) {
+              ritaseKe = value.ritaseKe;
+              debugPrint("Fetched latest ritaseKe from endpoint: $ritaseKe");
+            },
+          );
         }
 
         final koridorList = resultKoridor.fold((failure) {
@@ -317,7 +335,10 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
         ),
       );
 
-      final list = await settlementRepository.fetchTaskAuditTrailList('', page: 1);
+      final list = await settlementRepository.fetchTaskAuditTrailList(
+        '',
+        page: 1,
+      );
 
       final userIdString = await secureStorageService.readUserId();
       final userId = int.tryParse(userIdString ?? '') ?? 0;
@@ -411,7 +432,9 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
               status: SettlementStatus.error,
               message: failure.message,
               allowInput: !allowInputAccess,
-              ctaValidationMessage: !allowInputAccess ? null : settlementMessage,
+              ctaValidationMessage: !allowInputAccess
+                  ? null
+                  : settlementMessage,
             ),
           );
         },
@@ -426,7 +449,9 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
               listTaskAuditTrail: data,
               status: SettlementStatus.success,
               allowInput: !allowInputAccess,
-              ctaValidationMessage: !allowInputAccess ? null : settlementMessage,
+              ctaValidationMessage: !allowInputAccess
+                  ? null
+                  : settlementMessage,
               hasReachedMax: data.length < 10,
             ),
           );
@@ -435,12 +460,16 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
     });
 
     on<PageDashboardLoadNextPage>((event, emit) async {
-      if (state.hasReachedMax || state.status == SettlementStatus.fetching) return;
+      if (state.hasReachedMax || state.status == SettlementStatus.fetching)
+        return;
 
       emit(state.copyWith(status: SettlementStatus.fetching));
 
       final nextPage = state.page + 1;
-      final result = await settlementRepository.fetchTaskAuditTrailList('', page: nextPage);
+      final result = await settlementRepository.fetchTaskAuditTrailList(
+        '',
+        page: nextPage,
+      );
 
       result.fold(
         (failure) {
@@ -448,11 +477,17 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
         },
         (data) {
           if (data.isEmpty) {
-            emit(state.copyWith(hasReachedMax: true, status: SettlementStatus.success));
+            emit(
+              state.copyWith(
+                hasReachedMax: true,
+                status: SettlementStatus.success,
+              ),
+            );
           } else {
             emit(
               state.copyWith(
-                listTaskAuditTrail: List.of(state.listTaskAuditTrail)..addAll(data),
+                listTaskAuditTrail: List.of(state.listTaskAuditTrail)
+                  ..addAll(data),
                 page: nextPage,
                 hasReachedMax: data.length < 10,
                 status: SettlementStatus.success,
@@ -683,20 +718,39 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
     on<SubmitSettlement>((event, emit) async {
       emit(state.copyWith(status: SettlementStatus.loading));
 
+      debugPrint("========== SUBMIT SETTLEMENT ==========");
+      debugPrint("state.ritase: ${state.ritase}");
+      debugPrint("state.idShift: ${state.idShift}");
+      debugPrint("state.idKoridor: ${state.idKoridor}");
+      debugPrint("state.isLastRitase: ${state.isLastRitase}");
+
       final request = SettlementCreate(
         auditTrailId: state.auditTrailId == 0 ? null : state.auditTrailId,
         idKoridor: state.idKoridor,
         idShift: state.idShift!,
+        ritaseKe: state.ritase,
         isSubmit: state.isLastRitase,
         detail: state.detail,
         document: state.document,
       );
 
+      debugPrint("request.ritaseKe: ${request.ritaseKe}");
+      debugPrint("request.detail count: ${request.detail.length}");
+
+      for (int i = 0; i < request.detail.length; i++) {
+        final detail = request.detail[i];
+        debugPrint(
+          "  Detail[$i] - ritaseKe: ${detail.ritaseKe}, idPayment: ${detail.idPayment}, idNasabah: ${detail.idNasabah}",
+        );
+      }
+
+      debugPrint("=====================================");
+
       if (state.auditTrailId.toString() != '0') {
         final result = await settlementRepository.updateSettlement(request);
 
         result.fold(
-              (failure) {
+          (failure) {
             emit(
               state.copyWith(
                 status: SettlementStatus.failedSave,
@@ -704,7 +758,7 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
               ),
             );
           },
-              (data) {
+          (data) {
             emit(
               state.copyWith(
                 status: data.status
@@ -748,7 +802,7 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
       );
 
       result.fold(
-            (failure) {
+        (failure) {
           emit(
             state.copyWith(
               status: SettlementStatus.failedSave,
@@ -756,7 +810,7 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
             ),
           );
         },
-            (data) {
+        (data) {
           emit(
             state.copyWith(
               status: data.status
@@ -777,7 +831,7 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
       );
 
       result.fold(
-            (failure) {
+        (failure) {
           emit(
             state.copyWith(
               status: SettlementStatus.failedSave,
@@ -785,7 +839,7 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
             ),
           );
         },
-            (data) {
+        (data) {
           emit(
             state.copyWith(
               status: data.status

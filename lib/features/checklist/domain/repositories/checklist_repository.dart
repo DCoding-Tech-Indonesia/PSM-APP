@@ -1,5 +1,5 @@
-import 'package:psm_mobile/features/checklist/data/models/checklist_item_model.dart';
-import 'package:psm_mobile/features/checklist/data/models/checklist_question_model.dart';
+import 'package:travis/features/checklist/data/models/checklist_item_model.dart';
+import 'package:travis/features/checklist/data/models/checklist_question_model.dart';
 
 abstract class ChecklistRepository {
   Future<List<ChecklistItemModel>> getChecklistList({

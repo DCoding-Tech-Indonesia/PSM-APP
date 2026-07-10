@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:psm_mobile/core/presentations/entity/shift_period.dart';
+import 'package:travis/core/presentations/entity/shift_period.dart';
 
 class CoreShiftProgressWidget extends StatelessWidget {
   final DateTime now;
@@ -132,10 +132,7 @@ class CoreShiftProgressWidget extends StatelessWidget {
         decoration: BoxDecoration(
           color: const Color(0xFFF0F4F8),
           shape: BoxShape.circle,
-          border: Border.all(
-            color: const Color(0xFFD3E2F2),
-            width: 2.5,
-          ),
+          border: Border.all(color: const Color(0xFFD3E2F2), width: 2.5),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.04),

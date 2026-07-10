@@ -1,7 +1,7 @@
 import 'dart:io';
 
-import 'package:psm_mobile/features/settlement/domain/entities/settlement_detail.dart';
-import 'package:psm_mobile/features/settlement/domain/entities/settlement_document.dart';
+import 'package:travis/features/settlement/domain/entities/settlement_detail.dart';
+import 'package:travis/features/settlement/domain/entities/settlement_document.dart';
 
 abstract class SettlementEvent {}
 
@@ -14,7 +14,13 @@ class PageInputLoad extends SettlementEvent {
   final int? idBus;
   final double? ritaseKe;
 
-  PageInputLoad(this.idAuditTrail, this.idShift, this.idKoridor, this.idBus, this.ritaseKe);
+  PageInputLoad(
+    this.idAuditTrail,
+    this.idShift,
+    this.idKoridor,
+    this.idBus,
+    this.ritaseKe,
+  );
 }
 
 class SelectBus extends SettlementEvent {

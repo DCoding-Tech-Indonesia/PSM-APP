@@ -1,12 +1,20 @@
 import 'package:equatable/equatable.dart';
-import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/settlement_task_audit_trail.dart';
-import 'package:psm_mobile/features/reference/domain/entities/document_preview.dart';
-import 'package:psm_mobile/features/reference/domain/entities/reference_detail.dart';
-import 'package:psm_mobile/features/settlement/domain/entities/settlement_detail.dart';
-import 'package:psm_mobile/features/settlement/domain/entities/settlement_detail_input.dart';
-import 'package:psm_mobile/features/settlement/domain/entities/settlement_document.dart';
+import 'package:travis/features/settlement/domain/entities/auditTrail/settlement_task_audit_trail.dart';
+import 'package:travis/features/reference/domain/entities/document_preview.dart';
+import 'package:travis/features/reference/domain/entities/reference_detail.dart';
+import 'package:travis/features/settlement/domain/entities/settlement_detail.dart';
+import 'package:travis/features/settlement/domain/entities/settlement_detail_input.dart';
+import 'package:travis/features/settlement/domain/entities/settlement_document.dart';
 
-enum SettlementStatus { initial, loading, success, error, successSave, failedSave, fetching }
+enum SettlementStatus {
+  initial,
+  loading,
+  success,
+  error,
+  successSave,
+  failedSave,
+  fetching,
+}
 
 class SettlementState extends Equatable {
   final String? ctaValidationMessage;
