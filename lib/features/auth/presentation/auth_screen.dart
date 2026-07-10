@@ -160,7 +160,7 @@ class _AuthScreenState extends State<AuthScreen> {
                               ],
                             ),
                             child: const Text(
-                              "PSM",
+                              "TRAVIS",
                               style: TextStyle(
                                 fontSize: 48,
                                 fontWeight: FontWeight.w900,
@@ -242,7 +242,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                         ),
                                         const SizedBox(height: 8),
                                         Text(
-                                          "Aplikasi PSM Mobile.",
+                                          "Aplikasi TRAVIS.",
                                           style: TextStyle(
                                             fontSize: 13,
                                             color: Colors.grey[600],
