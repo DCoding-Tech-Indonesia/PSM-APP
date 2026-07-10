@@ -85,7 +85,10 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
 
           final bool isDraft = data.status.code == "DFT";
 
-          final String createdDateString = data.createdDate.toLocal().toIso8601String().split('T')[0];
+          final String createdDateString = data.createdDate
+              .toLocal()
+              .toIso8601String()
+              .split('T')[0];
           final bool isToday = createdDateString == todayString;
 
           final bool isSubmitted = data.dataAfter.isSubmit ?? false;
@@ -164,11 +167,13 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
           (res) => res.isAllowed,
         );
 
-        final bool isAllowTitikAwal = hasCheckedIn && !hasCreatedTitikAwal && !hasDraftTitikAwal;
+        final bool isAllowTitikAwal =
+            hasCheckedIn && !hasCreatedTitikAwal && !hasDraftTitikAwal;
 
         String titikAwalMessage = '';
         if (!hasCheckedIn) {
-          titikAwalMessage = "Silakan lakukan Check-In di Time Table terlebih dahulu.";
+          titikAwalMessage =
+              "Silakan lakukan Check-In di Time Table terlebih dahulu.";
         } else if (hasCreatedTitikAwal) {
           titikAwalMessage = "Titik Awal sudah dibuat hari ini.";
         } else if (hasDraftTitikAwal) {
@@ -266,7 +271,10 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
       final nextPage = state.kmbusPage + 1;
 
       try {
-        final listMaster = await kmbusRepository.fetchListKmbus('', page: nextPage);
+        final listMaster = await kmbusRepository.fetchListKmbus(
+          '',
+          page: nextPage,
+        );
 
         final kmBusListMaster = listMaster.fold((failure) {
           return null;
@@ -435,7 +443,9 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
 
             emit(state.copyWith(idDocType: docTypeId));
 
-            print(docTypeId);
+            if (kDebugMode) {
+              print(docTypeId);
+            }
           },
         );
 
@@ -463,12 +473,14 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
               );
             },
             (titikAwalData) async {
-              final previews = titikAwalData.document.map(
-                (doc) => DocumentPreview(
-                  idDocument: doc.idDocument,
-                  url: doc.urlDoc ?? '',
-                ),
-              ).toList();
+              final previews = titikAwalData.document
+                  .map(
+                    (doc) => DocumentPreview(
+                      idDocument: doc.idDocument,
+                      url: doc.urlDoc ?? '',
+                    ),
+                  )
+                  .toList();
 
               emit(
                 state.copyWith(
@@ -517,8 +529,10 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
     on<KmbusTitikAkhirInputLoad>((event, emit) async {
       emit(state.copyWith(status: KmbusStatus.initial));
 
-      print("event.idKm = ${event.idKm}");
-      print("event.idAuditTrail = ${event.idAuditTrail}");
+      if (kDebugMode) {
+        print("event.idKm = ${event.idKm}");
+        print("event.idAuditTrail = ${event.idAuditTrail}");
+      }
 
       try {
         int idKoridor = state.idKoridorShift ?? 0;
@@ -574,7 +588,9 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
               );
             },
             (titikAkhirData) {
-              print(titikAkhirData);
+              if (kDebugMode) {
+                print(titikAkhirData);
+              }
               emit(
                 state.copyWith(
                   status: KmbusStatus.success,

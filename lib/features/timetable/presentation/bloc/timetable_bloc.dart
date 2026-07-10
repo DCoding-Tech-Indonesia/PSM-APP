@@ -3,8 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:collection/collection.dart';
 import 'package:travis/core/error/failure.dart';
-import 'package:travis/core/presentations/entity/core_data_source_response.dart';
-import 'package:travis/features/reference/domain/entities/next_ritase_response.dart';
 import 'package:travis/core/presentations/entity/core_schedule_model.dart';
 import 'package:travis/core/storage/secure_storage.dart';
 import 'package:travis/features/kmbus/domain/entities/kmbus_data.dart';

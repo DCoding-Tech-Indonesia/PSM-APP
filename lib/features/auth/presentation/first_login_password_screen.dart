@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:psm_mobile/core/network/dio_client.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_bottom_modal_alert.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_input_field_new.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_snackbar.dart';
-import 'package:psm_mobile/core/storage/secure_storage.dart';
+import 'package:travis/core/network/dio_client.dart';
+import 'package:travis/core/presentations/widgets/core_bottom_modal_alert.dart';
+import 'package:travis/core/presentations/widgets/core_input_field_new.dart';
+import 'package:travis/core/storage/secure_storage.dart';
 import 'package:dio/dio.dart';
 
 class FirstLoginPasswordScreen extends StatefulWidget {
