@@ -50,7 +50,7 @@ class AuthRepositoryImpl implements AuthRepository {
     } on DioException catch (_) {
       return left(ServerFailure("GAGAL"));
     } catch (_) {
-      return Left(const ServerFailure('Unexpected error'));
+      return left(const ServerFailure('Unexpected error'));
     }
   }
 }

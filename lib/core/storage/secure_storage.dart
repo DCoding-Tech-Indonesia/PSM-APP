@@ -12,6 +12,7 @@ class SecureStorageService {
   static const _keyUsernameCred = 'usernameCred';
   static const _keyPassCred = 'passwordCred';
   static const _idTimeTableRitase = 'idTimeTableRitase';
+  static const _keyFirstLogin = 'firstLogin';
 
   Future<void> saveEmailCred(String email) =>
       _storage.write(key: _keyEmailCred, value: email);
@@ -76,12 +77,23 @@ class SecureStorageService {
     return value;
   }
 
+  Future<void> saveFirstLogin(bool value) =>
+      _storage.write(key: _keyFirstLogin, value: value.toString());
+  Future<bool> readFirstLogin() async {
+    String? value = await _storage.read(key: _keyFirstLogin);
+    return value == 'true';
+  }
+  Future<void> clearFirstLogin() =>
+      _storage.delete(key: _keyFirstLogin);
+
   Future<void> clearLogin() async {
     await Future.wait([
       _storage.delete(key: _keyAccessToken),
       _storage.delete(key: _keyRefreshToken),
       _storage.delete(key: _keyUserId),
+      _storage.delete(key: _keyUserRoleId),
       _storage.delete(key: _keyUsername),
+      _storage.delete(key: _keyFirstLogin),
     ]);
   }
 

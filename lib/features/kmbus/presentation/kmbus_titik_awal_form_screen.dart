@@ -241,7 +241,6 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.sizeOf(context);
     final theme = Theme.of(context);
 
     Future<void> openCamera() async {

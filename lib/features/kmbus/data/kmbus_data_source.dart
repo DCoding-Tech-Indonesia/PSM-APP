@@ -44,7 +44,11 @@ class KmbusDataSource {
     }
   }
 
-  Future<List<KmbusData>> fetchKmbusData(String keyword, {int page = 1, int perPage = 10}) async {
+  Future<List<KmbusData>> fetchKmbusData(
+    String keyword, {
+    int page = 1,
+    int perPage = 10,
+  }) async {
     try {
       final idUserRole = await secureStorageService.readUserRoleId();
 
@@ -70,24 +74,22 @@ class KmbusDataSource {
   }
 
   Future<List<KmTaskAuditTrail>> fetchKmbusDataListAuditTrail(
-    String keyword, {int page = 1, int perPage = 10}
-  ) async {
+    String keyword, {
+    int page = 1,
+    int perPage = 10,
+  }) async {
     try {
-      final idUser = await secureStorageService.readUserId();
-
       final response = await dio.get(
         '/audittrail/task/km/list',
-        queryParameters: {
-          'keyword': keyword,
-          'page': page,
-          'perPage': perPage,
-        },
+        queryParameters: {'keyword': keyword, 'page': page, 'perPage': perPage},
       );
 
       final List data = response.data['data'] ?? [];
 
-      print("response");
-      print(response);
+      if (kDebugMode) {
+        print("response");
+        print(response);
+      }
 
       final result = data
           .map<KmTaskAuditTrail>((e) => KmTaskAuditTrail.fromJson(e))
@@ -129,7 +131,9 @@ class KmbusDataSource {
 
       return idAuditTrail.toString();
     } catch (e) {
-      print(e);
+      if (kDebugMode) {
+        print(e);
+      }
       return e.toString();
     }
   }
@@ -145,7 +149,9 @@ class KmbusDataSource {
 
       return TitikAwalCreate.fromJson(detail);
     } catch (e) {
-      print(e);
+      if (kDebugMode) {
+        print(e);
+      }
       rethrow;
     }
   }
@@ -166,7 +172,9 @@ class KmbusDataSource {
 
       return "Berhasil Update";
     } catch (e) {
-      print(e);
+      if (kDebugMode) {
+        print(e);
+      }
       return e.toString();
     }
   }
@@ -200,7 +208,9 @@ class KmbusDataSource {
 
       return idAuditTrail.toString();
     } catch (e) {
-      print(e);
+      if (kDebugMode) {
+        print(e);
+      }
       return e.toString();
     }
   }
@@ -214,12 +224,16 @@ class KmbusDataSource {
 
       final detail = response.data["data"][0]["dataAfter"];
 
-      print("detail");
-      print(detail);
+      if (kDebugMode) {
+        print("detail");
+        print(detail);
+      }
 
       return TitikAkhirCreate.fromJson(detail);
     } catch (e) {
-      print(e);
+      if (kDebugMode) {
+        print(e);
+      }
       rethrow;
     }
   }
@@ -240,7 +254,9 @@ class KmbusDataSource {
 
       return "Berhasil Update";
     } catch (e) {
-      print(e);
+      if (kDebugMode) {
+        print(e);
+      }
       return e.toString();
     }
   }
@@ -261,7 +277,9 @@ class KmbusDataSource {
 
       return ocrValue;
     } on DioException catch (e) {
-      print(e.response?.data);
+      if (kDebugMode) {
+        print(e.response?.data);
+      }
       rethrow;
     } catch (e) {
       throw Exception(e.toString());
@@ -278,12 +296,16 @@ class KmbusDataSource {
         },
       );
 
-      print("result");
-      print(result);
+      if (kDebugMode) {
+        print("result");
+        print(result);
+      }
 
       return "Berhasil";
     } catch (e) {
-      print(e);
+      if (kDebugMode) {
+        print(e);
+      }
       return e.toString();
     }
   }
