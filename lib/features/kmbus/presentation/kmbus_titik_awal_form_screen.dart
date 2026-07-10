@@ -10,7 +10,6 @@ import 'package:psm_mobile/core/presentations/widgets/core_camera_widget.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_dropdown_search.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_header.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_snackbar.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_blur_dialog.dart';
 import 'package:psm_mobile/features/kmbus/presentation/bloc/kmbus_bloc.dart';
 import 'package:psm_mobile/features/kmbus/presentation/bloc/kmbus_state.dart';
 import 'package:psm_mobile/features/reference/domain/entities/reference_detail.dart';
@@ -117,10 +116,7 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
                 ],
                 const Text(
                   "Cocokkan angka pada foto dengan input di bawah ini:",
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey,
-                  ),
+                  style: TextStyle(fontSize: 12, color: Colors.grey),
                 ),
                 const SizedBox(height: 8),
                 TextField(
@@ -144,7 +140,11 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
                 Navigator.pop(dialogContext);
                 onRetake();
               },
-              icon: const Icon(Icons.camera_alt_outlined, size: 16, color: Colors.blue),
+              icon: const Icon(
+                Icons.camera_alt_outlined,
+                size: 16,
+                color: Colors.blue,
+              ),
               label: const Text(
                 "Foto Ulang",
                 style: TextStyle(color: Colors.blue),
@@ -343,7 +343,10 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
                   Expanded(
                     child: SingleChildScrollView(
                       child: Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 16,
+                        ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -356,7 +359,9 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
                                 border: Border.all(color: Colors.blue.shade50),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.blue.shade900.withValues(alpha: 0.03),
+                                    color: Colors.blue.shade900.withValues(
+                                      alpha: 0.03,
+                                    ),
                                     blurRadius: 10,
                                     offset: const Offset(0, 4),
                                   ),
@@ -367,7 +372,11 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
                                 children: [
                                   Row(
                                     children: [
-                                      Icon(Icons.directions_bus, color: theme.colorScheme.primary, size: 20),
+                                      Icon(
+                                        Icons.directions_bus,
+                                        color: theme.colorScheme.primary,
+                                        size: 20,
+                                      ),
                                       const SizedBox(width: 8),
                                       Text(
                                         "Informasi Unit Bus",
@@ -387,24 +396,29 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
                                     builder: (context, state) {
                                       ReferenceDetail? selectedKoridor;
                                       if (state.referenceKoridor.isNotEmpty) {
-                                        final matched = state.referenceKoridor.where(
-                                          (e) => e.id == state.idKoridor,
-                                        );
+                                        final matched = state.referenceKoridor
+                                            .where(
+                                              (e) => e.id == state.idKoridor,
+                                            );
                                         if (matched.isNotEmpty) {
                                           selectedKoridor = matched.first;
                                         }
                                       }
-                                      return CoreDropdownSearch<ReferenceDetail>(
+                                      return CoreDropdownSearch<
+                                        ReferenceDetail
+                                      >(
                                         readOnly: true,
                                         label: 'Pilih Koridor',
                                         hintText: 'Pilih Koridor',
                                         popupTitle: 'Daftar Koridor',
                                         items: state.referenceKoridor,
                                         selectedItem: selectedKoridor,
-                                        itemAsString: (item) => '${item.code} - ${item.name}',
+                                        itemAsString: (item) =>
+                                            '${item.code} - ${item.name}',
                                         compareFn: (a, b) => a.id == b.id,
                                         isRequired: true,
-                                        isItemSelected: (item) => item.id == state.idKoridor,
+                                        isItemSelected: (item) =>
+                                            item.id == state.idKoridor,
                                         onSelected: (value) {
                                           if (value == null) return;
                                           context.read<KmbusBloc>().add(
@@ -418,22 +432,23 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
                                   BlocBuilder<KmbusBloc, KmbusState>(
                                     buildWhen: (prev, curr) =>
                                         prev.idKoridor != curr.idKoridor ||
-                                        prev.referenceBus != curr.referenceBus ||
+                                        prev.referenceBus !=
+                                            curr.referenceBus ||
                                         prev.idBus != curr.idBus ||
                                         prev.status != curr.status,
                                     builder: (context, state) {
                                       ReferenceDetail? selectedBus;
                                       if (state.referenceBus.isNotEmpty) {
-                                        final matched = state.referenceBus.where(
-                                          (e) => e.id == state.idBus,
-                                        );
+                                        final matched = state.referenceBus
+                                            .where((e) => e.id == state.idBus);
                                         if (matched.isNotEmpty) {
                                           selectedBus = matched.first;
                                         }
                                       }
                                       if (state.referenceBus.isEmpty &&
                                           state.idKoridor != 0 &&
-                                          state.status != KmbusStatus.fetching) {
+                                          state.status !=
+                                              KmbusStatus.fetching) {
                                         return const Text(
                                           "Tidak terdapat bus terdata di koridor tersebut",
                                           style: TextStyle(
@@ -442,19 +457,24 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
                                           ),
                                         );
                                       }
-                                      if (state.idKoridor == 0 || state.referenceBus.isEmpty) {
+                                      if (state.idKoridor == 0 ||
+                                          state.referenceBus.isEmpty) {
                                         return const SizedBox(height: 0);
                                       }
-                                      return CoreDropdownSearch<ReferenceDetail>(
+                                      return CoreDropdownSearch<
+                                        ReferenceDetail
+                                      >(
                                         readOnly: true,
                                         label: 'Pilih Bus',
                                         hintText: 'Pilih Bus',
                                         popupTitle: 'Daftar Bus',
                                         items: state.referenceBus,
                                         selectedItem: selectedBus,
-                                        itemAsString: (item) => '${item.code} - ${item.name}',
+                                        itemAsString: (item) =>
+                                            '${item.code} - ${item.name}',
                                         compareFn: (a, b) => a.id == b.id,
-                                        isItemSelected: (item) => item.id == state.idBus,
+                                        isItemSelected: (item) =>
+                                            item.id == state.idBus,
                                         isRequired: true,
                                         onSelected: (value) {
                                           if (value == null) return;
@@ -468,27 +488,34 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
                                 ],
                               ),
                             ),
-                            
+
                             const SizedBox(height: 14),
 
                             // Card 2: Validasi Odometer Terdeteksi (jika ada)
                             BlocBuilder<KmbusBloc, KmbusState>(
-                              buildWhen: (prev, curr) => prev.ocrResult != curr.ocrResult,
+                              buildWhen: (prev, curr) =>
+                                  prev.ocrResult != curr.ocrResult,
                               builder: (context, state) {
-                                if (state.ocrResult == null) return const SizedBox.shrink();
+                                if (state.ocrResult == null)
+                                  return const SizedBox.shrink();
                                 return Container(
                                   margin: const EdgeInsets.only(bottom: 14),
                                   padding: const EdgeInsets.all(18),
                                   decoration: BoxDecoration(
                                     gradient: LinearGradient(
-                                      colors: [Colors.teal.shade500, Colors.teal.shade700],
+                                      colors: [
+                                        Colors.teal.shade500,
+                                        Colors.teal.shade700,
+                                      ],
                                       begin: Alignment.topLeft,
                                       end: Alignment.bottomRight,
                                     ),
                                     borderRadius: BorderRadius.circular(20),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.teal.shade700.withValues(alpha: 0.25),
+                                        color: Colors.teal.shade700.withValues(
+                                          alpha: 0.25,
+                                        ),
                                         blurRadius: 10,
                                         offset: const Offset(0, 4),
                                       ),
@@ -499,7 +526,9 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
                                       Container(
                                         padding: const EdgeInsets.all(10),
                                         decoration: BoxDecoration(
-                                          color: Colors.white.withValues(alpha: 0.18),
+                                          color: Colors.white.withValues(
+                                            alpha: 0.18,
+                                          ),
                                           shape: BoxShape.circle,
                                         ),
                                         child: const Icon(
@@ -511,7 +540,8 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
                                       const SizedBox(width: 14),
                                       Expanded(
                                         child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
                                             const Text(
                                               "Odometer Terdeteksi",
@@ -540,20 +570,31 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
                                             context,
                                             state.ocrResult,
                                           ),
-                                          borderRadius: BorderRadius.circular(30),
+                                          borderRadius: BorderRadius.circular(
+                                            30,
+                                          ),
                                           child: Container(
                                             padding: const EdgeInsets.symmetric(
                                               horizontal: 14,
                                               vertical: 8,
                                             ),
                                             decoration: BoxDecoration(
-                                              color: Colors.white.withValues(alpha: 0.2),
-                                              borderRadius: BorderRadius.circular(30),
-                                              border: Border.all(color: Colors.white30),
+                                              color: Colors.white.withValues(
+                                                alpha: 0.2,
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(30),
+                                              border: Border.all(
+                                                color: Colors.white30,
+                                              ),
                                             ),
                                             child: const Row(
                                               children: [
-                                                Icon(Icons.edit, color: Colors.white, size: 14),
+                                                Icon(
+                                                  Icons.edit,
+                                                  color: Colors.white,
+                                                  size: 14,
+                                                ),
                                                 SizedBox(width: 4),
                                                 Text(
                                                   "Edit",
@@ -583,7 +624,9 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
                                 border: Border.all(color: Colors.blue.shade50),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.blue.shade900.withValues(alpha: 0.03),
+                                    color: Colors.blue.shade900.withValues(
+                                      alpha: 0.03,
+                                    ),
                                     blurRadius: 10,
                                     offset: const Offset(0, 4),
                                   ),
@@ -594,7 +637,11 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
                                 children: [
                                   Row(
                                     children: [
-                                      Icon(Icons.camera_alt, color: theme.colorScheme.primary, size: 20),
+                                      Icon(
+                                        Icons.camera_alt,
+                                        color: theme.colorScheme.primary,
+                                        size: 20,
+                                      ),
                                       const SizedBox(width: 8),
                                       Text(
                                         "Bukti Foto Odometer",
@@ -617,16 +664,28 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
                                         prev.documentUploadStatus !=
                                             curr.documentUploadStatus,
                                     builder: (context, state) {
-                                      final localDoc = state.documentPreview.firstOrNull;
-                                      final apiDoc = state.titikAwalCreate?.document.firstOrNull;
-                                      final imageUrl = localDoc?.url ?? apiDoc?.urlDoc;
-                                      final hasImage = imageUrl != null && imageUrl.isNotEmpty;
-                                      final targetIdDocument = localDoc?.idDocument ?? apiDoc?.idDocument ?? 0;
+                                      final localDoc =
+                                          state.documentPreview.firstOrNull;
+                                      final apiDoc = state
+                                          .titikAwalCreate
+                                          ?.document
+                                          .firstOrNull;
+                                      final imageUrl =
+                                          localDoc?.url ?? apiDoc?.urlDoc;
+                                      final hasImage =
+                                          imageUrl != null &&
+                                          imageUrl.isNotEmpty;
+                                      final targetIdDocument =
+                                          localDoc?.idDocument ??
+                                          apiDoc?.idDocument ??
+                                          0;
 
                                       return CoreCameraWidget(
                                         title: "Ambil Foto Speedometer",
                                         imageUrl: imageUrl,
-                                        isLoading: state.documentUploadStatus == DocumentUploadStatus.uploading,
+                                        isLoading:
+                                            state.documentUploadStatus ==
+                                            DocumentUploadStatus.uploading,
                                         onTap: () {
                                           if (hasImage) {
                                             CoreCameraWidget.showPreviewDialog(
@@ -634,12 +693,16 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
                                               imageUrl: imageUrl,
                                               onDelete: () {
                                                 context.read<KmbusBloc>().add(
-                                                  RemoveDocumentById(targetIdDocument),
+                                                  RemoveDocumentById(
+                                                    targetIdDocument,
+                                                  ),
                                                 );
                                                 Navigator.pop(context);
                                               },
                                             );
-                                          } else if (state.documentUploadStatus != DocumentUploadStatus.uploading) {
+                                          } else if (state
+                                                  .documentUploadStatus !=
+                                              DocumentUploadStatus.uploading) {
                                             openCamera();
                                           }
                                         },
@@ -647,7 +710,9 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
                                             ? null
                                             : () {
                                                 context.read<KmbusBloc>().add(
-                                                  RemoveDocumentById(targetIdDocument),
+                                                  RemoveDocumentById(
+                                                    targetIdDocument,
+                                                  ),
                                                 );
                                               },
                                         instructions: const [

@@ -44,299 +44,318 @@ class _SettlementScreenState extends State<SettlementScreen> {
   Widget build(BuildContext context) {
     return BlocBuilder<SettlementBloc, SettlementState>(
       builder: (context, state) {
-          final isInitialLoading = (state.status == SettlementStatus.loading ||
-                  state.status == SettlementStatus.initial) &&
-              (state.listTaskAuditTrail?.isEmpty ?? true);
-          final isLoading = false; // No blocking overlay needed for initial loading anymore
+        final isInitialLoading =
+            (state.status == SettlementStatus.loading ||
+                state.status == SettlementStatus.initial) &&
+            (state.listTaskAuditTrail.isEmpty ?? true);
+        final isLoading =
+            false; // No blocking overlay needed for initial loading anymore
 
-          final draftDatas = (state.listTaskAuditTrail ?? [])
-              .where((task) => task.status.code == 'DFT')
-              .toList();
-          final hasDraft = draftDatas.isNotEmpty;
+        final draftDatas = (state.listTaskAuditTrail ?? [])
+            .where((task) => task.status.code == 'DFT')
+            .toList();
+        final hasDraft = draftDatas.isNotEmpty;
 
-          return Stack(
-            children: [
-              Scaffold(
-                backgroundColor: const Color(0xFFF5F7FA),
-                body: SafeArea(
-                  child: Column(
-                    children: [
-                      const SettlementHeader(),
-                      const CoreDateTimeWidget(),
-                      const SizedBox(height: 4),
-                      Expanded(
-                        child: RefreshIndicator(
-                          onRefresh: _onRefresh,
-                          color: const Color(0xFF1565C0),
-                          child: ListView(
-                            physics: const AlwaysScrollableScrollPhysics(
-                              parent: BouncingScrollPhysics(),
-                            ),
-                            children: [
-                              if (isInitialLoading)
-                                ..._buildSkeletonItems()
-                              else ...[
-                            // === NO SCHEDULE WARNING ===
-                            if (!state.jadwalExist)
-                              Container(
-                                margin: const EdgeInsets.symmetric(
-                                  horizontal: 20,
-                                ),
-                                padding: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  gradient: const LinearGradient(
-                                    colors: [
-                                      Color(0xFFE53935),
-                                      Color(0xFFEF5350),
-                                    ],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
+        return Stack(
+          children: [
+            Scaffold(
+              backgroundColor: const Color(0xFFF5F7FA),
+              body: SafeArea(
+                child: Column(
+                  children: [
+                    const SettlementHeader(),
+                    const CoreDateTimeWidget(),
+                    const SizedBox(height: 4),
+                    Expanded(
+                      child: RefreshIndicator(
+                        onRefresh: _onRefresh,
+                        color: const Color(0xFF1565C0),
+                        child: ListView(
+                          physics: const AlwaysScrollableScrollPhysics(
+                            parent: BouncingScrollPhysics(),
+                          ),
+                          children: [
+                            if (isInitialLoading)
+                              ..._buildSkeletonItems()
+                            else ...[
+                              // === NO SCHEDULE WARNING ===
+                              if (!state.jadwalExist)
+                                Container(
+                                  margin: const EdgeInsets.symmetric(
+                                    horizontal: 20,
                                   ),
-                                  borderRadius: BorderRadius.circular(14),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: const Color(
-                                        0xFFE53935,
-                                      ).withValues(alpha: 0.3),
-                                      blurRadius: 10,
-                                      offset: const Offset(0, 4),
+                                  padding: const EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    gradient: const LinearGradient(
+                                      colors: [
+                                        Color(0xFFE53935),
+                                        Color(0xFFEF5350),
+                                      ],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
                                     ),
-                                  ],
+                                    borderRadius: BorderRadius.circular(14),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: const Color(
+                                          0xFFE53935,
+                                        ).withValues(alpha: 0.3),
+                                        blurRadius: 10,
+                                        offset: const Offset(0, 4),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.all(8),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white.withValues(
+                                            alpha: 0.2,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                        ),
+                                        child: const Icon(
+                                          Icons.event_busy_rounded,
+                                          color: Colors.white,
+                                          size: 22,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 14),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            const Text(
+                                              "Tidak Ada Jadwal",
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.w700,
+                                                fontSize: 15,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              "Anda tidak memiliki jadwal pada hari ini.",
+                                              style: TextStyle(
+                                                color: Colors.white.withValues(
+                                                  alpha: 0.85,
+                                                ),
+                                                fontWeight: FontWeight.w400,
+                                                fontSize: 13,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+
+                              DraftSettlementCardSingle(
+                                datas: state.listTaskAuditTrail,
+                                idShift: state.idShift ?? 0,
+                                idKoridor: state.idKoridorShift ?? 0,
+                                idBus: state.idBusShift ?? 0,
+                                ritaseKe: state.ritase,
+                                isActive: state.allowInput,
+                                ctaDisabledMessage: state.ctaValidationMessage,
+                              ),
+
+                              // === HISTORY HEADER ===
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                  vertical: 4,
                                 ),
                                 child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
-                                    Container(
-                                      padding: const EdgeInsets.all(8),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white.withValues(
-                                          alpha: 0.2,
+                                    const Expanded(
+                                      child: Text(
+                                        'Riwayat Terakhir',
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                          color: Color(0xFF1E293B),
+                                          letterSpacing: -0.3,
                                         ),
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: const Icon(
-                                        Icons.event_busy_rounded,
-                                        color: Colors.white,
-                                        size: 22,
                                       ),
                                     ),
-                                    const SizedBox(width: 14),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          const Text(
-                                            "Tidak Ada Jadwal",
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.w700,
-                                              fontSize: 15,
-                                            ),
+                                    TextButton(
+                                      onPressed: () async {
+                                        await context.push(
+                                          '/settlement/history',
+                                        );
+
+                                        if (context.mounted) {
+                                          context.read<SettlementBloc>().add(
+                                            PageDashboardLoad(),
+                                          );
+                                        }
+                                      },
+                                      style: TextButton.styleFrom(
+                                        foregroundColor: Colors.blue[700],
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 4,
+                                        ),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            8,
                                           ),
-                                          const SizedBox(height: 4),
-                                          Text(
-                                            "Anda tidak memiliki jadwal pada hari ini.",
-                                            style: TextStyle(
-                                              color: Colors.white.withValues(
-                                                alpha: 0.85,
+                                        ),
+                                      ),
+                                      child: const FittedBox(
+                                        fit: BoxFit.scaleDown,
+                                        child: Row(
+                                          children: [
+                                            Text(
+                                              'Lihat Semua',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 13,
                                               ),
-                                              fontWeight: FontWeight.w400,
-                                              fontSize: 13,
                                             ),
-                                          ),
-                                        ],
+                                            SizedBox(width: 4),
+                                            Icon(
+                                              Icons.arrow_forward_ios,
+                                              size: 12,
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ],
                                 ),
                               ),
+                              const SizedBox(height: 4),
 
-                            DraftSettlementCardSingle(
-                              datas: state.listTaskAuditTrail,
-                              idShift: state.idShift ?? 0,
-                              idKoridor: state.idKoridorShift ?? 0,
-                              idBus: state.idBusShift ?? 0,
-                              ritaseKe: state.ritase,
-                              isActive: state.allowInput,
-                              ctaDisabledMessage: state.ctaValidationMessage,
-                            ),
-
-                            // === HISTORY HEADER ===
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 4,
-                              ),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  const Expanded(
-                                    child: Text(
-                                      'Riwayat Terakhir',
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                        color: Color(0xFF1E293B),
-                                        letterSpacing: -0.3,
+                              // === HISTORY LIST / EMPTY STATE ===
+                              if (state.listTaskAuditTrail.isEmpty)
+                                Container(
+                                  margin: const EdgeInsets.symmetric(
+                                    horizontal: 20,
+                                    vertical: 10,
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 40,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(16),
+                                    border: Border.all(
+                                      color: Colors.grey.withValues(
+                                        alpha: 0.15,
                                       ),
                                     ),
                                   ),
-                                  TextButton(
-                                    onPressed: () async {
-                                      await context.push('/settlement/history');
-
-                                      if (context.mounted) {
-                                        context.read<SettlementBloc>().add(
-                                          PageDashboardLoad(),
-                                        );
-                                      }
-                                    },
-                                    style: TextButton.styleFrom(
-                                      foregroundColor: Colors.blue[700],
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.all(16),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFFF1F5F9),
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: const Icon(
+                                          Icons.history_rounded,
+                                          size: 32,
+                                          color: Color(0xFF94A3B8),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 16),
+                                      const Text(
+                                        "Belum Ada Riwayat",
+                                        style: TextStyle(
+                                          color: Color(0xFF334155),
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      const Text(
+                                        "Data settlement akan muncul di sini",
+                                        style: TextStyle(
+                                          color: Color(0xFF64748B),
+                                          fontSize: 13,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              else
+                                ListView.builder(
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  itemCount:
+                                      state.listTaskAuditTrail.length > 10
+                                      ? 10
+                                      : state.listTaskAuditTrail.length,
+                                  itemBuilder: (context, index) {
+                                    final item =
+                                        state.listTaskAuditTrail[index];
+                                    return Padding(
                                       padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
+                                        horizontal: 20,
                                         vertical: 4,
                                       ),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                    ),
-                                    child: const FittedBox(
-                                      fit: BoxFit.scaleDown,
-                                      child: Row(
-                                        children: [
-                                          Text(
-                                            'Lihat Semua',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 13,
-                                            ),
-                                          ),
-                                          SizedBox(width: 4),
-                                          Icon(Icons.arrow_forward_ios, size: 12),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-
-                            // === HISTORY LIST / EMPTY STATE ===
-                            if (state.listTaskAuditTrail.isEmpty)
-                              Container(
-                                margin: const EdgeInsets.symmetric(
-                                  horizontal: 20,
-                                  vertical: 10,
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 40,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(16),
-                                  border: Border.all(
-                                    color: Colors.grey.withValues(alpha: 0.15),
-                                  ),
-                                ),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.all(16),
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFFF1F5F9),
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: const Icon(
-                                        Icons.history_rounded,
-                                        size: 32,
-                                        color: Color(0xFF94A3B8),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 16),
-                                    const Text(
-                                      "Belum Ada Riwayat",
-                                      style: TextStyle(
-                                        color: Color(0xFF334155),
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    const Text(
-                                      "Data settlement akan muncul di sini",
-                                      style: TextStyle(
-                                        color: Color(0xFF64748B),
-                                        fontSize: 13,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              )
-                            else
-                              ListView.builder(
-                                shrinkWrap: true,
-                                physics: const NeverScrollableScrollPhysics(),
-                                itemCount: state.listTaskAuditTrail.length > 10
-                                    ? 10
-                                    : state.listTaskAuditTrail.length,
-                                itemBuilder: (context, index) {
-                                  final item = state.listTaskAuditTrail[index];
-                                  return Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 20,
-                                      vertical: 4,
-                                    ),
-                                    child: HistorySettlementCard(data: item),
-                                  );
+                                      child: HistorySettlementCard(data: item),
+                                    );
                                   },
                                 ),
-                              ],
-                              const SizedBox(height: 24),
                             ],
-                          ),
+                            const SizedBox(height: 24),
+                          ],
                         ),
+                      ),
                     ),
                   ],
                 ),
               ),
               floatingActionButton: !hasDraft
-                    ? FloatingActionButton(
-                        onPressed: () async {
-                          if (!state.allowInput) {
-                            CoreSnackbar.show(
-                              context,
-                              message: state.ctaValidationMessage ?? "Tidak dapat melakukan input",
-                              type: SnackbarType.warning,
-                            );
-                            return;
-                          }
-                          final result = await context.push<bool>(
-                            '/settlement/form',
-                            extra: SettlementFormArgs(
-                              idAuditTrail: null,
-                              idShift: state.idShift ?? 0,
-                              idKoridor: state.idKoridorShift ?? 0,
-                              idBus: state.idBusShift ?? 0,
-                              ritaseKe: state.ritase,
-                            ),
+                  ? FloatingActionButton(
+                      onPressed: () async {
+                        if (!state.allowInput) {
+                          CoreSnackbar.show(
+                            context,
+                            message:
+                                state.ctaValidationMessage ??
+                                "Tidak dapat melakukan input",
+                            type: SnackbarType.warning,
                           );
+                          return;
+                        }
+                        final result = await context.push<bool>(
+                          '/settlement/form',
+                          extra: SettlementFormArgs(
+                            idAuditTrail: null,
+                            idShift: state.idShift ?? 0,
+                            idKoridor: state.idKoridorShift ?? 0,
+                            idBus: state.idBusShift ?? 0,
+                            ritaseKe: state.ritase,
+                          ),
+                        );
 
-                          if (!context.mounted) return;
+                        if (!context.mounted) return;
 
-                          if (result == true) {
-                            context.read<SettlementBloc>().add(PageDashboardLoad());
-                          }
-                        },
-                        backgroundColor: Theme.of(context).primaryColor,
-                        child: const Icon(Icons.add, color: Colors.white),
-                      )
-                    : null,
-              ),
+                        if (result == true) {
+                          context.read<SettlementBloc>().add(
+                            PageDashboardLoad(),
+                          );
+                        }
+                      },
+                      backgroundColor: Theme.of(context).primaryColor,
+                      child: const Icon(Icons.add, color: Colors.white),
+                    )
+                  : null,
+            ),
 
             // === LOADING OVERLAY ===
             if (isLoading)

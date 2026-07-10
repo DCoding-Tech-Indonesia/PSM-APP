@@ -119,10 +119,10 @@ class NotificationService {
         // Jika notif ada isi nilainya, munculkan lewat local notification
         if (notification != null) {
           _localNotif.show(
-            notification.hashCode,
-            notification.title,
-            notification.body,
-            _notificationDetails,
+            id: notification.hashCode,
+            title: notification.title,
+            body: notification.body,
+            notificationDetails: _notificationDetails,
             payload: jsonEncode(message.data),
           );
         }
@@ -146,7 +146,7 @@ class NotificationService {
     );
 
     await _localNotif.initialize(
-      initSettings,
+      settings: initSettings,
       onDidReceiveNotificationResponse: (NotificationResponse response) {
         debugPrint('--- LOCAL NOTIF TAPPED ---');
         debugPrint('Payload: ${response.payload}');

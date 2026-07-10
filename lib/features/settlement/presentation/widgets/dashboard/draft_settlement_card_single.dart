@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:psm_mobile/core/helper/string_formatter.dart';
 import 'package:psm_mobile/core/presentations/widgets/core_bottom_modal_verification.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_snackbar.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/settlement_task_audit_trail.dart';
 import 'package:psm_mobile/features/settlement/domain/entities/settlement_form_args.dart';
 import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_bloc.dart';
@@ -47,10 +46,13 @@ class DraftSettlementCardSingle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final draftDatas = datas.where((task) => task.status.code == 'DFT').toList();
+    final draftDatas = datas
+        .where((task) => task.status.code == 'DFT')
+        .toList();
 
-    final SettlementTaskAuditTrail? latestDraft =
-        draftDatas.isNotEmpty ? draftDatas.last : null;
+    final SettlementTaskAuditTrail? latestDraft = draftDatas.isNotEmpty
+        ? draftDatas.last
+        : null;
 
     return BlocBuilder<SettlementBloc, dynamic>(
       builder: (context, state) {
@@ -117,7 +119,9 @@ class DraftSettlementCardSingle extends StatelessWidget {
                                   Text(
                                     draftDatas[0].noPolisi ?? '-',
                                     style: TextStyle(
-                                      color: Colors.white.withValues(alpha: 0.85),
+                                      color: Colors.white.withValues(
+                                        alpha: 0.85,
+                                      ),
                                       fontSize: 13,
                                       fontWeight: FontWeight.w500,
                                     ),
@@ -144,7 +148,9 @@ class DraftSettlementCardSingle extends StatelessWidget {
                           if (!context.mounted) return;
 
                           if (result == true) {
-                            context.read<SettlementBloc>().add(PageDashboardLoad());
+                            context.read<SettlementBloc>().add(
+                              PageDashboardLoad(),
+                            );
                           }
                         },
                         child: Container(
