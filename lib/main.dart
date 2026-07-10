@@ -161,7 +161,7 @@ class _MyAppState extends State<MyApp> {
       ],
       child: MaterialApp.router(
         debugShowCheckedModeBanner: false,
-        title: 'PSM Mobile',
+        title: 'TRAVIS',
         theme: AppTheme.lightTheme,
         routerConfig: appRouter,
       ),

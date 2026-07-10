@@ -251,7 +251,7 @@ class _SplashScreenState extends State<SplashScreen>
                               ],
                             ),
                             child: const Text(
-                              "PSM",
+                              "TRAVIS",
                               style: TextStyle(
                                 fontSize: 48,
                                 fontWeight: FontWeight.w900,
