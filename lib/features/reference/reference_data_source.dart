@@ -13,16 +13,10 @@ class ReferenceDataSource {
 
   ReferenceDataSource({required this.dio});
 
-  Future<List<ReferenceDetail>> fetchReferenceDocType(
-      String keyword
-      ) async {
+  Future<List<ReferenceDetail>> fetchReferenceDocType(String keyword) async {
     final response = await dio.get(
       '/reference/type-document',
-      queryParameters: {
-        'keyword': keyword,
-        'page': 1,
-        'perPage': 999,
-      },
+      queryParameters: {'keyword': keyword, 'page': 1, 'perPage': 999},
     );
 
     final data = response.data['data'] as List;
@@ -187,7 +181,7 @@ class ReferenceDataSource {
     String keyword,
   ) async {
     final response = await dio.get(
-      '/reference/type-checklist',
+      '/reference/mobile/type-checklist',
       queryParameters: {'keyword': keyword, 'page': 1, 'perPage': 999},
     );
 
@@ -218,7 +212,9 @@ class ReferenceDataSource {
     return data.map((e) => ReferenceDetail.fromJson(e)).toList();
   }
 
-  Future<List<CoreScheduleModel>> fetchTodaySchedule({required int userId}) async {
+  Future<List<CoreScheduleModel>> fetchTodaySchedule({
+    required int userId,
+  }) async {
     try {
       final String todayStr = DateTime.now().toIso8601String().split('T')[0];
 
@@ -243,16 +239,10 @@ class ReferenceDataSource {
     }
   }
 
-  Future<NextRitaseResponse> fetchNextRitase(
-      int idKoridor,
-      int idBus,
-      ) async {
+  Future<NextRitaseResponse> fetchNextRitase(int idKoridor, int idBus) async {
     final response = await dio.get(
       '/reference/next-ritase',
-      queryParameters: {
-        'idKoridor': idKoridor,
-        'idBus': idBus,
-      },
+      queryParameters: {'idKoridor': idKoridor, 'idBus': idBus},
     );
 
     final data = response.data['data'] as List<dynamic>;
@@ -261,8 +251,6 @@ class ReferenceDataSource {
       return const NextRitaseResponse();
     }
 
-    return NextRitaseResponse.fromJson(
-      data.first as Map<String, dynamic>,
-    );
+    return NextRitaseResponse.fromJson(data.first as Map<String, dynamic>);
   }
 }

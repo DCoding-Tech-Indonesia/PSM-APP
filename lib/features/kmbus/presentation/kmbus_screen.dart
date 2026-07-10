@@ -2,14 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:travis/core/presentations/entity/schedule_args.dart';
-import 'package:travis/core/presentations/widgets/core_bottom_modal_verification.dart';
 import 'package:travis/core/presentations/widgets/core_date_time_widget.dart';
 import 'package:travis/core/presentations/widgets/core_skeleton_widget.dart';
 import 'package:travis/core/presentations/widgets/core_header.dart';
 import 'package:travis/core/presentations/widgets/core_snackbar.dart';
 import 'package:travis/features/kmbus/domain/entities/titik_akhir_args.dart';
 import 'package:travis/features/kmbus/presentation/bloc/kmbus_state.dart';
-import 'package:travis/features/reference/domain/entities/reference_detail.dart';
 
 import 'bloc/kmbus_bloc.dart';
 import 'bloc/kmbus_event.dart';
@@ -1114,59 +1112,5 @@ class _KmbusScreenState extends State<KmbusScreen> {
       }),
       const SizedBox(height: 24),
     ];
-  }
-
-  Widget _buildActionButton({
-    required IconData icon,
-    required String label,
-    required bool isEnabled,
-    required List<Color> enabledColors,
-    required VoidCallback onPressed,
-  }) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onPressed,
-        borderRadius: BorderRadius.circular(14),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 14),
-          decoration: BoxDecoration(
-            gradient: isEnabled
-                ? LinearGradient(
-                    colors: enabledColors,
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  )
-                : null,
-            color: isEnabled ? null : const Color(0xFFBDBDBD),
-            borderRadius: BorderRadius.circular(14),
-            boxShadow: isEnabled
-                ? [
-                    BoxShadow(
-                      color: enabledColors.first.withValues(alpha: 0.35),
-                      blurRadius: 8,
-                      offset: const Offset(0, 4),
-                    ),
-                  ]
-                : null,
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, color: Colors.white, size: 20),
-              const SizedBox(width: 8),
-              Text(
-                label,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 15,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 }

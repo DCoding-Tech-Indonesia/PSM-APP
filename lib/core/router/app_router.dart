@@ -25,6 +25,8 @@ import 'package:travis/features/attendance/presentation/screens/shift_replacemen
 import 'package:travis/features/auth/domain/repositories/auth_repository.dart';
 import 'package:travis/features/auth/presentation/auth_screen.dart';
 import 'package:travis/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:travis/features/auth/presentation/first_login_password_screen.dart';
+import 'package:travis/features/auth/presentation/forgot_password_screen.dart';
 import 'package:travis/features/checklist/presentation/checklist_screen.dart';
 import 'package:travis/features/checklist/presentation/screens/checklist_input_screen.dart';
 import 'package:travis/features/kmbus/data/kmbus_data_source.dart';
@@ -94,6 +96,17 @@ void setupRouter(String initialLocation) {
             ),
             child: const AuthScreen(),
           );
+        },
+      ),
+      GoRoute(
+        path: '/forgot-password',
+        builder: (context, state) => const ForgotPasswordScreen(),
+      ),
+      GoRoute(
+        path: '/first-login-password',
+        builder: (context, state) {
+          final oldPassword = state.extra as String?;
+          return FirstLoginPasswordScreen(oldPassword: oldPassword ?? '');
         },
       ),
 

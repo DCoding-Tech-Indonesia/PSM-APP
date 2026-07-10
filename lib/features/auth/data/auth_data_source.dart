@@ -34,6 +34,7 @@ class AuthDataSource {
         final token = tokens.accessToken;
         final userId = response.data["data"][0]["userId"];
         final userRoleId = response.data["data"][0]["userRoleId"];
+        final firstLogin = response.data["data"][0]["firstLogin"] ?? false;
 
         if (token == null) {
           return const LoginResponse(
@@ -50,11 +51,16 @@ class AuthDataSource {
         secureStorageService.saveUserId(userId.toString());
         secureStorageService.saveUserRoleIdId(userRoleId.toString());
         secureStorageService.saveUsername(username);
+        secureStorageService.saveFirstLogin(firstLogin);
         DioClient().setAuthToken(token);
-        // Mulai timer proaktif: refresh token sebelum expired (5 menit sebelum mati)
+        // Mulai timer proaktif: refresh token sebelum expired (5 menit sebelum mati)\r
         DioClient().scheduleProactiveRefresh(token);
 
-        return const LoginResponse(isSuccess: true, message: "Login berhasil");
+        return LoginResponse(
+          isSuccess: true,
+          message: "Login berhasil",
+          firstLogin: firstLogin,
+        );
       }
 
       return LoginResponse(
@@ -64,10 +70,7 @@ class AuthDataSource {
     } catch (e) {
       final cleanMessage = ErrorParserHelper.parse(e.toString());
 
-      return LoginResponse(
-        isSuccess: false,
-        message: cleanMessage,
-      );
+      return LoginResponse(isSuccess: false, message: cleanMessage);
     }
   }
 

@@ -51,6 +51,21 @@ class _SplashScreenState extends State<SplashScreen>
     super.dispose();
   }
 
+  /// Helper: cek firstLogin flag sebelum masuk portal.
+  /// Jika firstLogin masih true, arahkan ke halaman ganti password.
+  Future<void> _navigateToPortalOrFirstLogin(SecureStorageService secureStorage) async {
+    if (!mounted) return;
+    final isFirstLogin = await secureStorage.readFirstLogin();
+    if (isFirstLogin) {
+      final passCred = await secureStorage.readPassCred();
+      if (kDebugMode) debugPrint('[SPLASH] firstLogin flag → /first-login-password');
+      if (mounted) context.go('/first-login-password', extra: passCred ?? '');
+    } else {
+      if (kDebugMode) debugPrint('[SPLASH] → /portal');
+      if (mounted) context.go('/portal');
+    }
+  }
+
   void _navigateBasedOnOnboarding() async {
     // Tunggu animasi selesai
     await Future.delayed(const Duration(seconds: 2));
@@ -109,8 +124,8 @@ class _SplashScreenState extends State<SplashScreen>
             // Jadwalkan refresh proaktif
             dioClient.scheduleProactiveRefresh(activeToken);
             await OnboardingStorage.markOnboardingShown('1.0.0');
-            if (kDebugMode) debugPrint('[SPLASH] check-token OK → /portal');
-            if (mounted) context.go('/portal');
+            if (kDebugMode) debugPrint('[SPLASH] check-token OK');
+            await _navigateToPortalOrFirstLogin(secureStorage);
             return;
           } else {
             // check-token gagal tapi token lokal masih valid → coba refresh dulu
@@ -188,8 +203,8 @@ class _SplashScreenState extends State<SplashScreen>
           dioClient.setAuthToken(tokens.accessToken!);
           dioClient.scheduleProactiveRefresh(tokens.accessToken!);
           await OnboardingStorage.markOnboardingShown('1.0.0');
-          if (kDebugMode) debugPrint('[SPLASH] Refresh OK → /portal');
-          if (mounted) context.go('/portal');
+          if (kDebugMode) debugPrint('[SPLASH] Refresh OK');
+          await _navigateToPortalOrFirstLogin(secureStorage);
           return true;
         }
       }
@@ -265,7 +280,7 @@ class _SplashScreenState extends State<SplashScreen>
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                "Padang",
+                                "Trans Padang",
                                 style: TextStyle(
                                   color: Color(0xFF1E3C72),
                                   fontSize: 24,
@@ -274,7 +289,15 @@ class _SplashScreenState extends State<SplashScreen>
                                 ),
                               ),
                               Text(
-                                "Sejahtera Mandiri.",
+                                "Vehicle and Information",
+                                style: TextStyle(
+                                  color: Color(0xFF1E3C72),
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                              Text(
+                                "System.",
                                 style: TextStyle(
                                   color: Color(0xFF1E3C72),
                                   fontSize: 18,
