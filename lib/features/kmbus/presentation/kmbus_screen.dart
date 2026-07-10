@@ -397,6 +397,104 @@ class _KmbusScreenState extends State<KmbusScreen> {
                                 }),
                           ],
 
+                          // Incomplete KM entries (have awal, missing akhir)
+                          if (state.listKmbus.isNotEmpty) ...[
+                            ...state.listKmbus
+                                .where((km) {
+                                  return (km.titikAkhir == null ||
+                                          km.titikAkhir == 0) &&
+                                      (km.titikAwal != null &&
+                                          km.titikAwal != 0);
+                                })
+                                .map((incomplete) {
+                                  return Container(
+                                    margin: const EdgeInsets.symmetric(
+                                      horizontal: 20,
+                                      vertical: 6,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.red.shade50,
+                                      borderRadius: BorderRadius.circular(20),
+                                      border: Border.all(
+                                        color: Colors.red.withValues(
+                                          alpha: 0.3,
+                                        ),
+                                      ),
+                                    ),
+                                    child: InkWell(
+                                      onTap: () async {
+                                        final result = await context.push<bool>(
+                                          '/kmbus/titik-akhir/form',
+                                          extra: TitikAkhirArgs(
+                                            idKm: incomplete.id ?? 0,
+                                            idAuditTrail: 0,
+                                          ),
+                                        );
+                                        if (context.mounted && result == true) {
+                                          context.read<KmbusBloc>().add(
+                                            PageDashboardLoad(),
+                                          );
+                                        }
+                                      },
+                                      borderRadius: BorderRadius.circular(20),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(16),
+                                        child: Row(
+                                          children: [
+                                            Container(
+                                              padding: const EdgeInsets.all(10),
+                                              decoration: BoxDecoration(
+                                                color: Colors.red.withValues(
+                                                  alpha: 0.15,
+                                                ),
+                                                shape: BoxShape.circle,
+                                              ),
+                                              child: const Icon(
+                                                Icons.info_rounded,
+                                                color: Colors.red,
+                                                size: 24,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 14),
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  const Text(
+                                                    "Titik Akhir Belum Diisi",
+                                                    style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: Colors.red,
+                                                      fontSize: 14,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(height: 2),
+                                                  Text(
+                                                    "KM Awal: ${incomplete.titikAwal ?? '-'} KM • Ketuk untuk melanjutkan",
+                                                    style: TextStyle(
+                                                      color:
+                                                          Colors.red.shade800,
+                                                      fontSize: 12,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            const Icon(
+                                              Icons.arrow_forward_ios,
+                                              color: Colors.red,
+                                              size: 14,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                }),
+                          ],
+
                           const SizedBox(height: 8),
                           Padding(
                             padding: const EdgeInsets.symmetric(
@@ -765,22 +863,21 @@ class _KmbusScreenState extends State<KmbusScreen> {
                 floatingActionButton: FloatingActionButton(
                   onPressed: () async {
                     // 1. Check if there's a draft KM Awal to continue editing
-                    final draftAuditTrail = state.listKmbusAuditTrail
-                        .where((e) {
-                          final todayString = DateTime.now()
-                              .toIso8601String()
-                              .split('T')[0];
-                          final createdDateString = e.createdDate
-                              .toLocal()
-                              .toIso8601String()
-                              .split('T')[0];
-                          final bool isSubmitted =
-                              e.dataAfter.isSubmit ?? false;
-                          return e.status.code == "DFT" &&
-                              createdDateString == todayString &&
-                              !isSubmitted;
-                        })
-                        .firstOrNull;
+                    final draftAuditTrail = state.listKmbusAuditTrail.where((
+                      e,
+                    ) {
+                      final todayString = DateTime.now()
+                          .toIso8601String()
+                          .split('T')[0];
+                      final createdDateString = e.createdDate
+                          .toLocal()
+                          .toIso8601String()
+                          .split('T')[0];
+                      final bool isSubmitted = e.dataAfter.isSubmit ?? false;
+                      return e.status.code == "DFT" &&
+                          createdDateString == todayString &&
+                          !isSubmitted;
+                    }).firstOrNull;
 
                     if (draftAuditTrail != null) {
                       // Continue editing existing draft
@@ -803,7 +900,8 @@ class _KmbusScreenState extends State<KmbusScreen> {
                     // 2. Check if there's a KM entry with titik_awal but no titik_akhir (needs completion)
                     final kmNeedingAkhir = state.listKmbus
                         .where(
-                          (km) => (km.titikAkhir == null || km.titikAkhir == 0) &&
+                          (km) =>
+                              (km.titikAkhir == null || km.titikAkhir == 0) &&
                               (km.titikAwal != null && km.titikAwal != 0),
                         )
                         .firstOrNull;
