@@ -4,7 +4,7 @@ class DocumentPreview extends Equatable {
   final int idDocument;
   final String url;
 
-  DocumentPreview({required this.idDocument, required this.url});
+  const DocumentPreview({required this.idDocument, required this.url});
 
   factory DocumentPreview.fromJson(Map<String, dynamic> json) {
     return DocumentPreview(
@@ -13,10 +13,7 @@ class DocumentPreview extends Equatable {
     );
   }
 
-  Map<String, dynamic> toJson() => {
-    "idDocument": idDocument,
-    "url": url,
-  };
+  Map<String, dynamic> toJson() => {"idDocument": idDocument, "url": url};
 
   @override
   List<Object?> get props => [idDocument, url];

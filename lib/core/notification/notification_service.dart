@@ -23,10 +23,10 @@ class NotificationServices {
 
   static Future<void> showNotification(String title, String body) async {
     _flutterLocalNotificationsPlugin.show(
-      0,
-      title,
-      body,
-      const NotificationDetails(
+      id: 0,
+      title: title,
+      body: body,
+      notificationDetails: const NotificationDetails(
         android: AndroidNotificationDetails(
           "0",
           "Notif",

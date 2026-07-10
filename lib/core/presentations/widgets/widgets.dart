@@ -14,3 +14,4 @@ export 'core_list_tile.dart';
 export 'core_profile_screen_menu.dart';
 export 'custom_camera_widget.dart';
 export 'widget_demo.dart';
+export 'core_skeleton_widget.dart';

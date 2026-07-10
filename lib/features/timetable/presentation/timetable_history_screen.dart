@@ -1,28 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:psm_mobile/core/helper/string_formatter.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_header.dart';
-import 'package:psm_mobile/features/timetable/domain/entities/timetable_data.dart';
-import 'package:psm_mobile/features/timetable/presentation/bloc/timetable_bloc.dart';
-import 'package:psm_mobile/features/timetable/presentation/bloc/timetable_event.dart';
-import 'package:psm_mobile/features/timetable/presentation/bloc/timetable_state.dart';
+import 'package:travis/core/helper/string_formatter.dart';
+import 'package:travis/core/presentations/widgets/core_header.dart';
+import 'package:travis/features/timetable/domain/entities/timetable_data.dart';
+import 'package:travis/features/timetable/presentation/bloc/timetable_bloc.dart';
+import 'package:travis/features/timetable/presentation/bloc/timetable_event.dart';
+import 'package:travis/features/timetable/presentation/bloc/timetable_state.dart';
 
 class TimetableHistoryScreen extends StatefulWidget {
   const TimetableHistoryScreen({super.key});
 
   @override
-  State<TimetableHistoryScreen> createState() =>
-      _TimetableHistoryScreenState();
+  State<TimetableHistoryScreen> createState() => _TimetableHistoryScreenState();
 }
 
 class _TimetableHistoryScreenState extends State<TimetableHistoryScreen> {
   String _activeTab = "All";
 
-  static const List<String> _tabs = [
-    "All",
-    "Check-In",
-    "Check-Out",
-  ];
+  static const List<String> _tabs = ["All", "Berangkat", "Datang"];
 
   late final PageController _pageController;
 
@@ -51,7 +46,7 @@ class _TimetableHistoryScreenState extends State<TimetableHistoryScreen> {
     bloc.add(PageHistoryLoad());
 
     await bloc.stream.firstWhere(
-          (state) => state.status != TimetableStatus.loading,
+      (state) => state.status != TimetableStatus.loading,
     );
   }
 
@@ -85,7 +80,12 @@ class _TimetableHistoryScreenState extends State<TimetableHistoryScreen> {
             ),
 
             Container(
-              color: Colors.white,
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                border: Border(
+                  bottom: BorderSide(color: Color(0xFFEDF2F7), width: 1),
+                ),
+              ),
               child: Row(
                 children: _tabs.map((tab) {
                   final active = _activeTab == tab;
@@ -93,31 +93,34 @@ class _TimetableHistoryScreenState extends State<TimetableHistoryScreen> {
                   return Expanded(
                     child: InkWell(
                       onTap: () => _changeTab(tab),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 250),
-                        padding: const EdgeInsets.symmetric(vertical: 15),
-                        decoration: BoxDecoration(
-                          border: Border(
-                            bottom: BorderSide(
-                              width: 3,
-                              color: active
-                                  ? Colors.blue
-                                  : Colors.transparent,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              tab,
+                              style: TextStyle(
+                                color: active
+                                    ? const Color(0xFF1565C0)
+                                    : const Color(0xFF718096),
+                                fontWeight: active
+                                    ? FontWeight.w900
+                                    : FontWeight.w700,
+                                fontSize: 13,
+                              ),
                             ),
-                          ),
-                        ),
-                        child: Center(
-                          child: AnimatedDefaultTextStyle(
-                            duration: const Duration(milliseconds: 250),
-                            style: TextStyle(
-                              color: active
-                                  ? Colors.blue
-                                  : Colors.grey.shade500,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 16,
+                            const SizedBox(height: 6),
+                            AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              width: active ? 28 : 0,
+                              height: 3,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF1565C0),
+                                borderRadius: BorderRadius.circular(2),
+                              ),
                             ),
-                            child: Text(tab),
-                          ),
+                          ],
                         ),
                       ),
                     ),
@@ -131,9 +134,7 @@ class _TimetableHistoryScreenState extends State<TimetableHistoryScreen> {
                 builder: (context, state) {
                   if (state.status == TimetableStatus.loading &&
                       state.listTimetable.isEmpty) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
+                    return const Center(child: CircularProgressIndicator());
                   }
 
                   return PageView.builder(
@@ -151,37 +152,39 @@ class _TimetableHistoryScreenState extends State<TimetableHistoryScreen> {
 
                       if (currentTab == "All") {
                         dataList = state.listTimetable;
-
-                        return RefreshIndicator(
-                          onRefresh: _onRefresh,
-                          child: dataList.isEmpty
-                              ? _buildEmptyState()
-                              : _buildTimetableList(dataList),
-                        );
-                      }
-
-                      if (currentTab == "Check-In") {
+                      } else if (currentTab == "Berangkat") {
                         dataList = state.listTimetable.where((e) {
                           return e.jamBerangkat.trim().isNotEmpty;
                         }).toList();
+                      } else {
+                        dataList = state.listTimetable.where((e) {
+                          return e.jamDatang.trim().isNotEmpty;
+                        }).toList();
+                      }
 
-                        return RefreshIndicator(
+                      return NotificationListener<ScrollNotification>(
+                        onNotification: (ScrollNotification scrollInfo) {
+                          if (scrollInfo.metrics.pixels >=
+                                  scrollInfo.metrics.maxScrollExtent - 200 &&
+                              state.status != TimetableStatus.fetching &&
+                              !state.hasReachedMax) {
+                            context.read<TimetableBloc>().add(
+                              PageHistoryLoadNextPage(),
+                            );
+                          }
+                          return true;
+                        },
+                        child: RefreshIndicator(
                           onRefresh: _onRefresh,
                           child: dataList.isEmpty
                               ? _buildEmptyState()
-                              : _buildHistoryByType(dataList, true),
-                        );
-                      }
-
-                      dataList = state.listTimetable.where((e) {
-                        return e.jamDatang.trim().isNotEmpty;
-                      }).toList();
-
-                      return RefreshIndicator(
-                        onRefresh: _onRefresh,
-                        child: dataList.isEmpty
-                            ? _buildEmptyState()
-                            : _buildHistoryByType(dataList, false),
+                              : _buildTimetableList(
+                                  dataList,
+                                  filterType: currentTab == "All"
+                                      ? null
+                                      : currentTab,
+                                ),
+                        ),
                       );
                     },
                   );
@@ -202,37 +205,51 @@ class _TimetableHistoryScreenState extends State<TimetableHistoryScreen> {
         Center(
           child: Text(
             "Tidak ada data riwayat",
-            style: TextStyle(
-              color: Colors.grey,
-              fontSize: 14,
-            ),
+            style: TextStyle(color: Colors.grey, fontSize: 14),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildTimetableList(List<TimetableData> dataList) {
+  Widget _buildTimetableList(
+    List<TimetableData> dataList, {
+    String? filterType,
+  }) {
+    final status = context.watch<TimetableBloc>().state.status;
+    final isFetching = status == TimetableStatus.fetching;
+
     return ListView.separated(
       physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
-      itemCount: dataList.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      itemCount: dataList.length + (isFetching ? 1 : 0),
+      separatorBuilder: (_, _) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
+        if (index == dataList.length) {
+          return const Padding(
+            padding: EdgeInsets.symmetric(vertical: 16),
+            child: Center(
+              child: SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(strokeWidth: 2.5),
+              ),
+            ),
+          );
+        }
+
         final data = dataList[index];
 
         return Container(
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(
-              color: Colors.grey.shade200,
-            ),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.grey.withValues(alpha: 0.15)),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.03),
                 blurRadius: 10,
-                offset: const Offset(0, 2),
+                offset: const Offset(0, 4),
               ),
             ],
           ),
@@ -241,311 +258,270 @@ class _TimetableHistoryScreenState extends State<TimetableHistoryScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-
-                /// Header
+                // Header: Calendar Icon + Date | Bus Unit Badge
                 Row(
-                  mainAxisAlignment:
-                  MainAxisAlignment.spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      data.tanggal,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    Text(
-                      "${data.platNomor} (${data.nomorLambung})",
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ],
-                ),
-
-                const Divider(height: 20),
-
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildTimeCard(
-                        title: "Berangkat",
-                        value: data.jamBerangkat,
-                        color: Colors.green,
-                        background: Colors.greenAccent.shade100,
-                        iconColor: Colors.black,
-                        textColor: Colors.black,
-                      ),
-                    ),
-
-                    const SizedBox(width: 12),
-
-                    Expanded(
-                      child: _buildTimeCard(
-                        title: "Datang",
-                        value: data.jamDatang,
-                        color: Colors.red,
-                        background: Colors.redAccent.shade100,
-                        iconColor: Colors.white,
-                        textColor: Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 14),
-
-                Row(
-                  mainAxisAlignment:
-                  MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        data.namaKoridor,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 15,
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.calendar_today_rounded,
+                          size: 14,
+                          color: Color(0xFF718096),
                         ),
-                      ),
+                        const SizedBox(width: 6),
+                        Text(
+                          data.tanggal,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF2D3748),
+                            fontSize: 13,
+                          ),
+                        ),
+                      ],
                     ),
-
                     Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
+                        horizontal: 8,
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.blue,
-                        borderRadius: BorderRadius.circular(6),
+                        color: const Color(0xFFF7FAFC),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: const Color(0xFFE2E8F0)),
                       ),
                       child: Text(
-                        "Ritase ${data.ritaseKe.toString()}",
+                        "${data.platNomor} • ${data.nomorLambung}",
                         style: const TextStyle(
-                          color: Colors.white,
                           fontWeight: FontWeight.w700,
+                          color: Color(0xFF4A5568),
+                          fontSize: 11,
                         ),
                       ),
                     ),
                   ],
                 ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
 
-  Widget _buildTimeCard({
-    required String title,
-    required String value,
-    required Color color,
-    required Color background,
-    required Color iconColor,
-    required Color textColor,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: const TextStyle(
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-
-        const SizedBox(height: 5),
-
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(
-            horizontal: 8,
-            vertical: 7,
-          ),
-          decoration: BoxDecoration(
-            color: background,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: color),
-          ),
-          child: Row(
-            children: [
-              Icon(
-                Icons.timer_outlined,
-                size: 18,
-                color: iconColor,
-              ),
-
-              const SizedBox(width: 6),
-
-              Expanded(
-                child: Text(
-                  value.trim().isEmpty
-                      ? "--:--:--"
-                      : StringFormatter()
-                      .formatLongTimeToMedium(value),
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: textColor,
-                    fontWeight: FontWeight.w700,
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 12),
+                  child: Divider(
+                    height: 1,
+                    thickness: 1,
+                    color: Color(0xFFEDF2F7),
                   ),
                 ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
 
-  Widget _buildHistoryByType(
-      List<TimetableData> dataList,
-      bool isCheckIn,
-      ) {
-    final mainColor = isCheckIn ? Colors.green : Colors.red;
-
-    return ListView.separated(
-      physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
-      itemCount: dataList.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 12),
-      itemBuilder: (context, index) {
-        final data = dataList[index];
-
-        final jam = isCheckIn
-            ? data.jamBerangkat
-            : data.jamDatang;
-
-        return Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: Colors.grey.shade200),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.03),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: IntrinsicHeight(
-            child: Row(
-              children: [
-                Container(
-                  width: 5,
-                  decoration: BoxDecoration(
-                    color: mainColor,
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(14),
-                      bottomLeft: Radius.circular(14),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment:
-                      CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment:
-                          MainAxisAlignment.spaceBetween,
+                // Timeline Route / Single Time Dashboard Callout
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: (filterType == "Berangkat" || filterType == "Datang")
+                      ? Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Row(
                               children: [
                                 Icon(
-                                  isCheckIn
-                                      ? Icons.login_rounded
-                                      : Icons.logout_rounded,
-                                  color: mainColor,
-                                  size: 18,
+                                  filterType == "Berangkat"
+                                      ? Icons.play_arrow_rounded
+                                      : Icons.flag_rounded,
+                                  color: filterType == "Berangkat"
+                                      ? const Color(0xFF2E7D32)
+                                      : const Color(0xFFC62828),
+                                  size: 16,
                                 ),
-                                const SizedBox(width: 6),
+                                const SizedBox(width: 8),
                                 Text(
-                                  isCheckIn
-                                      ? "CHECK-IN"
-                                      : "CHECK-OUT",
-                                  style: TextStyle(
-                                    color: mainColor,
-                                    fontWeight:
-                                    FontWeight.bold,
+                                  filterType == "Berangkat"
+                                      ? "Berangkat (Check-In)"
+                                      : "Datang (Check-Out)",
+                                  style: const TextStyle(
+                                    fontSize: 12.5,
+                                    color: Color(0xFF4A5568),
+                                    fontWeight: FontWeight.w600,
                                   ),
                                 ),
                               ],
                             ),
                             Text(
-                              data.tanggal,
+                              filterType == "Berangkat"
+                                  ? (data.jamBerangkat.trim().isEmpty
+                                        ? "--:--:--"
+                                        : StringFormatter()
+                                              .formatLongTimeToMedium(
+                                                data.jamBerangkat,
+                                              ))
+                                  : (data.jamDatang.trim().isEmpty
+                                        ? "--:--:--"
+                                        : StringFormatter()
+                                              .formatLongTimeToMedium(
+                                                data.jamDatang,
+                                              )),
                               style: TextStyle(
-                                color: Colors.grey.shade600,
-                                fontSize: 12,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w800,
+                                color: filterType == "Berangkat"
+                                    ? const Color(0xFF2E7D32)
+                                    : const Color(0xFFC62828),
                               ),
                             ),
                           ],
-                        ),
-
-                        const SizedBox(height: 12),
-
-                        Text(
-                          data.namaKoridor,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-
-                        const SizedBox(height: 4),
-
-                        Text(
-                          "${data.platNomor} (${data.nomorLambung})",
-                          style: TextStyle(
-                            color: Colors.grey.shade600,
-                          ),
-                        ),
-
-                        const Divider(height: 22),
-
-                        Row(
-                          mainAxisAlignment:
-                          MainAxisAlignment.spaceBetween,
+                        )
+                      : Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              "Ritase ${data.ritaseKe.toString()}",
-                              style: TextStyle(
-                                color: Colors.grey.shade700,
-                              ),
+                            // Timeline indicator line
+                            Column(
+                              children: [
+                                const Icon(
+                                  Icons.circle,
+                                  size: 8,
+                                  color: Color(0xFF2E7D32),
+                                ),
+                                Container(
+                                  width: 1.5,
+                                  height: 28,
+                                  color: const Color(0xFFE2E8F0),
+                                ),
+                                const Icon(
+                                  Icons.circle,
+                                  size: 8,
+                                  color: Color(0xFFC62828),
+                                ),
+                              ],
                             ),
-                            Container(
-                              padding:
-                              const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 5,
-                              ),
-                              decoration: BoxDecoration(
-                                color: mainColor.withValues(
-                                  alpha: 0.12,
-                                ),
-                                borderRadius:
-                                BorderRadius.circular(8),
-                              ),
-                              child: Text(
-                                jam.isEmpty
-                                    ? "--:--:--"
-                                    : StringFormatter()
-                                    .formatLongTimeToMedium(
-                                  jam,
-                                ),
-                                style: TextStyle(
-                                  color: mainColor,
-                                  fontWeight:
-                                  FontWeight.bold,
-                                ),
+                            const SizedBox(width: 14),
+                            // Time Info Texts
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      const Text(
+                                        "Berangkat (Check-In)",
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Color(0xFF718096),
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      Text(
+                                        data.jamBerangkat.trim().isEmpty
+                                            ? "--:--:--"
+                                            : StringFormatter()
+                                                  .formatLongTimeToMedium(
+                                                    data.jamBerangkat,
+                                                  ),
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w800,
+                                          color:
+                                              data.jamBerangkat.trim().isEmpty
+                                              ? const Color(0xFFA0AEC0)
+                                              : const Color(0xFF2E7D32),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 18),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      const Text(
+                                        "Datang (Check-Out)",
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Color(0xFF718096),
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      Text(
+                                        data.jamDatang.trim().isEmpty
+                                            ? "--:--:--"
+                                            : StringFormatter()
+                                                  .formatLongTimeToMedium(
+                                                    data.jamDatang,
+                                                  ),
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w800,
+                                          color: data.jamDatang.trim().isEmpty
+                                              ? const Color(0xFFA0AEC0)
+                                              : const Color(0xFFC62828),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ),
                             ),
                           ],
                         ),
-                      ],
-                    ),
+                ),
+
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 12),
+                  child: Divider(
+                    height: 1,
+                    thickness: 1,
+                    color: Color(0xFFEDF2F7),
                   ),
+                ),
+
+                // Footer: Corridor + Ritase
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.directions_bus_rounded,
+                            size: 15,
+                            color: Color(0xFF1565C0),
+                          ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              data.namaKoridor,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w800,
+                                fontSize: 13,
+                                color: Color(0xFF2D3748),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF1565C0).withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: const Color(
+                            0xFF1565C0,
+                          ).withValues(alpha: 0.15),
+                        ),
+                      ),
+                      child: Text(
+                        "Ritase ${data.ritaseKe.toString().replaceAll('.0', '')}",
+                        style: const TextStyle(
+                          color: Color(0xFF1565C0),
+                          fontWeight: FontWeight.w800,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

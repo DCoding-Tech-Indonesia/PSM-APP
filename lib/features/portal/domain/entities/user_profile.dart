@@ -1,4 +1,4 @@
-import 'package:psm_mobile/features/portal/domain/entities/portal_menu.dart';
+import 'package:travis/features/portal/domain/entities/portal_menu.dart';
 
 class UserProfile {
   final String id;

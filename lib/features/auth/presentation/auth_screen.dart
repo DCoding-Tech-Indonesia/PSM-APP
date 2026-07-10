@@ -5,12 +5,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:formz/formz.dart';
 import 'package:go_router/go_router.dart';
 import 'package:local_auth/local_auth.dart';
-import 'package:psm_mobile/core/helper/version_ui_helper.dart';
-import 'package:psm_mobile/core/presentations/widgets/widgets.dart';
-import 'package:psm_mobile/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:psm_mobile/features/auth/presentation/bloc/auth_event.dart';
-import 'package:psm_mobile/features/auth/presentation/bloc/auth_state.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_snackbar.dart';
+import 'package:travis/core/helper/version_ui_helper.dart';
+import 'package:travis/core/presentations/widgets/widgets.dart';
+import 'package:travis/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:travis/features/auth/presentation/bloc/auth_event.dart';
+import 'package:travis/features/auth/presentation/bloc/auth_state.dart';
+import 'package:travis/core/presentations/widgets/core_snackbar.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});

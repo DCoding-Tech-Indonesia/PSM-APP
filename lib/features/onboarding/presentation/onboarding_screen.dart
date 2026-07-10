@@ -18,7 +18,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       icon: Icons.dashboard_rounded,
       title: 'Selamat Datang di TRAVIS',
       description:
-          'Portal System Management terintegrasi untuk mengelola semua modul dalam satu aplikasi.',
+          'Trans Padang Vehicle and Information System - Solusi terintegrasi untuk mengelola semua modul dalam satu aplikasi.',
       color: Colors.blue,
     ),
     OnboardingItem(

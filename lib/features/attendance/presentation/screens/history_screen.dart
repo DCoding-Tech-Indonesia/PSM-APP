@@ -1,17 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:psm_mobile/core/presentations/widgets/widgets.dart';
-import 'package:psm_mobile/features/attendance/data/models/attendance_record.dart';
-import 'package:psm_mobile/core/network/dio_client.dart';
-import 'package:psm_mobile/features/attendance/data/datasources/attendance_remote_data_source.dart';
-import 'package:psm_mobile/features/attendance/data/repositories/attendance_repository_impl.dart';
+import 'package:travis/core/presentations/widgets/widgets.dart';
+import 'package:travis/features/attendance/data/models/attendance_record.dart';
+import 'package:travis/core/network/dio_client.dart';
+import 'package:travis/features/attendance/data/datasources/attendance_remote_data_source.dart';
+import 'package:travis/features/attendance/data/repositories/attendance_repository_impl.dart';
 
 class HistoryScreen extends StatefulWidget {
   final String userId;
 
-  const HistoryScreen({
-    super.key,
-    required this.userId,
-  });
+  const HistoryScreen({super.key, required this.userId});
 
   @override
   State<HistoryScreen> createState() => _HistoryScreenState();
@@ -102,76 +99,78 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   : RefreshIndicator(
                       onRefresh: _onRefresh,
                       child: _history.isEmpty
-                    ? ListView(
-                        physics: const AlwaysScrollableScrollPhysics(
-                          parent: BouncingScrollPhysics(),
-                        ),
-                        children: [
-                          SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.7,
-                            child: Center(
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 32,
-                                ),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.all(20),
-                                      decoration: BoxDecoration(
-                                        color: theme.colorScheme.primary
-                                            .withValues(alpha: 0.08),
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: Icon(
-                                        Icons.history_outlined,
-                                        size: 56,
-                                        color: theme.colorScheme.primary
-                                            .withValues(alpha: 0.7),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 20),
-                                    Text(
-                                      'Belum ada riwayat',
-                                      style: theme.textTheme.titleLarge
-                                          ?.copyWith(
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      'Daftar riwayat absensi Anda akan muncul di sini.',
-                                      textAlign: TextAlign.center,
-                                      style: theme.textTheme.bodyMedium
-                                          ?.copyWith(
-                                            color: theme
-                                                .textTheme
-                                                .bodySmall
-                                                ?.color,
-                                          ),
-                                    ),
-                                  ],
-                                ),
+                          ? ListView(
+                              physics: const AlwaysScrollableScrollPhysics(
+                                parent: BouncingScrollPhysics(),
                               ),
+                              children: [
+                                SizedBox(
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.7,
+                                  child: Center(
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 32,
+                                      ),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Container(
+                                            padding: const EdgeInsets.all(20),
+                                            decoration: BoxDecoration(
+                                              color: theme.colorScheme.primary
+                                                  .withValues(alpha: 0.08),
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: Icon(
+                                              Icons.history_outlined,
+                                              size: 56,
+                                              color: theme.colorScheme.primary
+                                                  .withValues(alpha: 0.7),
+                                            ),
+                                          ),
+                                          const SizedBox(height: 20),
+                                          Text(
+                                            'Belum ada riwayat',
+                                            style: theme.textTheme.titleLarge
+                                                ?.copyWith(
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                          ),
+                                          const SizedBox(height: 8),
+                                          Text(
+                                            'Daftar riwayat absensi Anda akan muncul di sini.',
+                                            textAlign: TextAlign.center,
+                                            style: theme.textTheme.bodyMedium
+                                                ?.copyWith(
+                                                  color: theme
+                                                      .textTheme
+                                                      .bodySmall
+                                                      ?.color,
+                                                ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            )
+                          : ListView.builder(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: size.width * 0.045,
+                                vertical: 16,
+                              ),
+                              physics: const AlwaysScrollableScrollPhysics(
+                                parent: BouncingScrollPhysics(),
+                              ),
+                              itemCount: _history.length,
+                              itemBuilder: (context, index) {
+                                return _buildHistoryItem(_history[index], size);
+                              },
                             ),
-                          ),
-                        ],
-                      )
-                    : ListView.builder(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: size.width * 0.045,
-                          vertical: 16,
-                        ),
-                        physics: const AlwaysScrollableScrollPhysics(
-                          parent: BouncingScrollPhysics(),
-                        ),
-                        itemCount: _history.length,
-                        itemBuilder: (context, index) {
-                          return _buildHistoryItem(_history[index], size);
-                        },
-                      ),
-              ),
+                    ),
             ),
           ],
         ),

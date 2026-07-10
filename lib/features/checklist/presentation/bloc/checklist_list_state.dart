@@ -1,4 +1,4 @@
-import 'package:psm_mobile/features/checklist/data/models/checklist_item_model.dart';
+import 'package:travis/features/checklist/data/models/checklist_item_model.dart';
 
 abstract class ChecklistListState {
   const ChecklistListState();

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:psm_mobile/core/presentations/widgets/widgets.dart';
-import 'package:psm_mobile/features/attendance/data/models/schedule_model.dart';
+import 'package:travis/core/presentations/widgets/widgets.dart';
+import 'package:travis/features/attendance/data/models/schedule_model.dart';
 
-import 'package:psm_mobile/core/network/dio_client.dart';
-import 'package:psm_mobile/features/attendance/data/datasources/attendance_remote_data_source.dart';
-import 'package:psm_mobile/features/attendance/data/repositories/attendance_repository_impl.dart';
+import 'package:travis/core/network/dio_client.dart';
+import 'package:travis/features/attendance/data/datasources/attendance_remote_data_source.dart';
+import 'package:travis/features/attendance/data/repositories/attendance_repository_impl.dart';
 
 class ScheduleCalendarScreen extends StatefulWidget {
   final String userId;

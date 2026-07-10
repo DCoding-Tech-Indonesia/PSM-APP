@@ -138,8 +138,9 @@ class CoreButton extends StatelessWidget {
   // --- Helper Methods ---
 
   Color? _getBackgroundColor(BuildContext context, ThemeData theme) {
-    if (!_isEnabled)
+    if (!_isEnabled) {
       return null; // Let ElevatedButton use its default disabled color
+    }
     if (backgroundColor != null) return backgroundColor;
 
     switch (type) {

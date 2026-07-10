@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:psm_mobile/features/spm/domain/repositories/spm_repository.dart';
+import 'package:travis/features/spm/domain/repositories/spm_repository.dart';
 import 'spm_input_event.dart';
 import 'spm_input_state.dart';
 
@@ -52,5 +52,4 @@ class SpmInputBloc extends Bloc<SpmInputEvent, SpmInputState> {
       emit(SpmSubmitError(e.toString()));
     }
   }
-
 }

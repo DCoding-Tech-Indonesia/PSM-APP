@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_header.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_snackbar.dart';
-import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_state.dart';
-import 'package:psm_mobile/features/settlement/presentation/widgets/history/history_list_card.dart';
+import 'package:travis/core/presentations/widgets/core_header.dart';
+import 'package:travis/core/presentations/widgets/core_snackbar.dart';
+import 'package:travis/features/settlement/presentation/bloc/settlement_state.dart';
+import 'package:travis/features/settlement/presentation/widgets/history/history_list_card.dart';
 
 import 'bloc/settlement_bloc.dart';
 import 'bloc/settlement_event.dart';
@@ -106,7 +106,7 @@ class _SettlementHistoryScreenState extends State<SettlementHistoryScreen> {
         }
       },
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.grey.shade50,
         body: SafeArea(
           child: Column(
             children: [
@@ -116,39 +116,54 @@ class _SettlementHistoryScreenState extends State<SettlementHistoryScreen> {
                 withBorder: true,
               ),
 
-              Row(
-                children: _tabs.map((tab) {
-                  final active = _activeTab == tab;
+              Container(
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  border: Border(
+                    bottom: BorderSide(color: Color(0xFFEDF2F7), width: 1),
+                  ),
+                ),
+                child: Row(
+                  children: _tabs.map((tab) {
+                    final active = _activeTab == tab;
 
-                  return Expanded(
-                    child: InkWell(
-                      onTap: () => _changeTab(tab),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 250),
-                        padding: const EdgeInsets.symmetric(vertical: 15),
-                        decoration: BoxDecoration(
-                          border: Border(
-                            bottom: BorderSide(
-                              width: 3,
-                              color: active ? Colors.blue : Colors.transparent,
-                            ),
-                          ),
-                        ),
-                        child: Center(
-                          child: AnimatedDefaultTextStyle(
-                            duration: const Duration(milliseconds: 250),
-                            style: TextStyle(
-                              color: active ? Colors.blue : Colors.grey,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 16,
-                            ),
-                            child: Text(tab),
+                    return Expanded(
+                      child: InkWell(
+                        onTap: () => _changeTab(tab),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                tab,
+                                style: TextStyle(
+                                  color: active
+                                      ? const Color(0xFF1565C0)
+                                      : const Color(0xFF718096),
+                                  fontWeight: active
+                                      ? FontWeight.w900
+                                      : FontWeight.w700,
+                                  fontSize: 13,
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              AnimatedContainer(
+                                duration: const Duration(milliseconds: 200),
+                                width: active ? 28 : 0,
+                                height: 3,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF1565C0),
+                                  borderRadius: BorderRadius.circular(2),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
-                    ),
-                  );
-                }).toList(),
+                    );
+                  }).toList(),
+                ),
               ),
 
               Expanded(
@@ -174,42 +189,78 @@ class _SettlementHistoryScreenState extends State<SettlementHistoryScreen> {
                               tab,
                             );
 
-                            return RefreshIndicator(
-                              onRefresh: _onRefresh,
-                              child: filtered.isEmpty
-                                  ? ListView(
-                                      physics:
-                                          const AlwaysScrollableScrollPhysics(),
-                                      children: const [
-                                        SizedBox(height: 200),
-                                        Center(
-                                          child: Text(
-                                            "Tidak ada data",
-                                            style: TextStyle(
-                                              color: Colors.grey,
+                            return NotificationListener<ScrollNotification>(
+                              onNotification: (ScrollNotification scrollInfo) {
+                                if (scrollInfo.metrics.pixels >=
+                                        scrollInfo.metrics.maxScrollExtent -
+                                            200 &&
+                                    state.status != SettlementStatus.fetching &&
+                                    !state.hasReachedMax) {
+                                  context.read<SettlementBloc>().add(
+                                    PageDashboardLoadNextPage(),
+                                  );
+                                }
+                                return true;
+                              },
+                              child: RefreshIndicator(
+                                onRefresh: _onRefresh,
+                                child: filtered.isEmpty
+                                    ? ListView(
+                                        physics:
+                                            const AlwaysScrollableScrollPhysics(),
+                                        children: const [
+                                          SizedBox(height: 200),
+                                          Center(
+                                            child: Text(
+                                              "Tidak ada data",
+                                              style: TextStyle(
+                                                color: Colors.grey,
+                                              ),
                                             ),
                                           ),
+                                        ],
+                                      )
+                                    : ListView.separated(
+                                        physics:
+                                            const AlwaysScrollableScrollPhysics(),
+                                        padding: const EdgeInsets.fromLTRB(
+                                          26,
+                                          20,
+                                          26,
+                                          20,
                                         ),
-                                      ],
-                                    )
-                                  : ListView.separated(
-                                      physics:
-                                          const AlwaysScrollableScrollPhysics(),
-                                      padding: const EdgeInsets.fromLTRB(
-                                        26,
-                                        20,
-                                        26,
-                                        20,
+                                        itemCount:
+                                            filtered.length +
+                                            (state.status ==
+                                                    SettlementStatus.fetching
+                                                ? 1
+                                                : 0),
+                                        separatorBuilder: (_, _) =>
+                                            const SizedBox(height: 12),
+                                        itemBuilder: (context, i) {
+                                          if (i == filtered.length) {
+                                            return const Padding(
+                                              padding: EdgeInsets.symmetric(
+                                                vertical: 16,
+                                              ),
+                                              child: Center(
+                                                child: SizedBox(
+                                                  width: 24,
+                                                  height: 24,
+                                                  child:
+                                                      CircularProgressIndicator(
+                                                        strokeWidth: 2.5,
+                                                      ),
+                                                ),
+                                              ),
+                                            );
+                                          }
+                                          return HistoryListCard(
+                                            data: filtered[i],
+                                          );
+                                        },
                                       ),
-                                      itemCount: filtered.length,
-                                      separatorBuilder: (_, __) =>
-                                          const SizedBox(height: 12),
-                                      itemBuilder: (context, i) {
-                                        return HistoryListCard(
-                                          data: filtered[i],
-                                        );
-                                      },
-                                    ),
+                              ),
                             );
                           },
                         ),

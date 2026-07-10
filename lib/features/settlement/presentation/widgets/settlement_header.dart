@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_header.dart';
+import 'package:travis/core/presentations/widgets/core_header.dart';
 
 class SettlementHeader extends StatelessWidget {
   const SettlementHeader({super.key});

@@ -1,8 +1,8 @@
 import 'dart:convert';
-import 'package:psm_mobile/features/timetable/domain/entities/auditTrail/km_data_after_audit_trail.dart';
-import 'package:psm_mobile/features/timetable/domain/entities/auditTrail/km_module_audit_trail.dart';
-import 'package:psm_mobile/features/timetable/domain/entities/auditTrail/km_status_audit_trail.dart';
-import 'package:psm_mobile/features/timetable/domain/entities/auditTrail/km_user_audit_trail.dart';
+import 'package:travis/features/timetable/domain/entities/auditTrail/km_data_after_audit_trail.dart';
+import 'package:travis/features/timetable/domain/entities/auditTrail/km_module_audit_trail.dart';
+import 'package:travis/features/timetable/domain/entities/auditTrail/km_status_audit_trail.dart';
+import 'package:travis/features/timetable/domain/entities/auditTrail/km_user_audit_trail.dart';
 
 class KmTaskAuditTrail {
   final int id;
@@ -45,8 +45,10 @@ class KmTaskAuditTrail {
       parsedDataAfter = rawDataAfter;
     }
 
-    final String fallbackNoPolisi = json['noPolisi'] ?? parsedDataAfter['bus']?['platNomor'] ?? '';
-    final String fallbackKoridor = json['namaKoridor'] ?? parsedDataAfter['koridor']?['name'] ?? '';
+    final String fallbackNoPolisi =
+        json['noPolisi'] ?? parsedDataAfter['bus']?['platNomor'] ?? '';
+    final String fallbackKoridor =
+        json['namaKoridor'] ?? parsedDataAfter['koridor']?['name'] ?? '';
 
     return KmTaskAuditTrail(
       id: json['id'] as int,
@@ -68,7 +70,8 @@ class KmTaskAuditTrail {
       status: KmStatusAuditTrail.fromJson(json['status']),
       namaKoridor: fallbackKoridor,
       noPolisi: fallbackNoPolisi,
-      namaPramugara: json['namaPramugara'] ?? parsedDataAfter['pramugara']?['name'],
+      namaPramugara:
+          json['namaPramugara'] ?? parsedDataAfter['pramugara']?['name'],
       dataAfter: KmDataAfterAuditTrail.fromJson(parsedDataAfter),
     );
   }

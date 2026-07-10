@@ -1,6 +1,6 @@
-# psm_mobile
+# TRAVIS
 
-PSM Mobile Application.
+TRAVIS (Trans Padang Vehicle and Information System) Mobile Application.
 
 ## RUNNING LOCAL
 

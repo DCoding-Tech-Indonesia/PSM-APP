@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
-import 'package:psm_mobile/core/helper/string_formatter.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_button.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_snackbar.dart';
-import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_bloc.dart';
-import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_state.dart';
+import 'package:travis/core/helper/string_formatter.dart';
+import 'package:travis/core/presentations/widgets/core_button.dart';
+import 'package:travis/core/presentations/widgets/core_snackbar.dart';
+import 'package:travis/features/settlement/presentation/bloc/settlement_bloc.dart';
+import 'package:travis/features/settlement/presentation/bloc/settlement_state.dart';
 
 import 'bloc/settlement_event.dart';
 
@@ -125,7 +125,9 @@ class _SettlementSuccessSubmitDraftScreenState
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(16),
-                              border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
+                              border: Border.all(
+                                color: Colors.grey.withValues(alpha: 0.2),
+                              ),
                               boxShadow: [
                                 BoxShadow(
                                   color: Colors.black.withValues(alpha: 0.05),
@@ -139,7 +141,8 @@ class _SettlementSuccessSubmitDraftScreenState
                               children: [
                                 // HEADER
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
                                       "Ritase #${widget.ritase}",
@@ -183,11 +186,16 @@ class _SettlementSuccessSubmitDraftScreenState
 
                                 // PASSENGER ROW
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     Row(
                                       children: [
-                                        Icon(Icons.people_outline, size: 18, color: Colors.grey.shade700),
+                                        Icon(
+                                          Icons.people_outline,
+                                          size: 18,
+                                          color: Colors.grey.shade700,
+                                        ),
                                         const SizedBox(width: 6),
                                         Text(
                                           "${widget.totalCust}",
@@ -214,11 +222,16 @@ class _SettlementSuccessSubmitDraftScreenState
                                 // VALUE / REVENUE
                                 Row(
                                   children: [
-                                    Icon(Icons.payments_outlined,
-                                        size: 18, color: Colors.green.shade700),
+                                    Icon(
+                                      Icons.payments_outlined,
+                                      size: 18,
+                                      color: Colors.green.shade700,
+                                    ),
                                     const SizedBox(width: 6),
                                     Text(
-                                      StringFormatter().idrFormatter(widget.totalPayment ?? 0),
+                                      StringFormatter().idrFormatter(
+                                        widget.totalPayment ?? 0,
+                                      ),
                                       style: const TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w800,
@@ -228,7 +241,7 @@ class _SettlementSuccessSubmitDraftScreenState
                                 ),
                               ],
                             ),
-                          )
+                          ),
                         ],
                       ),
                     ),
@@ -265,7 +278,10 @@ class _SettlementSuccessSubmitDraftScreenState
                                   _stopTimer();
 
                                   context.read<SettlementBloc>().add(
-                                    SubmitWorkflow('Done', widget.idAuditTrail!),
+                                    SubmitWorkflow(
+                                      'Done',
+                                      widget.idAuditTrail!,
+                                    ),
                                   );
                                 },
                                 child: const Text(

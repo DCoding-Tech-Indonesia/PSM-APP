@@ -1,8 +1,8 @@
-import 'package:psm_mobile/features/attendance/data/datasources/attendance_remote_data_source.dart';
-import 'package:psm_mobile/features/attendance/data/models/attendance_record.dart';
-import 'package:psm_mobile/features/attendance/data/models/attendance_request.dart';
-import 'package:psm_mobile/features/attendance/data/models/schedule_model.dart';
-import 'package:psm_mobile/features/attendance/domain/repositories/attendance_repository.dart';
+import 'package:travis/features/attendance/data/datasources/attendance_remote_data_source.dart';
+import 'package:travis/features/attendance/data/models/attendance_record.dart';
+import 'package:travis/features/attendance/data/models/attendance_request.dart';
+import 'package:travis/features/attendance/data/models/schedule_model.dart';
+import 'package:travis/features/attendance/domain/repositories/attendance_repository.dart';
 
 class AttendanceRepositoryImpl implements AttendanceRepository {
   final AttendanceRemoteDataSource remoteDataSource;

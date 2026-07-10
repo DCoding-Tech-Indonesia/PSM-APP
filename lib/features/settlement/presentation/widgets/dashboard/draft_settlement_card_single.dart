@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:psm_mobile/core/helper/string_formatter.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_bottom_modal_verification.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_snackbar.dart';
-import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/settlement_task_audit_trail.dart';
-import 'package:psm_mobile/features/settlement/domain/entities/settlement_form_args.dart';
-import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_bloc.dart';
-import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_event.dart';
+import 'package:travis/core/helper/string_formatter.dart';
+import 'package:travis/core/presentations/widgets/core_bottom_modal_verification.dart';
+import 'package:travis/features/settlement/domain/entities/auditTrail/settlement_task_audit_trail.dart';
+import 'package:travis/features/settlement/domain/entities/settlement_form_args.dart';
+import 'package:travis/features/settlement/presentation/bloc/settlement_bloc.dart';
+import 'package:travis/features/settlement/presentation/bloc/settlement_event.dart';
 
 class DraftSettlementCardSingle extends StatelessWidget {
   const DraftSettlementCardSingle({
@@ -47,10 +46,13 @@ class DraftSettlementCardSingle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final draftDatas = datas.where((task) => task.status.code == 'DFT').toList();
+    final draftDatas = datas
+        .where((task) => task.status.code == 'DFT')
+        .toList();
 
-    final SettlementTaskAuditTrail? latestDraft =
-        draftDatas.isNotEmpty ? draftDatas.last : null;
+    final SettlementTaskAuditTrail? latestDraft = draftDatas.isNotEmpty
+        ? draftDatas.last
+        : null;
 
     return BlocBuilder<SettlementBloc, dynamic>(
       builder: (context, state) {
@@ -58,7 +60,7 @@ class DraftSettlementCardSingle extends StatelessWidget {
 
         if (!isEmpty) {
           return Container(
-            margin: const EdgeInsets.symmetric(horizontal: 20),
+            margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
             decoration: BoxDecoration(
               gradient: const LinearGradient(
                 colors: [Color(0xFF1E88E5), Color(0xFF1565C0)],
@@ -117,7 +119,9 @@ class DraftSettlementCardSingle extends StatelessWidget {
                                   Text(
                                     draftDatas[0].noPolisi ?? '-',
                                     style: TextStyle(
-                                      color: Colors.white.withValues(alpha: 0.85),
+                                      color: Colors.white.withValues(
+                                        alpha: 0.85,
+                                      ),
                                       fontSize: 13,
                                       fontWeight: FontWeight.w500,
                                     ),
@@ -144,7 +148,9 @@ class DraftSettlementCardSingle extends StatelessWidget {
                           if (!context.mounted) return;
 
                           if (result == true) {
-                            context.read<SettlementBloc>().add(PageDashboardLoad());
+                            context.read<SettlementBloc>().add(
+                              PageDashboardLoad(),
+                            );
                           }
                         },
                         child: Container(
@@ -237,84 +243,7 @@ class DraftSettlementCardSingle extends StatelessWidget {
             ),
           );
         } else {
-          return Container(
-            margin: const EdgeInsets.symmetric(horizontal: 20),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: () async {
-                  if (!isActive) {
-                    CoreSnackbar.show(
-                      context,
-                      message: ctaDisabledMessage!,
-                      type: SnackbarType.warning,
-                    );
-
-                    return;
-                  }
-
-                  final result = await context.push<bool>(
-                    '/settlement/form',
-                    extra: SettlementFormArgs(
-                      idAuditTrail: null,
-                      idShift: idShift,
-                      idKoridor: idKoridor,
-                      idBus: idBus,
-                      ritaseKe: ritaseKe,
-                    ),
-                  );
-
-                  if (!context.mounted) return;
-
-                  if (result == true) {
-                    context.read<SettlementBloc>().add(PageDashboardLoad());
-                  }
-                },
-                borderRadius: BorderRadius.circular(12),
-                child: Ink(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  decoration: BoxDecoration(
-                    gradient: isActive ? const LinearGradient(
-                      colors: [Color(0xFF2E7D32), Color(0xFF43A047)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ) : const LinearGradient(
-                      colors: [Color(0xFF454545), Color(0xFF9a9a9a)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFF2E7D32).withValues(alpha: 0.3),
-                        blurRadius: 8,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      Icon(
-                        Icons.add_circle_outline_rounded,
-                        color: Colors.white,
-                        size: 22,
-                      ),
-                      SizedBox(width: 10),
-                      Text(
-                        "Input Settlement",
-                        style: TextStyle(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 16,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          );
+          return const SizedBox.shrink();
         }
       },
     );

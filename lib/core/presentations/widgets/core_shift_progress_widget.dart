@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:psm_mobile/core/presentations/entity/shift_period.dart';
+import 'package:travis/core/presentations/entity/shift_period.dart';
 
 class CoreShiftProgressWidget extends StatelessWidget {
   final DateTime now;
@@ -127,21 +127,40 @@ class CoreShiftProgressWidget extends StatelessWidget {
 
     if (shift == null) {
       return Container(
-        width: 80,
-        height: 80,
+        width: 68,
+        height: 68,
         decoration: BoxDecoration(
-          color: Colors.blueGrey.shade50,
+          color: const Color(0xFFF0F4F8),
           shape: BoxShape.circle,
-          border: Border.all(color: Colors.blueGrey.shade100, width: 3),
+          border: Border.all(color: const Color(0xFFD3E2F2), width: 2.5),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 6,
+              offset: const Offset(0, 3),
+            ),
+          ],
         ),
         child: const Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('0', style: TextStyle(fontSize: 22)),
-            SizedBox(height: 2),
+            Text(
+              '0',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w900,
+                color: Color(0xFF718096),
+              ),
+            ),
+            SizedBox(height: 1),
             Text(
               'NO SHIFT',
-              style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600),
+              style: TextStyle(
+                fontSize: 9,
+                fontWeight: FontWeight.w800,
+                color: Color(0xFF718096),
+                letterSpacing: 0.5,
+              ),
             ),
           ],
         ),
@@ -154,26 +173,26 @@ class CoreShiftProgressWidget extends StatelessWidget {
     Color progressColor;
 
     if (progress < 0.5) {
-      progressColor = Colors.green;
+      progressColor = const Color(0xFF00E676);
     } else if (progress < 0.8) {
-      progressColor = Colors.orange;
+      progressColor = const Color(0xFFFFB300);
     } else {
-      progressColor = Colors.red;
+      progressColor = const Color(0xFFFF1744);
     }
 
     return SizedBox(
-      width: 75,
-      height: 75,
+      width: 72,
+      height: 72,
       child: Stack(
         alignment: Alignment.center,
         children: [
           SizedBox(
-            width: 80,
-            height: 80,
+            width: 70,
+            height: 70,
             child: CircularProgressIndicator(
               value: progress,
-              strokeWidth: 6,
-              backgroundColor: Colors.grey.shade200,
+              strokeWidth: 4.5,
+              backgroundColor: Colors.grey.shade100,
               color: progressColor,
             ),
           ),
@@ -181,18 +200,21 @@ class CoreShiftProgressWidget extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                _getCurrentShiftNumber(now),
-                style: TextStyle(
-                  fontSize: 20,
+                'Shift ${_getCurrentShiftNumber(now)}',
+                style: const TextStyle(
+                  fontSize: 10,
                   fontWeight: FontWeight.w800,
-                  color: Colors.blueAccent,
+                  color: Color(0xFF2D3748),
+                  letterSpacing: 0.5,
                 ),
               ),
+              const SizedBox(height: 2),
               Text(
                 _formatDuration(remaining),
-                style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w800,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w900,
+                  color: progressColor,
                 ),
                 textAlign: TextAlign.center,
               ),

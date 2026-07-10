@@ -1,6 +1,6 @@
-import 'package:psm_mobile/features/attendance/data/datasources/leave_request_remote_data_source.dart';
-import 'package:psm_mobile/features/attendance/data/models/leave_request_model.dart';
-import 'package:psm_mobile/features/attendance/domain/repositories/leave_request_repository.dart';
+import 'package:travis/features/attendance/data/datasources/leave_request_remote_data_source.dart';
+import 'package:travis/features/attendance/data/models/leave_request_model.dart';
+import 'package:travis/features/attendance/domain/repositories/leave_request_repository.dart';
 
 class LeaveRequestRepositoryImpl implements LeaveRequestRepository {
   final LeaveRequestRemoteDataSource remoteDataSource;

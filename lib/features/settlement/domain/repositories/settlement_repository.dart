@@ -1,16 +1,16 @@
 import 'dart:io';
 
 import 'package:fpdart/fpdart.dart';
-import 'package:psm_mobile/core/error/failure.dart';
-import 'package:psm_mobile/core/presentations/entity/core_data_source_response.dart';
-import 'package:psm_mobile/core/presentations/entity/core_schedule_model.dart';
-import 'package:psm_mobile/core/presentations/entity/core_status_and_message_response.dart';
-import 'package:psm_mobile/features/reference/domain/entities/next_ritase_response.dart';
-import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/settlement_task_audit_trail.dart';
-import 'package:psm_mobile/features/reference/domain/entities/document_preview.dart';
-import 'package:psm_mobile/features/reference/domain/entities/reference_billing.dart';
-import 'package:psm_mobile/features/reference/domain/entities/reference_detail.dart';
-import 'package:psm_mobile/features/settlement/domain/entities/settlement_create.dart';
+import 'package:travis/core/error/failure.dart';
+import 'package:travis/core/presentations/entity/core_data_source_response.dart';
+import 'package:travis/core/presentations/entity/core_schedule_model.dart';
+import 'package:travis/core/presentations/entity/core_status_and_message_response.dart';
+import 'package:travis/features/reference/domain/entities/next_ritase_response.dart';
+import 'package:travis/features/settlement/domain/entities/auditTrail/settlement_task_audit_trail.dart';
+import 'package:travis/features/reference/domain/entities/document_preview.dart';
+import 'package:travis/features/reference/domain/entities/reference_billing.dart';
+import 'package:travis/features/reference/domain/entities/reference_detail.dart';
+import 'package:travis/features/settlement/domain/entities/settlement_create.dart';
 
 abstract class SettlementRepository {
   Future<Either<Failure, List<CoreScheduleModel>>> fetchTodaySchedule(
@@ -55,14 +55,18 @@ abstract class SettlementRepository {
   Future<Either<Failure, DocumentPreview>> uploadDocument(File file);
   Future<Either<Failure, String>> createSettlement(SettlementCreate request);
   Future<Either<Failure, List<SettlementTaskAuditTrail>>>
-  fetchTaskAuditTrailList(String keyword);
+  fetchTaskAuditTrailList(String keyword, {int page = 1});
   Future<Either<Failure, SettlementCreate>> fetchTaskAuditTrailDetail(
     int idAuditTrail,
   );
-  Future<Either<Failure, CoreStatusAndMessageResponse>> updateSettlement(SettlementCreate request);
+  Future<Either<Failure, CoreStatusAndMessageResponse>> updateSettlement(
+    SettlementCreate request,
+  );
   Future<Either<Failure, CoreStatusAndMessageResponse>> submitWorkflow(
     int idAuditTrail,
     String reason,
   );
-  Future<Either<Failure, CoreStatusAndMessageResponse>> cancelTaskDraft(int idAuditTrail);
+  Future<Either<Failure, CoreStatusAndMessageResponse>> cancelTaskDraft(
+    int idAuditTrail,
+  );
 }

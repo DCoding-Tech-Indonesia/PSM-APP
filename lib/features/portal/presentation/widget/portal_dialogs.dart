@@ -2,8 +2,8 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:psm_mobile/features/portal/presentation/bloc/portal_bloc.dart';
-import 'package:psm_mobile/features/portal/presentation/bloc/portal_event.dart';
+import 'package:travis/features/portal/presentation/bloc/portal_bloc.dart';
+import 'package:travis/features/portal/presentation/bloc/portal_event.dart';
 
 class PortalDialogs {
   static void showNotificationDialog(BuildContext context) {
@@ -41,7 +41,9 @@ class PortalDialogs {
             width: MediaQuery.of(context).size.width * 0.9,
             height: MediaQuery.of(context).size.height * 0.7,
             decoration: BoxDecoration(
-              color: theme.cardTheme.color?.withValues(alpha: 0.75) ?? Colors.white.withValues(alpha: 0.75),
+              color:
+                  theme.cardTheme.color?.withValues(alpha: 0.75) ??
+                  Colors.white.withValues(alpha: 0.75),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
                 color: Colors.white.withValues(alpha: 0.2),
@@ -249,7 +251,13 @@ class PortalDialogs {
                               borderRadius: BorderRadius.circular(10),
                               onTap: () {
                                 context.pop();
-                                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Semua notifikasi ditandai sebagai sudah dibaca')));
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      'Semua notifikasi ditandai sebagai sudah dibaca',
+                                    ),
+                                  ),
+                                );
                               },
                               child: Center(
                                 child: Text(
@@ -280,7 +288,13 @@ class PortalDialogs {
                               borderRadius: BorderRadius.circular(10),
                               onTap: () {
                                 context.pop();
-                                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Semua notifikasi telah dihapus')));
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      'Semua notifikasi telah dihapus',
+                                    ),
+                                  ),
+                                );
                               },
                               child: Center(
                                 child: Text(
@@ -326,7 +340,9 @@ class PortalDialogs {
             margin: const EdgeInsets.symmetric(horizontal: 20),
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: theme.cardTheme.color?.withValues(alpha: 0.75) ?? Colors.white.withValues(alpha: 0.75),
+              color:
+                  theme.cardTheme.color?.withValues(alpha: 0.75) ??
+                  Colors.white.withValues(alpha: 0.75),
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
@@ -512,7 +528,9 @@ class PortalDialogs {
             margin: const EdgeInsets.symmetric(horizontal: 20),
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: theme.cardTheme.color?.withValues(alpha: 0.75) ?? Colors.white.withValues(alpha: 0.75),
+              color:
+                  theme.cardTheme.color?.withValues(alpha: 0.75) ??
+                  Colors.white.withValues(alpha: 0.75),
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(

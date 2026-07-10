@@ -2,15 +2,15 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:psm_mobile/core/notification/approval_refresh_notifier.dart';
-import 'package:psm_mobile/core/network/dio_client.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_blur_dialog.dart';
-import 'package:psm_mobile/features/attendance/data/datasources/approval_remote_data_source.dart';
-import 'package:psm_mobile/features/attendance/data/models/approval_model.dart';
-import 'package:psm_mobile/features/attendance/data/repositories/approval_repository_impl.dart';
-import 'package:psm_mobile/features/attendance/presentation/bloc/approval_bloc.dart';
-import 'package:psm_mobile/features/attendance/presentation/bloc/approval_state.dart';
-import 'package:psm_mobile/features/attendance/presentation/widgets/widgets.dart';
+import 'package:travis/core/notification/approval_refresh_notifier.dart';
+import 'package:travis/core/network/dio_client.dart';
+import 'package:travis/core/presentations/widgets/core_blur_dialog.dart';
+import 'package:travis/features/attendance/data/datasources/approval_remote_data_source.dart';
+import 'package:travis/features/attendance/data/models/approval_model.dart';
+import 'package:travis/features/attendance/data/repositories/approval_repository_impl.dart';
+import 'package:travis/features/attendance/presentation/bloc/approval_bloc.dart';
+import 'package:travis/features/attendance/presentation/bloc/approval_state.dart';
+import 'package:travis/features/attendance/presentation/widgets/widgets.dart';
 
 class ApprovalScreen extends StatelessWidget {
   const ApprovalScreen({super.key});

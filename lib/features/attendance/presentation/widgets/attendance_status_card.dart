@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:psm_mobile/core/presentations/widgets/widgets.dart';
-import 'package:psm_mobile/features/attendance/presentation/bloc/attendance_bloc.dart';
-import 'package:psm_mobile/features/attendance/presentation/bloc/attendance_state.dart';
+import 'package:travis/core/presentations/widgets/widgets.dart';
+import 'package:travis/features/attendance/presentation/bloc/attendance_bloc.dart';
+import 'package:travis/features/attendance/presentation/bloc/attendance_state.dart';
 
 class AttendanceStatusCard extends StatelessWidget {
   final AttendanceLoaded state;

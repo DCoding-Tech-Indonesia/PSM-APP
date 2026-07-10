@@ -1,11 +1,11 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:psm_mobile/core/storage/secure_storage.dart';
-import 'package:psm_mobile/features/kmbus/domain/entities/kmbus_data.dart';
-import 'package:psm_mobile/features/timetable/domain/entities/response/timetable_checkin_response.dart';
-import 'package:psm_mobile/features/timetable/domain/entities/timetable_checkin.dart';
-import 'package:psm_mobile/features/timetable/domain/entities/timetable_checkout.dart';
-import 'package:psm_mobile/features/timetable/domain/entities/timetable_data.dart';
+import 'package:travis/core/storage/secure_storage.dart';
+import 'package:travis/features/kmbus/domain/entities/kmbus_data.dart';
+import 'package:travis/features/timetable/domain/entities/response/timetable_checkin_response.dart';
+import 'package:travis/features/timetable/domain/entities/timetable_checkin.dart';
+import 'package:travis/features/timetable/domain/entities/timetable_checkout.dart';
+import 'package:travis/features/timetable/domain/entities/timetable_data.dart';
 
 class TimetableDataSource {
   final Dio dio;
@@ -13,7 +13,11 @@ class TimetableDataSource {
 
   TimetableDataSource({required this.dio, required this.secureStorageService});
 
-  Future<List<TimetableData>> fetchTimetableDataList(String keyword) async {
+  Future<List<TimetableData>> fetchTimetableDataList(
+    String keyword, {
+    int page = 1,
+    int perPage = 10,
+  }) async {
     try {
       final idUser = await secureStorageService.readUserId();
 
@@ -21,8 +25,8 @@ class TimetableDataSource {
         '/time-table/detail/list',
         queryParameters: {
           'keyword': keyword,
-          'page': 1,
-          'perPage': 99,
+          'page': page,
+          'perPage': perPage,
           'idUser': idUser,
         },
       );

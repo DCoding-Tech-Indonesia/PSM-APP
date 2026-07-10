@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:local_auth/local_auth.dart';
-import 'package:psm_mobile/core/config/app_config.dart';
+import 'package:travis/core/config/app_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SharedPreferencesService {

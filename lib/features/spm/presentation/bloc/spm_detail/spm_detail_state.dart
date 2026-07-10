@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:psm_mobile/features/spm/data/models/spm_detail_model.dart';
+import 'package:travis/features/spm/data/models/spm_detail_model.dart';
 
 abstract class SpmDetailState extends Equatable {
   const SpmDetailState();

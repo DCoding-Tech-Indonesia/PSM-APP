@@ -6,7 +6,7 @@ class SettlementDocument extends Equatable {
   final int idDocumentType;
   final String? urlDoc;
 
-  SettlementDocument({
+  const SettlementDocument({
     this.idDetailDocument,
     required this.idDocument,
     required this.idDocumentType,
@@ -25,9 +25,14 @@ class SettlementDocument extends Equatable {
   Map<String, dynamic> toJson() => {
     "idDetailDocument": idDetailDocument,
     "idDocument": idDocument,
-    "idDocumentType": idDocumentType
+    "idDocumentType": idDocumentType,
   };
 
   @override
-  List<Object?> get props => [idDetailDocument, idDocument, idDocumentType, urlDoc];
+  List<Object?> get props => [
+    idDetailDocument,
+    idDocument,
+    idDocumentType,
+    urlDoc,
+  ];
 }

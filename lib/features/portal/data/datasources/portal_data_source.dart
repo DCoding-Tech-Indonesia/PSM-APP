@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:psm_mobile/features/portal/domain/entities/user_profile.dart';
+import 'package:travis/features/portal/domain/entities/user_profile.dart';
 
 class PortalDataSource {
   final Dio dio;

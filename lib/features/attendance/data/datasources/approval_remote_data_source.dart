@@ -1,6 +1,6 @@
-import 'package:psm_mobile/core/network/dio_client.dart';
-import 'package:psm_mobile/features/attendance/data/models/approval_detail_model.dart';
-import 'package:psm_mobile/features/attendance/data/models/approval_model.dart';
+import 'package:travis/core/network/dio_client.dart';
+import 'package:travis/features/attendance/data/models/approval_detail_model.dart';
+import 'package:travis/features/attendance/data/models/approval_model.dart';
 
 abstract class ApprovalRemoteDataSource {
   Future<List<ApprovalModel>> getApprovalList(String type);
@@ -86,7 +86,8 @@ class ApprovalRemoteDataSourceImpl implements ApprovalRemoteDataSource {
       );
 
       if (response.data != null && response.data['status'] == true) {
-        return response.data['message'] ?? 'Berhasil menyetujui pergantian shift';
+        return response.data['message'] ??
+            'Berhasil menyetujui pergantian shift';
       } else {
         throw response.data['message'] ?? 'Gagal memproses persetujuan';
       }

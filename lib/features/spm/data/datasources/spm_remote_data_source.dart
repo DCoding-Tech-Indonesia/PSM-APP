@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
-import 'package:psm_mobile/features/spm/data/models/spm_detail_model.dart';
-import 'package:psm_mobile/features/spm/data/models/spm_question_model.dart';
-import 'package:psm_mobile/features/spm/data/models/spm_task_model.dart';
+import 'package:travis/features/spm/data/models/spm_detail_model.dart';
+import 'package:travis/features/spm/data/models/spm_question_model.dart';
+import 'package:travis/features/spm/data/models/spm_task_model.dart';
 
 class SpmRemoteDataSource {
   final Dio dio;

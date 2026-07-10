@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:psm_mobile/features/checklist/domain/repositories/checklist_repository.dart';
+import 'package:travis/features/checklist/domain/repositories/checklist_repository.dart';
 import 'checklist_list_event.dart';
 import 'checklist_list_state.dart';
 
