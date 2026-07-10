@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -22,9 +24,24 @@ import 'package:travis/core/error/global_error_handler.dart';
 import 'package:travis/features/portal/presentation/bloc/portal_bloc.dart';
 import 'package:travis/firebase_options.dart';
 import 'notification_service.dart';
+import 'package:cote_network_logger/cote_network_logger.dart';
+
+Future<void> printIp() async {
+  final interfaces = await NetworkInterface.list();
+
+  for (final interface in interfaces) {
+    for (final address in interface.addresses) {
+      debugPrint('${interface.name} -> ${address.address}');
+    }
+  }
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await NetworkLogger.start();
+
+  await printIp();
 
   // Inisialisasi Firebase dengan opsi otomatis dari CLI
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
