@@ -1,66 +1,67 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:psm_mobile/core/network/dio_client.dart';
-import 'package:psm_mobile/core/presentations/cubit/core_tab_cubit.dart';
-import 'package:psm_mobile/core/presentations/datasource/core_data_source.dart';
-import 'package:psm_mobile/core/presentations/entity/schedule_args.dart';
-import 'package:psm_mobile/core/presentations/widgets/widgets.dart';
-import 'package:psm_mobile/core/router/route_observer.dart';
-import 'package:psm_mobile/core/storage/secure_storage.dart';
-import 'package:psm_mobile/core/storage/shared_preferences.dart';
-import 'package:psm_mobile/features/attendance/presentation/bloc/leave_request_event.dart';
-import 'package:psm_mobile/features/attendance/presentation/screens/approval_detail_screen.dart';
-import 'package:psm_mobile/features/attendance/presentation/screens/approval_screen.dart';
-import 'package:psm_mobile/features/attendance/presentation/screens/leave_request_detail_screen.dart';
-import 'package:psm_mobile/features/attendance/presentation/screens/schedule_calendar_screen.dart';
-import 'package:psm_mobile/features/attendance/data/models/schedule_model.dart';
-import 'package:psm_mobile/features/auth/domain/repositories/auth_repository.dart';
-import 'package:psm_mobile/features/auth/presentation/auth_screen.dart';
-import 'package:psm_mobile/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:psm_mobile/features/checklist/presentation/checklist_screen.dart';
-import 'package:psm_mobile/features/checklist/presentation/screens/checklist_input_screen.dart';
-import 'package:psm_mobile/features/kmbus/data/kmbus_data_source.dart';
-import 'package:psm_mobile/features/kmbus/data/kmbus_repository_impl.dart';
-import 'package:psm_mobile/features/kmbus/domain/entities/titik_akhir_args.dart';
-import 'package:psm_mobile/features/kmbus/presentation/bloc/kmbus_bloc.dart';
-import 'package:psm_mobile/features/kmbus/presentation/kmbus_history_screen.dart';
-import 'package:psm_mobile/features/kmbus/presentation/kmbus_screen.dart';
-import 'package:psm_mobile/features/kmbus/presentation/kmbus_titik_akhir_form_screen.dart';
-import 'package:psm_mobile/features/kmbus/presentation/kmbus_titik_awal_form_screen.dart';
-import 'package:psm_mobile/features/portal/presentation/bloc/portal_bloc.dart';
-import 'package:psm_mobile/features/portal/presentation/bloc/portal_state.dart';
-import 'package:psm_mobile/features/portal/presentation/portal_screen.dart';
-import 'package:psm_mobile/features/reference/reference_data_source.dart';
-import 'package:psm_mobile/features/settlement/data/settlement_data_source.dart';
-import 'package:psm_mobile/features/settlement/data/settlement_repository_impl.dart';
-import 'package:psm_mobile/features/settlement/domain/entities/detailSettlementScreen/detail_screen_args.dart';
-import 'package:psm_mobile/features/settlement/domain/entities/settlement_form_args.dart';
-import 'package:psm_mobile/features/settlement/domain/entities/successDraftScreen/settlement_success_args.dart';
-import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_bloc.dart';
-import 'package:psm_mobile/features/settlement/presentation/cubit/settlement_category_cubit.dart';
-import 'package:psm_mobile/features/settlement/presentation/cubit/settlement_step_cubit.dart';
-import 'package:psm_mobile/features/settlement/presentation/cubit/settlement_tab_cubit.dart';
-import 'package:psm_mobile/features/settlement/presentation/settlement_detail_screen.dart';
-import 'package:psm_mobile/features/settlement/presentation/settlement_form_screen.dart';
-import 'package:psm_mobile/features/attendance/presentation/screens/attendance_screen.dart';
-import 'package:psm_mobile/features/attendance/presentation/screens/leave_request_screen.dart';
-import 'package:psm_mobile/features/attendance/presentation/screens/shift_replacement_screen.dart';
-import 'package:psm_mobile/features/attendance/data/datasources/leave_request_remote_data_source.dart';
-import 'package:psm_mobile/features/attendance/data/repositories/leave_request_repository_impl.dart';
-import 'package:psm_mobile/features/attendance/presentation/screens/history_screen.dart';
-import 'package:psm_mobile/features/attendance/presentation/bloc/leave_request_bloc.dart';
-import 'package:psm_mobile/features/settlement/presentation/settlement_history_screen.dart';
-import 'package:psm_mobile/features/settlement/presentation/settlement_screen.dart';
-import 'package:psm_mobile/features/settlement/presentation/settlement_success_submit_draft_screen.dart';
-import 'package:psm_mobile/features/splash/presentation/splash_screen.dart';
-import 'package:psm_mobile/features/spm/presentation/screens/spm_detail_screen.dart';
-import 'package:psm_mobile/features/spm/presentation/screens/spm_input_screen.dart';
-import 'package:psm_mobile/features/spm/presentation/screens/spm_screen.dart';
-import 'package:psm_mobile/features/timetable/data/timetable_data_source.dart';
-import 'package:psm_mobile/features/timetable/data/timetable_repository_impl.dart';
-import 'package:psm_mobile/features/timetable/presentation/bloc/timetable_bloc.dart';
-import 'package:psm_mobile/features/timetable/presentation/timetable_history_screen.dart';
-import 'package:psm_mobile/features/timetable/presentation/timetable_screen.dart';
+import 'package:travis/core/network/dio_client.dart';
+import 'package:travis/core/presentations/cubit/core_tab_cubit.dart';
+import 'package:travis/core/presentations/datasource/core_data_source.dart';
+import 'package:travis/core/presentations/entity/schedule_args.dart';
+import 'package:travis/core/presentations/screens/maintenance_error_screen.dart';
+import 'package:travis/core/presentations/widgets/widgets.dart';
+import 'package:travis/core/router/route_observer.dart';
+import 'package:travis/core/storage/secure_storage.dart';
+import 'package:travis/core/storage/shared_preferences.dart';
+import 'package:travis/features/attendance/data/datasources/leave_request_remote_data_source.dart';
+import 'package:travis/features/attendance/data/models/schedule_model.dart';
+import 'package:travis/features/attendance/data/repositories/leave_request_repository_impl.dart';
+import 'package:travis/features/attendance/presentation/bloc/leave_request_bloc.dart';
+import 'package:travis/features/attendance/presentation/bloc/leave_request_event.dart';
+import 'package:travis/features/attendance/presentation/screens/approval_detail_screen.dart';
+import 'package:travis/features/attendance/presentation/screens/approval_screen.dart';
+import 'package:travis/features/attendance/presentation/screens/attendance_screen.dart';
+import 'package:travis/features/attendance/presentation/screens/history_screen.dart';
+import 'package:travis/features/attendance/presentation/screens/leave_request_detail_screen.dart';
+import 'package:travis/features/attendance/presentation/screens/leave_request_screen.dart';
+import 'package:travis/features/attendance/presentation/screens/schedule_calendar_screen.dart';
+import 'package:travis/features/attendance/presentation/screens/shift_replacement_screen.dart';
+import 'package:travis/features/auth/domain/repositories/auth_repository.dart';
+import 'package:travis/features/auth/presentation/auth_screen.dart';
+import 'package:travis/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:travis/features/checklist/presentation/checklist_screen.dart';
+import 'package:travis/features/checklist/presentation/screens/checklist_input_screen.dart';
+import 'package:travis/features/kmbus/data/kmbus_data_source.dart';
+import 'package:travis/features/kmbus/data/kmbus_repository_impl.dart';
+import 'package:travis/features/kmbus/domain/entities/titik_akhir_args.dart';
+import 'package:travis/features/kmbus/presentation/bloc/kmbus_bloc.dart';
+import 'package:travis/features/kmbus/presentation/kmbus_history_screen.dart';
+import 'package:travis/features/kmbus/presentation/kmbus_screen.dart';
+import 'package:travis/features/kmbus/presentation/kmbus_titik_akhir_form_screen.dart';
+import 'package:travis/features/kmbus/presentation/kmbus_titik_awal_form_screen.dart';
+import 'package:travis/features/portal/presentation/bloc/portal_bloc.dart';
+import 'package:travis/features/portal/presentation/bloc/portal_state.dart';
+import 'package:travis/features/portal/presentation/portal_screen.dart';
+import 'package:travis/features/reference/reference_data_source.dart';
+import 'package:travis/features/settlement/data/settlement_data_source.dart';
+import 'package:travis/features/settlement/data/settlement_repository_impl.dart';
+import 'package:travis/features/settlement/domain/entities/detailSettlementScreen/detail_screen_args.dart';
+import 'package:travis/features/settlement/domain/entities/settlement_form_args.dart';
+import 'package:travis/features/settlement/domain/entities/successDraftScreen/settlement_success_args.dart';
+import 'package:travis/features/settlement/presentation/bloc/settlement_bloc.dart';
+import 'package:travis/features/settlement/presentation/cubit/settlement_category_cubit.dart';
+import 'package:travis/features/settlement/presentation/cubit/settlement_step_cubit.dart';
+import 'package:travis/features/settlement/presentation/cubit/settlement_tab_cubit.dart';
+import 'package:travis/features/settlement/presentation/settlement_detail_screen.dart';
+import 'package:travis/features/settlement/presentation/settlement_form_screen.dart';
+import 'package:travis/features/settlement/presentation/settlement_history_screen.dart';
+import 'package:travis/features/settlement/presentation/settlement_screen.dart';
+import 'package:travis/features/settlement/presentation/settlement_success_submit_draft_screen.dart';
+import 'package:travis/features/splash/presentation/splash_screen.dart';
+import 'package:travis/features/spm/presentation/screens/spm_detail_screen.dart';
+import 'package:travis/features/spm/presentation/screens/spm_input_screen.dart';
+import 'package:travis/features/spm/presentation/screens/spm_screen.dart';
+import 'package:travis/features/timetable/data/timetable_data_source.dart';
+import 'package:travis/features/timetable/data/timetable_repository_impl.dart';
+import 'package:travis/features/timetable/presentation/bloc/timetable_bloc.dart';
+import 'package:travis/features/timetable/presentation/timetable_history_screen.dart';
+import 'package:travis/features/timetable/presentation/timetable_screen.dart';
 
 late final GoRouter appRouter;
 
@@ -92,6 +93,23 @@ void setupRouter(String initialLocation) {
               authRepository,
             ),
             child: const AuthScreen(),
+          );
+        },
+      ),
+
+      // MAINTENANCE ERROR ROUTE
+      GoRoute(
+        path: '/maintenance-error',
+        builder: (context, state) {
+          final errorMessage = state.extra is Map
+              ? (state.extra as Map)['errorMessage'] as String?
+              : null;
+          final statusCode = state.extra is Map
+              ? (state.extra as Map)['statusCode'] as int?
+              : null;
+          return MaintenanceErrorScreen(
+            errorMessage: errorMessage,
+            statusCode: statusCode,
           );
         },
       ),

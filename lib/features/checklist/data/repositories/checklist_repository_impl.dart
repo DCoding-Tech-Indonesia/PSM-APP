@@ -1,7 +1,7 @@
-import 'package:psm_mobile/features/checklist/data/datasources/checklist_remote_data_source.dart';
-import 'package:psm_mobile/features/checklist/data/models/checklist_item_model.dart';
-import 'package:psm_mobile/features/checklist/data/models/checklist_question_model.dart';
-import 'package:psm_mobile/features/checklist/domain/repositories/checklist_repository.dart';
+import 'package:travis/features/checklist/data/datasources/checklist_remote_data_source.dart';
+import 'package:travis/features/checklist/data/models/checklist_item_model.dart';
+import 'package:travis/features/checklist/data/models/checklist_question_model.dart';
+import 'package:travis/features/checklist/domain/repositories/checklist_repository.dart';
 
 class ChecklistRepositoryImpl implements ChecklistRepository {
   final ChecklistRemoteDataSource remoteDataSource;

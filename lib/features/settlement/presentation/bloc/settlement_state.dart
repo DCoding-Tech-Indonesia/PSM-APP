@@ -1,12 +1,20 @@
 import 'package:equatable/equatable.dart';
-import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/settlement_task_audit_trail.dart';
-import 'package:psm_mobile/features/reference/domain/entities/document_preview.dart';
-import 'package:psm_mobile/features/reference/domain/entities/reference_detail.dart';
-import 'package:psm_mobile/features/settlement/domain/entities/settlement_detail.dart';
-import 'package:psm_mobile/features/settlement/domain/entities/settlement_detail_input.dart';
-import 'package:psm_mobile/features/settlement/domain/entities/settlement_document.dart';
+import 'package:travis/features/settlement/domain/entities/auditTrail/settlement_task_audit_trail.dart';
+import 'package:travis/features/reference/domain/entities/document_preview.dart';
+import 'package:travis/features/reference/domain/entities/reference_detail.dart';
+import 'package:travis/features/settlement/domain/entities/settlement_detail.dart';
+import 'package:travis/features/settlement/domain/entities/settlement_detail_input.dart';
+import 'package:travis/features/settlement/domain/entities/settlement_document.dart';
 
-enum SettlementStatus { initial, loading, success, error, successSave, failedSave, fetching }
+enum SettlementStatus {
+  initial,
+  loading,
+  success,
+  error,
+  successSave,
+  failedSave,
+  fetching,
+}
 
 class SettlementState extends Equatable {
   final String? ctaValidationMessage;
@@ -56,6 +64,9 @@ class SettlementState extends Equatable {
   final List<SettlementDocument> document;
   final List<DocumentPreview> documentPreview;
 
+  final int page;
+  final bool hasReachedMax;
+
   final String? message;
 
   const SettlementState({
@@ -104,6 +115,8 @@ class SettlementState extends Equatable {
     this.detailInput = const [],
     this.document = const [],
     this.documentPreview = const [],
+    this.page = 1,
+    this.hasReachedMax = false,
     this.message,
   });
 
@@ -154,6 +167,8 @@ class SettlementState extends Equatable {
     List<SettlementDetailInput>? detailInput,
     List<SettlementDocument>? document,
     List<DocumentPreview>? documentPreview,
+    int? page,
+    bool? hasReachedMax,
     String? message,
   }) {
     return SettlementState(
@@ -202,6 +217,8 @@ class SettlementState extends Equatable {
       detailInput: detailInput ?? this.detailInput,
       document: document ?? this.document,
       documentPreview: documentPreview ?? this.documentPreview,
+      page: page ?? this.page,
+      hasReachedMax: hasReachedMax ?? this.hasReachedMax,
       message: message,
     );
   }
@@ -244,6 +261,8 @@ class SettlementState extends Equatable {
     detailInput,
     document,
     documentPreview,
+    page,
+    hasReachedMax,
     message,
   ];
 }

@@ -1,4 +1,4 @@
-import 'package:psm_mobile/features/kmbus/domain/entities/kmbus_document.dart';
+import 'package:travis/features/kmbus/domain/entities/kmbus_document.dart';
 
 class KmDataAfterAuditTrail {
   final String? processId;

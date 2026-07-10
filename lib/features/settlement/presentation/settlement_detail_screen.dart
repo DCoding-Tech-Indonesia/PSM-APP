@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:psm_mobile/core/helper/string_formatter.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_bottom_modal_verification.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_button.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_header.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_snackbar.dart';
-import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_event.dart';
+import 'package:travis/core/helper/string_formatter.dart';
+import 'package:travis/core/presentations/widgets/core_bottom_modal_verification.dart';
+import 'package:travis/core/presentations/widgets/core_button.dart';
+import 'package:travis/core/presentations/widgets/core_header.dart';
+import 'package:travis/core/presentations/widgets/core_snackbar.dart';
+import 'package:travis/features/settlement/presentation/bloc/settlement_event.dart';
 
 import '../domain/entities/settlement_detail.dart';
 import 'bloc/settlement_bloc.dart';
@@ -119,17 +119,19 @@ class _SettlementDetailScreenState extends State<SettlementDetailScreen> {
                             'DEBIT CARD': 'assets/logo/card.png',
                           };
 
-                          int totalTransaction = state.detail.fold<int>(
-                            0,
-                                (sum, item) {
-                              final total = item.total ?? 0;
-                              final value = item.value ?? 0;
+                          int totalTransaction = state.detail.fold<int>(0, (
+                            sum,
+                            item,
+                          ) {
+                            final total = item.total ?? 0;
+                            final value = item.value ?? 0;
 
-                              final billingValue = (total > 0) ? (value ~/ total) : 0;
+                            final billingValue = (total > 0)
+                                ? (value ~/ total)
+                                : 0;
 
-                              return sum + (total * billingValue);
-                            },
-                          );
+                            return sum + (total * billingValue);
+                          });
 
                           int calculatePaymentTotal(
                             List<SettlementDetail> details,
@@ -570,15 +572,16 @@ class _SettlementDetailScreenState extends State<SettlementDetailScreen> {
                                                         child,
                                                         progress,
                                                       ) {
-                                                        if (progress == null)
+                                                        if (progress == null) {
                                                           return child;
+                                                        }
 
                                                         return const Center(
                                                           child:
                                                               CircularProgressIndicator(),
                                                         );
                                                       },
-                                                  errorBuilder: (_, __, ___) {
+                                                  errorBuilder: (_, _, _) {
                                                     return const Center(
                                                       child: Icon(
                                                         Icons

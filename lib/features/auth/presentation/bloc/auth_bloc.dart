@@ -2,14 +2,14 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:formz/formz.dart';
-import 'package:psm_mobile/core/network/dio_client.dart';
-import 'package:psm_mobile/core/storage/secure_storage.dart';
-import 'package:psm_mobile/core/storage/shared_preferences.dart';
-import 'package:psm_mobile/features/auth/domain/entities/email.dart';
-import 'package:psm_mobile/features/auth/domain/entities/password.dart';
-import 'package:psm_mobile/features/auth/domain/repositories/auth_repository.dart';
-import 'package:psm_mobile/features/auth/presentation/bloc/auth_event.dart';
-import 'package:psm_mobile/features/auth/presentation/bloc/auth_state.dart';
+import 'package:travis/core/network/dio_client.dart';
+import 'package:travis/core/storage/secure_storage.dart';
+import 'package:travis/core/storage/shared_preferences.dart';
+import 'package:travis/features/auth/domain/entities/email.dart';
+import 'package:travis/features/auth/domain/entities/password.dart';
+import 'package:travis/features/auth/domain/repositories/auth_repository.dart';
+import 'package:travis/features/auth/presentation/bloc/auth_event.dart';
+import 'package:travis/features/auth/presentation/bloc/auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final SecureStorageService secureStorageService;

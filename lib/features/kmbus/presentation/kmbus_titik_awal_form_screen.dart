@@ -3,16 +3,16 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:psm_mobile/core/helper/camera_access_helper.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_bottom_modal_verification.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_button.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_camera_widget.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_dropdown_search.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_header.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_snackbar.dart';
-import 'package:psm_mobile/features/kmbus/presentation/bloc/kmbus_bloc.dart';
-import 'package:psm_mobile/features/kmbus/presentation/bloc/kmbus_state.dart';
-import 'package:psm_mobile/features/reference/domain/entities/reference_detail.dart';
+import 'package:travis/core/helper/camera_access_helper.dart';
+import 'package:travis/core/presentations/widgets/core_bottom_modal_verification.dart';
+import 'package:travis/core/presentations/widgets/core_button.dart';
+import 'package:travis/core/presentations/widgets/core_camera_widget.dart';
+import 'package:travis/core/presentations/widgets/core_dropdown_search.dart';
+import 'package:travis/core/presentations/widgets/core_header.dart';
+import 'package:travis/core/presentations/widgets/core_snackbar.dart';
+import 'package:travis/features/kmbus/presentation/bloc/kmbus_bloc.dart';
+import 'package:travis/features/kmbus/presentation/bloc/kmbus_state.dart';
+import 'package:travis/features/reference/domain/entities/reference_detail.dart';
 
 import 'bloc/kmbus_event.dart';
 
@@ -36,6 +36,10 @@ class KmbusTitikAwalFormScreen extends StatefulWidget {
 }
 
 class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
+  UploadStatus? _lastHandledUploadStatus;
+  SubmitStatus? _lastHandledSubmitStatus;
+  SubmitWorkflowStatus? _lastHandledSubmitWorkflowStatus;
+
   @override
   void initState() {
     super.initState();
@@ -58,7 +62,7 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
       builder: (modalContext) {
         return CoreBottomModalVerification(
           title: "Draft berhasil disimpan.",
-          desc: "Ingin langsung melakukan submit data? ${id}",
+          desc: "Ingin langsung melakukan submit data?",
           onCancel: () => {Navigator.pop(modalContext, false)},
           onConfirm: () => {Navigator.pop(modalContext, true)},
         );
@@ -67,10 +71,124 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
 
     if (isConfirm == true) {
       context.read<KmbusBloc>().add(SubmitWorkflow("Done", id));
-      context.pop(true);
     } else {
       context.pop(true);
     }
+  }
+
+  void _showOcrValidationDialog(
+    BuildContext context,
+    String ocrValue,
+    VoidCallback onRetake,
+  ) {
+    final state = context.read<KmbusBloc>().state;
+    final controller = TextEditingController(
+      text: ocrValue == "-" ? "" : ocrValue,
+    );
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: const Text(
+            'Validasi Odometer',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (state.speedometerImage != null) ...[
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.file(
+                      state.speedometerImage!,
+                      height: 160,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+                const Text(
+                  "Cocokkan angka pada foto dengan input di bawah ini:",
+                  style: TextStyle(fontSize: 12, color: Colors.grey),
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: controller,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    labelText: 'Nilai Odometer (KM)',
+                    hintText: 'Masukkan angka odometer',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(12)),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actionsAlignment: MainAxisAlignment.spaceBetween,
+          actions: [
+            OutlinedButton.icon(
+              onPressed: () {
+                Navigator.pop(dialogContext);
+                onRetake();
+              },
+              icon: const Icon(
+                Icons.camera_alt_outlined,
+                size: 16,
+                color: Colors.blue,
+              ),
+              label: const Text(
+                "Foto Ulang",
+                style: TextStyle(color: Colors.blue),
+              ),
+              style: OutlinedButton.styleFrom(
+                side: const BorderSide(color: Colors.blue),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            ),
+            ElevatedButton.icon(
+              onPressed: () {
+                final newValue = int.tryParse(controller.text);
+                if (newValue != null) {
+                  context.read<KmbusBloc>().add(EditOdometerAwal(newValue));
+                  Navigator.pop(dialogContext);
+                  CoreSnackbar.show(
+                    context,
+                    message: "Angka odometer disimpan.",
+                    type: SnackbarType.success,
+                  );
+                } else {
+                  CoreSnackbar.show(
+                    dialogContext,
+                    message: "Masukkan angka yang valid.",
+                    type: SnackbarType.failed,
+                  );
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              icon: const Icon(Icons.check),
+              label: const Text("Simpan"),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _showEditOdometerDialog(BuildContext context, String? currentOcr) {
@@ -151,7 +269,9 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
           prev.submitWorkflowStatus != curr.submitWorkflowStatus ||
           prev.idAuditTrail != curr.idAuditTrail,
       listener: (context, state) async {
-        if (state.uploadStatus == UploadStatus.errorOcr) {
+        if (state.uploadStatus == UploadStatus.errorOcr &&
+            _lastHandledUploadStatus != state.uploadStatus) {
+          _lastHandledUploadStatus = state.uploadStatus;
           CoreSnackbar.show(
             context,
             message: "Speedometer gagal terdeteksi, coba kembali.",
@@ -159,12 +279,22 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
           );
         }
 
-        if (state.submitStatus == SubmitStatus.success) {
+        if (state.uploadStatus == UploadStatus.successDocs &&
+            _lastHandledUploadStatus != state.uploadStatus) {
+          _lastHandledUploadStatus = state.uploadStatus;
+          _showOcrValidationDialog(context, state.ocrResult ?? '-', openCamera);
+        }
+
+        if (state.submitStatus == SubmitStatus.success &&
+            _lastHandledSubmitStatus != state.submitStatus) {
+          _lastHandledSubmitStatus = state.submitStatus;
           await _showSubmitDraftModal(context, state.idAuditTrail);
           return;
         }
 
-        if (state.submitStatus == SubmitStatus.failed) {
+        if (state.submitStatus == SubmitStatus.failed &&
+            _lastHandledSubmitStatus != state.submitStatus) {
+          _lastHandledSubmitStatus = state.submitStatus;
           CoreSnackbar.show(
             context,
             message: state.message ?? "Gagal menyimpan data.",
@@ -173,7 +303,9 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
           return;
         }
 
-        if (state.submitWorkflowStatus == SubmitWorkflowStatus.success) {
+        if (state.submitWorkflowStatus == SubmitWorkflowStatus.success &&
+            _lastHandledSubmitWorkflowStatus != state.submitWorkflowStatus) {
+          _lastHandledSubmitWorkflowStatus = state.submitWorkflowStatus;
           CoreSnackbar.show(
             context,
             message: "Data berhasil disubmit.",
@@ -187,20 +319,18 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
           return;
         }
 
-        if (state.submitWorkflowStatus == SubmitWorkflowStatus.failed) {
+        if (state.submitWorkflowStatus == SubmitWorkflowStatus.failed &&
+            _lastHandledSubmitWorkflowStatus != state.submitWorkflowStatus) {
+          _lastHandledSubmitWorkflowStatus = state.submitWorkflowStatus;
           CoreSnackbar.show(
             context,
             message: state.message ?? "Gagal submit data.",
             type: SnackbarType.failed,
           );
-
-          await Future.delayed(const Duration(seconds: 2));
-
-          if (!context.mounted) return;
-          context.pop();
         }
       },
       child: Scaffold(
+        backgroundColor: Colors.grey.shade50,
         body: SafeArea(
           child: Stack(
             children: [
@@ -208,250 +338,393 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
                 children: [
                   CoreHeader(
                     title: 'Submit Titik Awal',
-                    customBgColor: Colors.white,
-                    withBorder: true,
+                    subtitle: 'Isian KM awal perjalanan',
                   ),
                   Expanded(
                     child: SingleChildScrollView(
                       child: Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: size.width * 0.05,
-                          vertical: size.height * 0.03,
-                        ),
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          border: Border(
-                            top: BorderSide(
-                              color: Color(0xFFB3B3B3),
-                              width: .65,
-                            ),
-                            bottom: BorderSide(
-                              color: Color(0xFFB3B3B3),
-                              width: .65,
-                            ),
-                          ),
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 16,
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            BlocBuilder<KmbusBloc, KmbusState>(
-                              builder: (context, state) {
-                                ReferenceDetail? selectedKoridor;
-
-                                if (state.referenceKoridor.isNotEmpty) {
-                                  final matched = state.referenceKoridor.where(
-                                    (e) => e.id == state.idKoridor,
-                                  );
-                                  if (matched.isNotEmpty) {
-                                    selectedKoridor = matched.first;
-                                  }
-                                }
-
-                                return CoreDropdownSearch<ReferenceDetail>(
-                                  readOnly: true,
-                                  label: 'Pilih Koridor',
-                                  hintText: 'Pilih Koridor',
-                                  popupTitle: 'Daftar Koridor',
-                                  items: state.referenceKoridor,
-                                  selectedItem: selectedKoridor,
-                                  itemAsString: (item) =>
-                                      '${item.code} - ${item.name}',
-                                  compareFn: (a, b) => a.id == b.id,
-                                  isRequired: true,
-                                  isItemSelected: (item) =>
-                                      item.id == state.idKoridor,
-                                  onSelected: (value) {
-                                    if (value == null) return;
-                                    context.read<KmbusBloc>().add(
-                                      SelectKoridor(value.id, value.name),
-                                    );
-                                  },
-                                );
-                              },
-                            ),
-
-                            const SizedBox(height: 12),
-
-                            BlocBuilder<KmbusBloc, KmbusState>(
-                              buildWhen: (prev, curr) =>
-                                  prev.idKoridor != curr.idKoridor ||
-                                  prev.referenceBus != curr.referenceBus ||
-                                  prev.idBus != curr.idBus ||
-                                  prev.status != curr.status,
-                              builder: (context, state) {
-                                ReferenceDetail? selectedBus;
-
-                                if (state.referenceBus.isNotEmpty) {
-                                  final matched = state.referenceBus.where(
-                                    (e) => e.id == state.idBus,
-                                  );
-                                  if (matched.isNotEmpty) {
-                                    selectedBus = matched.first;
-                                  }
-                                }
-
-                                if (state.referenceBus.isEmpty &&
-                                    state.idKoridor != 0 &&
-                                    state.status != KmbusStatus.fetching) {
-                                  return const Text(
-                                    "Tidak terdapat bus terdata di koridor tersebut",
-                                    style: TextStyle(
-                                      color: Colors.redAccent,
-                                      fontWeight: FontWeight.w600,
+                            // Card 1: Informasi Unit Bus
+                            Container(
+                              padding: const EdgeInsets.all(18),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(color: Colors.blue.shade50),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.blue.shade900.withValues(
+                                      alpha: 0.03,
                                     ),
-                                  );
-                                }
-
-                                if (state.idKoridor == 0 ||
-                                    state.referenceBus.isEmpty) {
-                                  return const SizedBox(height: 0);
-                                }
-
-                                return CoreDropdownSearch<ReferenceDetail>(
-                                  readOnly: true,
-                                  label: 'Pilih Bus',
-                                  hintText: 'Pilih Bus',
-                                  popupTitle: 'Daftar Bus',
-                                  items: state.referenceBus,
-                                  selectedItem: selectedBus,
-                                  itemAsString: (item) =>
-                                      '${item.code} - ${item.name}',
-                                  compareFn: (a, b) => a.id == b.id,
-                                  isItemSelected: (item) =>
-                                      item.id == state.idBus,
-                                  isRequired: true,
-                                  onSelected: (value) {
-                                    if (value == null) return;
-                                    context.read<KmbusBloc>().add(
-                                      SelectBus(value.id, value.name),
-                                    );
-                                  },
-                                );
-                              },
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.directions_bus,
+                                        color: theme.colorScheme.primary,
+                                        size: 20,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        "Informasi Unit Bus",
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 15,
+                                          color: theme.colorScheme.primary,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 8),
+                                    child: Divider(color: Color(0xFFF1F5F9)),
+                                  ),
+                                  BlocBuilder<KmbusBloc, KmbusState>(
+                                    builder: (context, state) {
+                                      ReferenceDetail? selectedKoridor;
+                                      if (state.referenceKoridor.isNotEmpty) {
+                                        final matched = state.referenceKoridor
+                                            .where(
+                                              (e) => e.id == state.idKoridor,
+                                            );
+                                        if (matched.isNotEmpty) {
+                                          selectedKoridor = matched.first;
+                                        }
+                                      }
+                                      return CoreDropdownSearch<
+                                        ReferenceDetail
+                                      >(
+                                        readOnly: true,
+                                        label: 'Pilih Koridor',
+                                        hintText: 'Pilih Koridor',
+                                        popupTitle: 'Daftar Koridor',
+                                        items: state.referenceKoridor,
+                                        selectedItem: selectedKoridor,
+                                        itemAsString: (item) =>
+                                            '${item.code} - ${item.name}',
+                                        compareFn: (a, b) => a.id == b.id,
+                                        isRequired: true,
+                                        isItemSelected: (item) =>
+                                            item.id == state.idKoridor,
+                                        onSelected: (value) {
+                                          if (value == null) return;
+                                          context.read<KmbusBloc>().add(
+                                            SelectKoridor(value.id, value.name),
+                                          );
+                                        },
+                                      );
+                                    },
+                                  ),
+                                  const SizedBox(height: 12),
+                                  BlocBuilder<KmbusBloc, KmbusState>(
+                                    buildWhen: (prev, curr) =>
+                                        prev.idKoridor != curr.idKoridor ||
+                                        prev.referenceBus !=
+                                            curr.referenceBus ||
+                                        prev.idBus != curr.idBus ||
+                                        prev.status != curr.status,
+                                    builder: (context, state) {
+                                      ReferenceDetail? selectedBus;
+                                      if (state.referenceBus.isNotEmpty) {
+                                        final matched = state.referenceBus
+                                            .where((e) => e.id == state.idBus);
+                                        if (matched.isNotEmpty) {
+                                          selectedBus = matched.first;
+                                        }
+                                      }
+                                      if (state.referenceBus.isEmpty &&
+                                          state.idKoridor != 0 &&
+                                          state.status !=
+                                              KmbusStatus.fetching) {
+                                        return const Text(
+                                          "Tidak terdapat bus terdata di koridor tersebut",
+                                          style: TextStyle(
+                                            color: Colors.redAccent,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        );
+                                      }
+                                      if (state.idKoridor == 0 ||
+                                          state.referenceBus.isEmpty) {
+                                        return const SizedBox(height: 0);
+                                      }
+                                      return CoreDropdownSearch<
+                                        ReferenceDetail
+                                      >(
+                                        readOnly: true,
+                                        label: 'Pilih Bus',
+                                        hintText: 'Pilih Bus',
+                                        popupTitle: 'Daftar Bus',
+                                        items: state.referenceBus,
+                                        selectedItem: selectedBus,
+                                        itemAsString: (item) =>
+                                            '${item.code} - ${item.name}',
+                                        compareFn: (a, b) => a.id == b.id,
+                                        isItemSelected: (item) =>
+                                            item.id == state.idBus,
+                                        isRequired: true,
+                                        onSelected: (value) {
+                                          if (value == null) return;
+                                          context.read<KmbusBloc>().add(
+                                            SelectBus(value.id, value.name),
+                                          );
+                                        },
+                                      );
+                                    },
+                                  ),
+                                ],
+                              ),
                             ),
 
-                            const SizedBox(height: 12),
+                            const SizedBox(height: 14),
 
+                            // Card 2: Validasi Odometer Terdeteksi (jika ada)
                             BlocBuilder<KmbusBloc, KmbusState>(
                               buildWhen: (prev, curr) =>
                                   prev.ocrResult != curr.ocrResult,
                               builder: (context, state) {
-                                if (state.ocrResult != null) {
-                                  return Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
+                                if (state.ocrResult == null) {
+                                  return const SizedBox.shrink();
+                                }
+                                return Container(
+                                  margin: const EdgeInsets.only(bottom: 14),
+                                  padding: const EdgeInsets.all(18),
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        Colors.teal.shade500,
+                                        Colors.teal.shade700,
+                                      ],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    ),
+                                    borderRadius: BorderRadius.circular(20),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.teal.shade700.withValues(
+                                          alpha: 0.25,
+                                        ),
+                                        blurRadius: 10,
+                                        offset: const Offset(0, 4),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Row(
                                     children: [
-                                      Text(
-                                        "Odometer : ${state.ocrResult}",
-                                        style: const TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w700,
+                                      Container(
+                                        padding: const EdgeInsets.all(10),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white.withValues(
+                                            alpha: 0.18,
+                                          ),
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: const Icon(
+                                          Icons.speed_rounded,
+                                          color: Colors.white,
+                                          size: 26,
                                         ),
                                       ),
-                                      GestureDetector(
-                                        onTap: () => _showEditOdometerDialog(
-                                          context,
-                                          state.ocrResult,
+                                      const SizedBox(width: 14),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            const Text(
+                                              "Odometer Terdeteksi",
+                                              style: TextStyle(
+                                                color: Colors.white70,
+                                                fontWeight: FontWeight.w500,
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 2),
+                                            Text(
+                                              "${state.ocrResult} KM",
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.w900,
+                                                fontSize: 22,
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                        child: Container(
-                                          padding: const EdgeInsets.all(1),
-                                          decoration: BoxDecoration(
-                                            border: Border.all(
-                                              width: 1,
-                                              color: Colors.blue,
-                                            ),
-                                            borderRadius: BorderRadius.circular(
-                                              4,
-                                            ),
+                                      ),
+                                      Material(
+                                        color: Colors.transparent,
+                                        child: InkWell(
+                                          onTap: () => _showEditOdometerDialog(
+                                            context,
+                                            state.ocrResult,
                                           ),
-                                          child: const Icon(
-                                            Icons.edit_note,
-                                            color: Colors.blue,
+                                          borderRadius: BorderRadius.circular(
+                                            30,
+                                          ),
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 14,
+                                              vertical: 8,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: Colors.white.withValues(
+                                                alpha: 0.2,
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(30),
+                                              border: Border.all(
+                                                color: Colors.white30,
+                                              ),
+                                            ),
+                                            child: const Row(
+                                              children: [
+                                                Icon(
+                                                  Icons.edit,
+                                                  color: Colors.white,
+                                                  size: 14,
+                                                ),
+                                                SizedBox(width: 4),
+                                                Text(
+                                                  "Edit",
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 12,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
                                           ),
                                         ),
                                       ),
                                     ],
-                                  );
-                                } else {
-                                  return const SizedBox();
-                                }
-                              },
-                            ),
-
-                            const SizedBox(height: 12),
-
-                            const Text(
-                              "Foto Speedometer",
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-
-                            const SizedBox(height: 12),
-
-                            BlocBuilder<KmbusBloc, KmbusState>(
-                              buildWhen: (prev, curr) =>
-                                  prev.titikAwalCreate?.document !=
-                                      curr.titikAwalCreate?.document ||
-                                  prev.documentUploadStatus !=
-                                      curr.documentUploadStatus,
-                              builder: (context, state) {
-                                final localDoc =
-                                    state.documentPreview.firstOrNull;
-                                final apiDoc =
-                                    state.titikAwalCreate?.document.firstOrNull;
-
-                                final imageUrl =
-                                    localDoc?.url ?? apiDoc?.urlDoc;
-                                final hasImage =
-                                    imageUrl != null && imageUrl.isNotEmpty;
-
-                                final targetIdDocument =
-                                    localDoc?.idDocument ??
-                                    apiDoc?.idDocument ??
-                                    0;
-
-                                return CoreCameraWidget(
-                                  title: "Ambil Foto Speedometer",
-                                  imageUrl: imageUrl,
-                                  isLoading:
-                                      state.documentUploadStatus ==
-                                      DocumentUploadStatus.uploading,
-                                  onTap: () {
-                                    if (hasImage) {
-                                      CoreCameraWidget.showPreviewDialog(
-                                        context: context,
-                                        imageUrl: imageUrl,
-                                        onDelete: () {
-                                          context.read<KmbusBloc>().add(
-                                            RemoveDocumentById(
-                                              targetIdDocument,
-                                            ),
-                                          );
-                                          Navigator.pop(context);
-                                        },
-                                      );
-                                    } else if (state.documentUploadStatus !=
-                                        DocumentUploadStatus.uploading) {
-                                      openCamera();
-                                    }
-                                  },
-                                  onRemoveImage: !hasImage
-                                      ? null
-                                      : () {
-                                          context.read<KmbusBloc>().add(
-                                            RemoveDocumentById(
-                                              targetIdDocument,
-                                            ),
-                                          );
-                                        },
-                                  instructions: const [
-                                    "Pastikan foto tidak buram",
-                                    "Pastikan odometer yang didapatkan sesuai dengan yang di foto",
-                                  ],
+                                  ),
                                 );
                               },
+                            ),
+
+                            // Card 3: Pengambilan Foto Speedometer
+                            Container(
+                              padding: const EdgeInsets.all(18),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(color: Colors.blue.shade50),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.blue.shade900.withValues(
+                                      alpha: 0.03,
+                                    ),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.camera_alt,
+                                        color: theme.colorScheme.primary,
+                                        size: 20,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        "Bukti Foto Odometer",
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 15,
+                                          color: theme.colorScheme.primary,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 8),
+                                    child: Divider(color: Color(0xFFF1F5F9)),
+                                  ),
+                                  BlocBuilder<KmbusBloc, KmbusState>(
+                                    buildWhen: (prev, curr) =>
+                                        prev.titikAwalCreate?.document !=
+                                            curr.titikAwalCreate?.document ||
+                                        prev.documentUploadStatus !=
+                                            curr.documentUploadStatus,
+                                    builder: (context, state) {
+                                      final localDoc =
+                                          state.documentPreview.firstOrNull;
+                                      final apiDoc = state
+                                          .titikAwalCreate
+                                          ?.document
+                                          .firstOrNull;
+                                      final imageUrl =
+                                          localDoc?.url ?? apiDoc?.urlDoc;
+                                      final hasImage =
+                                          imageUrl != null &&
+                                          imageUrl.isNotEmpty;
+                                      final targetIdDocument =
+                                          localDoc?.idDocument ??
+                                          apiDoc?.idDocument ??
+                                          0;
+
+                                      return CoreCameraWidget(
+                                        title: "Ambil Foto Speedometer",
+                                        imageUrl: imageUrl,
+                                        isLoading:
+                                            state.documentUploadStatus ==
+                                            DocumentUploadStatus.uploading,
+                                        onTap: () {
+                                          if (hasImage) {
+                                            CoreCameraWidget.showPreviewDialog(
+                                              context: context,
+                                              imageUrl: imageUrl,
+                                              onDelete: () {
+                                                context.read<KmbusBloc>().add(
+                                                  RemoveDocumentById(
+                                                    targetIdDocument,
+                                                  ),
+                                                );
+                                                Navigator.pop(context);
+                                              },
+                                            );
+                                          } else if (state
+                                                  .documentUploadStatus !=
+                                              DocumentUploadStatus.uploading) {
+                                            openCamera();
+                                          }
+                                        },
+                                        onRemoveImage: !hasImage
+                                            ? null
+                                            : () {
+                                                context.read<KmbusBloc>().add(
+                                                  RemoveDocumentById(
+                                                    targetIdDocument,
+                                                  ),
+                                                );
+                                              },
+                                        instructions: const [
+                                          "Pastikan foto tidak buram dan odometer terbaca jelas",
+                                          "Sesuaikan angka odometer yang terbaca pada foto dengan isian",
+                                        ],
+                                      );
+                                    },
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                         ),
@@ -510,38 +783,6 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
                     },
                   ),
                 ],
-              ),
-
-              BlocBuilder<KmbusBloc, KmbusState>(
-                buildWhen: (prev, curr) =>
-                    prev.status != curr.status ||
-                    prev.uploadStatus != curr.uploadStatus ||
-                    prev.submitStatus != curr.submitStatus ||
-                    prev.submitWorkflowStatus != curr.submitWorkflowStatus,
-                builder: (context, state) {
-                  final isLoading =
-                      state.status == KmbusStatus.initial ||
-                      state.status == KmbusStatus.fetching ||
-                      state.uploadStatus == UploadStatus.uploading ||
-                      state.submitStatus == SubmitStatus.submitting ||
-                      state.submitWorkflowStatus ==
-                          SubmitWorkflowStatus.submitting;
-
-                  if (!isLoading) return const SizedBox.shrink();
-
-                  return Positioned.fill(
-                    child: Container(
-                      color: Colors.black.withAlpha(120),
-                      child: const Center(
-                        child: CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.blue,
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                },
               ),
             ],
           ),

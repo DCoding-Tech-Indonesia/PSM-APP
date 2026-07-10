@@ -1,6 +1,6 @@
-import 'package:psm_mobile/features/attendance/data/models/approval_detail_model.dart';
-import 'package:psm_mobile/features/attendance/data/models/general_model.dart';
-import 'package:psm_mobile/features/attendance/data/models/schedule_model.dart';
+import 'package:travis/features/attendance/data/models/approval_detail_model.dart';
+import 'package:travis/features/attendance/data/models/general_model.dart';
+import 'package:travis/features/attendance/data/models/schedule_model.dart';
 
 class ApprovalModel {
   final int id;

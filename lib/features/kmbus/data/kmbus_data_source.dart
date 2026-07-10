@@ -3,11 +3,11 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:psm_mobile/core/storage/secure_storage.dart';
-import 'package:psm_mobile/features/kmbus/domain/entities/kmbus_data.dart';
-import 'package:psm_mobile/features/kmbus/domain/entities/titik_akhir_create.dart';
-import 'package:psm_mobile/features/kmbus/domain/entities/titik_awal_create.dart';
-import 'package:psm_mobile/features/timetable/domain/entities/auditTrail/km_task_audit_trail.dart';
+import 'package:travis/core/storage/secure_storage.dart';
+import 'package:travis/features/kmbus/domain/entities/kmbus_data.dart';
+import 'package:travis/features/kmbus/domain/entities/titik_akhir_create.dart';
+import 'package:travis/features/kmbus/domain/entities/titik_awal_create.dart';
+import 'package:travis/features/timetable/domain/entities/auditTrail/km_task_audit_trail.dart';
 
 class KmbusDataSource {
   final Dio dio;
@@ -44,7 +44,7 @@ class KmbusDataSource {
     }
   }
 
-  Future<List<KmbusData>> fetchKmbusData(String keyword) async {
+  Future<List<KmbusData>> fetchKmbusData(String keyword, {int page = 1, int perPage = 10}) async {
     try {
       final idUserRole = await secureStorageService.readUserRoleId();
 
@@ -52,8 +52,8 @@ class KmbusDataSource {
         '/km/list',
         queryParameters: {
           'keyword': keyword,
-          'page': 1,
-          'perPage': 99,
+          'page': page,
+          'perPage': perPage,
           'idPramugara': idUserRole,
         },
       );
@@ -70,7 +70,7 @@ class KmbusDataSource {
   }
 
   Future<List<KmTaskAuditTrail>> fetchKmbusDataListAuditTrail(
-    String keyword,
+    String keyword, {int page = 1, int perPage = 10}
   ) async {
     try {
       final idUser = await secureStorageService.readUserId();
@@ -79,9 +79,8 @@ class KmbusDataSource {
         '/audittrail/task/km/list',
         queryParameters: {
           'keyword': keyword,
-          'page': 1,
-          'perPage': 99,
-          'createdBy': idUser,
+          'page': page,
+          'perPage': perPage,
         },
       );
 

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_dialog_pop_up.dart';
+import 'package:travis/core/presentations/widgets/core_dialog_pop_up.dart';
 
 class CameraAccessHelper {
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:psm_mobile/features/attendance/presentation/bloc/attendance_state.dart';
-import 'package:psm_mobile/features/attendance/data/models/attendance_record.dart';
+import 'package:travis/features/attendance/presentation/bloc/attendance_state.dart';
+import 'package:travis/features/attendance/data/models/attendance_record.dart';
 
 class RecentHistoryCard extends StatelessWidget {
   final AttendanceLoaded state;

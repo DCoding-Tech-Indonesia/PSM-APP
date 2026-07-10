@@ -65,7 +65,7 @@ class _CoreInputWithSuffixFieldState extends State<CoreInputWithSuffixField> {
 
   @override
   Widget build(BuildContext context) {
-    final primaryColor = Colors.blueAccent;
+    final primaryColor = const Color(0xFF1565C0);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -74,12 +74,20 @@ class _CoreInputWithSuffixFieldState extends State<CoreInputWithSuffixField> {
           children: [
             Text(
               widget.label,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF4A5568),
+              ),
             ),
             if (widget.isRequired)
               const Text(
                 " *",
-                style: TextStyle(color: Colors.redAccent, fontSize: 18),
+                style: TextStyle(
+                  color: Colors.redAccent,
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
           ],
         ),
@@ -89,19 +97,19 @@ class _CoreInputWithSuffixFieldState extends State<CoreInputWithSuffixField> {
         AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: isFocused ? primaryColor : Colors.grey.shade400,
-              width: 1.5,
+              color: isFocused ? primaryColor : Colors.grey.shade300,
+              width: 1.2,
             ),
             color: Colors.white,
             boxShadow: [
               BoxShadow(
                 color: isFocused
-                    ? primaryColor.withValues(alpha: 0.15)
-                    : Colors.black.withValues(alpha: 0.04),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
+                    ? primaryColor.withValues(alpha: 0.1)
+                    : Colors.black.withValues(alpha: 0.02),
+                blurRadius: 8,
+                offset: const Offset(0, 3),
               ),
             ],
           ),
@@ -121,8 +129,8 @@ class _CoreInputWithSuffixFieldState extends State<CoreInputWithSuffixField> {
                     hintText: widget.hintText,
                     border: InputBorder.none,
                     contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 10,
+                      horizontal: 14,
+                      vertical: 12,
                     ),
                   ),
                 ),
@@ -131,21 +139,21 @@ class _CoreInputWithSuffixFieldState extends State<CoreInputWithSuffixField> {
               AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 18,
-                  vertical: 16,
+                  horizontal: 16,
+                  vertical: 14,
                 ),
                 decoration: BoxDecoration(
                   color: isFocused ? primaryColor : Colors.grey.shade100,
                   borderRadius: const BorderRadius.only(
-                    topRight: Radius.circular(12),
-                    bottomRight: Radius.circular(12),
+                    topRight: Radius.circular(11),
+                    bottomRight: Radius.circular(11),
                   ),
                 ),
                 child: Text(
                   widget.suffixText,
                   style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    color: isFocused ? Colors.white : Colors.grey.shade700,
+                    fontWeight: FontWeight.w700,
+                    color: isFocused ? Colors.white : Colors.grey.shade600,
                   ),
                 ),
               ),
@@ -175,6 +183,7 @@ class _CoreInputWithSuffixFieldState extends State<CoreInputWithSuffixField> {
       case InputRuleSuffix.text:
         return null;
     }
+    return null;
   }
 
   String _processValue(String value) {

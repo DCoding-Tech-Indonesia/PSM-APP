@@ -1,4 +1,4 @@
-import 'package:psm_mobile/core/storage/secure_storage.dart';
+import 'package:travis/core/storage/secure_storage.dart';
 
 class AuthTokenHelper {
   /// Parse access + refresh token dari field `data` response auth API.

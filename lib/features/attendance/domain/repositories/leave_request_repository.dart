@@ -1,4 +1,4 @@
-import 'package:psm_mobile/features/attendance/data/models/leave_request_model.dart';
+import 'package:travis/features/attendance/data/models/leave_request_model.dart';
 
 abstract class LeaveRequestRepository {
   Future<List<LeaveRequestModel>> getLeaveRequestList({

@@ -1,124 +1,335 @@
 import 'package:flutter/material.dart';
-import 'package:psm_mobile/core/helper/string_formatter.dart';
-import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/settlement_task_audit_trail.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:travis/core/helper/string_formatter.dart';
+import 'package:travis/features/settlement/domain/entities/auditTrail/settlement_task_audit_trail.dart';
+import 'package:travis/features/settlement/domain/entities/detailSettlementScreen/detail_screen_args.dart';
+import 'package:travis/features/settlement/presentation/bloc/settlement_bloc.dart';
+import 'package:travis/features/settlement/presentation/bloc/settlement_event.dart';
 
 class HistorySettlementCard extends StatelessWidget {
   const HistorySettlementCard({super.key, required this.data});
 
   final SettlementTaskAuditTrail data;
 
+  String _getStatusColor(String code) {
+    switch (code) {
+      case "APR":
+        return "Selesai";
+      case "DFT":
+        return "Pending";
+      case "CNC":
+        return "Cancel";
+      default:
+        return code;
+    }
+  }
+
+  Color _getStatusBgColor(String code) {
+    switch (code) {
+      case "APR":
+        return const Color(0xFFE8F5E9);
+      case "DFT":
+        return const Color(0xFFFFF3E0);
+      case "CNC":
+        return const Color(0xFFFFEBEE);
+      default:
+        return Colors.grey.shade100;
+    }
+  }
+
+  Color _getStatusTextColor(String code) {
+    switch (code) {
+      case "APR":
+        return const Color(0xFF2E7D32);
+      case "DFT":
+        return const Color(0xFFE65100);
+      case "CNC":
+        return const Color(0xFFC62828);
+      default:
+        return Colors.grey;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 5),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.grey.withValues(alpha: 0.15)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
-
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(7),
-            decoration: BoxDecoration(
-              color: Colors.blue,
-              borderRadius: BorderRadius.circular(999),
-            ),
-            child: Text(
-              data.ritase.toString(),
-              style: const TextStyle(
-                fontSize: 12,
-                color: Colors.white,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ),
-
-          const SizedBox(width: 10),
-
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header: Date + Status Badge
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  data.namaKoridor!,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  softWrap: false,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                  ),
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.calendar_today_rounded,
+                      size: 14,
+                      color: Color(0xFF718096),
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      StringFormatter().formatDateTime2(data.createdDate),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF2D3748),
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  data.noPolisi ?? '-',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 10, color: Colors.blueGrey),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: _getStatusBgColor(data.status.code),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: _getStatusTextColor(data.status.code)
+                          .withValues(alpha: 0.3),
+                    ),
+                  ),
+                  child: Text(
+                    _getStatusColor(data.status.code),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      color: _getStatusTextColor(data.status.code),
+                      fontSize: 11,
+                    ),
+                  ),
                 ),
               ],
             ),
-          ),
 
-          const SizedBox(width: 10),
-
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
-                decoration: BoxDecoration(
-                  color: data.status.code == "APR"
-                      ? Colors.greenAccent
-                      : data.status.code == "DFT"
-                      ? Colors.yellowAccent
-                      : Colors.redAccent,
-                  borderRadius: BorderRadius.circular(99),
-                  border: Border.all(
-                    width: 1,
-                    color: data.status.code == "APR"
-                        ? Colors.green
-                        : data.status.code == "DFT"
-                        ? Colors.yellow
-                        : Colors.red,
-                  ),
-                ),
-                child: Text(
-                  data.status.name,
-                  style: const TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 12),
+              child: Divider(
+                height: 1,
+                thickness: 1,
+                color: Color(0xFFEDF2F7),
               ),
-              const SizedBox(height: 4),
-              Row(
-                children: [
-                  Text(
-                    StringFormatter().formatDateTime2(data.createdDate),
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
+            ),
+
+            // Ritase + Corridor Info
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1565C0).withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: const Color(0xFF1565C0).withValues(alpha: 0.2),
                     ),
                   ),
-                ],
+                  child: Text(
+                    "R${data.ritase}",
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF1565C0),
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.directions_bus_rounded,
+                        size: 15,
+                        color: Color(0xFF1565C0),
+                      ),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              data.namaKoridor ?? "-",
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w800,
+                                fontSize: 13,
+                                color: Color(0xFF2D3748),
+                              ),
+                            ),
+                            Text(
+                              data.noPolisi ?? "-",
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 11,
+                                color: Color(0xFF718096),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 12),
+              child: Divider(
+                height: 1,
+                thickness: 1,
+                color: Color(0xFFEDF2F7),
               ),
-            ],
-          ),
-        ],
+            ),
+
+            // Settlement Details
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.people_rounded,
+                        size: 16,
+                        color: Color(0xFF1565C0),
+                      ),
+                      const SizedBox(width: 8),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            "Penumpang",
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w500,
+                              color: Color(0xFF718096),
+                            ),
+                          ),
+                          Text(
+                            data.totalPenumpangKeseluruhan.toString(),
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w800,
+                              color: Color(0xFF2D3748),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.attach_money_rounded,
+                        size: 16,
+                        color: Color(0xFF2E7D32),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              "Pendapatan",
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w500,
+                                color: Color(0xFF718096),
+                              ),
+                            ),
+                            Text(
+                              StringFormatter()
+                                  .idrFormatter(
+                                    data.totalPendapatanPertitase ?? 0,
+                                  )
+                                  .replaceAll("Rp ", ""),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w800,
+                                color: Color(0xFF2E7D32),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 12),
+
+            // Action Button
+            SizedBox(
+              width: double.infinity,
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () async {
+                    await context.push(
+                      '/settlement/detail',
+                      extra: DetailScreenArgs(
+                        idAuditTrail: data.id,
+                        statusName: data.status.name,
+                      ),
+                    );
+
+                    if (context.mounted) {
+                      context.read<SettlementBloc>().add(PageDashboardLoad());
+                    }
+                  },
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: const Color(0xFF1565C0).withValues(alpha: 0.3),
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Center(
+                      child: Text(
+                        "Lihat Detail",
+                        style: TextStyle(
+                          color: Color(0xFF1565C0),
+                          fontWeight: FontWeight.w800,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

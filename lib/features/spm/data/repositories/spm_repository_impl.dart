@@ -1,8 +1,8 @@
-import 'package:psm_mobile/features/spm/data/datasources/spm_remote_data_source.dart';
-import 'package:psm_mobile/features/spm/data/models/spm_detail_model.dart';
-import 'package:psm_mobile/features/spm/data/models/spm_question_model.dart';
-import 'package:psm_mobile/features/spm/data/models/spm_task_model.dart';
-import 'package:psm_mobile/features/spm/domain/repositories/spm_repository.dart';
+import 'package:travis/features/spm/data/datasources/spm_remote_data_source.dart';
+import 'package:travis/features/spm/data/models/spm_detail_model.dart';
+import 'package:travis/features/spm/data/models/spm_question_model.dart';
+import 'package:travis/features/spm/data/models/spm_task_model.dart';
+import 'package:travis/features/spm/domain/repositories/spm_repository.dart';
 
 class SpmRepositoryImpl implements SpmRepository {
   final SpmRemoteDataSource remoteDataSource;

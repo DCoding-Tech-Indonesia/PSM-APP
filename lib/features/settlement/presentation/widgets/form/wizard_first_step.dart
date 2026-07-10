@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:psm_mobile/core/presentations/widgets/widgets.dart';
-import 'package:psm_mobile/features/reference/domain/entities/reference_detail.dart';
-import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_bloc.dart';
-import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_event.dart';
-import 'package:psm_mobile/features/settlement/presentation/bloc/settlement_state.dart';
+import 'package:travis/core/presentations/widgets/widgets.dart';
+import 'package:travis/features/reference/domain/entities/reference_detail.dart';
+import 'package:travis/features/settlement/presentation/bloc/settlement_bloc.dart';
+import 'package:travis/features/settlement/presentation/bloc/settlement_event.dart';
+import 'package:travis/features/settlement/presentation/bloc/settlement_state.dart';
 
 class WizardFirstStep extends StatelessWidget {
   const WizardFirstStep({super.key});
@@ -28,26 +28,47 @@ class WizardFirstStep extends StatelessWidget {
               return Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
+                  const Text(
                     "Ritase",
-                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 20),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 18,
+                      color: Color(0xFF2D3748),
+                    ),
                   ),
                   Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: Colors.greenAccent,
-                      borderRadius: BorderRadius.circular(999),
-                      border: Border.all(width: 1, color: Colors.green),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
                     ),
-                    child: Center(
-                      child: Text(
-                        state.ritase != 0 ? state.ritase.toString() : "RIT",
-                        style: TextStyle(
-                          fontWeight: FontWeight.w800,
-                          fontSize: 16,
-                        ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1565C0).withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: const Color(0xFF1565C0).withValues(alpha: 0.15),
+                        width: 1,
                       ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.directions_transit_rounded,
+                          color: Color(0xFF1565C0),
+                          size: 16,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          state.ritase != 0
+                              ? 'Ritase ${state.ritase % 1 == 0 ? state.ritase.toInt() : state.ritase}'
+                              : "Belum Ditentukan",
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w800,
+                            fontSize: 13,
+                            color: Color(0xFF1565C0),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -92,7 +113,9 @@ class WizardFirstStep extends StatelessWidget {
           SizedBox(height: 8),
 
           BlocBuilder<SettlementBloc, SettlementState>(
-            buildWhen: (prev, curr) => prev.idKoridor != curr.idKoridor || prev.referenceBus != curr.referenceBus,
+            buildWhen: (prev, curr) =>
+                prev.idKoridor != curr.idKoridor ||
+                prev.referenceBus != curr.referenceBus,
             builder: (context, state) {
               ReferenceDetail? selectedBus;
 
@@ -103,7 +126,9 @@ class WizardFirstStep extends StatelessWidget {
                 if (matched.isNotEmpty) selectedBus = matched.first;
               }
 
-              if (state.referenceBus.isEmpty && state.idKoridor != 0 && state.status != SettlementStatus.fetching) {
+              if (state.referenceBus.isEmpty &&
+                  state.idKoridor != 0 &&
+                  state.status != SettlementStatus.fetching) {
                 return const Text(
                   "Tidak terdapat bus terdata di koridor tersebut",
                   style: TextStyle(
@@ -124,8 +149,7 @@ class WizardFirstStep extends StatelessWidget {
                 popupTitle: 'Daftar Bus',
                 items: state.referenceBus,
                 selectedItem: selectedBus,
-                itemAsString: (item) =>
-                    '${item.code} - ${item.name}',
+                itemAsString: (item) => '${item.code} - ${item.name}',
                 compareFn: (a, b) => a.id == b.id,
                 isItemSelected: (item) => item.id == state.idBus,
                 isRequired: true,

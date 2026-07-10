@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
-import 'package:psm_mobile/features/checklist/data/models/checklist_item_model.dart';
-import 'package:psm_mobile/features/checklist/data/models/checklist_question_model.dart';
+import 'package:travis/features/checklist/data/models/checklist_item_model.dart';
+import 'package:travis/features/checklist/data/models/checklist_question_model.dart';
 
 class ChecklistRemoteDataSource {
   final Dio dio;

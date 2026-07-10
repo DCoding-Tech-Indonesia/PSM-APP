@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:psm_mobile/core/presentations/entity/core_data_source_response.dart';
-import 'package:psm_mobile/core/storage/secure_storage.dart';
+import 'package:travis/core/presentations/entity/core_data_source_response.dart';
+import 'package:travis/core/storage/secure_storage.dart';
 
 class CoreDataSource {
   final Dio dio;

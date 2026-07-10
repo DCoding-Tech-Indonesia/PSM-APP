@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:psm_mobile/features/attendance/data/models/attendance_record.dart';
-import 'package:psm_mobile/features/attendance/data/models/attendance_request.dart';
-import 'package:psm_mobile/features/attendance/data/models/schedule_model.dart';
-import 'package:psm_mobile/features/attendance/domain/repositories/attendance_repository.dart';
-import 'package:psm_mobile/core/helper/location_service.dart';
+import 'package:travis/features/attendance/data/models/attendance_record.dart';
+import 'package:travis/features/attendance/data/models/attendance_request.dart';
+import 'package:travis/features/attendance/data/models/schedule_model.dart';
+import 'package:travis/features/attendance/domain/repositories/attendance_repository.dart';
+import 'package:travis/core/helper/location_service.dart';
 import 'attendance_state.dart';
 
 class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {

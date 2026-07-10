@@ -2,20 +2,20 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:psm_mobile/core/error/failure.dart';
-import 'package:psm_mobile/core/presentations/datasource/core_data_source.dart';
-import 'package:psm_mobile/core/presentations/entity/core_data_source_response.dart';
-import 'package:psm_mobile/core/presentations/entity/core_schedule_model.dart';
-import 'package:psm_mobile/features/kmbus/data/kmbus_data_source.dart';
-import 'package:psm_mobile/features/kmbus/domain/entities/kmbus_data.dart';
-import 'package:psm_mobile/features/kmbus/domain/entities/titik_akhir_create.dart';
-import 'package:psm_mobile/features/kmbus/domain/entities/titik_awal_create.dart';
-import 'package:psm_mobile/features/kmbus/domain/repositories/kmbus_repository.dart';
-import 'package:psm_mobile/features/reference/domain/entities/next_ritase_response.dart';
-import 'package:psm_mobile/features/reference/domain/entities/reference_detail.dart';
-import 'package:psm_mobile/features/reference/reference_data_source.dart';
-import 'package:psm_mobile/features/reference/domain/entities/document_preview.dart';
-import 'package:psm_mobile/features/timetable/domain/entities/auditTrail/km_task_audit_trail.dart';
+import 'package:travis/core/error/failure.dart';
+import 'package:travis/core/presentations/datasource/core_data_source.dart';
+import 'package:travis/core/presentations/entity/core_data_source_response.dart';
+import 'package:travis/core/presentations/entity/core_schedule_model.dart';
+import 'package:travis/features/kmbus/data/kmbus_data_source.dart';
+import 'package:travis/features/kmbus/domain/entities/kmbus_data.dart';
+import 'package:travis/features/kmbus/domain/entities/titik_akhir_create.dart';
+import 'package:travis/features/kmbus/domain/entities/titik_awal_create.dart';
+import 'package:travis/features/kmbus/domain/repositories/kmbus_repository.dart';
+import 'package:travis/features/reference/domain/entities/next_ritase_response.dart';
+import 'package:travis/features/reference/domain/entities/reference_detail.dart';
+import 'package:travis/features/reference/reference_data_source.dart';
+import 'package:travis/features/reference/domain/entities/document_preview.dart';
+import 'package:travis/features/timetable/domain/entities/auditTrail/km_task_audit_trail.dart';
 
 class KmbusRepositoryImpl implements KmbusRepository {
   final KmbusDataSource dataSource;
@@ -56,6 +56,30 @@ class KmbusRepositoryImpl implements KmbusRepository {
   ) async {
     try {
       final result = await dataSourceCore.checkAllowTitikAwal(
+        idKoridor,
+        idBus,
+        nextRit,
+      );
+
+      return right(result);
+    } on DioException catch (e) {
+      final message =
+          e.response?.data?['message'] ?? 'Terjadi kesalahan server';
+
+      return left(ServerFailure(message));
+    } catch (_) {
+      return left(const ServerFailure('Unexpected error'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, CoreDataSourceResponse>> checkAllowCheckIn(
+    int idKoridor,
+    int idBus,
+    double nextRit,
+  ) async {
+    try {
+      final result = await dataSourceCore.checkAllowCheckIn(
         idKoridor,
         idBus,
         nextRit,
@@ -128,10 +152,11 @@ class KmbusRepositoryImpl implements KmbusRepository {
 
   @override
   Future<Either<Failure, List<KmbusData>>> fetchListKmbus(
-    String keyword,
-  ) async {
+    String keyword, {
+    int page = 1,
+  }) async {
     try {
-      final result = await dataSource.fetchKmbusData(keyword);
+      final result = await dataSource.fetchKmbusData(keyword, page: page);
 
       return right(result);
     } on DioException catch (e) {
@@ -164,10 +189,11 @@ class KmbusRepositoryImpl implements KmbusRepository {
 
   @override
   Future<Either<Failure, List<KmTaskAuditTrail>>> fetchListKmbusAuditTrail(
-    String keyword,
-  ) async {
+    String keyword, {
+    int page = 1,
+  }) async {
     try {
-      final result = await dataSource.fetchKmbusDataListAuditTrail(keyword);
+      final result = await dataSource.fetchKmbusDataListAuditTrail(keyword, page: page);
 
       return right(result);
     } on DioException catch (e) {

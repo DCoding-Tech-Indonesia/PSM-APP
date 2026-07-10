@@ -1,4 +1,4 @@
-import 'package:psm_mobile/features/attendance/data/models/general_model.dart';
+import 'package:travis/features/attendance/data/models/general_model.dart';
 
 class SpmQuestionModel {
   final int id;

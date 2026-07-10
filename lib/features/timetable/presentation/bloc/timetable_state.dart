@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
-import 'package:psm_mobile/features/reference/domain/entities/reference_detail.dart';
-import 'package:psm_mobile/features/timetable/domain/entities/timetable_checkin.dart';
-import 'package:psm_mobile/features/timetable/domain/entities/timetable_data.dart';
+import 'package:travis/features/reference/domain/entities/reference_detail.dart';
+import 'package:travis/features/timetable/domain/entities/timetable_checkin.dart';
+import 'package:travis/features/timetable/domain/entities/timetable_data.dart';
 
 enum TimetableStatus {
   initial,
@@ -14,7 +14,7 @@ enum TimetableStatus {
   onSubmit,
   inValid,
   successCheckIn,
-  successCheckOut
+  successCheckOut,
 }
 
 class TimetableState extends Equatable {
@@ -49,6 +49,9 @@ class TimetableState extends Equatable {
   final double long;
   final double lat;
 
+  final int page;
+  final bool hasReachedMax;
+
   const TimetableState({
     this.disabledBerangkatMessage,
     this.disabledDatangMessage,
@@ -76,6 +79,8 @@ class TimetableState extends Equatable {
 
     this.long = 0,
     this.lat = 0,
+    this.page = 1,
+    this.hasReachedMax = false,
   });
 
   TimetableState copyWith({
@@ -105,10 +110,14 @@ class TimetableState extends Equatable {
 
     double? long,
     double? lat,
+    int? page,
+    bool? hasReachedMax,
   }) {
     return TimetableState(
-      disabledBerangkatMessage: disabledBerangkatMessage ?? this.disabledBerangkatMessage,
-      disabledDatangMessage: disabledDatangMessage ?? this.disabledDatangMessage,
+      disabledBerangkatMessage:
+          disabledBerangkatMessage ?? this.disabledBerangkatMessage,
+      disabledDatangMessage:
+          disabledDatangMessage ?? this.disabledDatangMessage,
       idShift: idShift ?? this.idShift,
       idKm: idKm ?? this.idKm,
       ritaseKe: ritaseKe ?? this.ritaseKe,
@@ -129,6 +138,8 @@ class TimetableState extends Equatable {
       checkinData: checkinData ?? this.checkinData,
       long: long ?? this.long,
       lat: lat ?? this.lat,
+      page: page ?? this.page,
+      hasReachedMax: hasReachedMax ?? this.hasReachedMax,
     );
   }
 
@@ -155,5 +166,7 @@ class TimetableState extends Equatable {
     checkinData,
     long,
     lat,
+    page,
+    hasReachedMax,
   ];
 }

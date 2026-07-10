@@ -1,4 +1,4 @@
-import 'package:psm_mobile/features/spm/data/models/spm_task_model.dart';
+import 'package:travis/features/spm/data/models/spm_task_model.dart';
 
 abstract class SpmListState {
   const SpmListState();

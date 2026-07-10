@@ -1,5 +1,5 @@
-import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/settlement_status_audit_trail.dart';
-import 'package:psm_mobile/features/settlement/domain/entities/auditTrail/settlement_user_audit_trail.dart';
+import 'package:travis/features/settlement/domain/entities/auditTrail/settlement_status_audit_trail.dart';
+import 'package:travis/features/settlement/domain/entities/auditTrail/settlement_user_audit_trail.dart';
 import 'settlement_module_audit_trail.dart';
 
 class SettlementTaskAuditTrail {

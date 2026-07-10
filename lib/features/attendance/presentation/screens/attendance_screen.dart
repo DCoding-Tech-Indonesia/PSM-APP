@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:psm_mobile/core/presentations/widgets/widgets.dart';
-import 'package:psm_mobile/features/attendance/presentation/bloc/attendance_bloc.dart';
-import 'package:psm_mobile/features/attendance/presentation/bloc/attendance_state.dart';
-import 'package:psm_mobile/features/attendance/data/repositories/attendance_repository_impl.dart';
-import 'package:psm_mobile/features/attendance/data/datasources/attendance_remote_data_source.dart';
-import 'package:psm_mobile/features/attendance/presentation/widgets/attendance_menu_grid.dart';
-import 'package:psm_mobile/features/portal/presentation/bloc/portal_bloc.dart';
-import 'package:psm_mobile/features/portal/presentation/bloc/portal_state.dart';
-import 'package:psm_mobile/core/network/dio_client.dart';
-import 'package:psm_mobile/core/helper/location_service.dart';
-// import 'package:psm_mobile/features/portal/presentation/widget/portal_schedule_ribbon.dart';
-import 'package:psm_mobile/features/attendance/presentation/widgets/widgets.dart';
+import 'package:travis/core/presentations/widgets/widgets.dart';
+import 'package:travis/features/attendance/presentation/bloc/attendance_bloc.dart';
+import 'package:travis/features/attendance/presentation/bloc/attendance_state.dart';
+import 'package:travis/features/attendance/data/repositories/attendance_repository_impl.dart';
+import 'package:travis/features/attendance/data/datasources/attendance_remote_data_source.dart';
+import 'package:travis/features/attendance/presentation/widgets/attendance_menu_grid.dart';
+import 'package:travis/features/portal/presentation/bloc/portal_bloc.dart';
+import 'package:travis/features/portal/presentation/bloc/portal_state.dart';
+import 'package:travis/core/network/dio_client.dart';
+import 'package:travis/core/helper/location_service.dart';
+// import 'package:travis/features/portal/presentation/widget/portal_schedule_ribbon.dart';
+import 'package:travis/features/attendance/presentation/widgets/widgets.dart';
 
 class AttendanceScreen extends StatelessWidget {
   const AttendanceScreen({super.key});

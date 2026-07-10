@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:psm_mobile/core/helper/string_formatter.dart';
-import 'package:psm_mobile/core/presentations/entity/schedule_args.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_date_time_widget.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_header.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_snackbar.dart';
-import 'package:psm_mobile/core/presentations/widgets/init_loading_screen.dart';
-import 'package:psm_mobile/features/kmbus/domain/entities/titik_akhir_args.dart';
-import 'package:psm_mobile/features/kmbus/presentation/bloc/kmbus_state.dart';
+import 'package:travis/core/presentations/entity/schedule_args.dart';
+import 'package:travis/core/presentations/widgets/core_bottom_modal_verification.dart';
+import 'package:travis/core/presentations/widgets/core_date_time_widget.dart';
+import 'package:travis/core/presentations/widgets/core_skeleton_widget.dart';
+import 'package:travis/core/presentations/widgets/core_header.dart';
+import 'package:travis/core/presentations/widgets/core_snackbar.dart';
+import 'package:travis/features/kmbus/domain/entities/titik_akhir_args.dart';
+import 'package:travis/features/kmbus/presentation/bloc/kmbus_state.dart';
+import 'package:travis/features/reference/domain/entities/reference_detail.dart';
 
 import 'bloc/kmbus_bloc.dart';
 import 'bloc/kmbus_event.dart';
@@ -79,19 +80,22 @@ class _KmbusScreenState extends State<KmbusScreen> {
       },
       child: BlocBuilder<KmbusBloc, KmbusState>(
         buildWhen: (prev, curr) =>
-            prev.status != curr.status || prev.listKmbus != curr.listKmbus,
+            prev.status != curr.status ||
+            prev.listKmbusAuditTrail != curr.listKmbusAuditTrail,
         builder: (context, state) {
-          if (state.status == KmbusStatus.initial) {
-            return Scaffold(body: const InitLoadingScreen(menuName: "KM Bus"));
-          }
+          final isInitialLoading =
+              (state.status == KmbusStatus.loading ||
+                  state.status == KmbusStatus.initial) &&
+              (state.listKmbusAuditTrail.isEmpty ?? true);
+          final isLoading = state.status == KmbusStatus.onSubmit;
 
-          final isLoading =
-              state.status == KmbusStatus.loading ||
-              state.status == KmbusStatus.onSubmit;
+          final activeBusName = state.noUnit ?? '-';
+          final activeKoridorName = state.namaKoridor ?? '-';
 
           return Stack(
             children: [
               Scaffold(
+                backgroundColor: Colors.grey.shade50,
                 body: SafeArea(
                   child: RefreshIndicator(
                     onRefresh: _onRefresh,
@@ -103,702 +107,748 @@ class _KmbusScreenState extends State<KmbusScreen> {
                           subtitle: "Data KM Bus",
                         ),
                         const CoreDateTimeWidget(),
-
-                        Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 20),
-                          child: Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              onTap: () async {
-                                // if (!state.allowTitikAwal) {
-                                //   CoreSnackbar.show(
-                                //     context,
-                                //     message: state.disabledCtaMessage,
-                                //     type: SnackbarType.warning,
-                                //   );
-                                //
-                                //   return;
-                                // }
-                                final result = await context.push(
-                                  '/kmbus/titik-awal/form',
-                                  extra: ScheduleArgs(
-                                    idShift: state.idShift ?? 0,
-                                    idKoridorShift: state.idKoridorShift ?? 0,
-                                    idBusShift: state.idBusShift ?? 0,
-                                    idAuditTrail: null,
-                                  ),
-                                );
-
-                                if (context.mounted || result == true) {
-                                  context.read<KmbusBloc>().add(
-                                    PageDashboardLoad(),
-                                  );
-                                }
-                              },
-                              borderRadius: BorderRadius.circular(12),
-                              child: Ink(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 16,
-                                ),
-                                decoration: BoxDecoration(
-                                  gradient: state.allowTitikAwal
-                                      ? const LinearGradient(
-                                          colors: [
-                                            Color(0xFF2E7D32),
-                                            Color(0xFF43A047),
-                                          ],
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                        )
-                                      : const LinearGradient(
-                                          colors: [
-                                            Color(0xFF454545),
-                                            Color(0xFF9a9a9a),
-                                          ],
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                        ),
-                                  borderRadius: BorderRadius.circular(12),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: const Color(
-                                        0xFF2E7D32,
-                                      ).withValues(alpha: 0.3),
-                                      blurRadius: 8,
-                                      offset: const Offset(0, 4),
-                                    ),
+                        const SizedBox(height: 4),
+                        if (isInitialLoading)
+                          ..._buildSkeletonItems()
+                        else ...[
+                          // === VEHICLE INFO CARD ===
+                          if (state.checkinData != null)
+                            Container(
+                              margin: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 4,
+                              ),
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [
+                                    Color(0xFF1565C0),
+                                    Color(0xFF1E88E5),
                                   ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
                                 ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: const [
-                                    Icon(
-                                      Icons.add_circle_outline_rounded,
+                                borderRadius: BorderRadius.circular(20),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: const Color(
+                                      0xFF1565C0,
+                                    ).withValues(alpha: 0.15),
+                                    blurRadius: 15,
+                                    offset: const Offset(0, 6),
+                                  ),
+                                ],
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(10),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withValues(
+                                        alpha: 0.2,
+                                      ),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: const Icon(
+                                      Icons.directions_bus_rounded,
                                       color: Colors.white,
-                                      size: 22,
+                                      size: 28,
                                     ),
-                                    SizedBox(width: 10),
-                                    Text(
-                                      "Input KM Keberangkatan",
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 16,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 5,
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Expanded(
-                                child: Text(
-                                  'Riwayat Terakhir',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
                                   ),
-                                ),
-                              ),
-                              GestureDetector(
-                                onTap: () async {
-                                  await context.push('/kmbus/history');
-                                  if (context.mounted) {
-                                    context.read<KmbusBloc>().add(
-                                      PageDashboardLoad(),
-                                    );
-                                  }
-                                },
-                                child: const Row(
-                                  children: [
-                                    Text(
-                                      'Lihat Semua',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 13,
-                                        color: Colors.blue,
-                                      ),
-                                    ),
-                                    SizedBox(width: 4),
-                                    Icon(
-                                      Icons.arrow_forward_ios,
-                                      size: 12,
-                                      color: Colors.blue,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        const SizedBox(height: 10),
-
-                        if (state.listKmbusAuditTrail.isEmpty)
-                          const Center(child: Text("Belum ada data tersimpan."))
-                        else
-                          ListView.separated(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            padding: const EdgeInsets.symmetric(vertical: 10),
-                            itemCount: state.listKmbusAuditTrail.length,
-                            separatorBuilder: (_, __) =>
-                                const SizedBox(height: 12),
-                            itemBuilder: (context, index) {
-                              final data = state.listKmbusAuditTrail[index];
-
-                              final String hourMinute =
-                                  "${data.createdDate.hour.toString().padLeft(2, '0')}:${data.createdDate.minute.toString().padLeft(2, '0')}";
-
-                              final String tanggalHariIni = data.createdDate
-                                  .toIso8601String()
-                                  .split('T')[0];
-
-                              bool showHeaderTanggal = true;
-                              if (index > 0) {
-                                final prevData =
-                                    state.listKmbusAuditTrail[index - 1];
-                                final String tanggalSebelumnya = prevData
-                                    .createdDate
-                                    .toIso8601String()
-                                    .split('T')[0];
-                                if (tanggalHariIni == tanggalSebelumnya) {
-                                  showHeaderTanggal = false;
-                                }
-                              }
-
-                              final bool isTitikAkhir =
-                                  data.dataAfter.titikAkhir != null &&
-                                  data.dataAfter.titikAkhir != 0;
-                              final String tipeTitik = isTitikAkhir
-                                  ? "TITIK AKHIR"
-                                  : "TITIK AWAL";
-
-                              final int nilaiKm = isTitikAkhir
-                                  ? (data.dataAfter.titikAkhir ?? 0)
-                                  : (data.dataAfter.titikAwal ?? 0);
-
-                              Color badgeBgColor = Colors.yellowAccent;
-                              Color badgeBorderColor = Colors.yellow;
-
-                              final bool isDraft = data.status.code == "DFT";
-
-                              if (data.status.code == "APR") {
-                                badgeBgColor = Colors.greenAccent;
-                                badgeBorderColor = Colors.green;
-                              } else if (isDraft) {
-                                badgeBgColor = Colors.yellowAccent;
-                                badgeBorderColor = Colors.yellow;
-                              }
-
-                              Widget cardItem = Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 12,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(16),
-                                  border: Border.all(
-                                    color: Colors.grey.withValues(alpha: 0.3),
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withValues(
-                                        alpha: 0.05,
-                                      ),
-                                      blurRadius: 20,
-                                      offset: const Offset(0, 10),
-                                    ),
-                                  ],
-                                ),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            tipeTitik == "TITIK AWAL" ||
-                                                    (index + 1) >=
-                                                        state
-                                                            .listKmbusAuditTrail
-                                                            .length
-                                                ? data.noPolisi
-                                                : state
-                                                      .listKmbusAuditTrail[index +
-                                                          1]
-                                                      .noPolisi,
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 15,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 4),
-                                          Row(
-                                            spacing: 6,
-                                            children: [
-                                              Icon(
-                                                tipeTitik == "TITIK AWAL"
-                                                    ? Icons.start
-                                                    : Icons.flag,
-                                                size: 18,
-                                                color: tipeTitik == "TITIK AWAL"
-                                                    ? Colors.green
-                                                    : Colors.red,
-                                              ),
-                                              Text(
-                                                "$nilaiKm KM",
-                                                style: TextStyle(
-                                                  fontWeight: FontWeight.w600,
-                                                  color:
-                                                      tipeTitik == "TITIK AWAL"
-                                                      ? Colors.green
-                                                      : Colors.red,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
+                                  const SizedBox(width: 14),
+                                  Expanded(
+                                    child: Column(
                                       crossAxisAlignment:
-                                          CrossAxisAlignment.end,
+                                          CrossAxisAlignment.start,
                                       children: [
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            vertical: 2,
-                                            horizontal: 8,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: badgeBgColor,
-                                            borderRadius: BorderRadius.circular(
-                                              99,
-                                            ),
-                                            border: Border.all(
-                                              width: 1,
-                                              color: badgeBorderColor,
-                                            ),
-                                          ),
-                                          child: Text(
-                                            data.status.name,
-                                            style: const TextStyle(
-                                              fontSize: 10,
-                                              fontWeight: FontWeight.w600,
-                                            ),
+                                        Text(
+                                          'Unit $activeBusName',
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w700,
                                           ),
                                         ),
-                                        const SizedBox(height: 6),
+                                        const SizedBox(height: 2),
                                         Text(
-                                          StringFormatter().formatDateTime2(data.createdDate.toString()),
-                                          style: const TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w700,
+                                          activeKoridorName,
+                                          style: TextStyle(
+                                            color: Colors.white.withValues(
+                                              alpha: 0.85,
+                                            ),
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w500,
                                           ),
                                         ),
                                       ],
                                     ),
+                                  ),
+                                  if (state.checkinData?.ritaseKe != null)
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 6,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withValues(
+                                          alpha: 0.2,
+                                        ),
+                                        borderRadius: BorderRadius.circular(20),
+                                        border: Border.all(
+                                          color: Colors.white.withValues(
+                                            alpha: 0.3,
+                                          ),
+                                        ),
+                                      ),
+                                      child: Text(
+                                        'Ritase ${state.checkinData!.ritaseKe % 1 == 0 ? state.checkinData!.ritaseKe.toInt() : state.checkinData!.ritaseKe}',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            )
+                          else
+                            Container(
+                              margin: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 4,
+                              ),
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [
+                                    Color(0xFF718096),
+                                    Color(0xFF4A5568),
                                   ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
                                 ),
-                              );
-
-                              if (isDraft) {
-                                cardItem = Dismissible(
-                                  key: Key(data.id.toString()),
-                                  direction: DismissDirection.horizontal,
-                                  confirmDismiss: (direction) async {
-                                    if (direction ==
-                                        DismissDirection.endToStart) {
-                                      final bool?
-                                      shouldSubmit = await showModalBottomSheet<bool>(
-                                        context: context,
-                                        shape: const RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.vertical(
-                                            top: Radius.circular(24),
+                                borderRadius: BorderRadius.circular(20),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: const Color(
+                                      0xFF4A5568,
+                                    ).withValues(alpha: 0.15),
+                                    blurRadius: 15,
+                                    offset: const Offset(0, 6),
+                                  ),
+                                ],
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withValues(
+                                        alpha: 0.2,
+                                      ),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: const Icon(
+                                      Icons.directions_bus_rounded,
+                                      color: Colors.white,
+                                      size: 22,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 14),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        const Text(
+                                          "Belum Check-In",
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 15,
                                           ),
                                         ),
-                                        builder: (BuildContext ctx) {
-                                          return Padding(
-                                            padding: const EdgeInsets.all(24.0),
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                Container(
-                                                  width: 40,
-                                                  height: 4,
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.grey.shade300,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          2,
-                                                        ),
-                                                  ),
-                                                ),
-                                                const SizedBox(height: 20),
-                                                const Icon(
-                                                  Icons.cloud_upload_outlined,
-                                                  size: 48,
-                                                  color: Colors.blue,
-                                                ),
-                                                const SizedBox(height: 16),
-                                                const Text(
-                                                  "Submit Data KM Bus",
-                                                  style: TextStyle(
-                                                    fontSize: 18,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                                const SizedBox(height: 8),
-                                                Text(
-                                                  "Apakah Anda yakin ingin melakukan submit untuk data $tipeTitik ($nilaiKm KM)?",
-                                                  textAlign: TextAlign.center,
-                                                  style: TextStyle(
-                                                    color: Colors.grey.shade600,
-                                                    fontSize: 14,
-                                                  ),
-                                                ),
-                                                const SizedBox(height: 24),
-                                                Row(
-                                                  children: [
-                                                    Expanded(
-                                                      child: OutlinedButton(
-                                                        style: OutlinedButton.styleFrom(
-                                                          padding:
-                                                              const EdgeInsets.symmetric(
-                                                                vertical: 14,
-                                                              ),
-                                                          side:
-                                                              const BorderSide(
-                                                                color:
-                                                                    Colors.blue,
-                                                              ),
-                                                          shape: RoundedRectangleBorder(
-                                                            borderRadius:
-                                                                BorderRadius.circular(
-                                                                  12,
-                                                                ),
-                                                          ),
-                                                        ),
-                                                        onPressed: () =>
-                                                            Navigator.of(
-                                                              ctx,
-                                                            ).pop(false),
-                                                        child: const Text(
-                                                          "Batal",
-                                                          style: TextStyle(
-                                                            color: Colors.blue,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    const SizedBox(width: 12),
-                                                    Expanded(
-                                                      child: ElevatedButton(
-                                                        style: ElevatedButton.styleFrom(
-                                                          backgroundColor:
-                                                              Colors.blue,
-                                                          padding:
-                                                              const EdgeInsets.symmetric(
-                                                                vertical: 14,
-                                                              ),
-                                                          shape: RoundedRectangleBorder(
-                                                            borderRadius:
-                                                                BorderRadius.circular(
-                                                                  12,
-                                                                ),
-                                                          ),
-                                                        ),
-                                                        onPressed: () =>
-                                                            Navigator.of(
-                                                              ctx,
-                                                            ).pop(true),
-                                                        child: const Text(
-                                                          "Ya, Submit",
-                                                          style: TextStyle(
-                                                            color: Colors.white,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ],
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          "Silakan lakukan Check-In di Time Table terlebih dahulu.",
+                                          style: TextStyle(
+                                            color: Colors.white.withValues(
+                                              alpha: 0.85,
                                             ),
-                                          );
-                                        },
-                                      );
+                                            fontWeight: FontWeight.w400,
+                                            fontSize: 13,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          const SizedBox(height: 8),
 
-                                      if (shouldSubmit == true) {
-                                        context.read<KmbusBloc>().add(
-                                          SubmitWorkflow('Done', data.id),
+                          if (state.listKmbusAuditTrail.isNotEmpty) ...[
+                            ...state.listKmbusAuditTrail
+                                .where((e) {
+                                  final todayString = DateTime.now()
+                                      .toIso8601String()
+                                      .split('T')[0];
+                                  final createdDateString = e.createdDate
+                                      .toLocal()
+                                      .toIso8601String()
+                                      .split('T')[0];
+                                  final bool isSubmitted =
+                                      e.dataAfter.isSubmit ?? false;
+                                  return e.status.code == "DFT" &&
+                                      createdDateString == todayString &&
+                                      !isSubmitted;
+                                })
+                                .map((draft) {
+                                  return Container(
+                                    margin: const EdgeInsets.symmetric(
+                                      horizontal: 20,
+                                      vertical: 6,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.orange.shade50,
+                                      borderRadius: BorderRadius.circular(20),
+                                      border: Border.all(
+                                        color: Colors.orange.withValues(
+                                          alpha: 0.3,
+                                        ),
+                                      ),
+                                    ),
+                                    child: InkWell(
+                                      onTap: () async {
+                                        final result = await context.push(
+                                          '/kmbus/titik-awal/form',
+                                          extra: ScheduleArgs(
+                                            idShift: state.idShift ?? 0,
+                                            idKoridorShift:
+                                                state.idKoridorShift ?? 0,
+                                            idBusShift: state.idBusShift ?? 0,
+                                            idAuditTrail: draft.id,
+                                          ),
                                         );
-                                      }
-                                      return false;
-                                    } else if (direction ==
-                                        DismissDirection.startToEnd) {
-                                      final bool?
-                                      shouldEdit = await showModalBottomSheet<bool>(
-                                        context: context,
-                                        shape: const RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.vertical(
-                                            top: Radius.circular(24),
-                                          ),
-                                        ),
-                                        builder: (BuildContext ctx) {
-                                          return Padding(
-                                            padding: const EdgeInsets.all(24.0),
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                Container(
-                                                  width: 40,
-                                                  height: 4,
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.grey.shade300,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          2,
-                                                        ),
-                                                  ),
-                                                ),
-                                                const SizedBox(height: 20),
-                                                const Icon(
-                                                  Icons.edit_note_rounded,
-                                                  size: 48,
-                                                  color: Colors.orange,
-                                                ),
-                                                const SizedBox(height: 16),
-                                                const Text(
-                                                  "Edit Draft Data KM Bus",
-                                                  style: TextStyle(
-                                                    fontSize: 18,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                                const SizedBox(height: 8),
-                                                Text(
-                                                  "Apakah Anda yakin ingin mengubah draft $tipeTitik ini?",
-                                                  textAlign: TextAlign.center,
-                                                  style: TextStyle(
-                                                    color: Colors.grey.shade600,
-                                                    fontSize: 14,
-                                                  ),
-                                                ),
-                                                const SizedBox(height: 24),
-                                                Row(
-                                                  children: [
-                                                    Expanded(
-                                                      child: OutlinedButton(
-                                                        style: OutlinedButton.styleFrom(
-                                                          padding:
-                                                              const EdgeInsets.symmetric(
-                                                                vertical: 14,
-                                                              ),
-                                                          side:
-                                                              const BorderSide(
-                                                                color: Colors
-                                                                    .orange,
-                                                              ),
-                                                          shape: RoundedRectangleBorder(
-                                                            borderRadius:
-                                                                BorderRadius.circular(
-                                                                  12,
-                                                                ),
-                                                          ),
-                                                        ),
-                                                        onPressed: () =>
-                                                            Navigator.of(
-                                                              ctx,
-                                                            ).pop(false),
-                                                        child: const Text(
-                                                          "Batal",
-                                                          style: TextStyle(
-                                                            color:
-                                                                Colors.orange,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    const SizedBox(width: 12),
-                                                    Expanded(
-                                                      child: ElevatedButton(
-                                                        style: ElevatedButton.styleFrom(
-                                                          backgroundColor:
-                                                              Colors.orange,
-                                                          padding:
-                                                              const EdgeInsets.symmetric(
-                                                                vertical: 14,
-                                                              ),
-                                                          shape: RoundedRectangleBorder(
-                                                            borderRadius:
-                                                                BorderRadius.circular(
-                                                                  12,
-                                                                ),
-                                                          ),
-                                                        ),
-                                                        onPressed: () =>
-                                                            Navigator.of(
-                                                              ctx,
-                                                            ).pop(true),
-                                                        child: const Text(
-                                                          "Ya, Edit",
-                                                          style: TextStyle(
-                                                            color: Colors.white,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ],
-                                            ),
-                                          );
-                                        },
-                                      );
-
-                                      if (shouldEdit == true) {
-                                        if (tipeTitik == "TITIK AWAL") {
-                                          await context.push(
-                                            '/kmbus/titik-awal/form',
-                                            extra: ScheduleArgs(
-                                              idShift: state.idShift ?? 0,
-                                              idKoridorShift:
-                                                  state.idKoridorShift ?? 0,
-                                              idBusShift: state.idBusShift ?? 0,
-                                              idAuditTrail: data.id,
-                                            ),
-                                          );
-                                        } else {
-                                          await context.push(
-                                            '/kmbus/titik-akhir/form',
-                                            extra: TitikAkhirArgs(
-                                              idKm: state.idKm!,
-                                              idAuditTrail: data.id,
-                                            ),
-                                          );
-                                        }
-
-                                        if (context.mounted) {
+                                        if (context.mounted && result == true) {
                                           context.read<KmbusBloc>().add(
                                             PageDashboardLoad(),
                                           );
                                         }
-                                      }
-                                      return false;
-                                    }
-                                    return false;
-                                  },
-                                  background: Container(
-                                    alignment: Alignment.centerLeft,
-                                    padding: const EdgeInsets.only(left: 24),
-                                    decoration: BoxDecoration(
-                                      color: Colors.orange.shade600,
-                                      borderRadius: BorderRadius.circular(16),
-                                    ),
-                                    child: const Row(
-                                      children: [
-                                        Icon(Icons.edit, color: Colors.white),
-                                        SizedBox(width: 8),
-                                        Text(
-                                          "Edit Draft",
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  secondaryBackground: Container(
-                                    alignment: Alignment.centerRight,
-                                    padding: const EdgeInsets.only(right: 24),
-                                    decoration: BoxDecoration(
-                                      color: Colors.blue.shade600,
-                                      borderRadius: BorderRadius.circular(16),
-                                    ),
-                                    child: const Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: [
-                                        Text(
-                                          "Submit",
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        SizedBox(width: 8),
-                                        Icon(Icons.send, color: Colors.white),
-                                      ],
-                                    ),
-                                  ),
-                                  child: cardItem,
-                                );
-                              }
-
-                              return Container(
-                                margin: const EdgeInsets.symmetric(
-                                  horizontal: 20,
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    if (showHeaderTanggal)
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 5,
-                                          vertical: 8,
-                                        ),
+                                      },
+                                      borderRadius: BorderRadius.circular(20),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(16),
                                         child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
                                           children: [
-                                            Text(
-                                              tanggalHariIni,
-                                              style: const TextStyle(
-                                                fontWeight: FontWeight.w900,
-                                                fontSize: 15,
-                                              ),
-                                            ),
                                             Container(
-                                              padding: const EdgeInsets.all(5),
+                                              padding: const EdgeInsets.all(10),
                                               decoration: BoxDecoration(
-                                                color: Colors.blue,
-                                                borderRadius:
-                                                    BorderRadius.circular(4),
+                                                color: Colors.orange.withValues(
+                                                  alpha: 0.15,
+                                                ),
+                                                shape: BoxShape.circle,
                                               ),
                                               child: const Icon(
-                                                Icons.calendar_today,
-                                                size: 16,
-                                                color: Colors.white,
+                                                Icons.warning_amber_rounded,
+                                                color: Colors.orange,
+                                                size: 24,
                                               ),
+                                            ),
+                                            const SizedBox(width: 14),
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  const Text(
+                                                    "Draft KM Awal Tertunda",
+                                                    style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: Colors.orange,
+                                                      fontSize: 14,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(height: 2),
+                                                  Text(
+                                                    "KM: ${draft.dataAfter.titikAwal ?? '-'} KM • Ketuk untuk mengirim ulang",
+                                                    style: TextStyle(
+                                                      color: Colors
+                                                          .orange
+                                                          .shade800,
+                                                      fontSize: 12,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            const Icon(
+                                              Icons.arrow_forward_ios,
+                                              color: Colors.orange,
+                                              size: 14,
                                             ),
                                           ],
                                         ),
                                       ),
-                                    cardItem,
-                                  ],
+                                    ),
+                                  );
+                                }),
+                          ],
+
+                          const SizedBox(height: 8),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 24,
+                              vertical: 4,
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Expanded(
+                                  child: Text(
+                                    'Riwayat Terakhir',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Color(0xFF212121),
+                                    ),
+                                  ),
                                 ),
-                              );
-                            },
+                                TextButton(
+                                  onPressed: () async {
+                                    await context.push('/kmbus/history');
+                                    if (context.mounted) {
+                                      context.read<KmbusBloc>().add(
+                                        PageDashboardLoad(),
+                                      );
+                                    }
+                                  },
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: Colors.blue[700],
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 4,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                  child: const FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Row(
+                                      children: [
+                                        Text(
+                                          'Lihat Semua',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 13,
+                                          ),
+                                        ),
+                                        SizedBox(width: 4),
+                                        Icon(Icons.arrow_forward_ios, size: 12),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
+                          const SizedBox(height: 4),
+
+                          if (state.listKmbus.isEmpty)
+                            const Center(
+                              child: Text("Belum ada data tersimpan."),
+                            )
+                          else
+                            ListView.separated(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              padding: const EdgeInsets.symmetric(vertical: 10),
+                              itemCount: state.listKmbus.length > 10
+                                  ? 10
+                                  : state.listKmbus.length,
+                              separatorBuilder: (_, _) =>
+                                  const SizedBox(height: 8),
+                              itemBuilder: (context, index) {
+                                final item = state.listKmbus[index];
+
+                                return Container(
+                                  margin: const EdgeInsets.symmetric(
+                                    horizontal: 20,
+                                    vertical: 6,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(20),
+                                    border: Border.all(
+                                      color: Colors.grey.withValues(
+                                        alpha: 0.15,
+                                      ),
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withValues(
+                                          alpha: 0.03,
+                                        ),
+                                        blurRadius: 10,
+                                        offset: const Offset(0, 4),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        // Header: Date | Unit Badge
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Row(
+                                              children: [
+                                                const Icon(
+                                                  Icons.calendar_today_rounded,
+                                                  size: 14,
+                                                  color: Color(0xFF718096),
+                                                ),
+                                                const SizedBox(width: 6),
+                                                Text(
+                                                  item.tanggalKm ?? '',
+                                                  style: const TextStyle(
+                                                    fontWeight: FontWeight.w800,
+                                                    color: Color(0xFF2D3748),
+                                                    fontSize: 13,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 8,
+                                                    vertical: 4,
+                                                  ),
+                                              decoration: BoxDecoration(
+                                                color: const Color(0xFFF7FAFC),
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                                border: Border.all(
+                                                  color: const Color(
+                                                    0xFFE2E8F0,
+                                                  ),
+                                                ),
+                                              ),
+                                              child: Text(
+                                                "${item.bus?.platNomor ?? '-'} • ${item.bus?.nomorLambung ?? '-'}",
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.w700,
+                                                  color: Color(0xFF4A5568),
+                                                  fontSize: 11,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+
+                                        const Padding(
+                                          padding: EdgeInsets.symmetric(
+                                            vertical: 12,
+                                          ),
+                                          child: Divider(
+                                            height: 1,
+                                            thickness: 1,
+                                            color: Color(0xFFEDF2F7),
+                                          ),
+                                        ),
+
+                                        // Timeline KM Route
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 4,
+                                          ),
+                                          child: Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Column(
+                                                children: [
+                                                  const Icon(
+                                                    Icons.circle,
+                                                    size: 8,
+                                                    color: Color(0xFF2E7D32),
+                                                  ),
+                                                  Container(
+                                                    width: 1.5,
+                                                    height: 28,
+                                                    color: const Color(
+                                                      0xFFE2E8F0,
+                                                    ),
+                                                  ),
+                                                  const Icon(
+                                                    Icons.circle,
+                                                    size: 8,
+                                                    color: Color(0xFFC62828),
+                                                  ),
+                                                ],
+                                              ),
+                                              const SizedBox(width: 14),
+                                              Expanded(
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceBetween,
+                                                      children: [
+                                                        const Text(
+                                                          "KM Awal (Mulai)",
+                                                          style: TextStyle(
+                                                            fontSize: 12,
+                                                            color: Color(
+                                                              0xFF718096,
+                                                            ),
+                                                            fontWeight:
+                                                                FontWeight.w500,
+                                                          ),
+                                                        ),
+                                                        Text(
+                                                          "${item.titikAwal ?? 0} KM",
+                                                          style:
+                                                              const TextStyle(
+                                                                fontSize: 13,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w800,
+                                                                color: Color(
+                                                                  0xFF2E7D32,
+                                                                ),
+                                                              ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    const SizedBox(height: 18),
+                                                    Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceBetween,
+                                                      children: [
+                                                        const Text(
+                                                          "KM Akhir (Selesai)",
+                                                          style: TextStyle(
+                                                            fontSize: 12,
+                                                            color: Color(
+                                                              0xFF718096,
+                                                            ),
+                                                            fontWeight:
+                                                                FontWeight.w500,
+                                                          ),
+                                                        ),
+                                                        Text(
+                                                          item.titikAkhir !=
+                                                                  null
+                                                              ? '${item.titikAkhir} KM'
+                                                              : '-',
+                                                          style: TextStyle(
+                                                            fontSize: 13,
+                                                            fontWeight:
+                                                                FontWeight.w800,
+                                                            color:
+                                                                item.titikAkhir !=
+                                                                    null
+                                                                ? const Color(
+                                                                    0xFFC62828,
+                                                                  )
+                                                                : const Color(
+                                                                    0xFFA0AEC0,
+                                                                  ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+
+                                        const Padding(
+                                          padding: EdgeInsets.symmetric(
+                                            vertical: 12,
+                                          ),
+                                          child: Divider(
+                                            height: 1,
+                                            thickness: 1,
+                                            color: Color(0xFFEDF2F7),
+                                          ),
+                                        ),
+
+                                        // Footer: Corridor + Total Distance
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Expanded(
+                                              child: Row(
+                                                children: [
+                                                  const Icon(
+                                                    Icons
+                                                        .directions_bus_rounded,
+                                                    size: 15,
+                                                    color: Color(0xFF1565C0),
+                                                  ),
+                                                  const SizedBox(width: 6),
+                                                  Expanded(
+                                                    child: Text(
+                                                      item.koridor?.name ??
+                                                          "Koridor N/A",
+                                                      style: const TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.w800,
+                                                        fontSize: 13,
+                                                        color: Color(
+                                                          0xFF2D3748,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 10,
+                                                    vertical: 6,
+                                                  ),
+                                              decoration: BoxDecoration(
+                                                color: const Color(
+                                                  0xFF1565C0,
+                                                ).withValues(alpha: 0.08),
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                                border: Border.all(
+                                                  color: const Color(
+                                                    0xFF1565C0,
+                                                  ).withValues(alpha: 0.15),
+                                                ),
+                                              ),
+                                              child: Text(
+                                                "Total: ${item.totalTempuh ?? 0} km",
+                                                style: const TextStyle(
+                                                  color: Color(0xFF1565C0),
+                                                  fontWeight: FontWeight.w800,
+                                                  fontSize: 11,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                        ],
                       ],
                     ),
                   ),
+                ),
+                floatingActionButton: FloatingActionButton(
+                  onPressed: () async {
+                    // 1. Check if there's a draft KM Awal to continue editing
+                    final draftAuditTrail = state.listKmbusAuditTrail
+                        .where((e) {
+                          final todayString = DateTime.now()
+                              .toIso8601String()
+                              .split('T')[0];
+                          final createdDateString = e.createdDate
+                              .toLocal()
+                              .toIso8601String()
+                              .split('T')[0];
+                          final bool isSubmitted =
+                              e.dataAfter.isSubmit ?? false;
+                          return e.status.code == "DFT" &&
+                              createdDateString == todayString &&
+                              !isSubmitted;
+                        })
+                        .firstOrNull;
+
+                    if (draftAuditTrail != null) {
+                      // Continue editing existing draft
+                      final result = await context.push<bool>(
+                        '/kmbus/titik-awal/form',
+                        extra: ScheduleArgs(
+                          idShift: state.idShift ?? 0,
+                          idKoridorShift: state.idKoridorShift ?? 0,
+                          idBusShift: state.idBusShift ?? 0,
+                          idAuditTrail: draftAuditTrail.id,
+                        ),
+                      );
+
+                      if (context.mounted && result == true) {
+                        context.read<KmbusBloc>().add(PageDashboardLoad());
+                      }
+                      return;
+                    }
+
+                    // 2. Check if there's a KM entry with titik_awal but no titik_akhir (needs completion)
+                    final kmNeedingAkhir = state.listKmbus
+                        .where(
+                          (km) => (km.titikAkhir == null || km.titikAkhir == 0) &&
+                              (km.titikAwal != null && km.titikAwal != 0),
+                        )
+                        .firstOrNull;
+
+                    if (kmNeedingAkhir != null) {
+                      // Navigate to input titik_akhir for this KM
+                      final result = await context.push<bool>(
+                        '/kmbus/titik-akhir/form',
+                        extra: TitikAkhirArgs(
+                          idKm: kmNeedingAkhir.id ?? 0,
+                          idAuditTrail: 0,
+                        ),
+                      );
+
+                      if (context.mounted && result == true) {
+                        context.read<KmbusBloc>().add(PageDashboardLoad());
+                      }
+                      return;
+                    }
+
+                    // 3. Default: Create new KM entry
+                    if (!state.allowTitikAwal) {
+                      CoreSnackbar.show(
+                        context,
+                        message: state.disabledCtaMessage,
+                        type: SnackbarType.warning,
+                      );
+                      return;
+                    }
+                    final result = await context.push(
+                      '/kmbus/titik-awal/form',
+                      extra: ScheduleArgs(
+                        idShift: state.idShift ?? 0,
+                        idKoridorShift: state.idKoridorShift ?? 0,
+                        idBusShift: state.idBusShift ?? 0,
+                        idAuditTrail: null,
+                      ),
+                    );
+
+                    if (context.mounted || result == true) {
+                      context.read<KmbusBloc>().add(PageDashboardLoad());
+                    }
+                  },
+                  backgroundColor: Theme.of(context).primaryColor,
+                  child: const Icon(Icons.add, color: Colors.white),
                 ),
               ),
 
@@ -816,6 +866,208 @@ class _KmbusScreenState extends State<KmbusScreen> {
             ],
           );
         },
+      ),
+    );
+  }
+
+  List<Widget> _buildSkeletonItems() {
+    return [
+      // Vehicle Info Card Skeleton (matches VEHICLE INFO CARD)
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.grey.withValues(alpha: 0.12)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.04),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              CoreSkeletonWidget(
+                width: 48,
+                height: 48,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const CoreSkeletonWidget(width: 100, height: 18),
+                    const SizedBox(height: 6),
+                    const CoreSkeletonWidget(width: 150, height: 13),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 14),
+              CoreSkeletonWidget(
+                width: 70,
+                height: 24,
+                borderRadius: BorderRadius.circular(20),
+              ),
+            ],
+          ),
+        ),
+      ),
+      const SizedBox(height: 8),
+      // History Header Skeleton
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const CoreSkeletonWidget(width: 150, height: 18),
+            CoreSkeletonWidget(
+              width: 80,
+              height: 24,
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ],
+        ),
+      ),
+      const SizedBox(height: 4),
+      // History Cards Skeleton (matches KM Bus card items)
+      ...List.generate(3, (index) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 4),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: Colors.grey.withValues(alpha: 0.12)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.04),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: const [
+                        CoreSkeletonWidget(
+                          width: 16,
+                          height: 16,
+                          borderRadius: BorderRadius.all(Radius.circular(4)),
+                        ),
+                        SizedBox(width: 6),
+                        CoreSkeletonWidget(width: 90, height: 14),
+                      ],
+                    ),
+                    const CoreSkeletonWidget(width: 40, height: 14),
+                  ],
+                ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 10),
+                  child: Divider(
+                    height: 1,
+                    thickness: 1,
+                    color: Color(0xFFEDF2F7),
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        CoreSkeletonWidget(
+                          width: 16,
+                          height: 16,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        const SizedBox(width: 8),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: const [
+                            CoreSkeletonWidget(width: 120, height: 11),
+                            SizedBox(height: 4),
+                            CoreSkeletonWidget(width: 60, height: 14),
+                          ],
+                        ),
+                      ],
+                    ),
+                    CoreSkeletonWidget(
+                      width: 60,
+                      height: 20,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      }),
+      const SizedBox(height: 24),
+    ];
+  }
+
+  Widget _buildActionButton({
+    required IconData icon,
+    required String label,
+    required bool isEnabled,
+    required List<Color> enabledColors,
+    required VoidCallback onPressed,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          decoration: BoxDecoration(
+            gradient: isEnabled
+                ? LinearGradient(
+                    colors: enabledColors,
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  )
+                : null,
+            color: isEnabled ? null : const Color(0xFFBDBDBD),
+            borderRadius: BorderRadius.circular(14),
+            boxShadow: isEnabled
+                ? [
+                    BoxShadow(
+                      color: enabledColors.first.withValues(alpha: 0.35),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    ),
+                  ]
+                : null,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, color: Colors.white, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                label,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 15,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

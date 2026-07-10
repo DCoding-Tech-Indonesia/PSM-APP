@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:psm_mobile/core/network/dio_client.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_blur_dialog.dart';
-import 'package:psm_mobile/core/presentations/widgets/core_header.dart';
-import 'package:psm_mobile/features/checklist/data/datasources/checklist_remote_data_source.dart';
-import 'package:psm_mobile/features/checklist/data/repositories/checklist_repository_impl.dart';
-import 'package:psm_mobile/features/checklist/presentation/bloc/checklist_list_bloc.dart';
-import 'package:psm_mobile/features/checklist/presentation/bloc/checklist_list_event.dart';
-import 'package:psm_mobile/features/checklist/presentation/bloc/checklist_list_state.dart';
+import 'package:travis/core/network/dio_client.dart';
+import 'package:travis/core/presentations/widgets/core_blur_dialog.dart';
+import 'package:travis/core/presentations/widgets/core_header.dart';
+import 'package:travis/features/checklist/data/datasources/checklist_remote_data_source.dart';
+import 'package:travis/features/checklist/data/repositories/checklist_repository_impl.dart';
+import 'package:travis/features/checklist/presentation/bloc/checklist_list_bloc.dart';
+import 'package:travis/features/checklist/presentation/bloc/checklist_list_event.dart';
+import 'package:travis/features/checklist/presentation/bloc/checklist_list_state.dart';
 
 class ChecklistScreen extends StatelessWidget {
   const ChecklistScreen({super.key});

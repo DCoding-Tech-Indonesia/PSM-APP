@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:psm_mobile/features/attendance/data/datasources/attendance_remote_data_source.dart';
-import 'package:psm_mobile/features/attendance/data/models/attendance_request.dart';
-import 'package:psm_mobile/features/attendance/data/repositories/attendance_repository_impl.dart';
+import 'package:travis/features/attendance/data/datasources/attendance_remote_data_source.dart';
+import 'package:travis/features/attendance/data/models/attendance_request.dart';
+import 'package:travis/features/attendance/data/repositories/attendance_repository_impl.dart';
 
 class MockRemoteDataSource extends Mock implements AttendanceRemoteDataSource {}
 

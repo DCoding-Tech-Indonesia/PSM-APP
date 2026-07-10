@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
-import 'package:psm_mobile/features/portal/domain/entities/user_profile.dart';
+import 'package:travis/features/portal/domain/entities/user_profile.dart';
 
-class PortalState extends Equatable{
+class PortalState extends Equatable {
   final String userId;
   final String username;
   final bool logoutSuccess;

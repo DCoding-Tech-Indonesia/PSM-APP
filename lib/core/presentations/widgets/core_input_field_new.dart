@@ -237,6 +237,7 @@ class _CoreInputFieldNewState extends State<CoreInputFieldNew> {
       case InputRuleSuffixNew.text:
         return null;
     }
+    return null;
   }
 
   String _processValue(String value) {

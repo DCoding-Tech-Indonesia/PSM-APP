@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:psm_mobile/features/attendance/presentation/bloc/attendance_bloc.dart';
-import 'package:psm_mobile/features/attendance/presentation/bloc/attendance_state.dart';
-import 'package:psm_mobile/features/attendance/data/models/schedule_model.dart';
+import 'package:travis/features/attendance/presentation/bloc/attendance_bloc.dart';
+import 'package:travis/features/attendance/presentation/bloc/attendance_state.dart';
+import 'package:travis/features/attendance/data/models/schedule_model.dart';
 
 class PortalScheduleRibbon extends StatefulWidget {
   const PortalScheduleRibbon({super.key});
@@ -343,7 +343,7 @@ class _PortalScheduleRibbonState extends State<PortalScheduleRibbon> {
                                     const SizedBox(width: 4),
                                     Expanded(
                                       child: Text(
-                                        currentSchedule.lokasi.namaLokasi,
+                                        currentSchedule.lokasi.name,
                                         style: TextStyle(
                                           color: isDark
                                               ? Colors.white54
