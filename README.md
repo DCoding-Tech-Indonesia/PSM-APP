@@ -17,6 +17,11 @@ flutter run --dart-define=ENV=PROD
 
 ## BUILD APK
 
+### Development API (DEBUG MODE) -> Only for development purpose. HIGH SECURITY RISK IF USE ON PRODUCTION APP
+```shell
+flutter build apk --release --tree-shake-icons --dart-define=ENV=DEV --dart-define=NETWORK_LOGGER_ENABLED=true
+```
+
 ### Development API
 ```shell
 flutter build apk --release --tree-shake-icons --dart-define=ENV=DEV
