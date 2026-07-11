@@ -8,6 +8,7 @@ import 'package:travis/core/config/app_config.dart';
 import 'package:travis/core/helper/jwt_helper.dart';
 import 'package:travis/core/error/global_error_handler.dart';
 import 'package:travis/core/storage/secure_storage.dart';
+import 'package:cote_network_logger/cote_network_logger.dart';
 
 class DioClient {
   DioClient._internal();
@@ -200,6 +201,12 @@ class DioClient {
   }
 
   void _addInterceptors() {
+    debugPrint(NetworkLogger.dashboardUrl);
+
+    _dio.interceptors.add(
+      const CoteNetworkLogger(),
+    );
+
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) {
