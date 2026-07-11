@@ -312,7 +312,14 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
     });
 
     on<KmbusTitikAwalInputLoad>((event, emit) async {
-      emit(state.copyWith(status: KmbusStatus.loading));
+      // Clear temporary upload data saat form init (jangan tampilkan data bekas)
+      emit(state.copyWith(
+        status: KmbusStatus.loading,
+        ocrResult: null,
+        speedometerImage: null,
+        documentPreview: [],
+        uploadStatus: UploadStatus.idling,
+      ));
 
       try {
         final userRoleIdString = await secureStorageService.readUserRoleId();
@@ -527,7 +534,14 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
     });
 
     on<KmbusTitikAkhirInputLoad>((event, emit) async {
-      emit(state.copyWith(status: KmbusStatus.initial));
+      // Clear temporary upload data saat form init (jangan tampilkan data bekas)
+      emit(state.copyWith(
+        status: KmbusStatus.initial,
+        ocrResult: null,
+        speedometerImage: null,
+        documentPreview: [],
+        uploadStatus: UploadStatus.idling,
+      ));
 
       if (kDebugMode) {
         print("event.idKm = ${event.idKm}");
@@ -573,42 +587,59 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
           ritaseKe: ritaseValue,
         );
 
+        // Fetch list KmbusData untuk display detail perjalanan
+        final listKmbusResult = await kmbusRepository.fetchListKmbus('');
+        final listKmbus = listKmbusResult.fold(
+          (failure) => <KmbusData>[],
+          (data) => data,
+        );
+
         if (event.idAuditTrail != null && event.idAuditTrail != 0) {
-          final result = await kmbusRepository.fetchDetailAuditTrailAkhir(
+          final resultAkhir = await kmbusRepository.fetchDetailAuditTrailAkhir(
             event.idAuditTrail!,
           );
 
-          result.fold(
-            (failure) {
-              emit(
-                state.copyWith(
-                  status: KmbusStatus.error,
-                  message: failure.message,
-                ),
-              );
-            },
-            (titikAkhirData) {
-              if (kDebugMode) {
-                print(titikAkhirData);
-              }
-              emit(
-                state.copyWith(
-                  status: KmbusStatus.success,
-                  titikAkhirCreate: titikAkhirData.copyWith(
-                    idKm: event.idKm,
-                    ritaseKe: ritaseValue != 0.5
-                        ? ritaseValue
-                        : (titikAkhirData.ritaseKe ?? 0.5),
-                  ),
-                  ocrResult: titikAkhirData.titikAkhir.toString(),
-                  namaKoridor: namaKoridor,
-                  noUnit: noUnit,
-                  idKoridorShift: idKoridor,
-                  idBusShift: idBus,
-                ),
-              );
-            },
+          final resultAwal = await kmbusRepository.fetchDetailAuditTrailAwal(
+            event.idAuditTrail!,
           );
+
+          final titikAkhirData = resultAkhir.fold(
+            (failure) => null,
+            (data) => data,
+          );
+
+          final titikAwalData = resultAwal.fold(
+            (failure) => null,
+            (data) => data,
+          );
+
+          if (titikAkhirData == null) {
+            emit(
+              state.copyWith(
+                status: KmbusStatus.error,
+                message: "Gagal memuat data titik akhir",
+              ),
+            );
+          } else {
+            emit(
+              state.copyWith(
+                status: KmbusStatus.success,
+                titikAkhirCreate: titikAkhirData.copyWith(
+                  idKm: event.idKm,
+                  ritaseKe: ritaseValue != 0.5
+                      ? ritaseValue
+                      : titikAkhirData.ritaseKe,
+                ),
+                titikAwalCreate: titikAwalData,
+                ocrResult: titikAkhirData.titikAkhir.toString(),
+                namaKoridor: namaKoridor,
+                noUnit: noUnit,
+                idKoridorShift: idKoridor,
+                idBusShift: idBus,
+                listKmbus: listKmbus,
+              ),
+            );
+          }
         } else {
           emit(
             state.copyWith(
@@ -618,6 +649,7 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
               noUnit: noUnit,
               idKoridorShift: idKoridor,
               idBusShift: idBus,
+              listKmbus: listKmbus,
             ),
           );
         }
@@ -676,48 +708,15 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
             return;
           }
 
-          final create = state.titikAwalCreate ?? _initialTitikAwalCreate;
-
-          final uploadDoc = await kmbusRepository.uploadDocument(event.file);
-
-          uploadDoc.fold(
-            (failure) {
-              emit(
-                state.copyWith(
-                  uploadStatus: UploadStatus.errorDocs,
-                  documentUploadStatus: DocumentUploadStatus.failed,
-                  message: failure.message,
-                ),
-              );
-            },
-            (data) {
-              final newDocument = KmbusDocument(
-                idKmDocument: data.idDocument,
-                idDocument: data.idDocument,
-                idDocumentType: state.idDocType,
-              );
-
-              final newPreview = DocumentPreview(
-                idDocument: data.idDocument,
-                url: data.url,
-              );
-
-              emit(
-                state.copyWith(
-                  uploadStatus: UploadStatus.successDocs,
-                  documentUploadStatus: DocumentUploadStatus.success,
-                  ocrResult: ocrValue,
-                  speedometerImage: event.file,
-
-                  titikAwalCreate: create.copyWith(
-                    titikAwal: km,
-                    document: [...create.document, newDocument],
-                  ),
-
-                  documentPreview: [...state.documentPreview, newPreview],
-                ),
-              );
-            },
+          // HANYA simpan temporary OCR result, jangan upload dokumen dulu
+          // Dokumen akan di-upload saat user klik Konfirmasi
+          emit(
+            state.copyWith(
+              uploadStatus: UploadStatus.successDocs,
+              documentUploadStatus: DocumentUploadStatus.success,
+              ocrResult: ocrValue,
+              speedometerImage: event.file,
+            ),
           );
         },
       );
@@ -770,8 +769,6 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
             return;
           }
 
-          final create = state.titikAkhirCreate ?? _initialTitikAkhirCreate;
-
           final uploadDoc = await kmbusRepository.uploadDocument(event.file);
 
           uploadDoc.fold(
@@ -785,29 +782,19 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
               );
             },
             (data) {
-              final newDocument = KmbusDocument(
-                idKmDocument: data.idDocument,
-                idDocument: data.idDocument,
-                idDocumentType: 72,
-              );
-
               final newPreview = DocumentPreview(
                 idDocument: data.idDocument,
                 url: data.url,
               );
 
+              // HANYA simpan temporary data (image & document preview)
+              // Odometer value baru disimpan saat user konfirmasi di dialog
               emit(
                 state.copyWith(
                   uploadStatus: UploadStatus.successDocs,
                   documentUploadStatus: DocumentUploadStatus.success,
-                  ocrResult: ocrValue,
+                  ocrResult: ocrValue, // Temporary untuk ditampilkan di dialog
                   speedometerImage: event.file,
-
-                  titikAkhirCreate: create.copyWith(
-                    titikAkhir: km,
-                    document: [...create.document, newDocument],
-                  ),
-
                   documentPreview: [...state.documentPreview, newPreview],
                 ),
               );
@@ -830,48 +817,167 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
           .where((e) => e.idDocument != event.idDocument)
           .toList();
 
+      // Jika semua preview dan document kosong, hapus OCR result juga
+      final hasNoDocuments = updatedPreview.isEmpty &&
+          updatedDocsAwal.isEmpty &&
+          updatedDocsAkhir.isEmpty;
+
       emit(
         state.copyWith(
           documentPreview: updatedPreview,
-
           titikAwalCreate: state.titikAwalCreate?.copyWith(
             document: updatedDocsAwal,
           ),
-
           titikAkhirCreate: state.titikAkhirCreate?.copyWith(
             document: updatedDocsAkhir,
           ),
+          // Hapus OCR result jika tidak ada dokumen apapun
+          ocrResult: hasNoDocuments ? null : state.ocrResult,
+          speedometerImage: hasNoDocuments ? null : state.speedometerImage,
+          uploadStatus: hasNoDocuments ? UploadStatus.idling : state.uploadStatus,
+        ),
+      );
+    });
 
-          ocrResult:
-              updatedPreview.isEmpty &&
-                  updatedDocsAwal.isEmpty &&
-                  updatedDocsAkhir.isEmpty
-              ? null
-              : state.ocrResult,
+    on<ResetUploadStatus>((event, emit) {
+      emit(
+        state.copyWith(
+          uploadStatus: UploadStatus.idling,
+          ocrResult: null,
+          speedometerImage: null,
+          documentPreview: [], // Clear temporary preview juga
         ),
       );
     });
 
     on<EditOdometerAwal>((event, emit) async {
-      emit(
-        state.copyWith(
-          ocrResult: event.odometerVal.toString(),
-          titikAwalCreate: state.titikAwalCreate?.copyWith(
-            titikAwal: event.odometerVal,
+      final create = state.titikAwalCreate ?? _initialTitikAwalCreate;
+      final speedometerFile = state.speedometerImage;
+
+      // If there's a speedometer image, upload it now (deferred upload on confirmation)
+      if (speedometerFile != null) {
+        emit(state.copyWith(
+          documentUploadStatus: DocumentUploadStatus.uploading,
+        ));
+
+        final uploadResult = await kmbusRepository.uploadDocument(speedometerFile);
+
+        final uploadedDoc = uploadResult.fold<KmbusDocument?>(
+          (failure) {
+            emit(
+              state.copyWith(
+                documentUploadStatus: DocumentUploadStatus.failed,
+                message: failure.message,
+                uploadStatus: UploadStatus.idling,
+                speedometerImage: null,
+              ),
+            );
+            return null;
+          },
+          (documentData) {
+            return KmbusDocument(
+              idKmDocument: documentData.idDocument,
+              idDocument: documentData.idDocument,
+              idDocumentType: state.idDocType,
+              urlDoc: documentData.url,
+            );
+          },
+        );
+
+        if (uploadedDoc == null) return;
+
+        emit(
+          state.copyWith(
+            ocrResult: event.odometerVal.toString(),
+            titikAwalCreate: create.copyWith(
+              titikAwal: event.odometerVal,
+              document: [...create.document, uploadedDoc],
+            ),
+            documentUploadStatus: DocumentUploadStatus.success,
+            documentPreview: [],
+            speedometerImage: null,
+            uploadStatus: UploadStatus.idling,
           ),
-        ),
-      );
+        );
+      } else {
+        // No image to upload, just update odometer value
+        emit(
+          state.copyWith(
+            ocrResult: event.odometerVal.toString(),
+            titikAwalCreate: create.copyWith(
+              titikAwal: event.odometerVal,
+            ),
+            documentPreview: [],
+            speedometerImage: null,
+            uploadStatus: UploadStatus.idling,
+          ),
+        );
+      }
     });
 
     on<EditOdometerAkhir>((event, emit) async {
-      emit(
-        state.copyWith(
-          ocrResult: event.odometerVal.toString(),
-          titikAkhirCreate: state.titikAkhirCreate?.copyWith(
-            titikAkhir: event.odometerVal,
+      final create = state.titikAkhirCreate ?? _initialTitikAkhirCreate;
+      final speedometerFile = state.speedometerImage;
+
+      // If there's a speedometer image, upload it now (deferred upload on confirmation)
+      if (speedometerFile != null) {
+        emit(state.copyWith(
+          documentUploadStatus: DocumentUploadStatus.uploading,
+        ));
+
+        final uploadResult = await kmbusRepository.uploadDocument(speedometerFile);
+
+        final uploadedDoc = uploadResult.fold<KmbusDocument?>(
+          (failure) {
+            emit(
+              state.copyWith(
+                documentUploadStatus: DocumentUploadStatus.failed,
+                message: failure.message,
+                uploadStatus: UploadStatus.idling,
+                speedometerImage: null,
+              ),
+            );
+            return null;
+          },
+          (documentData) {
+            return KmbusDocument(
+              idKmDocument: documentData.idDocument,
+              idDocument: documentData.idDocument,
+              idDocumentType: 72,
+              urlDoc: documentData.url,
+            );
+          },
+        );
+
+        if (uploadedDoc == null) return;
+
+        emit(
+          state.copyWith(
+            ocrResult: event.odometerVal.toString(),
+            titikAkhirCreate: create.copyWith(
+              titikAkhir: event.odometerVal,
+              document: [...create.document, uploadedDoc],
+            ),
+            documentUploadStatus: DocumentUploadStatus.success,
+            documentPreview: [],
+            speedometerImage: null,
+            uploadStatus: UploadStatus.idling,
           ),
-        ),
-      );
+        );
+      } else {
+        // No image to upload, just update odometer value
+        emit(
+          state.copyWith(
+            ocrResult: event.odometerVal.toString(),
+            titikAkhirCreate: create.copyWith(
+              titikAkhir: event.odometerVal,
+            ),
+            documentPreview: [],
+            speedometerImage: null,
+            uploadStatus: UploadStatus.idling,
+          ),
+        );
+      }
     });
 
     on<SubmitTitikAwal>((event, emit) async {

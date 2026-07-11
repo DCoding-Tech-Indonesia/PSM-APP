@@ -329,8 +329,9 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
     });
 
     on<PageHistoryLoadNextPage>((event, emit) async {
-      if (state.hasReachedMax || state.status == TimetableStatus.fetching)
+      if (state.hasReachedMax || state.status == TimetableStatus.fetching) {
         return;
+      }
 
       emit(state.copyWith(status: TimetableStatus.fetching));
 

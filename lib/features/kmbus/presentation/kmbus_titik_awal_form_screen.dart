@@ -90,102 +90,265 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
       context: context,
       barrierDismissible: false,
       builder: (dialogContext) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          title: const Text(
-            'Validasi Odometer',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (state.speedometerImage != null) ...[
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.file(
-                      state.speedometerImage!,
-                      height: 160,
-                      fit: BoxFit.cover,
+        return BlocListener<KmbusBloc, KmbusState>(
+          listenWhen: (prev, curr) =>
+              prev.documentUploadStatus != curr.documentUploadStatus,
+          listener: (context, state) {
+            // Close dialog after successful upload
+            if (state.documentUploadStatus == DocumentUploadStatus.success &&
+                dialogContext.mounted) {
+              Navigator.pop(dialogContext);
+              CoreSnackbar.show(
+                context,
+                message: "Odometer disimpan.",
+                type: SnackbarType.success,
+              );
+            }
+
+            // Show error if upload failed
+            if (state.documentUploadStatus == DocumentUploadStatus.failed &&
+                dialogContext.mounted) {
+              CoreSnackbar.show(
+                dialogContext,
+                message: state.message ?? "Gagal mengunggah dokumen.",
+                type: SnackbarType.failed,
+              );
+            }
+          },
+          child: Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(24),
+            ),
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Header
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: Colors.blue.shade100,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.speed_rounded,
+                            color: Colors.blue.shade700,
+                            size: 24,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Validasi Odometer',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 16,
+                                  color: Colors.blue.shade700,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                'Periksa kembali angka yang terdeteksi',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey.shade600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                ],
-                const Text(
-                  "Cocokkan angka pada foto dengan input di bawah ini:",
-                  style: TextStyle(fontSize: 12, color: Colors.grey),
-                ),
-                const SizedBox(height: 8),
-                TextField(
-                  controller: controller,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    labelText: 'Nilai Odometer (KM)',
-                    hintText: 'Masukkan angka odometer',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(12)),
+
+                    const SizedBox(height: 20),
+                    const Divider(height: 1),
+                    const SizedBox(height: 20),
+
+                    // Image Preview
+                    if (state.speedometerImage != null) ...[
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(16),
+                        child: Image.file(
+                          state.speedometerImage!,
+                          height: 180,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+
+                    // Instructions
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.blue.shade50,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: Colors.blue.shade200,
+                        ),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(
+                            Icons.info_outline,
+                            size: 18,
+                            color: Colors.blue.shade700,
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              'Cocokkan angka pada foto dengan input di bawah ini. Edit jika diperlukan.',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.blue.shade700,
+                                height: 1.4,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
+
+                    const SizedBox(height: 16),
+
+                    // Input Field
+                    TextField(
+                      controller: controller,
+                      keyboardType: TextInputType.number,
+                      enabled: state.documentUploadStatus !=
+                          DocumentUploadStatus.uploading,
+                      decoration: InputDecoration(
+                        labelText: 'Nilai Odometer (KM)',
+                        hintText: 'Masukkan angka odometer',
+                        prefixIcon: Icon(
+                          Icons.straighten,
+                          color: Colors.grey.shade600,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 14,
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 24),
+
+                    // Action Buttons
+                    BlocBuilder<KmbusBloc, KmbusState>(
+                      buildWhen: (prev, curr) =>
+                          prev.documentUploadStatus != curr.documentUploadStatus,
+                      builder: (context, state) {
+                        final isUploading = state.documentUploadStatus ==
+                            DocumentUploadStatus.uploading;
+
+                        return Row(
+                          children: [
+                            Expanded(
+                              child: OutlinedButton.icon(
+                                onPressed: isUploading
+                                    ? null
+                                    : () {
+                                        Navigator.pop(dialogContext);
+                                        context.read<KmbusBloc>().add(
+                                          ResetUploadStatus(),
+                                        );
+                                        onRetake();
+                                      },
+                                icon: const Icon(Icons.camera_alt_outlined,
+                                    size: 18),
+                                label: const Text(
+                                  "Foto Ulang",
+                                  style: TextStyle(fontWeight: FontWeight.w600),
+                                ),
+                                style: OutlinedButton.styleFrom(
+                                  side: BorderSide(
+                                    color: isUploading
+                                        ? Colors.grey.shade200
+                                        : Colors.grey.shade400,
+                                    width: 1.5,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 12),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: ElevatedButton.icon(
+                                onPressed: isUploading
+                                    ? null
+                                    : () {
+                                        final newValue =
+                                            int.tryParse(controller.text);
+                                        if (newValue != null) {
+                                          context.read<KmbusBloc>().add(
+                                            EditOdometerAwal(newValue),
+                                          );
+                                        } else {
+                                          CoreSnackbar.show(
+                                            dialogContext,
+                                            message:
+                                                "Masukkan angka yang valid.",
+                                            type: SnackbarType.failed,
+                                          );
+                                        }
+                                      },
+                                icon: isUploading
+                                    ? SizedBox(
+                                        width: 18,
+                                        height: 18,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          valueColor: AlwaysStoppedAnimation<Color>(
+                                              Colors.blue.shade700),
+                                        ),
+                                      )
+                                    : const Icon(Icons.check_circle, size: 18),
+                                label: Text(
+                                  isUploading ? "Menyimpan..." : "Konfirmasi",
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.w600),
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: isUploading
+                                      ? Colors.grey.shade300
+                                      : Colors.blue.shade700,
+                                  foregroundColor: isUploading
+                                      ? Colors.grey.shade600
+                                      : Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 12),
+                                  elevation: 0,
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
-          actionsAlignment: MainAxisAlignment.spaceBetween,
-          actions: [
-            OutlinedButton.icon(
-              onPressed: () {
-                Navigator.pop(dialogContext);
-                onRetake();
-              },
-              icon: const Icon(
-                Icons.camera_alt_outlined,
-                size: 16,
-                color: Colors.blue,
-              ),
-              label: const Text(
-                "Foto Ulang",
-                style: TextStyle(color: Colors.blue),
-              ),
-              style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: Colors.blue),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-            ),
-            ElevatedButton.icon(
-              onPressed: () {
-                final newValue = int.tryParse(controller.text);
-                if (newValue != null) {
-                  context.read<KmbusBloc>().add(EditOdometerAwal(newValue));
-                  Navigator.pop(dialogContext);
-                  CoreSnackbar.show(
-                    context,
-                    message: "Angka odometer disimpan.",
-                    type: SnackbarType.success,
-                  );
-                } else {
-                  CoreSnackbar.show(
-                    dialogContext,
-                    message: "Masukkan angka yang valid.",
-                    type: SnackbarType.failed,
-                  );
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              icon: const Icon(Icons.check),
-              label: const Text("Simpan"),
-            ),
-          ],
         );
       },
     );
@@ -268,6 +431,22 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
           prev.submitWorkflowStatus != curr.submitWorkflowStatus ||
           prev.idAuditTrail != curr.idAuditTrail,
       listener: (context, state) async {
+        // Reset handler when upload goes idle (deleted/retaking photo)
+        if (state.uploadStatus == UploadStatus.idling) {
+          _lastHandledUploadStatus = null;
+        }
+
+        // Show loading while uploading
+        if (state.uploadStatus == UploadStatus.uploading &&
+            _lastHandledUploadStatus != state.uploadStatus) {
+          _lastHandledUploadStatus = state.uploadStatus;
+          CoreSnackbar.show(
+            context,
+            message: "Memproses gambar...",
+            type: SnackbarType.warning,
+          );
+        }
+
         if (state.uploadStatus == UploadStatus.errorOcr &&
             _lastHandledUploadStatus != state.uploadStatus) {
           _lastHandledUploadStatus = state.uploadStatus;
@@ -490,12 +669,165 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
 
                             const SizedBox(height: 14),
 
-                            // Card 2: Validasi Odometer Terdeteksi (jika ada)
+                            // Card: Entry Context Info
                             BlocBuilder<KmbusBloc, KmbusState>(
                               buildWhen: (prev, curr) =>
-                                  prev.ocrResult != curr.ocrResult,
+                                  prev.namaKoridor != curr.namaKoridor ||
+                                  prev.noUnit != curr.noUnit,
                               builder: (context, state) {
-                                if (state.ocrResult == null) {
+                                return Container(
+                                  padding: const EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(16),
+                                    border: Border.all(
+                                      color: const Color(0xFFE8F5E9),
+                                      width: 1.5,
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: const Color(0xFF2E7D32)
+                                            .withValues(alpha: 0.05),
+                                        blurRadius: 8,
+                                        offset: const Offset(0, 2),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Icon(
+                                            Icons.info_outline_rounded,
+                                            color: Colors.green.shade700,
+                                            size: 18,
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            'Detail Perjalanan',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 13,
+                                              color: Colors.green.shade700,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const Divider(
+                                        height: 14,
+                                        color: Color(0xFFF1F5F9),
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                'Tanggal',
+                                                style: const TextStyle(
+                                                  fontSize: 11,
+                                                  color: Color(0xFF718096),
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                DateTime.now()
+                                                    .toString()
+                                                    .split(' ')[0],
+                                                style: const TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w700,
+                                                  color: Color(0xFF2D3748),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                'Koridor',
+                                                style: const TextStyle(
+                                                  fontSize: 11,
+                                                  color: Color(0xFF718096),
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 4),
+                                              SizedBox(
+                                                width: 100,
+                                                child: Text(
+                                                  (state.namaKoridor ?? '')
+                                                          .isNotEmpty
+                                                      ? state.namaKoridor!
+                                                      : '-',
+                                                  style: const TextStyle(
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.w700,
+                                                    color: Color(0xFF2D3748),
+                                                  ),
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                'Bus',
+                                                style: const TextStyle(
+                                                  fontSize: 11,
+                                                  color: Color(0xFF718096),
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 4),
+                                              SizedBox(
+                                                width: 80,
+                                                child: Text(
+                                                  (state.noUnit ?? '')
+                                                          .isNotEmpty
+                                                      ? state.noUnit!
+                                                      : '-',
+                                                  style: const TextStyle(
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.w700,
+                                                    color: Color(0xFF2D3748),
+                                                  ),
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+
+                            const SizedBox(height: 14),
+
+                            // Card 2: Validasi Odometer Terdeteksi (hanya tampil setelah konfirmasi)
+                            BlocBuilder<KmbusBloc, KmbusState>(
+                              buildWhen: (prev, curr) =>
+                                  prev.titikAwalCreate?.titikAwal != curr.titikAwalCreate?.titikAwal,
+                              builder: (context, state) {
+                                // Hanya tampil jika odometer sudah dikonfirmasi (tersimpan di titikAwalCreate)
+                                if (state.titikAwalCreate?.titikAwal == null ||
+                                    state.titikAwalCreate?.titikAwal == 0) {
                                   return const SizedBox.shrink();
                                 }
                                 return Container(
@@ -553,7 +885,7 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
                                             ),
                                             const SizedBox(height: 2),
                                             Text(
-                                              "${state.ocrResult} KM",
+                                              "${state.titikAwalCreate?.titikAwal} KM",
                                               style: const TextStyle(
                                                 color: Colors.white,
                                                 fontWeight: FontWeight.w900,
@@ -568,7 +900,8 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
                                         child: InkWell(
                                           onTap: () => _showEditOdometerDialog(
                                             context,
-                                            state.ocrResult,
+                                            state.titikAwalCreate?.titikAwal
+                                                .toString(),
                                           ),
                                           borderRadius: BorderRadius.circular(
                                             30,

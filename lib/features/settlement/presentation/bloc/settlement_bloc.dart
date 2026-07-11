@@ -460,8 +460,9 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
     });
 
     on<PageDashboardLoadNextPage>((event, emit) async {
-      if (state.hasReachedMax || state.status == SettlementStatus.fetching)
+      if (state.hasReachedMax || state.status == SettlementStatus.fetching) {
         return;
+      }
 
       emit(state.copyWith(status: SettlementStatus.fetching));
 

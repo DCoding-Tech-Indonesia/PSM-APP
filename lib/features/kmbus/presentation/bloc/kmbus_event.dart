@@ -97,3 +97,5 @@ class LocationLoaded extends KmbusEvent {
     required this.long,
   });
 }
+
+class ResetUploadStatus extends KmbusEvent {}

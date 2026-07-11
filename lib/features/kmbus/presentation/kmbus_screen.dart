@@ -20,6 +20,8 @@ class KmbusScreen extends StatefulWidget {
 }
 
 class _KmbusScreenState extends State<KmbusScreen> {
+  bool _isIncompleteExpanded = false;
+
   @override
   void initState() {
     super.initState();
@@ -398,12 +400,21 @@ class _KmbusScreenState extends State<KmbusScreen> {
                           // Incomplete KM entries (have awal, missing akhir)
                           if (state.listKmbus.isNotEmpty) ...[
                             ...state.listKmbus
-                                .where((km) {
-                                  return (km.titikAkhir == null ||
-                                          km.titikAkhir == 0) &&
-                                      (km.titikAwal != null &&
-                                          km.titikAwal != 0);
-                                })
+                                .where((km) =>
+                                    (km.titikAkhir == null ||
+                                        km.titikAkhir == 0) &&
+                                    (km.titikAwal != null &&
+                                        km.titikAwal != 0))
+                                .toList()
+                                .take(_isIncompleteExpanded
+                                    ? state.listKmbus
+                                            .where((km) =>
+                                                (km.titikAkhir == null ||
+                                                    km.titikAkhir == 0) &&
+                                                (km.titikAwal != null &&
+                                                    km.titikAwal != 0))
+                                            .length
+                                    : 3)
                                 .map((incomplete) {
                                   return Container(
                                     margin: const EdgeInsets.symmetric(
@@ -436,11 +447,14 @@ class _KmbusScreenState extends State<KmbusScreen> {
                                       },
                                       borderRadius: BorderRadius.circular(20),
                                       child: Padding(
-                                        padding: const EdgeInsets.all(16),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 14,
+                                          vertical: 12,
+                                        ),
                                         child: Row(
                                           children: [
                                             Container(
-                                              padding: const EdgeInsets.all(10),
+                                              padding: const EdgeInsets.all(8),
                                               decoration: BoxDecoration(
                                                 color: Colors.red.withValues(
                                                   alpha: 0.15,
@@ -450,10 +464,10 @@ class _KmbusScreenState extends State<KmbusScreen> {
                                               child: const Icon(
                                                 Icons.info_rounded,
                                                 color: Colors.red,
-                                                size: 24,
+                                                size: 20,
                                               ),
                                             ),
-                                            const SizedBox(width: 14),
+                                            const SizedBox(width: 12),
                                             Expanded(
                                               child: Column(
                                                 crossAxisAlignment:
@@ -465,7 +479,7 @@ class _KmbusScreenState extends State<KmbusScreen> {
                                                       fontWeight:
                                                           FontWeight.bold,
                                                       color: Colors.red,
-                                                      fontSize: 14,
+                                                      fontSize: 13,
                                                     ),
                                                   ),
                                                   const SizedBox(height: 2),
@@ -474,16 +488,17 @@ class _KmbusScreenState extends State<KmbusScreen> {
                                                     style: TextStyle(
                                                       color:
                                                           Colors.red.shade800,
-                                                      fontSize: 12,
+                                                      fontSize: 11,
                                                     ),
                                                   ),
                                                 ],
                                               ),
                                             ),
+                                            const SizedBox(width: 8),
                                             const Icon(
                                               Icons.arrow_forward_ios,
                                               color: Colors.red,
-                                              size: 14,
+                                              size: 12,
                                             ),
                                           ],
                                         ),
@@ -491,6 +506,58 @@ class _KmbusScreenState extends State<KmbusScreen> {
                                     ),
                                   );
                                 }),
+                            if ((state.listKmbus
+                                    .where((km) =>
+                                        (km.titikAkhir == null ||
+                                            km.titikAkhir == 0) &&
+                                        (km.titikAwal != null &&
+                                            km.titikAwal != 0))
+                                    .length) >
+                                3)
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                  vertical: 8,
+                                ),
+                                child: Center(
+                                  child: TextButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        _isIncompleteExpanded =
+                                            !_isIncompleteExpanded;
+                                      });
+                                    },
+                                    style: TextButton.styleFrom(
+                                      foregroundColor: Colors.red[700],
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 6,
+                                      ),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          _isIncompleteExpanded
+                                              ? 'Sembunyikan'
+                                              : 'Tampilkan Semua (${state.listKmbus.where((km) => (km.titikAkhir == null || km.titikAkhir == 0) && (km.titikAwal != null && km.titikAwal != 0)).length - 3} lagi)',
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 6),
+                                        Icon(
+                                          _isIncompleteExpanded
+                                              ? Icons.expand_less
+                                              : Icons.expand_more,
+                                          size: 16,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
                           ],
 
                           const SizedBox(height: 8),
@@ -562,9 +629,7 @@ class _KmbusScreenState extends State<KmbusScreen> {
                               shrinkWrap: true,
                               physics: const NeverScrollableScrollPhysics(),
                               padding: const EdgeInsets.symmetric(vertical: 10),
-                              itemCount: state.listKmbus.length > 10
-                                  ? 10
-                                  : state.listKmbus.length,
+                              itemCount: state.listKmbus.length,
                               separatorBuilder: (_, _) =>
                                   const SizedBox(height: 8),
                               itemBuilder: (context, index) {
@@ -629,9 +694,13 @@ class _KmbusScreenState extends State<KmbusScreen> {
                                                     vertical: 4,
                                                   ),
                                               decoration: BoxDecoration(
-                                                color: const Color(0xFFF7FAFC),
+                                                color: const Color(
+                                                  0xFFF7FAFC,
+                                                ),
                                                 borderRadius:
-                                                    BorderRadius.circular(8),
+                                                    BorderRadius.circular(
+                                                  8,
+                                                ),
                                                 border: Border.all(
                                                   color: const Color(
                                                     0xFFE2E8F0,
@@ -749,7 +818,7 @@ class _KmbusScreenState extends State<KmbusScreen> {
                                                           item.titikAkhir !=
                                                                   null
                                                               ? '${item.titikAkhir} KM'
-                                                              : '-',
+                                                              : 'Belum Diisi',
                                                           style: TextStyle(
                                                             fontSize: 13,
                                                             fontWeight:
@@ -760,9 +829,7 @@ class _KmbusScreenState extends State<KmbusScreen> {
                                                                 ? const Color(
                                                                     0xFFC62828,
                                                                   )
-                                                                : const Color(
-                                                                    0xFFA0AEC0,
-                                                                  ),
+                                                                : Colors.orange,
                                                           ),
                                                         ),
                                                       ],
@@ -853,6 +920,7 @@ class _KmbusScreenState extends State<KmbusScreen> {
                                 );
                               },
                             ),
+
                         ],
                       ],
                     ),
@@ -860,67 +928,6 @@ class _KmbusScreenState extends State<KmbusScreen> {
                 ),
                 floatingActionButton: FloatingActionButton(
                   onPressed: () async {
-                    // 1. Check if there's a draft KM Awal to continue editing
-                    final draftAuditTrail = state.listKmbusAuditTrail.where((
-                      e,
-                    ) {
-                      final todayString = DateTime.now()
-                          .toIso8601String()
-                          .split('T')[0];
-                      final createdDateString = e.createdDate
-                          .toLocal()
-                          .toIso8601String()
-                          .split('T')[0];
-                      final bool isSubmitted = e.dataAfter.isSubmit ?? false;
-                      return e.status.code == "DFT" &&
-                          createdDateString == todayString &&
-                          !isSubmitted;
-                    }).firstOrNull;
-
-                    if (draftAuditTrail != null) {
-                      // Continue editing existing draft
-                      final result = await context.push<bool>(
-                        '/kmbus/titik-awal/form',
-                        extra: ScheduleArgs(
-                          idShift: state.idShift ?? 0,
-                          idKoridorShift: state.idKoridorShift ?? 0,
-                          idBusShift: state.idBusShift ?? 0,
-                          idAuditTrail: draftAuditTrail.id,
-                        ),
-                      );
-
-                      if (context.mounted && result == true) {
-                        context.read<KmbusBloc>().add(PageDashboardLoad());
-                      }
-                      return;
-                    }
-
-                    // 2. Check if there's a KM entry with titik_awal but no titik_akhir (needs completion)
-                    final kmNeedingAkhir = state.listKmbus
-                        .where(
-                          (km) =>
-                              (km.titikAkhir == null || km.titikAkhir == 0) &&
-                              (km.titikAwal != null && km.titikAwal != 0),
-                        )
-                        .firstOrNull;
-
-                    if (kmNeedingAkhir != null) {
-                      // Navigate to input titik_akhir for this KM
-                      final result = await context.push<bool>(
-                        '/kmbus/titik-akhir/form',
-                        extra: TitikAkhirArgs(
-                          idKm: kmNeedingAkhir.id ?? 0,
-                          idAuditTrail: 0,
-                        ),
-                      );
-
-                      if (context.mounted && result == true) {
-                        context.read<KmbusBloc>().add(PageDashboardLoad());
-                      }
-                      return;
-                    }
-
-                    // 3. Default: Create new KM entry
                     if (!state.allowTitikAwal) {
                       CoreSnackbar.show(
                         context,
@@ -929,6 +936,7 @@ class _KmbusScreenState extends State<KmbusScreen> {
                       );
                       return;
                     }
+
                     final result = await context.push(
                       '/kmbus/titik-awal/form',
                       extra: ScheduleArgs(
@@ -939,7 +947,7 @@ class _KmbusScreenState extends State<KmbusScreen> {
                       ),
                     );
 
-                    if (context.mounted || result == true) {
+                    if (context.mounted && result == true) {
                       context.read<KmbusBloc>().add(PageDashboardLoad());
                     }
                   },
@@ -1113,4 +1121,5 @@ class _KmbusScreenState extends State<KmbusScreen> {
       const SizedBox(height: 24),
     ];
   }
+
 }
