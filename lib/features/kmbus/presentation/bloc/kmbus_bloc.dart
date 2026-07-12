@@ -594,6 +594,37 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
           (data) => data,
         );
 
+        // Fetch running KM detail untuk memastikan data entry terbaru tersedia
+        List<KmbusData> finalListKmbus = listKmbus;
+        if (idKoridor != 0 && idBus != 0) {
+          final runningKmResult = await kmbusRepository.fetchRunningKmDetail(
+            idKoridor,
+            idBus,
+          );
+          final runningKmDetail = runningKmResult.fold(
+            (failure) => null,
+            (data) => data,
+          );
+
+          // Jika data ditemukan, pastikan ada di list (replace atau tambahkan)
+          if (runningKmDetail != null) {
+            final existingIndex = finalListKmbus.indexWhere(
+              (km) => km.id == runningKmDetail.id,
+            );
+            if (existingIndex >= 0) {
+              // Update existing entry dengan data terbaru
+              finalListKmbus = [
+                ...finalListKmbus.sublist(0, existingIndex),
+                runningKmDetail,
+                ...finalListKmbus.sublist(existingIndex + 1),
+              ];
+            } else {
+              // Tambahkan entry baru
+              finalListKmbus = [...finalListKmbus, runningKmDetail];
+            }
+          }
+        }
+
         if (event.idAuditTrail != null && event.idAuditTrail != 0) {
           final resultAkhir = await kmbusRepository.fetchDetailAuditTrailAkhir(
             event.idAuditTrail!,
@@ -636,7 +667,7 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
                 noUnit: noUnit,
                 idKoridorShift: idKoridor,
                 idBusShift: idBus,
-                listKmbus: listKmbus,
+                listKmbus: finalListKmbus,
               ),
             );
           }
@@ -649,7 +680,7 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
               noUnit: noUnit,
               idKoridorShift: idKoridor,
               idBusShift: idBus,
-              listKmbus: listKmbus,
+              listKmbus: finalListKmbus,
             ),
           );
         }

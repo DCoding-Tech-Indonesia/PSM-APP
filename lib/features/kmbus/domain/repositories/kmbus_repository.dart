@@ -41,6 +41,7 @@ abstract class KmbusRepository {
   );
   Future<Either<Failure, List<KmbusData>>> fetchListKmbus(String keyword, {int page = 1});
   Future<Either<Failure, List<KmbusData>>> fetchKmbusDataToday(String keyword);
+  Future<Either<Failure, KmbusData?>> fetchRunningKmDetail(int idKoridor, int idBus);
   Future<Either<Failure, List<KmTaskAuditTrail>>> fetchListKmbusAuditTrail(
     String keyword, {int page = 1}
   );

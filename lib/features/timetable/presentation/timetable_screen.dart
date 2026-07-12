@@ -317,6 +317,7 @@ class _TimetableScreenState extends State<TimetableScreen> {
           return Stack(
             children: [
               Scaffold(
+                backgroundColor: const Color(0xFFF5F7FA),
                 body: SafeArea(
                   child: RefreshIndicator(
                     onRefresh: _onRefresh,
@@ -328,116 +329,23 @@ class _TimetableScreenState extends State<TimetableScreen> {
                           title: "Time Table",
                           subtitle: "Jadwal kamu hari ini",
                         ),
-                        const CoreDateTimeWidget(),
+                        CoreDateTimeWidget(
+                          noUnit: state.jadwalExist && state.noUnit.isNotEmpty 
+                              ? state.noUnit 
+                              : null,
+                          namaKoridor: state.jadwalExist && state.namaKoridor.isNotEmpty 
+                              ? state.namaKoridor 
+                              : null,
+                          ritaseKe: state.checkinData?.ritaseKe,
+                          isLastRitase: state.isLastRitase,
+                          showScheduleInfo: state.jadwalExist && state.noUnit.isNotEmpty,
+                          isAllowCheckIn: state.isAllowCheckIn,
+                          isAllowCheckOut: state.isAllowCheckOut,
+                        ),
                         const SizedBox(height: 4),
                         if (isInitialLoading)
                           ..._buildSkeletonItems()
                         else ...[
-                          // === SCHEDULE INFO CARD ===
-                          if (state.jadwalExist && state.noUnit.isNotEmpty)
-                            Container(
-                              margin: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 4,
-                              ),
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                gradient: const LinearGradient(
-                                  colors: [
-                                    Color(0xFF1565C0),
-                                    Color(0xFF1E88E5),
-                                  ],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ),
-                                borderRadius: BorderRadius.circular(16),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: const Color(
-                                      0xFF1565C0,
-                                    ).withValues(alpha: 0.35),
-                                    blurRadius: 12,
-                                    offset: const Offset(0, 6),
-                                  ),
-                                ],
-                              ),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(10),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white.withValues(
-                                        alpha: 0.2,
-                                      ),
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: const Icon(
-                                      Icons.directions_bus_rounded,
-                                      color: Colors.white,
-                                      size: 28,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 14),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'Unit ${state.noUnit}',
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.w700,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 2),
-                                        Text(
-                                          state.namaKoridor.isNotEmpty
-                                              ? state.namaKoridor
-                                              : 'Memuat koridor...',
-                                          style: TextStyle(
-                                            color: Colors.white.withValues(
-                                              alpha: 0.85,
-                                            ),
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  if (state.checkinData != null)
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                        vertical: 6,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white.withValues(
-                                          alpha: 0.2,
-                                        ),
-                                        borderRadius: BorderRadius.circular(20),
-                                        border: Border.all(
-                                          color: Colors.white.withValues(
-                                            alpha: 0.3,
-                                          ),
-                                        ),
-                                      ),
-                                      child: Text(
-                                        'Ritase ${state.checkinData!.ritaseKe % 1 == 0 ? state.checkinData!.ritaseKe.toInt() : state.checkinData!.ritaseKe}${state.isLastRitase ? " (Terakhir)" : ""}',
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                    ),
-                                ],
-                              ),
-                            ),
-                          const SizedBox(height: 8),
-
                           // === NO SCHEDULE WARNING ===
                           if (!state.jadwalExist)
                             Container(
@@ -1031,53 +939,6 @@ class _TimetableScreenState extends State<TimetableScreen> {
 
   List<Widget> _buildSkeletonItems() {
     return [
-      // Schedule Card Skeleton (matches the real gradient card)
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.grey.withValues(alpha: 0.12)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.04),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              CoreSkeletonWidget(
-                width: 48,
-                height: 48,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const CoreSkeletonWidget(width: 100, height: 18),
-                    const SizedBox(height: 6),
-                    const CoreSkeletonWidget(width: 150, height: 13),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 14),
-              CoreSkeletonWidget(
-                width: 70,
-                height: 24,
-                borderRadius: BorderRadius.circular(20),
-              ),
-            ],
-          ),
-        ),
-      ),
-      const SizedBox(height: 8),
       // Action Buttons Skeleton
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),

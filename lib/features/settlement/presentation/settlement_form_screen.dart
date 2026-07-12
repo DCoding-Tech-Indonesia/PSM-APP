@@ -124,14 +124,24 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
                 buttonColor: const Color(0xFF1565C0),
                 confirmText: "Ya, Submit",
                 onConfirm: () {
+                  Navigator.pop(dialogContext);
+                  
                   context.read<SettlementBloc>().add(
                     SubmitWorkflow('Done', state.auditTrailId),
                   );
-                  context.go('/portal');
+                  
+                  // Show success snackbar
+                  CoreSnackbar.show(
+                    context,
+                    message: "Settlement berhasil disubmit!",
+                    type: SnackbarType.success,
+                  );
                 },
               );
             },
-          ).then((value) {
+          ).then((value) async {
+            // Delay untuk memberi waktu snackbar terlihat
+            await Future.delayed(const Duration(milliseconds: 1500));
             if (context.mounted) {
               context.go('/portal');
             }
@@ -341,7 +351,8 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
                           (state.steps == 1 &&
                               state.ritase == 0 &&
                               state.status == SettlementStatus.loading) ||
-                          (state.steps == 3 && state.document.isEmpty);
+                          (state.steps == 3 && state.document.isEmpty) ||
+                          state.uploadingDoc; // Disable saat upload foto
 
                       return Row(
                         spacing: 12,

@@ -238,9 +238,13 @@ class _CustomCameraWidgetState extends State<CustomCameraWidget> {
 
                     Expanded(
                       child: ElevatedButton.icon(
-                        onPressed: () {
+                        onPressed: () async {
                           Navigator.pop(modalContext);
-                          parentContext.pop<File>(imageFile);
+                          // Add delay to allow camera to gracefully shut down
+                          await Future.delayed(const Duration(milliseconds: 300));
+                          if (parentContext.mounted) {
+                            parentContext.pop<File>(imageFile);
+                          }
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue.shade600,

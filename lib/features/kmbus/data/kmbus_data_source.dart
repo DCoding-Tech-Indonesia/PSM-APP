@@ -73,6 +73,29 @@ class KmbusDataSource {
     }
   }
 
+  Future<KmbusData?> fetchRunningKmDetail(int idKoridor, int idBus) async {
+    try {
+      final response = await dio.get(
+        '/km/running/detail',
+        queryParameters: {
+          'idKoridor': idKoridor,
+          'idBus': idBus,
+        },
+      );
+
+      final List data = response.data['data'] ?? [];
+      
+      if (data.isEmpty) {
+        return null;
+      }
+
+      return KmbusData.fromJson(data[0]);
+    } catch (e) {
+      debugPrint(e.toString());
+      rethrow;
+    }
+  }
+
   Future<List<KmTaskAuditTrail>> fetchKmbusDataListAuditTrail(
     String keyword, {
     int page = 1,

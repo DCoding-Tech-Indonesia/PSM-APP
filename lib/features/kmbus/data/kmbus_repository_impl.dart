@@ -188,6 +188,25 @@ class KmbusRepositoryImpl implements KmbusRepository {
   }
 
   @override
+  Future<Either<Failure, KmbusData?>> fetchRunningKmDetail(
+    int idKoridor,
+    int idBus,
+  ) async {
+    try {
+      final result = await dataSource.fetchRunningKmDetail(idKoridor, idBus);
+
+      return right(result);
+    } on DioException catch (e) {
+      final message =
+          e.response?.data?['message'] ?? 'Terjadi kesalahan server';
+
+      return left(ServerFailure(message));
+    } catch (_) {
+      return left(const ServerFailure('Unexpected error'));
+    }
+  }
+
+  @override
   Future<Either<Failure, List<KmTaskAuditTrail>>> fetchListKmbusAuditTrail(
     String keyword, {
     int page = 1,

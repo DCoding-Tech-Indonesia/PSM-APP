@@ -409,39 +409,76 @@ class _WizardLastStepState extends State<WizardLastStep> {
 
                     BlocBuilder<SettlementBloc, SettlementState>(
                       buildWhen: (prev, curr) =>
-                          prev.documentPreview != curr.documentPreview,
+                          prev.documentPreview != curr.documentPreview ||
+                          prev.uploadingDoc != curr.uploadingDoc,
                       builder: (context, state) {
-                        return CoreCameraWidget(
-                          title: "Ambil Foto Bukti",
-                          imageUrl: state.documentPreview.firstOrNull?.url,
-                          onTap: () {
-                            if (state.documentPreview.isNotEmpty) {
-                              final doc = state.documentPreview.first;
+                        return Stack(
+                          children: [
+                            CoreCameraWidget(
+                              title: "Ambil Foto Bukti",
+                              imageUrl: state.documentPreview.firstOrNull?.url,
+                              onTap: () {
+                                if (state.documentPreview.isNotEmpty) {
+                                  final doc = state.documentPreview.first;
 
-                              CoreCameraWidget.showPreviewDialog(
-                                context: context,
-                                imageUrl: doc.url,
-                                onDelete: () {
-                                  context.read<SettlementBloc>().add(
-                                    RemoveDocumentById(doc.idDocument),
+                                  CoreCameraWidget.showPreviewDialog(
+                                    context: context,
+                                    imageUrl: doc.url,
+                                    onDelete: () {
+                                      context.read<SettlementBloc>().add(
+                                        RemoveDocumentById(doc.idDocument),
+                                      );
+                                      Navigator.pop(context);
+                                    },
                                   );
-                                  Navigator.pop(context);
-                                },
-                              );
-                            } else {
-                              _openCamera();
-                            }
-                          },
-                          onRemoveImage: () {
-                            final doc = state.documentPreview.first;
+                                } else {
+                                  _openCamera();
+                                }
+                              },
+                              onRemoveImage: () {
+                                final doc = state.documentPreview.first;
 
-                            context.read<SettlementBloc>().add(
-                              RemoveDocumentById(doc.idDocument),
-                            );
-                          },
-                          instructions: const [
-                            "Pastikan foto tidak buram",
-                            "Pastikan bukti transaksi terlihat jelas",
+                                context.read<SettlementBloc>().add(
+                                  RemoveDocumentById(doc.idDocument),
+                                );
+                              },
+                              instructions: const [
+                                "Pastikan foto tidak buram",
+                                "Pastikan bukti transaksi terlihat jelas",
+                              ],
+                            ),
+                            
+                            // Loading overlay saat upload
+                            if (state.uploadingDoc)
+                              Positioned.fill(
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withValues(alpha: 0.9),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Center(
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        CircularProgressIndicator(
+                                          valueColor: AlwaysStoppedAnimation(
+                                            const Color(0xFF1565C0),
+                                          ),
+                                        ),
+                                        const SizedBox(height: 16),
+                                        Text(
+                                          'Mengupload foto...',
+                                          style: TextStyle(
+                                            color: const Color(0xFF2D3748),
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
                           ],
                         );
                       },
