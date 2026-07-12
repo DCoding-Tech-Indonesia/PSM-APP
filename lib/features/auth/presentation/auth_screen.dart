@@ -303,7 +303,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                       builder: (context, state) {
                                         return CoreInputFieldNew(
                                           label: "Password",
-                                          hintText: "********",
+                                          hintText: "Password",
                                           isRequired: true,
                                           isSecured: true,
                                           rule: InputRuleSuffixNew.text,
