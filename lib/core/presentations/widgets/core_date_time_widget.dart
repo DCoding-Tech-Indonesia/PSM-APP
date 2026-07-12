@@ -13,6 +13,7 @@ class CoreDateTimeWidget extends StatefulWidget {
   final bool showScheduleInfo;
   final bool? isAllowCheckIn;
   final bool? isAllowCheckOut;
+  final bool? isNextRitase;
 
   const CoreDateTimeWidget({
     super.key,
@@ -23,6 +24,7 @@ class CoreDateTimeWidget extends StatefulWidget {
     this.showScheduleInfo = false,
     this.isAllowCheckIn,
     this.isAllowCheckOut,
+    this.isNextRitase,
   });
 
   @override
@@ -32,8 +34,14 @@ class CoreDateTimeWidget extends StatefulWidget {
 class _CoreDateTimeWidgetState extends State<CoreDateTimeWidget> {
   late DateTime _now;
   Timer? _timer;
+  Timer? _refreshTimer;
   String? _shiftName;
   bool _isLoadingShift = true;
+
+  // Static cache to prevent repeated fetches across widget recreations
+  static DateTime? _lastFetchTime;
+  static String? _cachedShiftName;
+  static const _cacheDuration = Duration(minutes: 1);
 
   @override
   void initState() {
@@ -46,13 +54,26 @@ class _CoreDateTimeWidgetState extends State<CoreDateTimeWidget> {
       });
     });
     // Refresh shift data setiap 5 menit
-    Timer.periodic(const Duration(minutes: 5), (_) {
+    _refreshTimer = Timer.periodic(const Duration(minutes: 5), (_) {
       _fetchShiftData();
     });
   }
 
   Future<void> _fetchShiftData() async {
     try {
+      // Check if we have cached data that's still fresh
+      if (_lastFetchTime != null && _cachedShiftName != null) {
+        final timeSinceLastFetch = DateTime.now().difference(_lastFetchTime!);
+        if (timeSinceLastFetch < _cacheDuration) {
+          // Use cached data
+          setState(() {
+            _shiftName = _cachedShiftName;
+            _isLoadingShift = false;
+          });
+          return;
+        }
+      }
+
       final secureStorage = SecureStorageService();
       final userId = await secureStorage.readUserId();
 
@@ -85,8 +106,14 @@ class _CoreDateTimeWidgetState extends State<CoreDateTimeWidget> {
       if (response.data['status'] == true) {
         final data = response.data['data'] as List;
         if (data.isNotEmpty) {
+          final shiftName = data[0]['shift'] as String?;
+          
+          // Update cache
+          _cachedShiftName = shiftName;
+          _lastFetchTime = DateTime.now();
+          
           setState(() {
-            _shiftName = data[0]['shift'] as String?;
+            _shiftName = shiftName;
             _isLoadingShift = false;
           });
         }
@@ -101,6 +128,7 @@ class _CoreDateTimeWidgetState extends State<CoreDateTimeWidget> {
   @override
   void dispose() {
     _timer?.cancel();
+    _refreshTimer?.cancel();
     super.dispose();
   }
 
@@ -119,26 +147,10 @@ class _CoreDateTimeWidgetState extends State<CoreDateTimeWidget> {
         widget.noUnit != null &&
         widget.noUnit!.isNotEmpty;
 
-    // Check if shift is valid (Shift Pagi or Shift Siang)
-    final isValidShift =
-        hasShift &&
-        (_shiftName!.toLowerCase().contains('pagi') ||
-            _shiftName!.toLowerCase().contains('siang'));
-
-    // Check if both buttons are disabled (explicit false check)
-    // This indicates no active checkin/session, should ALWAYS be red
-    final bothButtonsDisabled =
-        (widget.isAllowCheckIn == false && widget.isAllowCheckOut == false);
-
-    // Special case: if showScheduleInfo is true but no schedule data, force red
-    final noScheduleData = widget.showScheduleInfo == true && !hasScheduleInfo;
-
-    // Determine card color:
-    // PRIORITY 1: If both buttons disabled (no checkin) -> ALWAYS RED regardless of shift
-    // PRIORITY 2: If no schedule data when expected -> RED
-    // PRIORITY 3: If invalid shift -> RED
-    // Otherwise -> BLUE
-    final isRedCard = bothButtonsDisabled || noScheduleData || !isValidShift;
+    // Determine card color based on isNextRitase:
+    // If isNextRitase is false -> RED card
+    // If isNextRitase is true or null -> BLUE card
+    final isRedCard = widget.isNextRitase == false;
 
     // Define gradient colors
     final gradientColors = isRedCard

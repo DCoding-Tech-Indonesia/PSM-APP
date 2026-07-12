@@ -44,6 +44,10 @@ class KmbusState {
   final bool allowTitikAwal;
   final int? idKm;
 
+  final double? ritaseKe;
+  final bool? isLastRitase;
+  final bool? isNextRitase;
+
   final int? idShift;
   final int? idKoridorShift;
   final int? idBusShift;
@@ -89,6 +93,10 @@ class KmbusState {
 
     this.allowTitikAwal = false,
     this.idKm,
+
+    this.ritaseKe,
+    this.isLastRitase,
+    this.isNextRitase,
 
     this.idShift,
     this.idKoridorShift,
@@ -136,6 +144,10 @@ class KmbusState {
     bool? allowTitikAwal,
     int? idKm,
 
+    double? ritaseKe,
+    bool? isLastRitase,
+    bool? isNextRitase,
+
     int? idShift,
     int? idKoridorShift,
     int? idBusShift,
@@ -181,6 +193,10 @@ class KmbusState {
 
       allowTitikAwal: allowTitikAwal ?? this.allowTitikAwal,
       idKm: idKm ?? this.idKm,
+
+      ritaseKe: ritaseKe ?? this.ritaseKe,
+      isLastRitase: isLastRitase ?? this.isLastRitase,
+      isNextRitase: isNextRitase ?? this.isNextRitase,
 
       idShift: idShift ?? this.idShift,
       idKoridorShift: idKoridorShift ?? this.idKoridorShift,

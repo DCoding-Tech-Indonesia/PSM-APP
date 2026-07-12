@@ -23,6 +23,7 @@ class SettlementState extends Equatable {
 
   final bool jadwalExist;
   final bool? isLastRitase;
+  final bool? isNextRitase;
 
   final int? idShift;
   final int? idKoridorShift;
@@ -76,6 +77,7 @@ class SettlementState extends Equatable {
 
     this.jadwalExist = true,
     this.isLastRitase,
+    this.isNextRitase,
 
     this.idShift,
     this.idKoridorShift,
@@ -127,6 +129,7 @@ class SettlementState extends Equatable {
 
     bool? jadwalExist,
     bool? isLastRitase,
+    bool? isNextRitase,
 
     int? idShift,
     int? idKoridorShift,
@@ -178,6 +181,7 @@ class SettlementState extends Equatable {
 
       jadwalExist: jadwalExist ?? this.jadwalExist,
       isLastRitase: isLastRitase ?? this.isLastRitase,
+      isNextRitase: isNextRitase ?? this.isNextRitase,
 
       idShift: idShift ?? this.idShift,
       idKoridorShift: idKoridorShift ?? this.idKoridorShift,
@@ -230,6 +234,7 @@ class SettlementState extends Equatable {
     idDocType,
     jadwalExist,
     isLastRitase,
+    isNextRitase,
 
     listTaskAuditTrail,
 

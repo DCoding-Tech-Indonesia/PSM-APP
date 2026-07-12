@@ -109,10 +109,12 @@ class _KmbusScreenState extends State<KmbusScreen> {
                         CoreDateTimeWidget(
                           noUnit: state.checkinData != null ? activeBusName : null,
                           namaKoridor: state.checkinData != null ? activeKoridorName : null,
-                          ritaseKe: state.checkinData?.ritaseKe,
+                          ritaseKe: state.ritaseKe,
+                          isLastRitase: state.isLastRitase,
                           showScheduleInfo: state.checkinData != null,
                           isAllowCheckIn: state.checkinData != null,
                           isAllowCheckOut: state.checkinData != null,
+                          isNextRitase: state.isNextRitase,
                         ),
                         const SizedBox(height: 4),
                         if (isInitialLoading)

@@ -341,6 +341,7 @@ class _TimetableScreenState extends State<TimetableScreen> {
                           showScheduleInfo: state.jadwalExist && state.noUnit.isNotEmpty,
                           isAllowCheckIn: state.isAllowCheckIn,
                           isAllowCheckOut: state.isAllowCheckOut,
+                          isNextRitase: state.isNextRitase,
                         ),
                         const SizedBox(height: 4),
                         if (isInitialLoading)

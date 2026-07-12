@@ -64,7 +64,13 @@ class _SettlementScreenState extends State<SettlementScreen> {
                 child: Column(
                   children: [
                     const SettlementHeader(),
-                    const CoreDateTimeWidget(),
+                    CoreDateTimeWidget(
+                      noUnit: state.noUnit,
+                      namaKoridor: state.namaKoridor,
+                      ritaseKe: state.ritase,
+                      isLastRitase: state.isLastRitase,
+                      isNextRitase: state.isNextRitase,
+                    ),
                     const SizedBox(height: 4),
                     Expanded(
                       child: RefreshIndicator(

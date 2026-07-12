@@ -26,6 +26,7 @@ class TimetableState extends Equatable {
   final double? ritaseKe;
 
   final bool isLastRitase;
+  final bool? isNextRitase;
   final bool jadwalExist;
   final int? idCheckin;
 
@@ -61,6 +62,7 @@ class TimetableState extends Equatable {
     this.ritaseKe,
 
     this.isLastRitase = false,
+    this.isNextRitase,
     this.jadwalExist = true,
     this.idCheckin,
 
@@ -92,6 +94,7 @@ class TimetableState extends Equatable {
     double? ritaseKe,
 
     bool? isLastRitase,
+    bool? isNextRitase,
     bool? jadwalExist,
     int? idCheckin,
 
@@ -122,6 +125,7 @@ class TimetableState extends Equatable {
       idKm: idKm ?? this.idKm,
       ritaseKe: ritaseKe ?? this.ritaseKe,
       isLastRitase: isLastRitase ?? this.isLastRitase,
+      isNextRitase: isNextRitase ?? this.isNextRitase,
       jadwalExist: jadwalExist ?? this.jadwalExist,
       idCheckin: idCheckin ?? this.idCheckin,
       status: status ?? this.status,
@@ -150,6 +154,7 @@ class TimetableState extends Equatable {
     idShift,
     idKm,
     isLastRitase,
+    isNextRitase,
     jadwalExist,
     idCheckin,
     status,

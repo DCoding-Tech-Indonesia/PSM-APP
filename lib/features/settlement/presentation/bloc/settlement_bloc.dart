@@ -46,6 +46,8 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
         int? idKoridor;
         int? idBus;
         double? ritaseKe = event.ritaseKe;
+        bool? isLastRitase;
+        bool? isNextRitase;
         String? namaKoridor;
         String? noUnit;
 
@@ -152,6 +154,8 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
             },
             (value) {
               ritaseKe = value.ritaseKe;
+              isLastRitase = value.isLastRitase;
+              isNextRitase = value.isNextRitase;
               debugPrint("Fetched latest ritaseKe from endpoint: $ritaseKe");
             },
           );
@@ -302,6 +306,9 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
             activeTabId: activeTabId,
             activeTabLabel: activeTabLabel,
             auditTrailId: auditTrailId,
+            ritase: ritaseKe,
+            isLastRitase: isLastRitase,
+            isNextRitase: isNextRitase,
             status: SettlementStatus.success,
             namaKoridor: namaKoridor,
             noUnit: noUnit,

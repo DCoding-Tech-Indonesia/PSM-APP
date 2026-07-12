@@ -139,6 +139,14 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
           (_) => 0.0,
           (value) => value.ritaseKe!,
         );
+        final bool isLastRitase = nextRitaseResult.fold(
+          (_) => false,
+          (value) => value.isLastRitase ?? false,
+        );
+        final bool? isNextRitase = nextRitaseResult.fold(
+          (_) => null,
+          (value) => value.isNextRitase,
+        );
 
         final checkAwalFuture = kmbusRepository.checkAllowTitikAwal(
           idKoridorShift,
@@ -200,6 +208,9 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
             listKmbus: kmBusListHistory,
             idKm: idKm,
             checkinData: checkin,
+            ritaseKe: ritaseValue,
+            isLastRitase: isLastRitase,
+            isNextRitase: isNextRitase,
             noUnit: todayScheduleData[0].bus.nomorLambung,
             namaKoridor: todayScheduleData[0].lokasi.namaLokasi,
             disabledCtaMessage: titikAwalMessage,

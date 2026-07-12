@@ -111,6 +111,10 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
           (_) => false,
           (value) => value.isLastRitase!,
         );
+        final bool? isNextRitase = nextRitaseResult.fold(
+          (_) => null,
+          (value) => value.isNextRitase,
+        );
 
         // Run checks and verify check-in/out allow states in parallel (Step 3)
         final checkResults = await Future.wait([
@@ -246,6 +250,7 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
         emit(
           state.copyWith(
             isLastRitase: isLastRitase,
+            isNextRitase: isNextRitase,
             idShift: idShiftActive,
             idKm: idKm,
             ritaseKe: displayRitase,

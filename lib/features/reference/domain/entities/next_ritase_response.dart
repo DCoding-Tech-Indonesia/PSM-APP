@@ -1,16 +1,19 @@
 class NextRitaseResponse {
   final double? ritaseKe;
   final bool? isLastRitase;
+  final bool? isNextRitase;
 
   const NextRitaseResponse({
     this.ritaseKe,
     this.isLastRitase,
+    this.isNextRitase,
   });
 
   factory NextRitaseResponse.fromJson(Map<String, dynamic> json) {
     return NextRitaseResponse(
       ritaseKe: (json['ritaseKe'] as num?)?.toDouble(),
       isLastRitase: json['isLastRitase'] as bool?,
+      isNextRitase: json['isNextRitase'] as bool?,
     );
   }
 
@@ -18,6 +21,7 @@ class NextRitaseResponse {
     return {
       'ritaseKe': ritaseKe,
       'isLastRitase': isLastRitase,
+      'isNextRitase': isNextRitase,
     };
   }
 }
