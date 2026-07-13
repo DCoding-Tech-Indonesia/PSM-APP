@@ -223,7 +223,7 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
                                           Expanded(
                                             child: Text(
                                               state.steps == 1
-                                                  ? "Pilih Bus dan Koridor"
+                                                  ? "Informasi Bus dan Koridor"
                                                   : (state.steps == 2
                                                         ? "Detail Settlement"
                                                         : "Ringkasan"),
@@ -348,9 +348,7 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
                   child: BlocBuilder<SettlementBloc, SettlementState>(
                     builder: (context, state) {
                       final isDisabled =
-                          (state.steps == 1 &&
-                              state.ritase == 0 &&
-                              state.status == SettlementStatus.loading) ||
+                          (state.steps == 1 && state.ritase == 0) ||
                           (state.steps == 3 && state.document.isEmpty) ||
                           state.uploadingDoc; // Disable saat upload foto
 

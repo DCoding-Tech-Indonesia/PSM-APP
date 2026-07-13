@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:travis/core/presentations/widgets/widgets.dart';
-import 'package:travis/features/reference/domain/entities/reference_detail.dart';
 import 'package:travis/features/settlement/presentation/bloc/settlement_bloc.dart';
-import 'package:travis/features/settlement/presentation/bloc/settlement_event.dart';
 import 'package:travis/features/settlement/presentation/bloc/settlement_state.dart';
 
 class WizardFirstStep extends StatelessWidget {
@@ -19,146 +16,182 @@ class WizardFirstStep extends StatelessWidget {
         vertical: size.height * 0.03,
       ),
       child: Column(
-        spacing: 10,
+        spacing: 16,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Single Information Card for Ritase, Koridor, and Bus
           BlocBuilder<SettlementBloc, SettlementState>(
-            buildWhen: (prev, curr) => prev.ritase != curr.ritase,
+            buildWhen: (prev, curr) =>
+                prev.ritase != curr.ritase ||
+                prev.namaKoridor != curr.namaKoridor ||
+                prev.noUnit != curr.noUnit,
             builder: (context, state) {
-              return Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    "Ritase",
-                    style: TextStyle(
-                      fontWeight: FontWeight.w800,
-                      fontSize: 18,
-                      color: Color(0xFF2D3748),
-                    ),
+              return Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: const Color(0xFFE3F2FD),
+                    width: 1.5,
                   ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
+                  boxShadow: [
+                    BoxShadow(
                       color: const Color(0xFF1565C0).withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: const Color(0xFF1565C0).withValues(alpha: 0.15),
-                        width: 1,
-                      ),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
                     ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
                       children: [
-                        const Icon(
-                          Icons.directions_transit_rounded,
-                          color: Color(0xFF1565C0),
-                          size: 16,
+                        Icon(
+                          Icons.info_outline_rounded,
+                          color: const Color(0xFF1565C0),
+                          size: 20,
                         ),
-                        const SizedBox(width: 6),
+                        const SizedBox(width: 8),
                         Text(
-                          state.ritase != 0
-                              ? 'Ritase ${state.ritase % 1 == 0 ? state.ritase.toInt() : state.ritase}'
-                              : "Belum Ditentukan",
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w800,
-                            fontSize: 13,
-                            color: Color(0xFF1565C0),
+                          "Informasi Perjalanan",
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color: const Color(0xFF1565C0),
                           ),
                         ),
                       ],
                     ),
-                  ),
-                ],
-              );
-            },
-          ),
-
-          SizedBox(height: 8),
-
-          BlocBuilder<SettlementBloc, SettlementState>(
-            builder: (context, state) {
-              ReferenceDetail? selectedKoridor;
-
-              if (state.referenceKoridor.isNotEmpty) {
-                final matched = state.referenceKoridor.where(
-                  (e) => e.id == state.idKoridor,
-                );
-                if (matched.isNotEmpty) selectedKoridor = matched.first;
-              }
-
-              return CoreDropdownSearch<ReferenceDetail>(
-                readOnly: true,
-                label: 'Pilih Koridor',
-                hintText: 'Pilih Koridor',
-                popupTitle: 'Daftar Koridor',
-                items: state.referenceKoridor,
-                selectedItem: selectedKoridor,
-                itemAsString: (item) => '${item.code} - ${item.name}',
-                compareFn: (a, b) => a.id == b.id,
-                isRequired: true,
-                isItemSelected: (item) => item.id == state.idKoridor,
-                onSelected: (value) {
-                  if (value == null) return;
-                  context.read<SettlementBloc>().add(
-                    SelectKoridor(value.id, value.name),
-                  );
-                },
-              );
-            },
-          ),
-
-          SizedBox(height: 8),
-
-          BlocBuilder<SettlementBloc, SettlementState>(
-            buildWhen: (prev, curr) =>
-                prev.idKoridor != curr.idKoridor ||
-                prev.referenceBus != curr.referenceBus,
-            builder: (context, state) {
-              ReferenceDetail? selectedBus;
-
-              if (state.referenceBus.isNotEmpty) {
-                final matched = state.referenceBus.where(
-                  (e) => e.id == state.idBus,
-                );
-                if (matched.isNotEmpty) selectedBus = matched.first;
-              }
-
-              if (state.referenceBus.isEmpty &&
-                  state.idKoridor != 0 &&
-                  state.status != SettlementStatus.fetching) {
-                return const Text(
-                  "Tidak terdapat bus terdata di koridor tersebut",
-                  style: TextStyle(
-                    color: Colors.redAccent,
-                    fontWeight: FontWeight.w600,
-                  ),
-                );
-              }
-
-              if (state.idKoridor == 0 || state.referenceBus.isEmpty) {
-                return SizedBox(height: 0);
-              }
-
-              return CoreDropdownSearch<ReferenceDetail>(
-                readOnly: true,
-                label: 'Pilih Bus',
-                hintText: 'Pilih Bus',
-                popupTitle: 'Daftar Bus',
-                items: state.referenceBus,
-                selectedItem: selectedBus,
-                itemAsString: (item) => '${item.code} - ${item.name}',
-                compareFn: (a, b) => a.id == b.id,
-                isItemSelected: (item) => item.id == state.idBus,
-                isRequired: true,
-                onSelected: (value) {
-                  if (value == null) return;
-                  context.read<SettlementBloc>().add(
-                    SelectBus(value.id, value.name),
-                  );
-                },
+                    const Divider(height: 24, color: Color(0xFFF1F5F9)),
+                    
+                    // Ritase Row
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.directions_transit_rounded,
+                          color: Colors.grey.shade600,
+                          size: 16,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          "Ritase",
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Colors.grey.shade600,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const Spacer(),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF1565C0).withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            state.ritase != 0
+                                ? '${state.ritase % 1 == 0 ? state.ritase.toInt() : state.ritase}'
+                                : "-",
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF1565C0),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    
+                    const SizedBox(height: 16),
+                    
+                    // Koridor and Bus Row
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.route_rounded,
+                                    color: Colors.grey.shade600,
+                                    size: 16,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    "Koridor",
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      color: Colors.grey.shade600,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                state.namaKoridor.isNotEmpty
+                                    ? state.namaKoridor
+                                    : "-",
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFF2D3748),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          width: 1,
+                          height: 40,
+                          color: Colors.grey.shade200,
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.directions_bus_rounded,
+                                    color: Colors.grey.shade600,
+                                    size: 16,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    "Bus",
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      color: Colors.grey.shade600,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                state.noUnit.isNotEmpty ? state.noUnit : "-",
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFF2D3748),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               );
             },
           ),

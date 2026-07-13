@@ -310,6 +310,7 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
             isLastRitase: isLastRitase,
             isNextRitase: isNextRitase,
             status: SettlementStatus.success,
+            uploadingDoc: false,
             namaKoridor: namaKoridor,
             noUnit: noUnit,
             referenceKoridor: koridorList,

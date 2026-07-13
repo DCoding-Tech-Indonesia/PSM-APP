@@ -377,6 +377,19 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
                 return null;
               }, (data) => data);
 
+              // Fetch today's schedule to get corridor and bus names for edit mode
+              String namaKoridor = '';
+              String noUnit = '';
+              final userIdString = await secureStorageService.readUserId();
+              final userId = int.tryParse(userIdString ?? '') ?? 0;
+              final todaySchedule = await kmbusRepository.fetchTodaySchedule(userId);
+              todaySchedule.fold((_) {}, (data) {
+                if (data.isNotEmpty) {
+                  namaKoridor = data[0].lokasi.namaLokasi;
+                  noUnit = data[0].bus.nomorLambung;
+                }
+              });
+
               emit(
                 state.copyWith(
                   status: KmbusStatus.success,
@@ -384,6 +397,9 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
                   idShift: titikAwalData.idShift,
                   idKoridor: titikAwalData.idKoridor,
                   idBus: titikAwalData.idBus,
+
+                  namaKoridor: namaKoridor,
+                  noUnit: noUnit,
 
                   referenceKoridor: koridorList,
                   referenceBus: busList,
@@ -419,6 +435,19 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
           );
           return null;
         }, (data) => data);
+
+        // Fetch today's schedule to get corridor and bus names
+        String namaKoridor = '';
+        String noUnit = '';
+        final userIdString = await secureStorageService.readUserId();
+        final userId = int.tryParse(userIdString ?? '') ?? 0;
+        final todaySchedule = await kmbusRepository.fetchTodaySchedule(userId);
+        todaySchedule.fold((_) {}, (data) {
+          if (data.isNotEmpty) {
+            namaKoridor = data[0].lokasi.namaLokasi;
+            noUnit = data[0].bus.nomorLambung;
+          }
+        });
 
         final nextRitase = await kmbusRepository.fetchNextRitase(
           event.idKoridorShift,
@@ -508,6 +537,8 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
                   idShift: event.idShift,
                   idKoridor: event.idKoridorShift,
                   idBus: event.idBusShift,
+                  namaKoridor: namaKoridor,
+                  noUnit: noUnit,
                   referenceKoridor: koridorList,
                   referenceBus: busList,
                   titikAwalCreate: titikAwalData,
@@ -528,6 +559,8 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
               idShift: event.idShift,
               idKoridor: event.idKoridorShift,
               idBus: event.idBusShift,
+              namaKoridor: namaKoridor,
+              noUnit: noUnit,
               referenceKoridor: koridorList,
               referenceBus: busList,
               titikAwalCreate: initial,
