@@ -181,19 +181,21 @@ class KmbusKoridor extends Equatable {
 
 class KmbusPramugara extends Equatable {
   final int? id;
-  final String? fullName;
+  final String? code;
+  final String? name;
 
-  const KmbusPramugara({this.id, this.fullName});
+  const KmbusPramugara({this.id, this.code, this.name});
 
   factory KmbusPramugara.fromJson(Map<String, dynamic> json) => KmbusPramugara(
     id: json['id'],
-    fullName: json['fullName'],
+    code: json['code'],
+    name: json['name'],
   );
 
-  Map<String, dynamic> toJson() => {"id": id, "fullName": fullName};
+  Map<String, dynamic> toJson() => {"id": id, "code": code, "name": name};
 
   @override
-  List<Object?> get props => [id, fullName];
+  List<Object?> get props => [id, code, name];
 }
 
 class KmbusShift extends Equatable {
