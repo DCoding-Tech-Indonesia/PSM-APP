@@ -156,6 +156,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           );
         },
         (response) async {
+          // Simpan password jika firstLogin=true, terlepas dari rememberMe
+          if (response.isSuccess && response.firstLogin) {
+            secureStorageService.savePassCred(state.password.value);
+          }
+
           emit(
             state.copyWith(
               submissionStatus: response.isSuccess
@@ -220,6 +225,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           );
         },
         (response) async {
+          // Simpan password jika firstLogin=true, terlepas dari rememberMe
+          if (response.isSuccess && response.firstLogin) {
+            secureStorageService.savePassCred(state.password.value);
+          }
+
           emit(
             state.copyWith(
               submissionStatus: response.isSuccess

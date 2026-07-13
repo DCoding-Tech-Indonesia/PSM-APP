@@ -60,7 +60,7 @@ class AttendanceLoaded extends AttendanceState {
   final String radiusInfo;
   final String shift;
   final bool isCadangan;
-  final List<dynamic> bus;
+  // final List<dynamic> bus;
   final List<dynamic> replacementSchedules;
 
   AttendanceLoaded({
@@ -84,7 +84,7 @@ class AttendanceLoaded extends AttendanceState {
     this.radiusInfo = '100m',
     this.shift = '',
     this.isCadangan = false,
-    required this.bus,
+    // required this.bus,
     this.replacementSchedules = const [],
   });
 
@@ -110,7 +110,7 @@ class AttendanceLoaded extends AttendanceState {
     radiusInfo,
     shift,
     isCadangan,
-    bus,
+    // bus,
     replacementSchedules,
   ];
 
@@ -135,7 +135,7 @@ class AttendanceLoaded extends AttendanceState {
     String? radiusInfo,
     String? shift,
     bool? isCadangan,
-    List<dynamic>? bus,
+    // List<dynamic>? bus,
     List<dynamic>? replacementSchedules,
   }) {
     return AttendanceLoaded(
@@ -159,7 +159,7 @@ class AttendanceLoaded extends AttendanceState {
       radiusInfo: radiusInfo ?? this.radiusInfo,
       shift: shift ?? this.shift,
       isCadangan: isCadangan ?? this.isCadangan,
-      bus: bus ?? this.bus,
+      // bus: bus ?? this.bus,
       replacementSchedules: replacementSchedules ?? this.replacementSchedules,
     );
   }

@@ -51,7 +51,7 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
       history: [],
       schedules: [],
       schedulePerMonth: [],
-      bus: [],
+      // bus: [],
       replacementSchedules: [],
     );
     if (isClosed) return;
@@ -95,11 +95,11 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
 
       final startDate = DateFormat(
         'yyyy-MM-dd',
-      ).format(now.add(const Duration(days: 1)));
+      ).format(now.add(const Duration(days: 0)));
       // Mengambil endDate 30 hari dari hari ini
       final endDate = DateFormat(
         'yyyy-MM-dd',
-      ).format(now.add(const Duration(days: 30)));
+      ).format(now.add(const Duration(days: 0)));
 
       // Removed heavy 11-month fetch for schedulePerMonth
 
@@ -112,7 +112,7 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
           startDate: startDate,
           endDate: endDate,
         ),
-        repository.getBus(),
+        // repository.getBus(),
       ]);
 
       final List<AttendanceRecord> history =
@@ -120,7 +120,7 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
       final Map<String, dynamic>? statsResponse =
           results[1] as Map<String, dynamic>?;
       final List<ScheduleModel> schedules = results[2] as List<ScheduleModel>;
-      final List<dynamic> bus = results[3] as List<dynamic>;
+      // final List<dynamic> bus = results[3] as List<dynamic>;
       final List<ScheduleModel> schedulePerMonth = [];
       final List<dynamic> replacementSchedules = [];
 
@@ -165,7 +165,7 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
           isCheckedIn: isCheckedIn,
           checkInTime: checkInTime,
           checkOutTime: checkOutTime,
-          bus: bus,
+          // bus: bus,
           replacementSchedules: replacementSchedules,
           successMessage: successMessage,
         ),
@@ -235,7 +235,7 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
                   radiusInfo: radiusStr,
                   shift: shift,
                   isCadangan: isCadangan,
-                  bus: s.bus,
+                  // bus: s.bus,
                   replacementSchedules: s.replacementSchedules,
                 ),
               );
@@ -260,7 +260,7 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
             radiusInfo: '0m',
             shift: '',
             isCadangan: false,
-            bus: s.bus,
+            // bus: s.bus,
             replacementSchedules: s.replacementSchedules,
           ),
         );
