@@ -59,11 +59,6 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
   }
 
   @override
-  Future<List<dynamic>> getBus() async {
-    return await remoteDataSource.getBus();
-  }
-
-  @override
   Future<List<dynamic>> getReplacementSchedules(
     int jadwalId,
     int userId,

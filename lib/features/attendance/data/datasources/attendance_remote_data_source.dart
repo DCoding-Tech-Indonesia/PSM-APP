@@ -27,7 +27,6 @@ abstract class AttendanceRemoteDataSource {
     required String startDate,
     required String endDate,
   });
-  Future<List<dynamic>> getBus();
   Future<List<dynamic>> getReplacementSchedules(int jadwalId, int userId);
   Future<bool> requestShiftReplacement({
     required int requesterId,
@@ -158,30 +157,13 @@ class AttendanceRemoteDataSourceImpl implements AttendanceRemoteDataSource {
           'startDate': startDate,
           'endDate': endDate,
           'page': 1,
-          'perPage': 10000,
+          'perPage': 10,
         },
       );
 
       if (response.data != null && response.data['status'] == true) {
         final List data = response.data['data'] ?? [];
         return data.map((json) => ScheduleModel.fromJson(json)).toList();
-      }
-      return [];
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  @override
-  Future<List<dynamic>> getBus() async {
-    try {
-      final response = await _dioClient.instance.get(
-        '/reference/bus',
-        queryParameters: {'page': 1, 'perPage': 1000},
-      );
-
-      if (response.data != null && response.data['status'] == true) {
-        return response.data['data'] ?? [];
       }
       return [];
     } catch (e) {

@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:travis/core/network/dio_client.dart';
 import 'package:travis/core/presentations/widgets/core_bottom_modal_alert.dart';
 import 'package:travis/core/presentations/widgets/core_input_field_new.dart';
+import 'package:travis/core/presentations/widgets/core_snackbar.dart';
 import 'package:travis/core/storage/secure_storage.dart';
 import 'package:dio/dio.dart';
 
@@ -59,18 +60,17 @@ class _FirstLoginPasswordScreenState extends State<FirstLoginPasswordScreen> {
       if (status == true) {
         // Hapus flag firstLogin agar tidak diarahkan ke sini lagi
         await SecureStorageService().clearFirstLogin();
+        // Hapus password lama yang tersimpan untuk keamanan
+        await SecureStorageService().clearPassCred();
         if (mounted) {
-          showModalBottomSheet(
-            context: context,
-            builder: (_) => const CoreBottomModalAlert(
-              success: true,
-              message: "Password berhasil diatur",
-            ),
-          ).then((_) {
-            if (mounted) {
-              context.go('/portal');
-            }
-          });
+          CoreSnackbar.show(
+            context,
+            message: "Password berhasil diatur",
+            type: SnackbarType.success,
+          );
+          if (mounted) {
+            context.go('/portal');
+          }
         }
       } else {
         final message = response.data['message'] ?? 'Gagal mengatur password';
@@ -93,31 +93,7 @@ class _FirstLoginPasswordScreenState extends State<FirstLoginPasswordScreen> {
 
   void _showError(String message) {
     if (mounted) {
-      // showModalBottomSheet(
-      //   context: context,
-      //   builder: (_) => CoreBottomModalAlert(success: false, message: message),
-      // );
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              Icon(Icons.error, color: Colors.white),
-              SizedBox(width: 8),
-              Text(message, style: TextStyle(color: Colors.white)),
-            ],
-          ),
-          backgroundColor: Colors.red,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          margin: EdgeInsets.only(
-            bottom: MediaQuery.of(context).size.height - 150,
-            left: 16,
-            right: 16,
-          ),
-        ),
-      );
+      CoreSnackbar.show(context, message: message, type: SnackbarType.failed);
     }
   }
 

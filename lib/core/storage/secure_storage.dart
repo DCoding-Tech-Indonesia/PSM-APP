@@ -34,6 +34,8 @@ class SecureStorageService {
     String? value = await _storage.read(key: _keyPassCred);
     return value;
   }
+  Future<void> clearPassCred() =>
+      _storage.delete(key: _keyPassCred);
 
   Future<void> saveAccessToken(String token) =>
       _storage.write(key: _keyAccessToken, value: token);

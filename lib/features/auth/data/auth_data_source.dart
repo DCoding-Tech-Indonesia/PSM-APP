@@ -58,7 +58,9 @@ class AuthDataSource {
 
         return LoginResponse(
           isSuccess: true,
-          message: "Login berhasil",
+          message: firstLogin
+              ? "Silakan atur password baru Anda"
+              : "Login berhasil",
           firstLogin: firstLogin,
         );
       }
