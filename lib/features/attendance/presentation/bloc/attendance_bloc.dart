@@ -219,6 +219,26 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
               bool isCadangan = info['isCadangan'] ?? false;
               String shift = info['shift'] ?? '';
 
+              // Ambil checkIn dan checkOut dari API untuk shift saat ini
+              final checkIn = info['checkIn'];
+              final checkOut = info['checkOut'];
+
+              // Set isCheckedIn berdasarkan checkIn dari API, bukan dari history
+              bool isCheckedIn = checkIn != null;
+              String _formatTimeStr(dynamic val) {
+                if (val == null) return '';
+                String str = val is String ? val : val.toString();
+                if (str.isEmpty) return '';
+                try {
+                  return DateFormat('HH:mm:ss').format(DateTime.parse(str));
+                } catch (_) {
+                  return str;
+                }
+              }
+
+              String checkInTime = _formatTimeStr(checkIn);
+              String checkOutTime = _formatTimeStr(checkOut);
+
               double jarakVal = _parseDistanceValue(jarakStr);
               double radiusVal = _parseDistanceValue(radiusStr);
               bool inRadius = jarakVal <= radiusVal;
@@ -235,7 +255,9 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
                   radiusInfo: radiusStr,
                   shift: shift,
                   isCadangan: isCadangan,
-                  // bus: s.bus,
+                  isCheckedIn: isCheckedIn,
+                  checkInTime: checkInTime,
+                  checkOutTime: checkOutTime,
                   replacementSchedules: s.replacementSchedules,
                 ),
               );

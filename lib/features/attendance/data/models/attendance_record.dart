@@ -1,4 +1,5 @@
 import 'package:intl/intl.dart';
+import 'package:travis/features/attendance/data/models/general_model.dart';
 
 class AttendanceRecord {
   final int id;
@@ -8,6 +9,8 @@ class AttendanceRecord {
   final double? latOut;
   final double? longIn;
   final double? longOut;
+  final GeneralModel? lokasi;
+  final GeneralModel? shift;
 
   AttendanceRecord({
     required this.id,
@@ -17,6 +20,8 @@ class AttendanceRecord {
     this.latOut,
     this.longIn,
     this.longOut,
+    this.lokasi,
+    this.shift,
   });
 
   String get formattedDate {
@@ -42,6 +47,12 @@ class AttendanceRecord {
       latOut: (json['latOut'] as num?)?.toDouble(),
       longIn: (json['longIn'] as num?)?.toDouble(),
       longOut: (json['longOut'] as num?)?.toDouble(),
+      lokasi: json['lokasi'] != null
+          ? GeneralModel.fromJson(json['lokasi'])
+          : null,
+      shift: json['shift'] != null
+          ? GeneralModel.fromJson(json['shift'])
+          : null,
     );
   }
 
@@ -54,6 +65,8 @@ class AttendanceRecord {
       'latOut': latOut,
       'longIn': longIn,
       'longOut': longOut,
+      'lokasi': lokasi,
+      'shift': shift,
     };
   }
 }
