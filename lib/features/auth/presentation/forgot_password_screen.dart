@@ -1,8 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:dio/dio.dart';
 import 'package:travis/core/network/dio_client.dart';
-import 'package:travis/core/presentations/widgets/core_bottom_modal_alert.dart';
+import 'package:travis/core/presentations/widgets/core_snackbar.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -12,121 +14,22 @@ class ForgotPasswordScreen extends StatefulWidget {
 }
 
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
-  int _currentStep = 1; // 1 = Email, 2 = OTP, 3 = Reset Password
   bool _isLoading = false;
 
   final TextEditingController _emailController = TextEditingController();
-  final List<TextEditingController> _otpControllers = List.generate(
-    6,
-    (index) => TextEditingController(),
-  );
-  final List<FocusNode> _focusNodes = List.generate(6, (index) => FocusNode());
   final TextEditingController _newPasswordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
 
-  String _email = '';
-  String _resetToken = '';
+  Future<void> _handleSubmit() async {
+    final username = _emailController.text;
+    final newPassword = _newPasswordController.text;
+    final confirmPassword = _confirmPasswordController.text;
 
-  Future<void> _submitEmail() async {
-    final email = _emailController.text.trim();
-    if (email.isEmpty) {
+    if (username.isEmpty) {
       _showError("Email tidak boleh kosong");
       return;
     }
-
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      final dio = DioClient().instance;
-      final response = await dio.post(
-        '/auth/forgot-password',
-        data: {'email': email},
-      );
-
-      final status = response.data['status'] as bool?;
-      if (status == true) {
-        setState(() {
-          _email = email;
-          _currentStep = 2;
-        });
-      } else {
-        final message = response.data['message'] ?? 'Terjadi kesalahan';
-        _showError(message.toString());
-      }
-    } on DioException catch (e) {
-      final message =
-          e.response?.data?['message'] ?? 'Terjadi kesalahan jaringan';
-      _showError(message.toString());
-    } catch (e) {
-      _showError(e.toString());
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    }
-  }
-
-  Future<void> _verifyOtp() async {
-    final otp = _otpControllers.map((c) => c.text).join();
-    if (otp.length < 6) {
-      _showError("Harap masukkan 6 digit OTP");
-      return;
-    }
-
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      final dio = DioClient().instance;
-      final response = await dio.post(
-        '/auth/forgot-password/verify',
-        data: {'email': _email, 'otp': otp},
-      );
-
-      final status = response.data['status'] as bool?;
-      if (status == true) {
-        final data = response.data['data'];
-        String? token;
-        if (data is List && data.isNotEmpty) {
-          token = data.first.toString();
-        }
-
-        if (token != null) {
-          setState(() {
-            _resetToken = token!;
-            _currentStep = 3;
-          });
-        } else {
-          _showError("Reset token tidak ditemukan dari response API");
-        }
-      } else {
-        final message = response.data['message'] ?? 'OTP tidak valid';
-        _showError(message.toString());
-      }
-    } on DioException catch (e) {
-      final message =
-          e.response?.data?['message'] ?? 'Terjadi kesalahan jaringan';
-      _showError(message.toString());
-    } catch (e) {
-      _showError(e.toString());
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    }
-  }
-
-  Future<void> _resetPassword() async {
-    final newPassword = _newPasswordController.text;
-    final confirmPassword = _confirmPasswordController.text;
 
     if (newPassword.isEmpty || confirmPassword.isEmpty) {
       _showError("Password tidak boleh kosong");
@@ -147,8 +50,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       final response = await dio.post(
         '/auth/forgot-password/reset',
         data: {
-          'email': _email,
-          'resetToken': _resetToken,
+          'email': username,
           'newPassword': newPassword,
           'confirmNewPassword': confirmPassword,
         },
@@ -156,29 +58,75 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
       final status = response.data['status'] as bool?;
       if (status == true) {
-        if (mounted) {
-          showModalBottomSheet(
-            context: context,
-            builder: (_) => const CoreBottomModalAlert(
-              success: true,
-              message: "Password berhasil diubah",
-            ),
-          ).then((_) {
-            if (mounted) {
-              context.go('/login');
+        final dataList = response.data['data'] as List?;
+        if (dataList != null && dataList.isNotEmpty) {
+          final info = dataList[0];
+          final nomorAdmin = info['nomorAdmin']?.toString() ?? '';
+          final messageWa =
+              info['messageWa']?.toString().replaceAll(r'\n', '\n') ??
+              'Halo Admin, saya ingin melakukan pembaruan akun.';
+
+          final whatsappUrl =
+              "https://wa.me/$nomorAdmin?text=${Uri.encodeComponent(messageWa)}";
+
+          if (Platform.isIOS) {
+            if (await canLaunchUrl(Uri.parse(whatsappUrl))) {
+              await canLaunchUrl(Uri.parse(whatsappUrl));
+
+              if (mounted) {
+                CoreSnackbar.show(
+                  context,
+                  message:
+                      response.data['message'] ??
+                      "Silakan hubungi admin untuk approval password yang baru",
+                  type: SnackbarType.success,
+                );
+
+                await Future.delayed(const Duration(seconds: 2)).then((_) {
+                  if (mounted) {
+                    context.go('/login');
+                  }
+                });
+              }
+            } else {
+              _showError("Whatsapp tidak terinstall");
             }
-          });
+          } else {
+            if (await launchUrl(Uri.parse(whatsappUrl))) {
+              await launchUrl(
+                Uri.parse(whatsappUrl),
+                mode: LaunchMode.externalApplication,
+              );
+
+              if (mounted) {
+                CoreSnackbar.show(
+                  context,
+                  message:
+                      response.data['message'] ??
+                      "Silakan hubungi admin untuk approval password yang baru",
+                  type: SnackbarType.success,
+                );
+
+                await Future.delayed(const Duration(seconds: 2)).then((_) {
+                  if (mounted) {
+                    context.go('/login');
+                  }
+                });
+              }
+            } else {
+              _showError("Whatsapp tidak terinstall");
+            }
+          }
+        } else {
+          _showError(response.data['message'] ?? "Data admin tidak ditemukan");
         }
       } else {
-        final message = response.data['message'] ?? 'Gagal mengubah password';
-        _showError(message.toString());
+        _showError(
+          response.data['message'] ?? "Email tidak terdaftar di sistem.",
+        );
       }
-    } on DioException catch (e) {
-      final message =
-          e.response?.data?['message'] ?? 'Terjadi kesalahan jaringan';
-      _showError(message.toString());
     } catch (e) {
-      _showError(e.toString());
+      _showError("Terjadi kesalahan: ${e.toString()}");
     } finally {
       if (mounted) {
         setState(() {
@@ -190,22 +138,13 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
   void _showError(String message) {
     if (mounted) {
-      showModalBottomSheet(
-        context: context,
-        builder: (_) => CoreBottomModalAlert(success: false, message: message),
-      );
+      CoreSnackbar.show(context, message: message, type: SnackbarType.failed);
     }
   }
 
   @override
   void dispose() {
     _emailController.dispose();
-    for (var controller in _otpControllers) {
-      controller.dispose();
-    }
-    for (var node in _focusNodes) {
-      node.dispose();
-    }
     _newPasswordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
@@ -250,13 +189,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                             color: Colors.white,
                           ),
                           onPressed: () {
-                            if (_currentStep > 1) {
-                              setState(() {
-                                _currentStep--;
-                              });
-                            } else {
-                              context.go('/login');
-                            }
+                            context.go('/login');
                           },
                         ),
                         const SizedBox(width: 8),
@@ -296,11 +229,74 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                           physics: const BouncingScrollPhysics(),
                           padding: const EdgeInsets.fromLTRB(30, 40, 30, 30),
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              if (_currentStep == 1) _buildEmailStep(),
-                              if (_currentStep == 2) _buildOtpStep(),
-                              if (_currentStep == 3) _buildResetPasswordStep(),
+                              Text(
+                                "Reset Password",
+                                style: TextStyle(
+                                  color: Colors.grey[500],
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                "Atur Password Baru",
+                                style: TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.grey[800],
+                                  letterSpacing: -0.5,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                "Masukkan password baru yang Anda inginkan, lalu hubungi admin melalui WhatsApp untuk konfirmasi reset password.",
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey[600],
+                                  height: 1.5,
+                                ),
+                              ),
+                              const SizedBox(height: 32),
+                              _buildTextField(
+                                controller: _emailController,
+                                label: "Email",
+                                icon: Icons.email,
+                                obscureText: false,
+                              ),
+                              const SizedBox(height: 16),
+                              _buildTextField(
+                                controller: _newPasswordController,
+                                label: "Password Baru",
+                                icon: Icons.lock_outline,
+                                obscureText: true,
+                              ),
+                              const SizedBox(height: 16),
+                              _buildTextField(
+                                controller: _confirmPasswordController,
+                                label: "Konfirmasi Password Baru",
+                                icon: Icons.lock_outline,
+                                obscureText: true,
+                              ),
+                              const SizedBox(height: 32),
+                              SizedBox(
+                                width: double.infinity,
+                                child: _buildSubmitButton(
+                                  text: "Hubungi Admin",
+                                  onPressed: _handleSubmit,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              Center(
+                                child: Text(
+                                  "Admin akan membantu reset password Anda",
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey[500],
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -369,203 +365,20 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 strokeWidth: 2,
               ),
             )
-          : Text(
-              text,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-    );
-  }
-
-  Widget _buildEmailStep() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "Langkah 1 dari 3",
-          style: TextStyle(
-            color: Colors.grey[500],
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          "Masukkan Email",
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Colors.grey[800],
-            letterSpacing: -0.5,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          "Masukkan email Anda untuk menerima kode OTP.",
-          style: TextStyle(fontSize: 14, color: Colors.grey[600], height: 1.5),
-        ),
-        const SizedBox(height: 32),
-        _buildTextField(
-          controller: _emailController,
-          label: "Email",
-          icon: Icons.email_outlined,
-          keyboardType: TextInputType.emailAddress,
-        ),
-        const SizedBox(height: 32),
-        SizedBox(
-          width: double.infinity,
-          child: _buildSubmitButton(text: "Kirim OTP", onPressed: _submitEmail),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildOtpStep() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "Langkah 2 dari 3",
-          style: TextStyle(
-            color: Colors.grey[500],
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          "Verifikasi OTP",
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Colors.grey[800],
-            letterSpacing: -0.5,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          "Masukkan kode OTP yang telah dikirimkan ke email Anda.",
-          style: TextStyle(fontSize: 14, color: Colors.grey[600], height: 1.5),
-        ),
-        const SizedBox(height: 32),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: List.generate(
-            6,
-            (index) => SizedBox(
-              width: 45,
-              child: TextField(
-                controller: _otpControllers[index],
-                focusNode: _focusNodes[index],
-                keyboardType: TextInputType.number,
-                textAlign: TextAlign.center,
-                maxLength: 1,
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-                decoration: InputDecoration(
-                  counterText: "",
-                  filled: true,
-                  fillColor: Colors.grey[50],
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Colors.grey[300]!),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Colors.grey[300]!),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(
-                      color: Color(0xFF1E3C72),
-                      width: 2,
-                    ),
+          : Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.phone, size: 20),
+                const SizedBox(width: 8),
+                Text(
+                  text,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-                onChanged: (value) {
-                  if (value.isNotEmpty) {
-                    if (index < 5) {
-                      _focusNodes[index + 1].requestFocus();
-                    } else {
-                      _focusNodes[index].unfocus();
-                    }
-                  } else {
-                    if (index > 0) {
-                      _focusNodes[index - 1].requestFocus();
-                    }
-                  }
-                },
-              ),
+              ],
             ),
-          ),
-        ),
-        const SizedBox(height: 32),
-        SizedBox(
-          width: double.infinity,
-          child: _buildSubmitButton(
-            text: "Verifikasi OTP",
-            onPressed: _verifyOtp,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildResetPasswordStep() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "Langkah 3 dari 3",
-          style: TextStyle(
-            color: Colors.grey[500],
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          "Buat Password Baru",
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Colors.grey[800],
-            letterSpacing: -0.5,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          "Masukkan password baru untuk akun Anda.",
-          style: TextStyle(fontSize: 14, color: Colors.grey[600], height: 1.5),
-        ),
-        const SizedBox(height: 32),
-        // CoreInputFieldNew(
-        //   label: "Password Baru",
-        //   hintText: "********",
-        //   isRequired: true,
-        //   isSecured: true,
-        //   rule: InputRuleSuffixNew.text,
-        // ),
-        _buildTextField(
-          controller: _newPasswordController,
-          label: "Password Baru",
-          icon: Icons.lock_outline,
-          obscureText: true,
-        ),
-        const SizedBox(height: 16),
-        _buildTextField(
-          controller: _confirmPasswordController,
-          label: "Konfirmasi Password Baru",
-          icon: Icons.lock_outline,
-          obscureText: true,
-        ),
-        const SizedBox(height: 32),
-        SizedBox(
-          width: double.infinity,
-          child: _buildSubmitButton(
-            text: "Ubah Password",
-            onPressed: _resetPassword,
-          ),
-        ),
-      ],
     );
   }
 }

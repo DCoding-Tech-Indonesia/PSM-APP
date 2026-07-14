@@ -225,25 +225,60 @@ class _HistoryScreenState extends State<HistoryScreen> {
               ],
             ),
           ),
+          if (record.shift?.name != null || record.lokasi?.name != null)
+            Padding(
+              padding: const EdgeInsets.only(left: 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (record.shift?.name != null)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 4),
+                      child: _buildMiniBadge(
+                        record.shift!.name,
+                        Colors.blue,
+                        icon: Icons.schedule,
+                      ),
+                    ),
+                  const SizedBox(height: 8),
+                  if (record.lokasi?.name != null)
+                    _buildMiniBadge(
+                      record.lokasi!.name,
+                      Colors.orange,
+                      icon: Icons.location_on,
+                    ),
+                ],
+              ),
+            ),
         ],
       ),
     );
   }
 
-  Widget _buildMiniBadge(String text, Color color) {
+  Widget _buildMiniBadge(String text, Color color, {IconData? icon}) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(4),
       ),
-      child: Text(
-        text,
-        style: TextStyle(
-          fontSize: 10,
-          color: color,
-          fontWeight: FontWeight.bold,
-        ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (icon != null) ...[
+            Icon(icon, size: 10, color: color),
+            const SizedBox(width: 4),
+          ],
+          Text(
+            text,
+            style: TextStyle(
+              fontSize: 10,
+              color: color,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -21,7 +21,7 @@ class AttendanceActionButtons extends StatelessWidget {
               height: 56,
               backgroundColor: state.isCheckedIn ? Colors.grey : Colors.green,
               foregroundColor: Colors.white,
-              onPressed: (state.isLoading || state.radiusInfo == '0m')
+              onPressed: state.isLoading
                   ? null
                   : state.isCheckedIn
                   ? null
@@ -103,7 +103,7 @@ class AttendanceActionButtons extends StatelessWidget {
                   ? Colors.grey
                   : Colors.red,
               foregroundColor: Colors.white,
-              onPressed: (state.isLoading || state.radiusInfo == '0m')
+              onPressed: state.isLoading
                   ? null
                   : (state.checkOutTime.isNotEmpty || !state.isCheckedIn)
                   ? null
