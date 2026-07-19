@@ -225,7 +225,7 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
 
               // Set isCheckedIn berdasarkan checkIn dari API, bukan dari history
               bool isCheckedIn = checkIn != null;
-              String _formatTimeStr(dynamic val) {
+              String formatTimeStr(dynamic val) {
                 if (val == null) return '';
                 String str = val is String ? val : val.toString();
                 if (str.isEmpty) return '';
@@ -236,8 +236,8 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
                 }
               }
 
-              String checkInTime = _formatTimeStr(checkIn);
-              String checkOutTime = _formatTimeStr(checkOut);
+              String checkInTime = formatTimeStr(checkIn);
+              String checkOutTime = formatTimeStr(checkOut);
 
               double jarakVal = _parseDistanceValue(jarakStr);
               double radiusVal = _parseDistanceValue(radiusStr);

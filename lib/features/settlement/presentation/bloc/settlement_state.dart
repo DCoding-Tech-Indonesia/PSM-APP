@@ -12,6 +12,7 @@ enum SettlementStatus {
   success,
   error,
   successSave,
+  successSubmitWorkflow,
   failedSave,
   fetching,
 }

@@ -7,12 +7,10 @@ import 'package:travis/core/helper/camera_access_helper.dart';
 import 'package:travis/core/presentations/widgets/core_bottom_modal_verification.dart';
 import 'package:travis/core/presentations/widgets/core_button.dart';
 import 'package:travis/core/presentations/widgets/core_camera_widget.dart';
-import 'package:travis/core/presentations/widgets/core_dropdown_search.dart';
 import 'package:travis/core/presentations/widgets/core_header.dart';
 import 'package:travis/core/presentations/widgets/core_snackbar.dart';
 import 'package:travis/features/kmbus/presentation/bloc/kmbus_bloc.dart';
 import 'package:travis/features/kmbus/presentation/bloc/kmbus_state.dart';
-import 'package:travis/features/reference/domain/entities/reference_detail.dart';
 
 import 'bloc/kmbus_event.dart';
 

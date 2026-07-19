@@ -157,6 +157,18 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
           );
         }
 
+        if (state.status == SettlementStatus.successSubmitWorkflow) {
+          CoreSnackbar.show(
+            context,
+            message: state.message ?? "Settlement berhasil disubmit!",
+            type: SnackbarType.success,
+          );
+          await Future.delayed(const Duration(milliseconds: 1500));
+          if (context.mounted) {
+            context.go('/portal');
+          }
+        }
+
         if (state.allowLastStep && state.steps == 2) {
           await _showStep2Confirmation(context);
         }

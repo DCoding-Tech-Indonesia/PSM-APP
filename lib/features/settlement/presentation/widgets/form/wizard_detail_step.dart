@@ -356,7 +356,7 @@ class WizardDetailStep extends StatelessWidget {
                                                 width: 45,
                                                 child: TextFormField(
                                                   key: ValueKey(
-                                                    '${state.activeTabId}_${cust.id}_${detail.total}',
+                                                    '${state.activeTabId}_${cust.id}',
                                                   ),
                                                   initialValue:
                                                       "${detail.total ?? 0}",

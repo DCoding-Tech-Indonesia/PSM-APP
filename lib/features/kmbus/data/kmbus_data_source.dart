@@ -51,6 +51,7 @@ class KmbusDataSource {
   }) async {
     try {
       final idUserRole = await secureStorageService.readUserRoleId();
+      final String todayStr = DateTime.now().toIso8601String().split('T')[0];
 
       final response = await dio.get(
         '/km/list',
@@ -59,6 +60,8 @@ class KmbusDataSource {
           'page': page,
           'perPage': perPage,
           'idPramugara': idUserRole,
+          'startDate': todayStr,
+          'endDate': todayStr,
         },
       );
 

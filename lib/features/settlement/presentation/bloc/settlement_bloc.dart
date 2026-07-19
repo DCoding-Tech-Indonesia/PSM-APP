@@ -768,14 +768,14 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
             );
           },
           (data) {
-            emit(
-              state.copyWith(
-                status: data.status
-                    ? SettlementStatus.successSave
-                    : SettlementStatus.failedSave,
-                message: data.message,
-              ),
-            );
+          emit(
+            state.copyWith(
+              status: data.status
+                  ? SettlementStatus.successSubmitWorkflow
+                  : SettlementStatus.failedSave,
+              message: data.message,
+            ),
+          );
           },
         );
       } else {

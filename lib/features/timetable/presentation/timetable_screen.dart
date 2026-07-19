@@ -433,7 +433,7 @@ class _TimetableScreenState extends State<TimetableScreen> {
                                   child: _buildActionButton(
                                     icon: Icons.login_rounded,
                                     label: 'Berangkat',
-                                    isEnabled: state.isAllowCheckIn,
+                                    isEnabled: state.isAllowCheckIn && state.status != TimetableStatus.onSubmit,
                                     enabledColors: const [
                                       Color(0xFF2E7D32),
                                       Color(0xFF43A047),
@@ -457,7 +457,7 @@ class _TimetableScreenState extends State<TimetableScreen> {
                                   child: _buildActionButton(
                                     icon: Icons.logout_rounded,
                                     label: 'Datang',
-                                    isEnabled: state.isAllowCheckOut,
+                                    isEnabled: state.isAllowCheckOut && state.status != TimetableStatus.onSubmit,
                                     enabledColors: const [
                                       Color(0xFFC62828),
                                       Color(0xFFE53935),
