@@ -823,7 +823,7 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
           emit(
             state.copyWith(
               status: data.status
-                  ? SettlementStatus.successSave
+                  ? SettlementStatus.successSubmitWorkflow
                   : SettlementStatus.failedSave,
               message: data.message,
             ),

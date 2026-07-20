@@ -84,7 +84,6 @@ class AttendanceLoaded extends AttendanceState {
     this.radiusInfo = '100m',
     this.shift = '',
     this.isCadangan = false,
-    // required this.bus,
     this.replacementSchedules = const [],
   });
 

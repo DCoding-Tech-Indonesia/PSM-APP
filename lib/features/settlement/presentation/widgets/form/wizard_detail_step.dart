@@ -6,8 +6,33 @@ import 'package:travis/features/settlement/presentation/bloc/settlement_bloc.dar
 import 'package:travis/features/settlement/presentation/bloc/settlement_event.dart';
 import 'package:travis/features/settlement/presentation/bloc/settlement_state.dart';
 
-class WizardDetailStep extends StatelessWidget {
+class WizardDetailStep extends StatefulWidget {
   const WizardDetailStep({super.key});
+
+  @override
+  State<WizardDetailStep> createState() => _WizardDetailStepState();
+}
+
+class _WizardDetailStepState extends State<WizardDetailStep> {
+  final Map<String, TextEditingController> _qtyControllers = {};
+
+  TextEditingController _controllerFor(String key, int value) {
+    final controller =
+        _qtyControllers.putIfAbsent(key, () => TextEditingController());
+    final desired = value.toString();
+    if (controller.text != desired) {
+      controller.text = desired;
+    }
+    return controller;
+  }
+
+  @override
+  void dispose() {
+    for (final c in _qtyControllers.values) {
+      c.dispose();
+    }
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -358,8 +383,10 @@ class WizardDetailStep extends StatelessWidget {
                                                   key: ValueKey(
                                                     '${state.activeTabId}_${cust.id}',
                                                   ),
-                                                  initialValue:
-                                                      "${detail.total ?? 0}",
+                                                  controller: _controllerFor(
+                                                    '${state.activeTabId}_${cust.id}',
+                                                    detail.total ?? 0,
+                                                  ),
                                                   keyboardType:
                                                       TextInputType.number,
                                                   textAlign: TextAlign.center,
@@ -370,12 +397,12 @@ class WizardDetailStep extends StatelessWidget {
                                                   ),
                                                   decoration:
                                                       const InputDecoration(
-                                                        border:
-                                                            InputBorder.none,
-                                                        contentPadding:
-                                                            EdgeInsets.zero,
-                                                        isDense: true,
-                                                      ),
+                                                    border:
+                                                        InputBorder.none,
+                                                    contentPadding:
+                                                        EdgeInsets.zero,
+                                                    isDense: true,
+                                                  ),
                                                   inputFormatters: [
                                                     FilteringTextInputFormatter
                                                         .digitsOnly,

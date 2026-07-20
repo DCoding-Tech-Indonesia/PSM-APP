@@ -113,39 +113,43 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
           showDialog(
             context: context,
             barrierDismissible: false,
-            builder: (dialogContext) {
-              return CoreBlurDialog(
-                title: "Draft Settlement Disimpan",
-                message:
-                    "Draft settlement untuk Ritase ${state.ritase.toString().replaceAll('.0', '')} berhasil disimpan.\n\nTotal Penumpang: $totalCust orang\nTotal Setoran: ${StringFormatter().idrFormatter(totalPayment)}\n\nApakah Anda ingin langsung mengirimkan (submit) data ini?",
-                badgeColor: Colors.green,
-                badgeText: 'SUCCESS',
-                badgeIcon: Icons.check_circle_outline,
-                buttonColor: const Color(0xFF1565C0),
-                confirmText: "Ya, Submit",
-                onConfirm: () {
-                  Navigator.pop(dialogContext);
-                  
-                  context.read<SettlementBloc>().add(
-                    SubmitWorkflow('Done', state.auditTrailId),
-                  );
-                  
-                  // Show success snackbar
-                  CoreSnackbar.show(
-                    context,
-                    message: "Settlement berhasil disubmit!",
-                    type: SnackbarType.success,
-                  );
-                },
-              );
-            },
-          ).then((value) async {
-            // Delay untuk memberi waktu snackbar terlihat
-            await Future.delayed(const Duration(milliseconds: 1500));
-            if (context.mounted) {
-              context.go('/portal');
-            }
-          });
+      builder: (dialogContext) {
+        return CoreBlurDialog(
+          title: "Draft Settlement Disimpan",
+          message:
+              "Draft settlement untuk Ritase ${state.ritase.toString().replaceAll('.0', '')} berhasil disimpan.\n\nTotal Penumpang: $totalCust orang\nTotal Setoran: ${StringFormatter().idrFormatter(totalPayment)}\n\nApakah Anda ingin langsung mengirimkan (submit) data ini?",
+          badgeColor: Colors.green,
+          badgeText: 'SUCCESS',
+          badgeIcon: Icons.check_circle_outline,
+          buttonColor: const Color(0xFF1565C0),
+          confirmText: "Ya, Submit",
+          onConfirm: () {
+            Navigator.pop(dialogContext);
+
+            context.read<SettlementBloc>().add(
+              SubmitWorkflow('Done', state.auditTrailId),
+            );
+
+            // Show success snackbar
+            CoreSnackbar.show(
+              context,
+              message: "Settlement berhasil disubmit!",
+              type: SnackbarType.success,
+            );
+          },
+        );
+      },
+    ).then((value) async {
+      // Delay untuk memberi waktu snackbar terlihat
+      await Future.delayed(const Duration(milliseconds: 1500));
+      if (context.mounted) {
+        if (state.ritase == 0.5) {
+          context.go('/timetable');
+        } else {
+          context.go('/portal');
+        }
+      }
+    });
         }
 
         if (state.status == SettlementStatus.failedSave) {
@@ -165,7 +169,11 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
           );
           await Future.delayed(const Duration(milliseconds: 1500));
           if (context.mounted) {
-            context.go('/portal');
+            if (state.ritase == 0.5) {
+              context.go('/timetable');
+            } else {
+              context.go('/portal');
+            }
           }
         }
 

@@ -176,12 +176,18 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
         );
 
         final bool isAllowTitikAwal =
-            hasCheckedIn && !hasCreatedTitikAwal && !hasDraftTitikAwal;
+            hasCheckedIn &&
+            !hasCreatedTitikAwal &&
+            !hasDraftTitikAwal &&
+            !isLastRitase;
 
         String titikAwalMessage = '';
         if (!hasCheckedIn) {
           titikAwalMessage =
               "Silakan lakukan Check-In di Time Table terlebih dahulu.";
+        } else if (isLastRitase) {
+          titikAwalMessage =
+              "Ritase terakhir, silakan isi Titik Akhir terlebih dahulu.";
         } else if (hasCreatedTitikAwal) {
           titikAwalMessage = "Titik Awal sudah dibuat hari ini.";
         } else if (hasDraftTitikAwal) {

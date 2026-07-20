@@ -103,7 +103,6 @@ void main() {
         distanceFromOffice: '50m',
         stats: AttendanceStats(),
         history: [],
-        bus: [],
       ),
       act: (bloc) => bloc.add(CheckInRequested()),
       expect: () => [

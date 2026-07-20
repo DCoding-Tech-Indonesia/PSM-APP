@@ -900,8 +900,8 @@ class _KmbusTitikAkhirFormScreenState extends State<KmbusTitikAkhirFormScreen> {
                                   decoration: BoxDecoration(
                                     gradient: LinearGradient(
                                       colors: [
-                                        Colors.red.shade500,
-                                        Colors.red.shade700,
+                                        Colors.teal.shade500,
+                                        Colors.teal.shade700,
                                       ],
                                       begin: Alignment.topLeft,
                                       end: Alignment.bottomRight,
@@ -909,7 +909,7 @@ class _KmbusTitikAkhirFormScreenState extends State<KmbusTitikAkhirFormScreen> {
                                     borderRadius: BorderRadius.circular(20),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.red.shade700.withValues(
+                                        color: Colors.teal.shade700.withValues(
                                           alpha: 0.25,
                                         ),
                                         blurRadius: 10,
