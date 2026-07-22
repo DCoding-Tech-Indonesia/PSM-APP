@@ -23,7 +23,7 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
       emit(state.copyWith(status: TimetableStatus.initial));
 
       try {
-        final userIdString = await secureStorageService.readUserId();
+        final userIdString = await secureStorageService.getActiveUserId();
         final userId = int.tryParse(userIdString ?? '') ?? 0;
 
         // Run independent calls in parallel (Step 1)
@@ -401,7 +401,10 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
       }
     });
 
-    on<LocationLoaded>((event, emit) {
+    on<LocationLoaded>((event, emit) async {
+      final idUserStr = await secureStorageService.getActiveUserId();
+      final idUser = int.tryParse(idUserStr ?? '') ?? 0;
+
       final currentCheckin =
           state.checkinData ??
           TimetableCheckin(
@@ -409,7 +412,7 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
             idKoridor: state.idKoridor,
             idBus: state.idBus,
             idShift: 1,
-            idPramugara: 0,
+            idPramugara: idUser,
             ritaseKe: 0.0,
             long: event.long,
             lat: event.lat,

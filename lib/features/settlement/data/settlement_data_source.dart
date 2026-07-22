@@ -60,7 +60,7 @@ class SettlementDataSource {
     int perPage = 10,
   }) async {
     try {
-      final idUser = await secureStorageService.readUserId();
+      final idUser = await secureStorageService.getActiveUserId();
 
       final response = await dio.get(
         '/audittrail/task/settelment/list',

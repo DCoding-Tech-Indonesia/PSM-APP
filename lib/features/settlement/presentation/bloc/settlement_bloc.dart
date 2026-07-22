@@ -348,7 +348,7 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
         page: 1,
       );
 
-      final userIdString = await secureStorageService.readUserId();
+      final userIdString = await secureStorageService.getActiveUserId();
       final userId = int.tryParse(userIdString ?? '') ?? 0;
 
       final todaySchedule = await settlementRepository.fetchTodaySchedule(

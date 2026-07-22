@@ -96,7 +96,7 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
           return isTitikAwal && isDraft && isToday && !isSubmitted;
         });
 
-        final userIdString = await secureStorageService.readUserId();
+        final userIdString = await secureStorageService.getActiveUserId();
         final userId = int.tryParse(userIdString ?? '') ?? 0;
 
         final todaySchedule = await kmbusRepository.fetchTodaySchedule(userId);
@@ -339,8 +339,8 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
       ));
 
       try {
-        final userRoleIdString = await secureStorageService.readUserRoleId();
-        final userRoleId = int.tryParse(userRoleIdString ?? '') ?? 0;
+        final idPramugaraString = await secureStorageService.getActiveUserId();
+        final idPramugaraValue = int.tryParse(idPramugaraString ?? '') ?? 0;
 
         final resultKoridor = await kmbusRepository.fetchReferenceKoridor('');
 
@@ -386,7 +386,7 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
               // Fetch today's schedule to get corridor and bus names for edit mode
               String namaKoridor = '';
               String noUnit = '';
-              final userIdString = await secureStorageService.readUserId();
+              final userIdString = await secureStorageService.getActiveUserId();
               final userId = int.tryParse(userIdString ?? '') ?? 0;
               final todaySchedule = await kmbusRepository.fetchTodaySchedule(userId);
               todaySchedule.fold((_) {}, (data) {
@@ -445,7 +445,7 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
         // Fetch today's schedule to get corridor and bus names
         String namaKoridor = '';
         String noUnit = '';
-        final userIdString = await secureStorageService.readUserId();
+        final userIdString = await secureStorageService.getActiveUserId();
         final userId = int.tryParse(userIdString ?? '') ?? 0;
         final todaySchedule = await kmbusRepository.fetchTodaySchedule(userId);
         todaySchedule.fold((_) {}, (data) {
@@ -472,7 +472,7 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
           idKoridor: event.idKoridorShift,
           idBus: event.idBusShift,
           idShift: event.idShift,
-          idPramugara: userRoleId,
+          idPramugara: idPramugaraValue,
           ritaseKe: ritaseValue,
           long: 0.0,
           lat: 0.0,
@@ -503,7 +503,7 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
         );
 
         final initial = _initialTitikAwalCreate.copyWith(
-          idPramugara: userRoleId,
+          idPramugara: idPramugaraValue,
           idShift: event.idShift,
           idKoridor: event.idKoridorShift,
           idBus: event.idBusShift,
@@ -605,7 +605,7 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
         String noUnit = state.noUnit ?? '';
 
         if (idKoridor == 0 || idBus == 0) {
-          final userIdString = await secureStorageService.readUserId();
+          final userIdString = await secureStorageService.getActiveUserId();
           final userId = int.tryParse(userIdString ?? '') ?? 0;
           final todaySchedule = await kmbusRepository.fetchTodaySchedule(
             userId,

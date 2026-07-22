@@ -13,6 +13,9 @@ class SecureStorageService {
   static const _keyPassCred = 'passwordCred';
   static const _idTimeTableRitase = 'idTimeTableRitase';
   static const _keyFirstLogin = 'firstLogin';
+  static const _keyPramugaraId = 'pramugaraId';
+  static const _keyKorlapId = 'korlapId';
+  static const _keyPegawaiId = 'pegawaiId';
 
   Future<void> saveEmailCred(String email) =>
       _storage.write(key: _keyEmailCred, value: email);
@@ -88,6 +91,40 @@ class SecureStorageService {
   Future<void> clearFirstLogin() =>
       _storage.delete(key: _keyFirstLogin);
 
+  Future<void> savePramugaraId(String id) =>
+      _storage.write(key: _keyPramugaraId, value: id);
+  Future<String?> readPramugaraId() async {
+    String? value = await _storage.read(key: _keyPramugaraId);
+    return value;
+  }
+
+  Future<void> saveKorlapId(String id) =>
+      _storage.write(key: _keyKorlapId, value: id);
+  Future<String?> readKorlapId() async {
+    String? value = await _storage.read(key: _keyKorlapId);
+    return value;
+  }
+
+  Future<void> savePegawaiId(String id) =>
+      _storage.write(key: _keyPegawaiId, value: id);
+  Future<String?> readPegawaiId() async {
+    String? value = await _storage.read(key: _keyPegawaiId);
+    return value;
+  }
+
+  Future<String?> getActiveUserId() async {
+    final pramugaraId = await readPramugaraId();
+    if (pramugaraId != null && pramugaraId.isNotEmpty) return pramugaraId;
+
+    final korlapId = await readKorlapId();
+    if (korlapId != null && korlapId.isNotEmpty) return korlapId;
+
+    final pegawaiId = await readPegawaiId();
+    if (pegawaiId != null && pegawaiId.isNotEmpty) return pegawaiId;
+
+    return null;
+  }
+
   Future<void> clearLogin() async {
     await Future.wait([
       _storage.delete(key: _keyAccessToken),
@@ -96,6 +133,9 @@ class SecureStorageService {
       _storage.delete(key: _keyUserRoleId),
       _storage.delete(key: _keyUsername),
       _storage.delete(key: _keyFirstLogin),
+      _storage.delete(key: _keyPramugaraId),
+      _storage.delete(key: _keyKorlapId),
+      _storage.delete(key: _keyPegawaiId),
     ]);
   }
 

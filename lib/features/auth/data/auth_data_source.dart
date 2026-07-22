@@ -35,6 +35,9 @@ class AuthDataSource {
         final userId = response.data["data"][0]["userId"];
         final userRoleId = response.data["data"][0]["userRoleId"];
         final firstLogin = response.data["data"][0]["firstLogin"] ?? false;
+        final pramugaraId = response.data["data"][0]["pramugaraId"];
+        final korlapId = response.data["data"][0]["korlapId"];
+        final pegawaiId = response.data["data"][0]["pegawaiId"];
 
         if (token == null) {
           return const LoginResponse(
@@ -52,6 +55,15 @@ class AuthDataSource {
         secureStorageService.saveUserRoleIdId(userRoleId.toString());
         secureStorageService.saveUsername(username);
         secureStorageService.saveFirstLogin(firstLogin);
+        if (pramugaraId != null) {
+          secureStorageService.savePramugaraId(pramugaraId.toString());
+        }
+        if (korlapId != null) {
+          secureStorageService.saveKorlapId(korlapId.toString());
+        }
+        if (pegawaiId != null) {
+          secureStorageService.savePegawaiId(pegawaiId.toString());
+        }
         DioClient().setAuthToken(token);
         // Mulai timer proaktif: refresh token sebelum expired (5 menit sebelum mati)\r
         DioClient().scheduleProactiveRefresh(token);
