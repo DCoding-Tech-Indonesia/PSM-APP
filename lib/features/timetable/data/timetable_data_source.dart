@@ -19,7 +19,7 @@ class TimetableDataSource {
     int perPage = 10,
   }) async {
     try {
-      final idUser = await secureStorageService.getActiveUserId();
+      final idUser = await secureStorageService.readUserId();
 
       final response = await dio.get(
         '/time-table/detail/list',
@@ -102,7 +102,7 @@ class TimetableDataSource {
 
   Future<List<KmbusData>> fetchKmbusDataToday(String keyword) async {
     try {
-      final idUser = await secureStorageService.getActiveUserId();
+      final idPramugara = await secureStorageService.readPramugaraId();
 
       final String todayStr = DateTime.now().toIso8601String().split('T')[0];
 
@@ -112,7 +112,7 @@ class TimetableDataSource {
           'keyword': keyword,
           'page': 1,
           'perPage': 99,
-          'idUser': idUser,
+          'idPramugara': idPramugara,
           'startDate': todayStr,
           'endDate': todayStr,
         },

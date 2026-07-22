@@ -17,7 +17,7 @@ class KmbusDataSource {
 
   Future<List<KmbusData>> fetchKmbusDataToday(String keyword) async {
     try {
-      final idUser = await secureStorageService.getActiveUserId();
+      final idPramugara = await secureStorageService.readPramugaraId();
 
       final String todayStr = DateTime.now().toIso8601String().split('T')[0];
 
@@ -27,7 +27,7 @@ class KmbusDataSource {
           'keyword': keyword,
           'page': 1,
           'perPage': 99,
-          'idUser': idUser,
+          'idPramugara': idPramugara,
           'startDate': todayStr,
           'endDate': todayStr,
         },
@@ -50,7 +50,7 @@ class KmbusDataSource {
     int perPage = 10,
   }) async {
     try {
-      final idUser = await secureStorageService.getActiveUserId();
+      final idPramugara = await secureStorageService.readPramugaraId();
       final String todayStr = DateTime.now().toIso8601String().split('T')[0];
 
       final response = await dio.get(
@@ -59,7 +59,7 @@ class KmbusDataSource {
           'keyword': keyword,
           'page': page,
           'perPage': perPage,
-          'idUser': idUser,
+          'idPramugara': idPramugara,
           'startDate': todayStr,
           'endDate': todayStr,
         },
