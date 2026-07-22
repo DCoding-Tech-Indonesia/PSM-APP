@@ -53,6 +53,8 @@ class TimetableState extends Equatable {
   final int page;
   final bool hasReachedMax;
 
+  final bool clearCheckinState;
+
   const TimetableState({
     this.disabledBerangkatMessage,
     this.disabledDatangMessage,
@@ -83,6 +85,7 @@ class TimetableState extends Equatable {
     this.lat = 0,
     this.page = 1,
     this.hasReachedMax = false,
+    this.clearCheckinState = false,
   });
 
   TimetableState copyWith({
@@ -115,7 +118,10 @@ class TimetableState extends Equatable {
     double? lat,
     int? page,
     bool? hasReachedMax,
+    bool? clearCheckinState,
   }) {
+    final bool doClear = clearCheckinState ?? false;
+
     return TimetableState(
       disabledBerangkatMessage:
           disabledBerangkatMessage ?? this.disabledBerangkatMessage,
@@ -123,11 +129,11 @@ class TimetableState extends Equatable {
           disabledDatangMessage ?? this.disabledDatangMessage,
       idShift: idShift ?? this.idShift,
       idKm: idKm ?? this.idKm,
-      ritaseKe: ritaseKe ?? this.ritaseKe,
+      ritaseKe: doClear ? null : (ritaseKe ?? this.ritaseKe),
       isLastRitase: isLastRitase ?? this.isLastRitase,
       isNextRitase: isNextRitase ?? this.isNextRitase,
       jadwalExist: jadwalExist ?? this.jadwalExist,
-      idCheckin: idCheckin ?? this.idCheckin,
+      idCheckin: doClear ? null : (idCheckin ?? this.idCheckin),
       status: status ?? this.status,
       message: message ?? this.message,
       isAllowCheckIn: isAllowCheckIn ?? this.isAllowCheckIn,
@@ -139,11 +145,12 @@ class TimetableState extends Equatable {
       namaKoridor: namaKoridor ?? this.namaKoridor,
       idBus: idBus ?? this.idBus,
       noUnit: noUnit ?? this.noUnit,
-      checkinData: checkinData ?? this.checkinData,
+      checkinData: doClear ? null : (checkinData ?? this.checkinData),
       long: long ?? this.long,
       lat: lat ?? this.lat,
       page: page ?? this.page,
       hasReachedMax: hasReachedMax ?? this.hasReachedMax,
+      clearCheckinState: doClear,
     );
   }
 
@@ -173,5 +180,6 @@ class TimetableState extends Equatable {
     lat,
     page,
     hasReachedMax,
+    clearCheckinState,
   ];
 }

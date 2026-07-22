@@ -555,6 +555,7 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
                     : TimetableStatus.failedSave,
                 message: data.message,
                 isAllowCheckOut: data.status ? false : state.isAllowCheckOut,
+                clearCheckinState: data.status ? true : false,
               ),
             );
           },
