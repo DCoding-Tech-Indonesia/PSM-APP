@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:travis/features/kmbus/domain/entities/kmbus_data.dart';
 import 'package:travis/features/reference/domain/entities/reference_detail.dart';
 import 'package:travis/features/timetable/domain/entities/timetable_checkin.dart';
 import 'package:travis/features/timetable/domain/entities/timetable_data.dart';
@@ -55,6 +56,8 @@ class TimetableState extends Equatable {
 
   final bool clearCheckinState;
 
+  final List<KmbusData>? listKmbusDataToday;
+
   const TimetableState({
     this.disabledBerangkatMessage,
     this.disabledDatangMessage,
@@ -86,6 +89,7 @@ class TimetableState extends Equatable {
     this.page = 1,
     this.hasReachedMax = false,
     this.clearCheckinState = false,
+    this.listKmbusDataToday,
   });
 
   TimetableState copyWith({
@@ -119,6 +123,7 @@ class TimetableState extends Equatable {
     int? page,
     bool? hasReachedMax,
     bool? clearCheckinState,
+    List<KmbusData>? listKmbusDataToday,
   }) {
     final bool doClear = clearCheckinState ?? false;
 
@@ -151,6 +156,7 @@ class TimetableState extends Equatable {
       page: page ?? this.page,
       hasReachedMax: hasReachedMax ?? this.hasReachedMax,
       clearCheckinState: doClear,
+      listKmbusDataToday: listKmbusDataToday ?? this.listKmbusDataToday,
     );
   }
 
@@ -160,6 +166,7 @@ class TimetableState extends Equatable {
     disabledDatangMessage,
     idShift,
     idKm,
+    ritaseKe,
     isLastRitase,
     isNextRitase,
     jadwalExist,
@@ -181,5 +188,6 @@ class TimetableState extends Equatable {
     page,
     hasReachedMax,
     clearCheckinState,
+    listKmbusDataToday,
   ];
 }

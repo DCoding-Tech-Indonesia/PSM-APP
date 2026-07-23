@@ -23,8 +23,11 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
       emit(state.copyWith(status: TimetableStatus.initial));
 
       try {
-        final userIdString = await secureStorageService.getActiveUserId();
+        final userIdString = await secureStorageService.readUserId();
         final userId = int.tryParse(userIdString ?? '') ?? 0;
+
+        final pramugaraIdString = await secureStorageService.getActiveUserId();
+        final pramugaraId = int.tryParse(pramugaraIdString ?? '') ?? 0;
 
         // Run independent calls in parallel (Step 1)
         final resultsStep1 = await Future.wait([
@@ -121,35 +124,13 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
           (value) => value.isNextRitase,
         );
 
-        // Run checks and verify check-in/out allow states in parallel (Step 3)
-        final checkResults = await Future.wait([
-          timetableRepository.checkAllowCheckIn(
-            idKoridorShift,
-            idBusShift,
-            ritaseValue,
-          ),
-          timetableRepository.checkAllowCheckOut(
-            idKoridorShift,
-            idBusShift,
-            ritaseValue,
-          ),
-        ]);
+        // Run checks and verify check-out allow state (Step 3)
+        final checkOutAllowResult = await timetableRepository.checkAllowCheckOut(
+          idKoridorShift,
+          idBusShift,
+          ritaseValue,
+        );
 
-        final checkInAllowResult = checkResults[0];
-        final checkOutAllowResult = checkResults[1];
-
-        final bool hasCheckedIn = checkInAllowResult.fold(
-          (_) => false,
-          (res) => res.isAllowed,
-        );
-        final String checkInMessage = checkInAllowResult.fold(
-          (_) => '',
-          (res) => res.message,
-        );
-        final bool hasCheckedOut = checkOutAllowResult.fold(
-          (_) => false,
-          (res) => res.isAllowed,
-        );
         final String checkOutMessage = checkOutAllowResult.fold(
           (_) => '',
           (res) => res.message,
@@ -182,65 +163,44 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
         );
         final int? idCheckin = activeCheckin?.id;
 
-        final currentCheckin =
-            state.checkinData ??
-            TimetableCheckin(
-              tanggal: DateTime.now().toString().split(' ')[0],
-              idKoridor: idKoridorShift,
-              idBus: idBusShift,
-              idShift: idShiftActive,
-              idPramugara: userId,
-              ritaseKe: ritaseValue,
-              long: state.long,
-              lat: state.lat,
-            );
+        final currentCheckin = TimetableCheckin(
+          tanggal: DateTime.now().toString().split(' ')[0],
+          idKoridor: idKoridorShift,
+          idBus: idBusShift,
+          idShift: idShiftActive,
+          idPramugara: pramugaraId,
+          ritaseKe: ritaseValue,
+          long: state.long,
+          lat: state.lat,
+        );
 
-        final bool isLastRitaseCompleted =
-            isLastRitase &&
-            (todayTimeTableList?.any(
+        final bool isCurrentRitaseCompleted =
+            todayTimeTableList?.any(
                   (e) =>
                       e.ritaseKe == ritaseValue &&
                       e.jamDatang.trim().isNotEmpty,
                 ) ??
-                false);
-
-        // Cari ritase tertinggi yang sudah selesai sepenuhnya (sudah check-in dan sudah check-out)
-        double highestCompletedRitase = 0.0;
-        if (todayTimeTableList != null) {
-          for (var e in todayTimeTableList) {
-            if (e.jamBerangkat.trim().isNotEmpty &&
-                e.jamDatang.trim().isNotEmpty) {
-              if (e.ritaseKe > highestCompletedRitase) {
-                highestCompletedRitase = e.ritaseKe;
-              }
-            }
-          }
-        }
+                false;
 
         double displayRitase = ritaseValue;
-        bool finalAllowCheckIn = !hasCheckedIn;
-        bool finalAllowCheckOut = !hasCheckedOut;
+        bool finalAllowCheckIn = (isAlreadyTakeAttendanceRestule == true);
+        bool finalAllowCheckOut = false;
 
         if (activeCheckin != null) {
-          displayRitase = activeCheckin.ritaseKe;
           finalAllowCheckIn = false;
           finalAllowCheckOut = true;
-        } else if (highestCompletedRitase > 0.0) {
-          displayRitase = ritaseValue;
-          finalAllowCheckIn = !hasCheckedIn && !isLastRitaseCompleted;
-        } else {
-          if (hasCheckedIn && hasCheckedOut && !isLastRitase) {
-            displayRitase = ritaseValue;
-            finalAllowCheckIn = !hasCheckedIn;
-            finalAllowCheckOut = false;
-          }
+        } else if (isCurrentRitaseCompleted) {
+          finalAllowCheckIn = false;
         }
+
+        debugPrint('[TIMETABLE_DEBUG] absensi: $isAlreadyTakeAttendanceRestule, activeCheckin: ${activeCheckin != null}, isCurrentRitaseCompleted: $isCurrentRitaseCompleted, todayListCount: ${todayTimeTableList?.length ?? 0}');
+        debugPrint('[TIMETABLE_DEBUG] → finalAllowCheckIn: $finalAllowCheckIn, finalAllowCheckOut: $finalAllowCheckOut, displayRitase: $displayRitase');
 
         final updatedCheckinWithPramugara = currentCheckin.copyWith(
           idKoridor: idKoridorShift,
           idBus: idBusShift,
           idShift: idShiftActive,
-          idPramugara: userId,
+          idPramugara: pramugaraId,
           ritaseKe: displayRitase,
         );
 
@@ -259,9 +219,10 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
             noUnit: currentNoUnit,
             isAllowCheckIn: finalAllowCheckIn,
             isAllowCheckOut: finalAllowCheckOut,
-            disabledBerangkatMessage: isLastRitaseCompleted
+            listKmbusDataToday: kmBusListMaster,
+            disabledBerangkatMessage: isCurrentRitaseCompleted
                 ? "Semua ritase hari ini telah diselesaikan."
-                : checkInMessage,
+                : "Anda belum mengambil absensi hari ini.",
             disabledDatangMessage: checkOutMessage,
             status: TimetableStatus.success,
           ),
@@ -449,60 +410,60 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
           state.checkinData!,
         );
 
-        result.fold(
-          (failure) {
-            emit(
-              state.copyWith(
-                status: TimetableStatus.failedSave,
-                message: "Gagal check-in!",
-              ),
-            );
-          },
-          (data) async {
-            if (data == null) {
-              emit(
-                state.copyWith(
-                  status: TimetableStatus.failedSave,
-                  message: "Gagal check-in!",
-                ),
-              );
-              return;
-            }
+        final failure = result.getLeft().toNullable();
+        if (failure != null) {
+          emit(
+            state.copyWith(
+              status: TimetableStatus.failedSave,
+              message: "Gagal check-in!",
+            ),
+          );
+          return;
+        }
 
-            if (data.status) {
-              final listResult = await timetableRepository.fetchListTimeTable('');
-              final refreshedTimeTableList = listResult.fold((_) => null, (d) => d);
-              refreshedTimeTableList?.sort((a, b) {
-                final jamA = a.jamBerangkat.trim().isEmpty
-                    ? '00:00:00'
-                    : a.jamBerangkat.split('.').first;
-                final jamB = b.jamBerangkat.trim().isEmpty
-                    ? '00:00:00'
-                    : b.jamBerangkat.split('.').first;
-                final dateTimeA = DateTime.parse('${a.tanggal} $jamA');
-                final dateTimeB = DateTime.parse('${b.tanggal} $jamB');
-                return dateTimeB.compareTo(dateTimeA);
-              });
+        final data = result.getRight().toNullable();
+        if (data == null) {
+          emit(
+            state.copyWith(
+              status: TimetableStatus.failedSave,
+              message: "Gagal check-in!",
+            ),
+          );
+          return;
+        }
 
-              emit(
-                state.copyWith(
-                  status: TimetableStatus.successCheckIn,
-                  message: data.message,
-                  isAllowCheckIn: false,
-                  isAllowCheckOut: true,
-                  listTimetable: refreshedTimeTableList,
-                ),
-              );
-            } else {
-              emit(
-                state.copyWith(
-                  status: TimetableStatus.failedSave,
-                  message: data.message,
-                ),
-              );
-            }
-          },
-        );
+        if (data.status) {
+          final listResult = await timetableRepository.fetchListTimeTable('');
+          final refreshedTimeTableList = listResult.fold((_) => null, (d) => d);
+          refreshedTimeTableList?.sort((a, b) {
+            final jamA = a.jamBerangkat.trim().isEmpty
+                ? '00:00:00'
+                : a.jamBerangkat.split('.').first;
+            final jamB = b.jamBerangkat.trim().isEmpty
+                ? '00:00:00'
+                : b.jamBerangkat.split('.').first;
+            final dateTimeA = DateTime.parse('${a.tanggal} $jamA');
+            final dateTimeB = DateTime.parse('${b.tanggal} $jamB');
+            return dateTimeB.compareTo(dateTimeA);
+          });
+
+          emit(
+            state.copyWith(
+              status: TimetableStatus.successCheckIn,
+              message: data.message,
+              isAllowCheckIn: false,
+              isAllowCheckOut: true,
+              listTimetable: refreshedTimeTableList,
+            ),
+          );
+        } else {
+          emit(
+            state.copyWith(
+              status: TimetableStatus.failedSave,
+              message: data.message,
+            ),
+          );
+        }
       } catch (e) {
         emit(
           state.copyWith(
@@ -545,60 +506,59 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
 
         final result = await timetableRepository.checkoutTimeTable(payload);
 
-        result.fold(
-          (failure) {
-            emit(
-              state.copyWith(
-                status: TimetableStatus.failedSave,
-                message: failure.message,
-              ),
-            );
-          },
-          (data) async {
-            if (data == null) {
-              emit(
-                state.copyWith(
-                  status: TimetableStatus.failedSave,
-                  message: "Gagal check-out!",
-                ),
-              );
-              return;
-            }
+        final failure = result.getLeft().toNullable();
+        if (failure != null) {
+          emit(
+            state.copyWith(
+              status: TimetableStatus.failedSave,
+              message: failure.message,
+            ),
+          );
+          return;
+        }
 
-            if (data.status) {
-              final listResult = await timetableRepository.fetchListTimeTable('');
-              final refreshedTimeTableList = listResult.fold((_) => null, (d) => d);
-              refreshedTimeTableList?.sort((a, b) {
-                final jamA = a.jamBerangkat.trim().isEmpty
-                    ? '00:00:00'
-                    : a.jamBerangkat.split('.').first;
-                final jamB = b.jamBerangkat.trim().isEmpty
-                    ? '00:00:00'
-                    : b.jamBerangkat.split('.').first;
-                final dateTimeA = DateTime.parse('${a.tanggal} $jamA');
-                final dateTimeB = DateTime.parse('${b.tanggal} $jamB');
-                return dateTimeB.compareTo(dateTimeA);
-              });
+        final data = result.getRight().toNullable();
+        if (data == null) {
+          emit(
+            state.copyWith(
+              status: TimetableStatus.failedSave,
+              message: "Gagal check-out!",
+            ),
+          );
+          return;
+        }
 
-              emit(
-                state.copyWith(
-                  status: TimetableStatus.successCheckOut,
-                  message: data.message,
-                  isAllowCheckOut: false,
-                  listTimetable: refreshedTimeTableList,
-                  clearCheckinState: true,
-                ),
-              );
-            } else {
-              emit(
-                state.copyWith(
-                  status: TimetableStatus.failedSave,
-                  message: data.message,
-                ),
-              );
-            }
-          },
-        );
+        if (data.status) {
+          final listResult = await timetableRepository.fetchListTimeTable('');
+          final refreshedTimeTableList = listResult.fold((_) => null, (d) => d);
+          refreshedTimeTableList?.sort((a, b) {
+            final jamA = a.jamBerangkat.trim().isEmpty
+                ? '00:00:00'
+                : a.jamBerangkat.split('.').first;
+            final jamB = b.jamBerangkat.trim().isEmpty
+                ? '00:00:00'
+                : b.jamBerangkat.split('.').first;
+            final dateTimeA = DateTime.parse('${a.tanggal} $jamA');
+            final dateTimeB = DateTime.parse('${b.tanggal} $jamB');
+            return dateTimeB.compareTo(dateTimeA);
+          });
+
+          emit(
+            state.copyWith(
+              status: TimetableStatus.successCheckOut,
+              message: data.message,
+              isAllowCheckOut: false,
+              listTimetable: refreshedTimeTableList,
+            ),
+          );
+        } else {
+          emit(
+            state.copyWith(
+              status: TimetableStatus.failedSave,
+              message: data.message,
+            ),
+          );
+        }
       } catch (e) {
         emit(
           state.copyWith(

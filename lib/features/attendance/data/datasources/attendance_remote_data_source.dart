@@ -157,7 +157,7 @@ class AttendanceRemoteDataSourceImpl implements AttendanceRemoteDataSource {
           'startDate': startDate,
           'endDate': endDate,
           'page': 1,
-          'perPage': 10,
+          'perPage': 100,
         },
       );
 

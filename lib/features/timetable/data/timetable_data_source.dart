@@ -135,11 +135,11 @@ class TimetableDataSource {
     required double lon,
   }) async {
     try {
-      final idUser = await secureStorageService.getActiveUserId();
+      final idUser = await secureStorageService.readUserId();
 
       final response = await dio.get(
         '/absensi/detail',
-        queryParameters: {'idUser': idUser, 'lat': lat, 'lon': lon},
+        queryParameters: {'userId': idUser, 'lat': lat, 'lon': lon},
       );
 
       if (response.data != null && response.data['status'] == true) {

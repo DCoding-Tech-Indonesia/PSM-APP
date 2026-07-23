@@ -348,7 +348,7 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
         page: 1,
       );
 
-      final userIdString = await secureStorageService.getActiveUserId();
+      final userIdString = await secureStorageService.readUserId();
       final userId = int.tryParse(userIdString ?? '') ?? 0;
 
       final todaySchedule = await settlementRepository.fetchTodaySchedule(
@@ -410,10 +410,14 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
         (value) => value.isLastRitase!,
       );
 
+      final double settlementRitase = ritaseValue > 0.5
+          ? ritaseValue - 0.5
+          : ritaseValue;
+
       final checkAllowInput = settlementRepository.checkAllowSettlement(
         idKoridorShift,
         idBusShift,
-        ritaseValue,
+        settlementRitase,
       );
 
       final checkAllowInputResult = await checkAllowInput;
@@ -433,7 +437,7 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
           emit(
             state.copyWith(
               isLastRitase: isLastRitase,
-              ritase: ritaseValue,
+              ritase: settlementRitase,
               idShift: idShiftActive,
               idKoridorShift: idKoridorShift,
               idBusShift: idBusShift,
@@ -450,7 +454,7 @@ class SettlementBloc extends Bloc<SettlementEvent, SettlementState> {
           emit(
             state.copyWith(
               isLastRitase: isLastRitase,
-              ritase: ritaseValue,
+              ritase: settlementRitase,
               idShift: idShiftActive,
               idKoridorShift: idKoridorShift,
               idBusShift: idBusShift,

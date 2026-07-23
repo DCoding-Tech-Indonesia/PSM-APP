@@ -8,6 +8,7 @@ import 'package:travis/core/presentations/widgets/core_bottom_modal_verification
 import 'package:travis/core/presentations/widgets/core_date_time_widget.dart';
 import 'package:travis/core/presentations/widgets/core_snackbar.dart';
 import 'package:travis/core/presentations/widgets/widgets.dart';
+import 'package:travis/core/router/route_observer.dart';
 import 'package:travis/features/kmbus/domain/entities/titik_akhir_args.dart';
 import 'package:travis/features/settlement/domain/entities/settlement_form_args.dart';
 import 'package:travis/features/timetable/domain/entities/timetable_data.dart';
@@ -22,7 +23,7 @@ class TimetableScreen extends StatefulWidget {
   State<TimetableScreen> createState() => _TimetableScreenState();
 }
 
-class _TimetableScreenState extends State<TimetableScreen> {
+class _TimetableScreenState extends State<TimetableScreen> with RouteAware {
   @override
   void initState() {
     super.initState();
@@ -34,6 +35,25 @@ class _TimetableScreenState extends State<TimetableScreen> {
         context.read<TimetableBloc>().add(PageDashboardLoad());
       }
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context)!);
+  }
+
+  @override
+  void dispose() {
+    routeObserver.unsubscribe(this);
+    super.dispose();
+  }
+
+  @override
+  void didPopNext() {
+    if (mounted) {
+      context.read<TimetableBloc>().add(PageDashboardLoad());
+    }
   }
 
   Future<void> _onRefresh() async {
@@ -150,38 +170,6 @@ class _TimetableScreenState extends State<TimetableScreen> {
     }
   }
 
-  void _showSuccessCheckoutConfirmation(
-    BuildContext screenContext,
-    int? idShift,
-    int? idKoridorShift,
-    int? idBusShift,
-    double? ritaseKe,
-  ) async {
-    final isConfirm = await showModalBottomSheet<bool>(
-      context: context,
-      isScrollControlled: true,
-      builder: (modalContext) {
-        return CoreBottomModalVerification(
-          title: 'Apakah ingin langsung melakukan input settlement?',
-          onCancel: () => Navigator.pop(modalContext, false),
-          onConfirm: () => Navigator.pop(modalContext, true),
-        );
-      },
-    );
-    if (isConfirm == true) {
-      context.push(
-        '/settlement/form',
-        extra: SettlementFormArgs(
-          idAuditTrail: null,
-          idShift: idShift,
-          idKoridor: idKoridorShift,
-          idBus: idBusShift,
-          ritaseKe: ritaseKe,
-        ),
-      );
-    }
-  }
-
   void _showSettlementConfirmation(
     BuildContext screenContext,
     int? idShift,
@@ -194,7 +182,7 @@ class _TimetableScreenState extends State<TimetableScreen> {
       isScrollControlled: true,
       builder: (modalContext) {
         return CoreBottomModalVerification(
-          title: 'KM Bus berhasil disubmit',
+          title: 'Check-Out Berhasil',
           desc: 'Apakah ingin langsung melakukan input settlement?',
           onCancel: () => Navigator.pop(modalContext, false),
           onConfirm: () => Navigator.pop(modalContext, true),
@@ -246,15 +234,18 @@ class _TimetableScreenState extends State<TimetableScreen> {
           }
 
           if (state.status == TimetableStatus.successCheckOut) {
-            if (state.isLastRitase) {
-              Future.microtask(() async {
-                if (!context.mounted) return;
-                final bool? result = await context.push<bool>(
-                  '/kmbus/titik-akhir/form',
-                  extra: TitikAkhirArgs(idKm: state.idKm ?? 0, idAuditTrail: 0),
-                );
+            Future.microtask(() async {
+              if (!context.mounted) return;
 
-                if (result == true && context.mounted) {
+              if (state.isLastRitase && (state.idKm ?? 0) > 0) {
+                final titikAkhirResult = await context.push<bool>(
+                  '/kmbus/titik-akhir/form',
+                  extra: TitikAkhirArgs(
+                    idKm: state.idKm ?? 0,
+                    idAuditTrail: 0,
+                  ),
+                );
+                if (titikAkhirResult == true && context.mounted) {
                   _showSettlementConfirmation(
                     context,
                     state.checkinData!.idShift,
@@ -263,16 +254,17 @@ class _TimetableScreenState extends State<TimetableScreen> {
                     state.ritaseKe,
                   );
                 }
-              });
-            } else {
-              _showSuccessCheckoutConfirmation(
+                return;
+              }
+
+              _showSettlementConfirmation(
                 context,
                 state.checkinData!.idShift,
                 state.idKoridor,
                 state.idBus,
                 state.ritaseKe,
               );
-            }
+            });
           }
         } else if (state.status == TimetableStatus.failedSave) {
           if (state.message.trim().toLowerCase().contains(

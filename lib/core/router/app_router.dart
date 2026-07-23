@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:travis/core/network/dio_client.dart';
@@ -452,6 +453,7 @@ void setupRouter(String initialLocation) {
           final secureStorageService = SecureStorageService();
 
           return MultiBlocProvider(
+            key: UniqueKey(),
             providers: [
               BlocProvider(
                 create: (_) => TimetableBloc(

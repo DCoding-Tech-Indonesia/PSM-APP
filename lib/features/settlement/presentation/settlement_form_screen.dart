@@ -139,17 +139,7 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
           },
         );
       },
-    ).then((value) async {
-      // Delay untuk memberi waktu snackbar terlihat
-      await Future.delayed(const Duration(milliseconds: 1500));
-      if (context.mounted) {
-        if (state.ritase == 0.5) {
-          context.go('/timetable');
-        } else {
-          context.go('/portal');
-        }
-      }
-    });
+    );
         }
 
         if (state.status == SettlementStatus.failedSave) {
@@ -170,7 +160,7 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
           await Future.delayed(const Duration(milliseconds: 1500));
           if (context.mounted) {
             if (state.ritase == 0.5) {
-              context.go('/timetable');
+              context.go('/timetable/dashboard');
             } else {
               context.go('/portal');
             }

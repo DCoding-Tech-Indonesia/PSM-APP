@@ -132,7 +132,8 @@ class _KmbusScreenState extends State<KmbusScreen> {
                                       .split('T')[0];
                                   final bool isSubmitted =
                                       e.dataAfter.isSubmit ?? false;
-                                  return e.status.code == "DFT" &&
+                                  return state.checkinData != null &&
+                                      e.status.code == "DFT" &&
                                       createdDateString == todayString &&
                                       !isSubmitted;
                                 })
