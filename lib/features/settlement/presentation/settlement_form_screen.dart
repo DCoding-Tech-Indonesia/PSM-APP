@@ -124,14 +124,9 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
           buttonColor: const Color(0xFF1565C0),
           confirmText: "Ya, Submit",
           onConfirm: () {
+            Navigator.pop(dialogContext);
             context.read<SettlementBloc>().add(
               SubmitWorkflow('Done', state.auditTrailId),
-            );
-
-            CoreSnackbar.show(
-              context,
-              message: "Settlement berhasil disubmit!",
-              type: SnackbarType.success,
             );
           },
         );
@@ -154,7 +149,6 @@ class _SettlementFormScreenState extends State<SettlementFormScreen> {
             message: state.message ?? "Settlement berhasil disubmit!",
             type: SnackbarType.success,
           );
-          await Future.delayed(const Duration(milliseconds: 1500));
           if (context.mounted) {
             context.pop(true);
           }

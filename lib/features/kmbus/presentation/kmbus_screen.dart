@@ -689,7 +689,7 @@ class _KmbusScreenState extends State<KmbusScreen> {
                                           ),
                                         ),
 
-                                        // Footer: Corridor + Ritase + Total Distance
+                                        // Footer: Corridor + Total Distance
                                         Row(
                                           mainAxisAlignment:
                                               MainAxisAlignment.spaceBetween,
@@ -698,8 +698,7 @@ class _KmbusScreenState extends State<KmbusScreen> {
                                               child: Row(
                                                 children: [
                                                   const Icon(
-                                                    Icons
-                                                        .directions_bus_rounded,
+                                                    Icons.directions_bus_rounded,
                                                     size: 15,
                                                     color: Color(0xFF1565C0),
                                                   ),
@@ -719,34 +718,6 @@ class _KmbusScreenState extends State<KmbusScreen> {
                                                     ),
                                                   ),
                                                 ],
-                                              ),
-                                            ),
-                                            const SizedBox(width: 8),
-                                            Container(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 10,
-                                                    vertical: 6,
-                                                  ),
-                                              decoration: BoxDecoration(
-                                                color: const Color(
-                                                  0xFF1565C0,
-                                                ).withValues(alpha: 0.08),
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                                border: Border.all(
-                                                  color: const Color(
-                                                    0xFF1565C0,
-                                                  ).withValues(alpha: 0.15),
-                                                ),
-                                              ),
-                                              child: Text(
-                                                "R${item.ritaseKe % 1 == 0 ? item.ritaseKe.toInt() : item.ritaseKe}",
-                                                style: const TextStyle(
-                                                  color: Color(0xFF1565C0),
-                                                  fontWeight: FontWeight.w800,
-                                                  fontSize: 11,
-                                                ),
                                               ),
                                             ),
                                             const SizedBox(width: 8),
