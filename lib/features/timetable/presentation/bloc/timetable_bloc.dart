@@ -6,6 +6,7 @@ import 'package:travis/core/error/failure.dart';
 import 'package:travis/core/presentations/entity/core_schedule_model.dart';
 import 'package:travis/core/storage/secure_storage.dart';
 import 'package:travis/features/kmbus/domain/entities/kmbus_data.dart';
+import 'package:travis/features/reference/domain/entities/next_ritase_response.dart';
 import 'package:travis/features/timetable/domain/entities/timetable_checkin.dart';
 import 'package:travis/features/timetable/domain/entities/timetable_checkout.dart';
 import 'package:travis/features/timetable/domain/entities/timetable_data.dart';
@@ -141,7 +142,9 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
           (data) => data,
         );
         final activeMasterData = kmBusListMaster?.firstWhereOrNull(
-          (e) => e.titikAkhir == null,
+          (e) =>
+              (e.titikAkhir == null || e.titikAkhir == 0) &&
+              (e.titikAwal != null && e.titikAwal != 0),
         );
         final idKm = activeMasterData?.id ?? 0;
 
@@ -528,7 +531,25 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
         }
 
         if (data.status) {
-          final listResult = await timetableRepository.fetchListTimeTable('');
+          final resultsStep1 = await Future.wait([
+            timetableRepository.fetchListTimeTable(''),
+            timetableRepository.fetchKmbusDataToday(''),
+            if (state.idKoridor > 0 && state.idBus > 0)
+              timetableRepository.fetchNextRitase(
+                state.idKoridor,
+                state.idBus,
+              ),
+          ]);
+
+          final listResult =
+              resultsStep1[0] as Either<Failure, List<TimetableData>>;
+          final listMasterResult =
+              resultsStep1[1] as Either<Failure, List<KmbusData>>;
+          final nextRitaseResult =
+              (state.idKoridor > 0 && state.idBus > 0 && resultsStep1.length > 2)
+                  ? resultsStep1[2] as Either<Failure, NextRitaseResponse>
+                  : null;
+
           final refreshedTimeTableList = listResult.fold((_) => null, (d) => d);
           refreshedTimeTableList?.sort((a, b) {
             final jamA = a.jamBerangkat.trim().isEmpty
@@ -542,11 +563,30 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
             return dateTimeB.compareTo(dateTimeA);
           });
 
+          final kmBusListMaster = listMasterResult.fold(
+            (_) => null,
+            (data) => data,
+          );
+          final activeMasterData = kmBusListMaster?.firstWhereOrNull(
+            (e) =>
+                (e.titikAkhir == null || e.titikAkhir == 0) &&
+                (e.titikAwal != null && e.titikAwal != 0),
+          );
+          final updatedIdKm = activeMasterData?.id ?? state.idKm;
+
+          final bool isLastRitase = nextRitaseResult?.fold(
+                (_) => state.isLastRitase,
+                (value) => value.isLastRitase ?? state.isLastRitase,
+              ) ??
+              state.isLastRitase;
+
           emit(
             state.copyWith(
               status: TimetableStatus.successCheckOut,
               message: data.message,
               isAllowCheckOut: false,
+              idKm: updatedIdKm,
+              isLastRitase: isLastRitase,
               listTimetable: refreshedTimeTableList,
             ),
           );

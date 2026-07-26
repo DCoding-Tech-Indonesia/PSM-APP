@@ -209,14 +209,20 @@ class _TimetableScreenState extends State<TimetableScreen> {
 
           if (state.status == TimetableStatus.successCheckIn &&
               state.ritaseKe == 0.5) {
-            context.push<bool>(
-              '/kmbus/titik-awal/form',
-              extra: ScheduleArgs(
-                idShift: state.idShift!,
-                idKoridorShift: state.idKoridor,
-                idBusShift: state.idBus,
-              ),
-            );
+            Future.microtask(() async {
+              if (!context.mounted) return;
+              await context.push<bool>(
+                '/kmbus/titik-awal/form',
+                extra: ScheduleArgs(
+                  idShift: state.idShift!,
+                  idKoridorShift: state.idKoridor,
+                  idBusShift: state.idBus,
+                ),
+              );
+              if (context.mounted) {
+                context.read<TimetableBloc>().add(PageDashboardLoad());
+              }
+            });
           }
 
           if (state.status == TimetableStatus.successCheckOut) {
