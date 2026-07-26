@@ -8,7 +8,7 @@ import 'package:travis/core/presentations/widgets/core_bottom_modal_verification
 import 'package:travis/core/presentations/widgets/core_date_time_widget.dart';
 import 'package:travis/core/presentations/widgets/core_snackbar.dart';
 import 'package:travis/core/presentations/widgets/widgets.dart';
-import 'package:travis/core/router/route_observer.dart';
+
 import 'package:travis/features/kmbus/domain/entities/titik_akhir_args.dart';
 import 'package:travis/features/settlement/domain/entities/settlement_form_args.dart';
 import 'package:travis/features/timetable/domain/entities/timetable_data.dart';
@@ -23,7 +23,7 @@ class TimetableScreen extends StatefulWidget {
   State<TimetableScreen> createState() => _TimetableScreenState();
 }
 
-class _TimetableScreenState extends State<TimetableScreen> with RouteAware {
+class _TimetableScreenState extends State<TimetableScreen> {
   @override
   void initState() {
     super.initState();
@@ -35,25 +35,6 @@ class _TimetableScreenState extends State<TimetableScreen> with RouteAware {
         context.read<TimetableBloc>().add(PageDashboardLoad());
       }
     });
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    routeObserver.subscribe(this, ModalRoute.of(context)!);
-  }
-
-  @override
-  void dispose() {
-    routeObserver.unsubscribe(this);
-    super.dispose();
-  }
-
-  @override
-  void didPopNext() {
-    if (mounted) {
-      context.read<TimetableBloc>().add(PageDashboardLoad());
-    }
   }
 
   Future<void> _onRefresh() async {
@@ -190,7 +171,7 @@ class _TimetableScreenState extends State<TimetableScreen> with RouteAware {
       },
     );
     if (isConfirm == true) {
-      context.push(
+      await context.push<bool>(
         '/settlement/form',
         extra: SettlementFormArgs(
           idAuditTrail: null,
@@ -200,6 +181,9 @@ class _TimetableScreenState extends State<TimetableScreen> with RouteAware {
           ritaseKe: ritaseKe,
         ),
       );
+      if (mounted) {
+        context.read<TimetableBloc>().add(PageDashboardLoad());
+      }
     }
   }
 
@@ -217,9 +201,11 @@ class _TimetableScreenState extends State<TimetableScreen> with RouteAware {
             type: SnackbarType.success,
           );
 
-          Future.delayed(const Duration(milliseconds: 200), () {
-            context.read<TimetableBloc>().add(PageDashboardLoad());
-          });
+          if (state.status != TimetableStatus.successCheckOut) {
+            Future.delayed(const Duration(milliseconds: 200), () {
+              context.read<TimetableBloc>().add(PageDashboardLoad());
+            });
+          }
 
           if (state.status == TimetableStatus.successCheckIn &&
               state.ritaseKe == 0.5) {
@@ -238,14 +224,14 @@ class _TimetableScreenState extends State<TimetableScreen> with RouteAware {
               if (!context.mounted) return;
 
               if (state.isLastRitase && (state.idKm ?? 0) > 0) {
-                final titikAkhirResult = await context.push<bool>(
+                await context.push<bool>(
                   '/kmbus/titik-akhir/form',
                   extra: TitikAkhirArgs(
                     idKm: state.idKm ?? 0,
                     idAuditTrail: 0,
                   ),
                 );
-                if (titikAkhirResult == true && context.mounted) {
+                if (context.mounted) {
                   _showSettlementConfirmation(
                     context,
                     state.checkinData!.idShift,

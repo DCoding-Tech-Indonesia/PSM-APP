@@ -384,17 +384,15 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
               }, (data) => data);
 
               // Fetch today's schedule to get corridor and bus names for edit mode
-              String namaKoridor = '';
-              String noUnit = '';
               final userIdString = await secureStorageService.getActiveUserId();
               final userId = int.tryParse(userIdString ?? '') ?? 0;
-              final todaySchedule = await kmbusRepository.fetchTodaySchedule(userId);
-              todaySchedule.fold((_) {}, (data) {
-                if (data.isNotEmpty) {
-                  namaKoridor = data[0].lokasi.namaLokasi;
-                  noUnit = data[0].bus.nomorLambung;
-                }
-              });
+              final scheduleResult = await _fetchTodayScheduleWithRetry(userId);
+              final namaKoridor = scheduleResult.namaKoridor.isNotEmpty
+                  ? scheduleResult.namaKoridor
+                  : state.namaKoridor ?? '';
+              final noUnit = scheduleResult.noUnit.isNotEmpty
+                  ? scheduleResult.noUnit
+                  : state.noUnit ?? '';
 
               emit(
                 state.copyWith(
@@ -443,17 +441,15 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
         }, (data) => data);
 
         // Fetch today's schedule to get corridor and bus names
-        String namaKoridor = '';
-        String noUnit = '';
         final userIdString = await secureStorageService.getActiveUserId();
         final userId = int.tryParse(userIdString ?? '') ?? 0;
-        final todaySchedule = await kmbusRepository.fetchTodaySchedule(userId);
-        todaySchedule.fold((_) {}, (data) {
-          if (data.isNotEmpty) {
-            namaKoridor = data[0].lokasi.namaLokasi;
-            noUnit = data[0].bus.nomorLambung;
-          }
-        });
+        final scheduleResult = await _fetchTodayScheduleWithRetry(userId);
+        final namaKoridor = scheduleResult.namaKoridor.isNotEmpty
+            ? scheduleResult.namaKoridor
+            : state.namaKoridor ?? '';
+        final noUnit = scheduleResult.noUnit.isNotEmpty
+            ? scheduleResult.noUnit
+            : state.noUnit ?? '';
 
         final nextRitase = await kmbusRepository.fetchNextRitase(
           event.idKoridorShift,
@@ -1259,4 +1255,30 @@ class KmbusBloc extends Bloc<KmbusEvent, KmbusState> {
     ritaseKe: 0.5,
     document: const [],
   );
+
+  Future<({String namaKoridor, String noUnit})> _fetchTodayScheduleWithRetry(
+    int userId, {
+    int maxRetries = 3,
+    int delayMs = 1000,
+  }) async {
+    String namaKoridor = '';
+    String noUnit = '';
+
+    for (int i = 0; i < maxRetries; i++) {
+      final todaySchedule = await kmbusRepository.fetchTodaySchedule(userId);
+      final success = todaySchedule.fold((_) => false, (data) {
+        if (data.isNotEmpty) {
+          namaKoridor = data[0].lokasi.namaLokasi;
+          noUnit = data[0].bus.nomorLambung;
+          return true;
+        }
+        return false;
+      });
+      if (success) break;
+      if (i < maxRetries - 1) {
+        await Future.delayed(Duration(milliseconds: delayMs));
+      }
+    }
+    return (namaKoridor: namaKoridor, noUnit: noUnit);
+  }
 }

@@ -376,7 +376,6 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
 
       emit(
         state.copyWith(
-          status: TimetableStatus.initial,
           lat: event.lat,
           long: event.long,
           checkinData: currentCheckin.copyWith(

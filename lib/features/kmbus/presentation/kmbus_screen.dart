@@ -790,34 +790,41 @@ class _KmbusScreenState extends State<KmbusScreen> {
                     ),
                   ),
                 ),
-                floatingActionButton: FloatingActionButton(
-                  onPressed: () async {
-                    if (!state.allowTitikAwal) {
-                      CoreSnackbar.show(
-                        context,
-                        message: state.disabledCtaMessage,
-                        type: SnackbarType.warning,
-                      );
-                      return;
-                    }
+                floatingActionButton:
+                    (!isInitialLoading && state.status != KmbusStatus.error)
+                        ? FloatingActionButton(
+                            onPressed: () async {
+                              if (!state.allowTitikAwal) {
+                                CoreSnackbar.show(
+                                  context,
+                                  message: state.disabledCtaMessage.isNotEmpty
+                                      ? state.disabledCtaMessage
+                                      : "Aksi tidak dapat dilakukan saat ini",
+                                  type: SnackbarType.warning,
+                                );
+                                return;
+                              }
 
-                    final result = await context.push(
-                      '/kmbus/titik-awal/form',
-                      extra: ScheduleArgs(
-                        idShift: state.idShift ?? 0,
-                        idKoridorShift: state.idKoridorShift ?? 0,
-                        idBusShift: state.idBusShift ?? 0,
-                        idAuditTrail: null,
-                      ),
-                    );
+                              final result = await context.push(
+                                '/kmbus/titik-awal/form',
+                                extra: ScheduleArgs(
+                                  idShift: state.idShift ?? 0,
+                                  idKoridorShift: state.idKoridorShift ?? 0,
+                                  idBusShift: state.idBusShift ?? 0,
+                                  idAuditTrail: null,
+                                ),
+                              );
 
-                    if (context.mounted && result == true) {
-                      context.read<KmbusBloc>().add(PageDashboardLoad());
-                    }
-                  },
-                  backgroundColor: Theme.of(context).primaryColor,
-                  child: const Icon(Icons.add, color: Colors.white),
-                ),
+                              if (context.mounted && result == true) {
+                                context
+                                    .read<KmbusBloc>()
+                                    .add(PageDashboardLoad());
+                              }
+                            },
+                            backgroundColor: Theme.of(context).primaryColor,
+                            child: const Icon(Icons.add, color: Colors.white),
+                          )
+                        : null,
               ),
 
               if (isLoading)

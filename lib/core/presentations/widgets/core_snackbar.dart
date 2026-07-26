@@ -75,7 +75,7 @@ class CoreSnackbar {
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        message,
+                        message.isNotEmpty ? message : '-',
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 14,

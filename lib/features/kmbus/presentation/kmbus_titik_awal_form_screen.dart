@@ -548,8 +548,155 @@ class _KmbusTitikAwalFormScreenState extends State<KmbusTitikAwalFormScreen> {
                             BlocBuilder<KmbusBloc, KmbusState>(
                               buildWhen: (prev, curr) =>
                                   prev.namaKoridor != curr.namaKoridor ||
-                                  prev.noUnit != curr.noUnit,
+                                  prev.noUnit != curr.noUnit ||
+                                  prev.status != curr.status,
                               builder: (context, state) {
+                                if (state.status == KmbusStatus.loading) {
+                                  return Container(
+                                    padding: const EdgeInsets.all(16),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(16),
+                                      border: Border.all(
+                                        color: const Color(0xFFE8F5E9),
+                                        width: 1.5,
+                                      ),
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Container(
+                                              width: 18,
+                                              height: 18,
+                                              decoration: BoxDecoration(
+                                                color: Colors.grey.shade200,
+                                                borderRadius:
+                                                    BorderRadius.circular(4),
+                                              ),
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Container(
+                                              width: 120,
+                                              height: 14,
+                                              decoration: BoxDecoration(
+                                                color: Colors.grey.shade200,
+                                                borderRadius:
+                                                    BorderRadius.circular(4),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const Divider(
+                                          height: 14,
+                                          color: Color(0xFFF1F5F9),
+                                        ),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Container(
+                                                  width: 50,
+                                                  height: 10,
+                                                  decoration: BoxDecoration(
+                                                    color:
+                                                        Colors.grey.shade200,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          4,
+                                                        ),
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 4),
+                                                Container(
+                                                  width: 80,
+                                                  height: 14,
+                                                  decoration: BoxDecoration(
+                                                    color:
+                                                        Colors.grey.shade200,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          4,
+                                                        ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Container(
+                                                  width: 50,
+                                                  height: 10,
+                                                  decoration: BoxDecoration(
+                                                    color:
+                                                        Colors.grey.shade200,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          4,
+                                                        ),
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 4),
+                                                Container(
+                                                  width: 80,
+                                                  height: 14,
+                                                  decoration: BoxDecoration(
+                                                    color:
+                                                        Colors.grey.shade200,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          4,
+                                                        ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Container(
+                                                  width: 30,
+                                                  height: 10,
+                                                  decoration: BoxDecoration(
+                                                    color:
+                                                        Colors.grey.shade200,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          4,
+                                                        ),
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 4),
+                                                Container(
+                                                  width: 60,
+                                                  height: 14,
+                                                  decoration: BoxDecoration(
+                                                    color:
+                                                        Colors.grey.shade200,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          4,
+                                                        ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }
+
                                 return Container(
                                   padding: const EdgeInsets.all(16),
                                   decoration: BoxDecoration(
