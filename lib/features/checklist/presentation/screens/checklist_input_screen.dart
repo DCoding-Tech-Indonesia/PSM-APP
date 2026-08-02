@@ -848,20 +848,16 @@ class _ChecklistInputScreenViewState extends State<_ChecklistInputScreenView> {
                     });
                   },
                   decoration: InputDecoration(
-                    hintText: 'Keterangan Wajib Diisi',
+                    hintText: 'Keterangan (Opsional)',
                     enabledBorder: OutlineInputBorder(
                       borderSide: BorderSide(
-                        color: (q.notes == null || q.notes!.trim().isEmpty)
-                            ? Colors.red.withValues(alpha: 0.5)
-                            : theme.disabledColor.withValues(alpha: 0.5),
+                        color: theme.disabledColor.withValues(alpha: 0.5),
                       ),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderSide: BorderSide(
-                        color: (q.notes == null || q.notes!.trim().isEmpty)
-                            ? Colors.red
-                            : theme.primaryColor,
+                        color: theme.primaryColor,
                         width: 1.5,
                       ),
                       borderRadius: BorderRadius.circular(12),
@@ -900,9 +896,7 @@ class _ChecklistInputScreenViewState extends State<_ChecklistInputScreenView> {
                 flex: 2,
                 child: Builder(
                   builder: (context) {
-                    bool isValid =
-                        q.value != null &&
-                        (q.notes != null && q.notes!.trim().isNotEmpty);
+                    bool isValid = q.value != null;
 
                     return ElevatedButton(
                       onPressed: isValid ? _nextQuestion : null,

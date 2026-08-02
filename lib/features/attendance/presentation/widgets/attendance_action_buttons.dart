@@ -12,6 +12,9 @@ class AttendanceActionButtons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final hasNoSchedule = state.schedules.isEmpty ||
+        state.locationStatus.toLowerCase().contains('jadwal tidak ditemukan');
+
     return Container(
       margin: EdgeInsets.symmetric(horizontal: size.width * 0.045),
       child: Row(
@@ -19,13 +22,19 @@ class AttendanceActionButtons extends StatelessWidget {
           Expanded(
             child: CoreButton(
               height: 56,
-              backgroundColor: state.isCheckedIn ? Colors.grey : Colors.green,
+              backgroundColor: hasNoSchedule
+                  ? Colors.grey
+                  : state.isCheckedIn
+                      ? Colors.grey
+                      : Colors.green,
               foregroundColor: Colors.white,
               onPressed: state.isLoading
                   ? null
-                  : state.isCheckedIn
-                  ? null
-                  : () {
+                  : hasNoSchedule
+                      ? null
+                      : state.isCheckedIn
+                          ? null
+                          : () {
                       if (state.isMocked) {
                         showCoreErrorDialog(
                           context,
@@ -99,15 +108,19 @@ class AttendanceActionButtons extends StatelessWidget {
           Expanded(
             child: CoreButton(
               height: 56,
-              backgroundColor: state.checkOutTime.isNotEmpty
+              backgroundColor: hasNoSchedule
                   ? Colors.grey
-                  : Colors.red,
+                  : state.checkOutTime.isNotEmpty
+                      ? Colors.grey
+                      : Colors.red,
               foregroundColor: Colors.white,
               onPressed: state.isLoading
                   ? null
-                  : (state.checkOutTime.isNotEmpty || !state.isCheckedIn)
-                  ? null
-                  : () {
+                  : hasNoSchedule
+                      ? null
+                      : (state.checkOutTime.isNotEmpty || !state.isCheckedIn)
+                          ? null
+                          : () {
                       if (state.isMocked) {
                         showCoreErrorDialog(
                           context,

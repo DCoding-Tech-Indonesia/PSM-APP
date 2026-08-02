@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+// import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:travis/core/helper/auth_token_helper.dart';
@@ -203,9 +204,7 @@ class DioClient {
   void _addInterceptors() {
     debugPrint(NetworkLogger.dashboardUrl);
 
-    _dio.interceptors.add(
-      const CoteNetworkLogger(),
-    );
+    _dio.interceptors.add(const CoteNetworkLogger());
 
     _dio.interceptors.add(
       InterceptorsWrapper(
@@ -224,6 +223,7 @@ class DioClient {
             if (options.data != null) {
               debugPrint('[BODY]');
               debugPrint(options.data.toString());
+              // debugPrint(const JsonEncoder().convert(options.data));
             }
           }
 
