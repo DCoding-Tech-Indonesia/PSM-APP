@@ -520,6 +520,7 @@ void setupRouter(String initialLocation) {
       GoRoute(
         path: '/leave-request',
         builder: (context, state) {
+          final sisaCuti = state.extra as int? ?? 0;
           final portalState = context.read<PortalBloc>().state;
           int userId = 0;
           if (portalState is PortalLoaded) {
@@ -532,9 +533,10 @@ void setupRouter(String initialLocation) {
                 remoteDataSource: LeaveRequestRemoteDataSourceImpl(DioClient()),
               ),
             )..add(LoadLeaveRequestList(userId: userId)),
-            child: const LeaveRequestScreen(
+            child: LeaveRequestScreen(
               title: 'Pengajuan Cuti',
               isApproval: false,
+              sisaCuti: sisaCuti,
             ),
           );
         },

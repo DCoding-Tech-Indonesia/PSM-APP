@@ -16,11 +16,13 @@ import 'package:travis/features/portal/presentation/bloc/portal_state.dart';
 class LeaveRequestScreen extends StatefulWidget {
   final String title;
   final bool isApproval;
+  final int sisaCuti;
 
   const LeaveRequestScreen({
     super.key,
     this.title = 'Pengajuan Cuti',
     this.isApproval = false,
+    this.sisaCuti = 0,
   });
 
   @override
@@ -72,6 +74,40 @@ class _LeaveRequestScreenState extends State<LeaveRequestScreen> {
               showBackButton: true,
               onBackPressed: () => context.pop(),
             ),
+            if (!widget.isApproval)
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: theme.primaryColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: theme.primaryColor.withValues(alpha: 0.2)),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.event_available, color: theme.primaryColor),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'Sisa Jatah Cuti Anda',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: theme.textTheme.bodyLarge?.color,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      '${widget.sisaCuti} Hari',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: theme.primaryColor,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             Expanded(
               child: BlocBuilder<LeaveRequestBloc, LeaveRequestState>(
                 builder: (context, state) {

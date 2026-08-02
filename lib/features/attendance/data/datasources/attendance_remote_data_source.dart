@@ -34,6 +34,7 @@ abstract class AttendanceRemoteDataSource {
     required int jadwalId,
     required String alasan,
   });
+  Future<int> getSisaCuti(int userId);
 }
 
 class AttendanceRemoteDataSourceImpl implements AttendanceRemoteDataSource {
@@ -238,6 +239,26 @@ class AttendanceRemoteDataSourceImpl implements AttendanceRemoteDataSource {
       throw 'Terjadi kesalahan pada jaringan atau server.';
     } catch (e) {
       rethrow;
+    }
+  }
+
+  @override
+  Future<int> getSisaCuti(int userId) async {
+    try {
+      final response = await _dioClient.instance.get(
+        '/pegawai/sisa-cuti',
+        queryParameters: {'userId': userId},
+      );
+
+      if (response.data != null && response.data['status'] == true) {
+        final List data = response.data['data'] ?? [];
+        if (data.isNotEmpty) {
+          return data[0]['sisaJatahCuti'] ?? 0;
+        }
+      }
+      return 0;
+    } catch (e) {
+      return 0;
     }
   }
 }

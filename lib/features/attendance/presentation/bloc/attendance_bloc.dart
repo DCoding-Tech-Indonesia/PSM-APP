@@ -53,6 +53,7 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
       schedulePerMonth: [],
       // bus: [],
       replacementSchedules: [],
+      sisaCuti: 0,
     );
     if (isClosed) return;
     emit(initialState);
@@ -112,6 +113,7 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
           startDate: startDate,
           endDate: endDate,
         ),
+        repository.getSisaCuti(uId),
         // repository.getBus(),
       ]);
 
@@ -120,6 +122,7 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
       final Map<String, dynamic>? statsResponse =
           results[1] as Map<String, dynamic>?;
       final List<ScheduleModel> schedules = results[2] as List<ScheduleModel>;
+      final int sisaCuti = results[3] as int;
       // final List<dynamic> bus = results[3] as List<dynamic>;
       final List<ScheduleModel> schedulePerMonth = [];
       final List<dynamic> replacementSchedules = [];
@@ -167,6 +170,7 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
           checkOutTime: checkOutTime,
           // bus: bus,
           replacementSchedules: replacementSchedules,
+          sisaCuti: sisaCuti,
           successMessage: successMessage,
         ),
       );

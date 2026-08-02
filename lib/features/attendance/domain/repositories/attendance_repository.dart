@@ -27,4 +27,5 @@ abstract class AttendanceRepository {
     required int jadwalId,
     required String alasan,
   });
+  Future<int> getSisaCuti(int userId);
 }

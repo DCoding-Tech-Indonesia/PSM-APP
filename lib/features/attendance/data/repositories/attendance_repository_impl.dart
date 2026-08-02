@@ -80,4 +80,9 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
       alasan: alasan,
     );
   }
+
+  @override
+  Future<int> getSisaCuti(int userId) async {
+    return await remoteDataSource.getSisaCuti(userId);
+  }
 }

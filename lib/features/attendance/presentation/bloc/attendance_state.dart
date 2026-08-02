@@ -62,6 +62,7 @@ class AttendanceLoaded extends AttendanceState {
   final bool isCadangan;
   // final List<dynamic> bus;
   final List<dynamic> replacementSchedules;
+  final int sisaCuti;
 
   AttendanceLoaded({
     required this.userId,
@@ -85,6 +86,7 @@ class AttendanceLoaded extends AttendanceState {
     this.shift = '',
     this.isCadangan = false,
     this.replacementSchedules = const [],
+    this.sisaCuti = 0,
   });
 
   @override
@@ -111,6 +113,7 @@ class AttendanceLoaded extends AttendanceState {
     isCadangan,
     // bus,
     replacementSchedules,
+    sisaCuti,
   ];
 
   AttendanceLoaded copyWith({
@@ -136,6 +139,7 @@ class AttendanceLoaded extends AttendanceState {
     bool? isCadangan,
     // List<dynamic>? bus,
     List<dynamic>? replacementSchedules,
+    int? sisaCuti,
   }) {
     return AttendanceLoaded(
       userId: userId ?? this.userId,
@@ -160,6 +164,7 @@ class AttendanceLoaded extends AttendanceState {
       isCadangan: isCadangan ?? this.isCadangan,
       // bus: bus ?? this.bus,
       replacementSchedules: replacementSchedules ?? this.replacementSchedules,
+      sisaCuti: sisaCuti ?? this.sisaCuti,
     );
   }
 }

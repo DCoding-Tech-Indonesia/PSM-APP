@@ -81,8 +81,10 @@ class AttendanceMenuGrid extends StatelessWidget {
           title: 'Pengajuan Cuti',
           icon: Icons.event_note_outlined,
           color: theme.primaryColor,
-          route: '/leave-request',
-          onTap: null,
+          route: null,
+          onTap: () {
+            context.push('/leave-request', extra: state.sisaCuti);
+          },
         ),
       _MenuItem(
         title: 'Jadwal',
