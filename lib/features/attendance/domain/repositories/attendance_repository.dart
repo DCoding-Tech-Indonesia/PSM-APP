@@ -28,4 +28,13 @@ abstract class AttendanceRepository {
     required String alasan,
   });
   Future<int> getSisaCuti(int userId);
+  Future<bool> createSchedule({
+    required String bulan,
+    required int koridor,
+    required String typeJadwal,
+    required List<int> idKorlap,
+    required List<int> idPramugara,
+    required List<int> idCadangan,
+    required List<int> idBus,
+  });
 }

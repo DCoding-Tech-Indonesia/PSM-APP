@@ -22,6 +22,8 @@ import 'package:travis/features/attendance/presentation/screens/leave_request_de
 import 'package:travis/features/attendance/presentation/screens/leave_request_screen.dart';
 import 'package:travis/features/attendance/presentation/screens/schedule_calendar_screen.dart';
 import 'package:travis/features/attendance/presentation/screens/shift_replacement_screen.dart';
+import 'package:travis/features/attendance/presentation/screens/create_schedule_screen.dart';
+
 import 'package:travis/features/auth/domain/repositories/auth_repository.dart';
 import 'package:travis/features/auth/presentation/auth_screen.dart';
 import 'package:travis/features/auth/presentation/bloc/auth_bloc.dart';
@@ -599,6 +601,12 @@ void setupRouter(String initialLocation) {
         builder: (context, state) {
           final userId = state.extra as String? ?? '';
           return ScheduleCalendarScreen(userId: userId);
+        },
+      ),
+      GoRoute(
+        path: '/schedule-create',
+        builder: (context, state) {
+          return const CreateScheduleScreen();
         },
       ),
       GoRoute(

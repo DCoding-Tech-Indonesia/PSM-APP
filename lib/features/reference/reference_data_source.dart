@@ -253,4 +253,55 @@ class ReferenceDataSource {
 
     return NextRitaseResponse.fromJson(data.first as Map<String, dynamic>);
   }
+
+  Future<List<ReferenceDetail>> fetchReferenceBulan(String keyword) async {
+    final response = await dio.get(
+      '/reference/bulan',
+      queryParameters: {'keyword': keyword, 'page': 1, 'perPage': 999},
+    );
+    final data = response.data['data'] as List;
+    return data.map((e) => ReferenceDetail.fromJson(e)).toList();
+  }
+
+  Future<List<ReferenceDetail>> fetchReferenceTypeJadwal(String keyword) async {
+    final response = await dio.get(
+      '/reference/type-jadwal',
+      queryParameters: {'keyword': keyword, 'page': 1, 'perPage': 999},
+    );
+    final data = response.data['data'] as List;
+    return data.map((e) => ReferenceDetail.fromJson(e)).toList();
+  }
+
+  Future<List<ReferenceDetail>> fetchReferenceDataKorlap(String keyword, int idKoridor) async {
+    final response = await dio.get(
+      '/reference/data-korlap',
+      queryParameters: {'keyword': keyword, 'page': 1, 'perPage': 999, 'idKoridor': idKoridor},
+    );
+    final data = response.data['data'] as List;
+    return data.map((e) => ReferenceDetail.fromJson(e)).toList();
+  }
+
+  Future<List<ReferenceDetail>> fetchReferenceDataPramugara(String keyword, int idKoridor) async {
+    final response = await dio.get(
+      '/reference/data-pramugara',
+      queryParameters: {'keyword': keyword, 'page': 1, 'perPage': 999, 'idKoridor': idKoridor},
+    );
+    final data = response.data['data'] as List;
+    return data.map((e) => ReferenceDetail.fromJson(e)).toList();
+  }
+
+  Future<List<ReferenceDetail>> fetchReferenceDataPramugaraCadangan(String keyword, int idKoridor, List<int> idPramugara) async {
+    final response = await dio.get(
+      '/reference/data-pramugara-cadangan',
+      queryParameters: {
+        'keyword': keyword, 
+        'page': 1, 
+        'perPage': 999, 
+        'idKoridor': idKoridor,
+        if (idPramugara.isNotEmpty) 'idPramugara': idPramugara,
+      },
+    );
+    final data = response.data['data'] as List;
+    return data.map((e) => ReferenceDetail.fromJson(e)).toList();
+  }
 }

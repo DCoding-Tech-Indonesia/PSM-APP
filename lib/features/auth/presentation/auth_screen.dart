@@ -98,7 +98,10 @@ class _AuthScreenState extends State<AuthScreen> {
           Future.delayed(const Duration(seconds: 1), () {
             if (context.mounted) {
               if (state.firstLogin) {
-                context.go('/first-login-password', extra: state.password.value);
+                context.go(
+                  '/first-login-password',
+                  extra: state.password.value,
+                );
               } else {
                 context.go('/portal');
               }
@@ -166,7 +169,7 @@ class _AuthScreenState extends State<AuthScreen> {
                             child: const Text(
                               "TRAVIS",
                               style: TextStyle(
-                                fontSize: 48,
+                                fontSize: 42,
                                 fontWeight: FontWeight.w900,
                                 color: Color(0xFF1E3C72),
                                 letterSpacing: -2,
@@ -181,7 +184,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                 "Trans Padang",
                                 style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 24,
+                                  fontSize: 20,
                                   fontWeight: FontWeight.bold,
                                   letterSpacing: 1,
                                 ),
@@ -198,7 +201,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                 "System.",
                                 style: TextStyle(
                                   color: Colors.white70,
-                                  fontSize: 18,
+                                  fontSize: 16,
                                   fontWeight: FontWeight.w400,
                                 ),
                               ),
@@ -246,7 +249,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                         Text(
                                           "Selamat Datang,",
                                           style: TextStyle(
-                                            fontSize: 24,
+                                            fontSize: 20,
                                             fontWeight: FontWeight.bold,
                                             color: Colors.grey[800],
                                             letterSpacing: -0.5,

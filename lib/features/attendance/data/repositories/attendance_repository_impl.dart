@@ -85,4 +85,25 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
   Future<int> getSisaCuti(int userId) async {
     return await remoteDataSource.getSisaCuti(userId);
   }
+
+  @override
+  Future<bool> createSchedule({
+    required String bulan,
+    required int koridor,
+    required String typeJadwal,
+    required List<int> idKorlap,
+    required List<int> idPramugara,
+    required List<int> idCadangan,
+    required List<int> idBus,
+  }) async {
+    return await remoteDataSource.createSchedule(
+      bulan: bulan,
+      koridor: koridor,
+      typeJadwal: typeJadwal,
+      idKorlap: idKorlap,
+      idPramugara: idPramugara,
+      idCadangan: idCadangan,
+      idBus: idBus,
+    );
+  }
 }

@@ -53,12 +53,15 @@ class _SplashScreenState extends State<SplashScreen>
 
   /// Helper: cek firstLogin flag sebelum masuk portal.
   /// Jika firstLogin masih true, arahkan ke halaman ganti password.
-  Future<void> _navigateToPortalOrFirstLogin(SecureStorageService secureStorage) async {
+  Future<void> _navigateToPortalOrFirstLogin(
+    SecureStorageService secureStorage,
+  ) async {
     if (!mounted) return;
     final isFirstLogin = await secureStorage.readFirstLogin();
     if (isFirstLogin) {
       final passCred = await secureStorage.readPassCred();
-      if (kDebugMode) debugPrint('[SPLASH] firstLogin flag → /first-login-password');
+      if (kDebugMode)
+        debugPrint('[SPLASH] firstLogin flag → /first-login-password');
       if (mounted) context.go('/first-login-password', extra: passCred ?? '');
     } else {
       if (kDebugMode) debugPrint('[SPLASH] → /portal');
@@ -268,7 +271,7 @@ class _SplashScreenState extends State<SplashScreen>
                             child: const Text(
                               "TRAVIS",
                               style: TextStyle(
-                                fontSize: 48,
+                                fontSize: 42,
                                 fontWeight: FontWeight.w900,
                                 color: Colors.white,
                                 letterSpacing: -2,
@@ -276,35 +279,38 @@ class _SplashScreenState extends State<SplashScreen>
                             ),
                           ),
                           const SizedBox(width: 15),
-                          const Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Trans Padang",
-                                style: TextStyle(
-                                  color: Color(0xFF1E3C72),
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 1,
+                          Container(
+                            padding: EdgeInsets.all(12),
+                            child: const Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Trans Padang",
+                                  style: TextStyle(
+                                    color: Color(0xFF1E3C72),
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 1,
+                                  ),
                                 ),
-                              ),
-                              Text(
-                                "Vehicle and Information",
-                                style: TextStyle(
-                                  color: Color(0xFF1E3C72),
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w400,
+                                Text(
+                                  "Vehicle and Information",
+                                  style: TextStyle(
+                                    color: Color(0xFF1E3C72),
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w400,
+                                  ),
                                 ),
-                              ),
-                              Text(
-                                "System.",
-                                style: TextStyle(
-                                  color: Color(0xFF1E3C72),
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w400,
+                                Text(
+                                  "System.",
+                                  style: TextStyle(
+                                    color: Color(0xFF1E3C72),
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w400,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ],
                       ),

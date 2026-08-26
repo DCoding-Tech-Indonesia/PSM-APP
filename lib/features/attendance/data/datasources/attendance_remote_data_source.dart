@@ -35,6 +35,15 @@ abstract class AttendanceRemoteDataSource {
     required String alasan,
   });
   Future<int> getSisaCuti(int userId);
+  Future<bool> createSchedule({
+    required String bulan,
+    required int koridor,
+    required String typeJadwal,
+    required List<int> idKorlap,
+    required List<int> idPramugara,
+    required List<int> idCadangan,
+    required List<int> idBus,
+  });
 }
 
 class AttendanceRemoteDataSourceImpl implements AttendanceRemoteDataSource {
@@ -259,6 +268,50 @@ class AttendanceRemoteDataSourceImpl implements AttendanceRemoteDataSource {
       return 0;
     } catch (e) {
       return 0;
+    }
+  }
+
+  @override
+  Future<bool> createSchedule({
+    required String bulan,
+    required int koridor,
+    required String typeJadwal,
+    required List<int> idKorlap,
+    required List<int> idPramugara,
+    required List<int> idCadangan,
+    required List<int> idBus,
+  }) async {
+    try {
+      final response = await _dioClient.instance.post(
+        '/jadwal/create',
+        data: {
+          'bulan': bulan,
+          'koridor': koridor,
+          'typeJadwal': typeJadwal,
+          'idKorlap': idKorlap,
+          'idPramugara': idPramugara,
+          'idCadangan': idCadangan,
+          'idBus': idBus,
+        },
+      );
+
+      if (response.data != null) {
+        if (response.data['status'] == true) {
+          return true;
+        } else {
+          throw response.data['message'] ?? 'Gagal membuat jadwal';
+        }
+      }
+      return false;
+    } on DioException catch (e) {
+      if (e.response?.data != null &&
+          e.response!.data is Map &&
+          e.response!.data['message'] != null) {
+        throw e.response!.data['message'];
+      }
+      throw 'Terjadi kesalahan pada jaringan atau server.';
+    } catch (e) {
+      rethrow;
     }
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:travis/core/presentations/widgets/widgets.dart';
@@ -7,6 +8,8 @@ import 'package:travis/features/attendance/data/models/schedule_model.dart';
 import 'package:travis/core/network/dio_client.dart';
 import 'package:travis/features/attendance/data/datasources/attendance_remote_data_source.dart';
 import 'package:travis/features/attendance/data/repositories/attendance_repository_impl.dart';
+import 'package:travis/features/portal/presentation/bloc/portal_bloc.dart';
+import 'package:travis/features/portal/presentation/bloc/portal_state.dart';
 
 class ScheduleCalendarScreen extends StatefulWidget {
   final String userId;
@@ -118,6 +121,13 @@ class _ScheduleCalendarScreenState extends State<ScheduleCalendarScreen> {
     final firstWeekday = days.first.weekday;
     // Sunday is 7, Monday is 1. We start week on Monday:
     final offset = firstWeekday - 1;
+
+    final portalState = context.read<PortalBloc>().state;
+    String role = '';
+    if (portalState is PortalLoaded) {
+      role = portalState.profile.role;
+    }
+    final isKorlap = role.toLowerCase().contains('korlap');
 
     return Scaffold(
       body: SafeArea(
@@ -331,114 +341,121 @@ class _ScheduleCalendarScreenState extends State<ScheduleCalendarScreen> {
                     },
                   ),
                 ),
-              Container(
-                margin: const EdgeInsets.all(16.0),
-                padding: const EdgeInsets.all(20.0),
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: theme.scaffoldBackgroundColor,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, -5),
-                    ),
-                  ],
-                ),
-                child: _selectedDay == null
-                    ? const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 16.0),
-                        child: Text(
-                          'Pilih tanggal pada kalender untuk melihat detail jadwal',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(color: Colors.grey),
-                        ),
-                      )
-                    : Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Jadwal: ${_selectedDay!.day} ${_getMonthName(_selectedDay!.month)} ${_selectedDay!.year}',
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          ...() {
-                            final selectedDateString = DateFormat(
-                              'yyyy-MM-dd',
-                            ).format(_selectedDay!);
-                            final schedulesOnDay = _schedules
-                                .where((s) => s.tanggal == selectedDateString)
-                                .toList();
+              // Container(
+              //   margin: const EdgeInsets.all(16.0),
+              //   padding: const EdgeInsets.all(20.0),
+              //   width: double.infinity,
+              //   decoration: BoxDecoration(
+              //     color: theme.scaffoldBackgroundColor,
+              //     borderRadius: BorderRadius.circular(12),
+              //     boxShadow: [
+              //       BoxShadow(
+              //         color: Colors.black.withValues(alpha: 0.05),
+              //         blurRadius: 10,
+              //         offset: const Offset(0, -5),
+              //       ),
+              //     ],
+              //   ),
+              //   child: _selectedDay == null
+              //       ? const Padding(
+              //           padding: EdgeInsets.symmetric(vertical: 16.0),
+              //           child: Text(
+              //             'Pilih tanggal pada kalender untuk melihat detail jadwal',
+              //             textAlign: TextAlign.center,
+              //             style: TextStyle(color: Colors.grey),
+              //           ),
+              //         )
+              //       : Column(
+              //           crossAxisAlignment: CrossAxisAlignment.start,
+              //           children: [
+              //             Text(
+              //               'Jadwal: ${_selectedDay!.day} ${_getMonthName(_selectedDay!.month)} ${_selectedDay!.year}',
+              //               style: theme.textTheme.titleMedium?.copyWith(
+              //                 fontWeight: FontWeight.bold,
+              //               ),
+              //             ),
+              //             const SizedBox(height: 12),
+              //             ...() {
+              //               final selectedDateString = DateFormat(
+              //                 'yyyy-MM-dd',
+              //               ).format(_selectedDay!);
+              //               final schedulesOnDay = _schedules
+              //                   .where((s) => s.tanggal == selectedDateString)
+              //                   .toList();
 
-                            if (schedulesOnDay.isEmpty) {
-                              return [
-                                const Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 8.0),
-                                  child: Text(
-                                    'Tidak ada jadwal pada tanggal ini.',
-                                  ),
-                                ),
-                              ];
-                            }
+              //               if (schedulesOnDay.isEmpty) {
+              //                 return [
+              //                   const Padding(
+              //                     padding: EdgeInsets.symmetric(vertical: 8.0),
+              //                     child: Text(
+              //                       'Tidak ada jadwal pada tanggal ini.',
+              //                     ),
+              //                   ),
+              //                 ];
+              //               }
 
-                            return schedulesOnDay.map((s) {
-                              return Container(
-                                margin: const EdgeInsets.only(bottom: 8.0),
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: theme.primaryColor.withValues(
-                                    alpha: 0.05,
-                                  ),
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(
-                                    color: theme.primaryColor.withValues(
-                                      alpha: 0.2,
-                                    ),
-                                  ),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      Icons.work_outline,
-                                      color: theme.primaryColor,
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            s.shift.name,
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          Text(
-                                            s.lokasi.name,
-                                            style: const TextStyle(
-                                              fontSize: 12,
-                                              color: Colors.grey,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            }).toList();
-                          }(),
-                        ],
-                      ),
-              ),
+              //               return schedulesOnDay.map((s) {
+              //                 return Container(
+              //                   margin: const EdgeInsets.only(bottom: 8.0),
+              //                   padding: const EdgeInsets.all(12),
+              //                   decoration: BoxDecoration(
+              //                     color: theme.primaryColor.withValues(
+              //                       alpha: 0.05,
+              //                     ),
+              //                     borderRadius: BorderRadius.circular(8),
+              //                     border: Border.all(
+              //                       color: theme.primaryColor.withValues(
+              //                         alpha: 0.2,
+              //                       ),
+              //                     ),
+              //                   ),
+              //                   child: Row(
+              //                     children: [
+              //                       Icon(
+              //                         Icons.work_outline,
+              //                         color: theme.primaryColor,
+              //                       ),
+              //                       const SizedBox(width: 12),
+              //                       Expanded(
+              //                         child: Column(
+              //                           crossAxisAlignment:
+              //                               CrossAxisAlignment.start,
+              //                           children: [
+              //                             Text(
+              //                               s.shift.name,
+              //                               style: const TextStyle(
+              //                                 fontWeight: FontWeight.bold,
+              //                               ),
+              //                             ),
+              //                             Text(
+              //                               s.lokasi.name,
+              //                               style: const TextStyle(
+              //                                 fontSize: 12,
+              //                                 color: Colors.grey,
+              //                               ),
+              //                             ),
+              //                           ],
+              //                         ),
+              //                       ),
+              //                     ],
+              //                   ),
+              //                 );
+              //               }).toList();
+              //             }(),
+              //           ],
+              //         ),
+              // ),
             ],
           ),
         ),
       ),
+      floatingActionButton: isKorlap
+          ? FloatingActionButton(
+              onPressed: () => context.push('/schedule-create'),
+              backgroundColor: theme.primaryColor,
+              child: const Icon(Icons.add, color: Colors.white),
+            )
+          : null,
     );
   }
 }
